@@ -3,6 +3,7 @@ WORKDIR /app
 
 COPY . .
 COPY .env.docker .env
+RUN apk --no-cache add --virtual .builds-deps build-base python3
 RUN npm install -g pnpm
 RUN pnpm install && pnpm build -m pwa
 
