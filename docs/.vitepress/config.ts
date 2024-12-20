@@ -8,6 +8,7 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: '使用文档', link: '/usage/' },
+      { text: '自部署指南', link: '/self-host/' },
       { text: '开始使用', link: 'https://aiaw.app' }
     ],
 
@@ -25,6 +26,13 @@ export default defineConfig({
           { text: '个性化设置', link: '/usage/personalization' },
           { text: '数据与同步', link: '/usage/data-sync' },
           { text: '模型服务', link: '/usage/model-service' }
+        ]
+      },
+      {
+        text: '自部署指南',
+        items: [
+          { text: 'Docker 快速部署', link: '/self-host/' },
+          { text: '进阶部署', link: '/self-host/advanced' }
         ]
       }
     ],

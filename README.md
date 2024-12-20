@@ -4,7 +4,7 @@
 
 AIaW 是新一代 LLM 客户端，全功能、轻量级、可拓展。
 
-[网站链接](https://aiaw.app) - [使用文档](https://docs.aiaw.app/)
+[网站链接](https://aiaw.app) - [使用文档](https://docs.aiaw.app/) - [自部署指南](https://docs.aiaw.app/self-host/)
 
 ## 基本功能
 
@@ -48,13 +48,13 @@ AIaW 是新一代 LLM 客户端，全功能、轻量级、可拓展。
 
 - 引用：用鼠标拖选对话消息内容后，点击“引用”，即可在用户输入中引用该内容。此功能相当于手动复制消息内容并粘贴到输入框中的快捷方式，方便对助手回答的部分内容针对性地追问
 
-[网站链接](https://aiaw.app) - [使用文档](https://docs.aiaw.app/)
+[网站链接](https://aiaw.app) - [使用文档](https://docs.aiaw.app/) - [自部署指南](https://docs.aiaw.app/self-host/)
 
 ## Roadmap
 
 - [ ] 补全文档
 
-- [ ] Docker 自部署
+- [x] Docker 自部署
 
 - [ ] i18n
 
