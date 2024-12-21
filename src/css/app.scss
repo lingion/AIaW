@@ -90,6 +90,11 @@ body.body--light {
       }
     }
   }
+
+  .q-item.q-router-link--active,
+  .q-item--active {
+    --at-apply: 'bg-sec-c text-on-sec-c';
+  }
 }
 
 .q-field--dark:not(.q-field--highlighted) .q-field__label,

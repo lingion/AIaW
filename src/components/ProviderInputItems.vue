@@ -13,11 +13,10 @@
         dense
         clearable
       >
-        <template #option="{ opt, itemProps, selected }">
+        <template #option="{ opt, itemProps }">
           <q-item
             v-bind="itemProps"
             min-h-0
-            :class="{ 'bg-sec-c text-on-sec-c': selected }"
           >
             <q-item-section
               avatar

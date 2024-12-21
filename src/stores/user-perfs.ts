@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { Dark, extend } from 'quasar'
 import { persistentReactive } from 'src/composables/persistent-reactive'
-import { Avatar, Model, Provider } from 'src/utils/types'
+import { Avatar, Model, PlatformEnabled, Provider, ShortcutKey } from 'src/utils/types'
 import { models } from 'src/utils/values'
 import { watchEffect } from 'vue'
 
@@ -18,6 +18,16 @@ interface Perfs {
   sendKey: 'ctrl+enter' | 'shift+enter' | 'enter'
   messageQuoteBtn: boolean
   codePasteOptimize: boolean
+  dialogScrollBtn: PlatformEnabled
+  enableShortcutKey: PlatformEnabled
+  scrollUpKey: ShortcutKey
+  scrollDownKey: ShortcutKey
+  scrollTopKey: ShortcutKey
+  scrollBottomKey: ShortcutKey
+  switchPrevKey: ShortcutKey
+  switchNextKey: ShortcutKey
+  switchFirstKey: ShortcutKey
+  switchLastKey: ShortcutKey
 }
 
 export const useUserPerfsStore = defineStore('user-perfs', () => {
@@ -46,7 +56,17 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     autoGenTitle: true,
     sendKey: 'ctrl+enter',
     messageQuoteBtn: true,
-    codePasteOptimize: true
+    codePasteOptimize: true,
+    dialogScrollBtn: 'always',
+    enableShortcutKey: 'desktop-only',
+    scrollUpKey: { key: 'ArrowUp' },
+    scrollDownKey: { key: 'ArrowDown' },
+    scrollTopKey: { key: 'ArrowUp', withShift: true },
+    scrollBottomKey: { key: 'ArrowDown', withShift: true },
+    switchPrevKey: { key: 'ArrowLeft' },
+    switchNextKey: { key: 'ArrowRight' },
+    switchFirstKey: { key: 'ArrowLeft', withShift: true },
+    switchLastKey: { key: 'ArrowRight', withShift: true }
   }
   const [perfs, ready] = persistentReactive('#user-perfs', { ...defaultPerfs })
   watchEffect(() => {

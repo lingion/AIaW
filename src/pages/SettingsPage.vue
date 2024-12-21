@@ -141,6 +141,34 @@
             <q-toggle v-model="perfs.codePasteOptimize" />
           </q-item-section>
         </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>
+              快速滚动按钮
+            </q-item-label>
+            <q-item-label caption>
+              在对话右下角显示快速滚动按钮。关闭后，你仍然可以使用键盘快捷键滚动
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <platform-enabled-input
+              v-model="perfs.dialogScrollBtn"
+              class="min-w-120px"
+              dense
+              filled
+            />
+          </q-item-section>
+        </q-item>
+        <q-item
+          clickable
+          v-ripple
+          to="/shortcut-keys"
+        >
+          <q-item-section>键盘快捷键</q-item-section>
+          <q-item-section side>
+            <q-icon name="sym_o_chevron_right" />
+          </q-item-section>
+        </q-item>
         <q-separator spaced />
         <q-item-label
           header
@@ -155,7 +183,7 @@
           <q-item-section>外观</q-item-section>
           <q-item-section side>
             <q-select
-              class="min-w-150px"
+              class="min-w-120px"
               filled
               dense
               :options="darkModeOptions"
@@ -276,6 +304,7 @@ import ProviderInputItems from 'src/components/ProviderInputItems.vue'
 import { useLocateId } from 'src/composables/locate-id'
 import { pageFhStyle } from 'src/utils/functions'
 import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
+import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
 
 const uiStateStore = useUiStateStore()
 const { perfs, restore } = useUserPerfsStore()

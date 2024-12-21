@@ -123,7 +123,6 @@
         of-y-auto
         py-4
         ref="scrollContainer"
-        @scroll="onScroll"
         pos-relative
         :class="{ 'rd-r-lg': rightDrawerAbove }"
       >
@@ -132,6 +131,7 @@
           :key="i"
         >
           <message-item
+            class="message-item"
             v-if="messageMap[i] && i !== '$root'"
             :model-value="dialog.msgRoute[index - 1] + 1"
             :message="messageMap[i]"
@@ -141,7 +141,7 @@
             @regenerate="regenerate(index)"
             @quote="addInputItems([$event])"
             pt-2
-            mb-4
+            pb-4
           />
         </template>
       </div>
@@ -180,23 +180,47 @@
             shadow
           />
         </div>
-        <transition name="fade">
+        <div
+          v-if="isPlatformEnabled(perfs.dialogScrollBtn)"
+          pos-absolute
+          top--1
+          right-2
+          flex="~ col"
+          text-sec
+          translate-y="-100%"
+          z-1
+        >
           <q-btn
-            v-if="!isBottom"
-            z-3
-            pos-absolute
-            top--4
-            right-4
-            translate-y="-100%"
+            flat
             round
-            shadow
-            bg-sec-c
-            text-on-sec-c
+            dense
+            icon="sym_o_first_page"
+            rotate-90
+            @click="scroll('top')"
+          />
+          <q-btn
+            flat
+            round
+            dense
+            icon="sym_o_keyboard_arrow_up"
+            @click="scroll('up')"
+          />
+          <q-btn
+            flat
+            round
             dense
             icon="sym_o_keyboard_arrow_down"
-            @click="scrollToBottom"
+            @click="scroll('down')"
           />
-        </transition>
+          <q-btn
+            flat
+            round
+            dense
+            icon="sym_o_last_page"
+            rotate-90
+            @click="scroll('bottom')"
+          />
+        </div>
         <div
           flex
           text-sec
@@ -337,10 +361,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onUnmounted, provide, ref, Ref, toRaw, watch } from 'vue'
+import { computed, inject, onUnmounted, provide, ref, Ref, toRaw, toRef, watch, nextTick } from 'vue'
 import { db } from 'src/utils/db'
 import { useLiveQueryWithDeps } from 'src/composables/live-query'
-import { escapeRegex, genId, isTextFile, mimeTypeMatch, pageFhStyle, wrapCode } from 'src/utils/functions'
+import { almostEqual, escapeRegex, genId, isPlatformEnabled, isTextFile, mimeTypeMatch, pageFhStyle, wrapCode } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { streamText, CoreMessage, generateText, tool, jsonSchema } from 'ai'
 import { useModel } from 'src/composables/model'
@@ -352,7 +376,6 @@ import sessions from 'src/utils/sessions'
 import PromptVarInput from 'src/components/PromptVarInput.vue'
 import { MessageContent, PluginApi, ApiCallError, Plugin, Dialog, Message, Workspace, UserMessageContent, StoredItem, ModelSettings, ApiResultItem } from 'src/utils/types'
 import { usePluginsStore } from 'src/stores/plugins'
-import { UpdateSpec } from 'dexie'
 import MessageItem from 'src/components/MessageItem.vue'
 import { scaleBlob } from 'src/utils/image-process'
 import MessageImage from 'src/components/MessageImage.vue'
@@ -372,6 +395,7 @@ import { useRoute, useRouter } from 'vue-router'
 import AbortableBtn from 'src/components/AbortableBtn.vue'
 import { MaxMessageFileSizeMB } from 'src/utils/config'
 import ATip from 'src/components/ATip.vue'
+import { useListenKey } from 'src/composables/listen-key'
 
 const props = defineProps<{
   id: string
@@ -747,12 +771,16 @@ async function send() {
     return
   }
   showVars.value = false
-  scrollToBottom()
   if (inputEmpty.value) {
     await stream(chain.value.at(-2), true)
   } else {
     const target = chain.value.at(-1)
     await db.messages.update(target, { status: 'default' })
+    until(chain).changed().then(() => {
+      nextTick().then(() => {
+        scroll('bottom')
+      })
+    })
     await stream(target, false)
   }
   perfs.autoGenTitle && chain.value.length === 4 && genTitle()
@@ -1025,24 +1053,120 @@ function onEnter(ev) {
 const showVars = ref(true)
 
 const scrollContainer = ref<HTMLElement>()
-const isBottom = ref(true)
-function onScroll() {
-  const el = scrollContainer.value
-  isBottom.value = el.scrollTop + el.clientHeight >= el.scrollHeight - 100
-}
-until(scrollContainer).toBeTruthy().then(() => setTimeout(onScroll, 100))
-function scrollToBottom() {
-  scrollContainer.value?.scrollTo({ top: scrollContainer.value.scrollHeight, behavior: 'smooth' })
-}
+function switchTo(target: 'prev' | 'next' | 'first' | 'last') {
+  const container = scrollContainer.value
+  const items: HTMLElement[] = Array.from(document.querySelectorAll('.message-item'))
 
-watch(dialog, val => {
-  if (val) {
-    db.workspaces.update(workspace.value.id, { lastDialogId: val.id } as UpdateSpec<Workspace>)
-    setTimeout(onScroll, 100)
+  const index = items.findIndex((item, i) =>
+    item.offsetTop <= container.scrollTop + container.clientHeight &&
+    item.offsetTop + item.clientHeight > container.scrollTop &&
+    dialog.value.msgTree[chain.value[i]].length > 1
+  )
+  if (index === -1) return
+
+  const id = chain.value[index]
+  let to
+  const curr = dialog.value.msgRoute[index]
+  const num = dialog.value.msgTree[id].length
+  if (target === 'first') {
+    to = 0
+  } else if (target === 'last') {
+    to = num - 1
+  } else if (target === 'prev') {
+    to = curr - 1
+  } else if (target === 'next') {
+    to = curr + 1
   }
-})
+  if (to < 0 || to >= num || to === curr) return
+  switchChain(index, to)
+}
+function scroll(action: 'up' | 'down' | 'top' | 'bottom') {
+  const container = scrollContainer.value
+  const items: HTMLElement[] = Array.from(document.querySelectorAll('.message-item'))
 
+  if (action === 'top') {
+    container.scrollTo({ top: 0, behavior: 'smooth' })
+    return
+  } else if (action === 'bottom') {
+    container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' })
+    return
+  }
+
+  // Get current position
+  let index = items.findIndex(item => item.offsetTop <= container.scrollTop && item.offsetTop + item.clientHeight > container.scrollTop)
+  if (container.scrollTop < 16) index = 0
+  const itemTypes = items.map(i => i.clientHeight > container.clientHeight ? 'partial' : 'entire')
+  let position: 'start' | 'inner' | 'end' | 'out'
+  const item = items[index]
+  const type = itemTypes[index]
+  if (type === 'partial') {
+    if (almostEqual(container.scrollTop, item.offsetTop, 5)) {
+      position = 'start'
+    } else if (almostEqual(container.scrollTop + container.clientHeight, item.offsetTop + item.clientHeight, 5)) {
+      position = 'end'
+    } else if (container.scrollTop + container.clientHeight < item.offsetTop + item.clientHeight) {
+      position = 'inner'
+    } else {
+      position = 'out'
+    }
+  } else {
+    if (almostEqual(container.scrollTop, item.offsetTop, 5)) {
+      position = 'start'
+    } else {
+      position = 'out'
+    }
+  }
+
+  // Scroll
+  let top
+  if (type === 'entire') {
+    if (action === 'up') {
+      if (position === 'start') {
+        if (index === 0) return
+        top = itemTypes[index - 1] === 'entire'
+          ? items[index - 1].offsetTop
+          : items[index - 1].offsetTop + items[index - 1].clientHeight - container.clientHeight
+      } else {
+        top = item.offsetTop
+      }
+    } else {
+      if (index === items.length - 1) return
+      top = items[index + 1].offsetTop
+    }
+  } else {
+    if (action === 'up') {
+      if (position === 'start') {
+        if (index === 0) return
+        top = itemTypes[index - 1] === 'entire'
+          ? items[index - 1].offsetTop
+          : items[index - 1].offsetTop + items[index - 1].clientHeight - container.clientHeight
+      } else if (position === 'out') {
+        top = item.offsetTop + item.clientHeight - container.clientHeight
+      } else {
+        top = item.offsetTop
+      }
+    } else {
+      if (position === 'end' || position === 'out') {
+        if (index === items.length - 1) return
+        top = items[index + 1].offsetTop
+      } else {
+        top = item.offsetTop + item.clientHeight - container.clientHeight
+      }
+    }
+  }
+  container.scrollTo({ top: top + 2, behavior: 'smooth' })
+}
 const { perfs } = useUserPerfsStore()
+if (isPlatformEnabled(perfs.enableShortcutKey)) {
+  useListenKey(toRef(perfs, 'scrollUpKey'), () => scroll('up'))
+  useListenKey(toRef(perfs, 'scrollDownKey'), () => scroll('down'))
+  useListenKey(toRef(perfs, 'scrollTopKey'), () => scroll('top'))
+  useListenKey(toRef(perfs, 'scrollBottomKey'), () => scroll('bottom'))
+  useListenKey(toRef(perfs, 'switchPrevKey'), () => switchTo('prev'))
+  useListenKey(toRef(perfs, 'switchNextKey'), () => switchTo('next'))
+  useListenKey(toRef(perfs, 'switchFirstKey'), () => switchTo('first'))
+  useListenKey(toRef(perfs, 'switchLastKey'), () => switchTo('last'))
+}
 
 defineEmits(['toggle-drawer'])
 </script>

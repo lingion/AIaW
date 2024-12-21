@@ -18,6 +18,7 @@ import AssistantsMarket from 'src/views/AssistantsMarket.vue'
 import AccountPage from 'src/pages/AccountPage.vue'
 import ModelPricing from 'src/pages/ModelPricing.vue'
 import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
+import ShortcutKeys from 'src/pages/ShortcutKeys.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -41,6 +42,7 @@ const routes: RouteRecordRaw[] = [
         ]
       },
       { path: '/settings', component: SettingsPage },
+      { path: '/shortcut-keys', component: ShortcutKeys },
       {
         path: '/plugins/',
         component: PluginsPage,

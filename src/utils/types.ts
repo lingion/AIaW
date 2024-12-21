@@ -447,6 +447,15 @@ interface OrderItem {
   amount: number
 }
 
+interface ShortcutKey {
+  key: string
+  withCtrl?: boolean
+  withShift?: boolean
+  withAlt?: boolean
+}
+
+type PlatformEnabled = 'always' | 'desktop-only' | 'mobile-only' | 'never'
+
 export {
   ApiCallError,
   HuggingPluginManifestSchema,
@@ -509,5 +518,7 @@ export type {
   Model,
   ModelInputTypes,
   MarketAssistant,
-  OrderItem
+  OrderItem,
+  ShortcutKey,
+  PlatformEnabled
 }

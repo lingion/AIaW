@@ -1,5 +1,6 @@
 import { Hct, hexFromArgb } from '@material/material-color-utilities'
-import { Avatar } from './types'
+import { Avatar, PlatformEnabled } from './types'
+import { Platform } from 'quasar'
 
 function randomHash(digits = 64) {
   const array = new Uint8Array(digits / 8)
@@ -104,4 +105,15 @@ const pageFhStyle = (offset: number, height: number) => ({
   overflowY: 'auto'
 })
 
-export { randomHash, escapeRegex, defaultAvatar, hctToHex, genId, idTimestamp, JSONEqual, mimeTypeMatch, isTextFile, wrapCode, wrapQuote, parseSeconds, caselessIncludes, displayLength, parsePageRange, pageFhStyle }
+function almostEqual(a: number, b: number, eps = 1e-6) {
+  return Math.abs(a - b) < eps
+}
+
+function isPlatformEnabled(platform: PlatformEnabled) {
+  if (platform === 'always') return true
+  if (platform === 'desktop-only') return Platform.is.desktop
+  if (platform === 'mobile-only') return Platform.is.mobile
+  return false
+}
+
+export { randomHash, escapeRegex, defaultAvatar, hctToHex, genId, idTimestamp, JSONEqual, mimeTypeMatch, isTextFile, wrapCode, wrapQuote, parseSeconds, caselessIncludes, displayLength, parsePageRange, pageFhStyle, almostEqual, isPlatformEnabled }
