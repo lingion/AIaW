@@ -1031,13 +1031,15 @@ async function genTitle() {
 const route = useRoute()
 const router = useRouter()
 watch(route, to => {
+  db.workspaces.update(workspace.value.id, { lastDialogId: props.id } as Partial<Workspace>)
+
   if (to.hash === '#genTitle') {
-    until(dialog).toMatch(val => val.id === props.id).then(() => {
+    until(dialog).toMatch(val => val?.id === props.id).then(() => {
       genTitle()
       router.replace({ hash: '' })
     })
   }
-})
+}, { immediate: true })
 
 function onEnter(ev) {
   if (perfs.sendKey === 'ctrl+enter') {

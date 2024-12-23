@@ -6,7 +6,7 @@
     item-rd
     :header-class="{ 'route-active': item.id === selected }"
     @update:model-value="accept === 'folder' && (selected = item.id)"
-    :default-opened="children.some(c => c.id === selected)"
+    v-model="expanded"
   >
     <template #header>
       <q-item-section
@@ -115,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useWorkspacesStore } from 'src/stores/workspaces'
 import { Folder, Workspace } from 'src/utils/types'
 import AAvatar from './AAvatar.vue'
@@ -126,9 +126,6 @@ const props = defineProps<{
   item: Workspace | Folder
   accept: 'workspace' | 'folder'
 }>()
-
-const selected = defineModel<string>('selected')
-
 const workspacesStore = useWorkspacesStore()
 
 const { addWorkspace, addFolder, renameItem, moveItem, deleteItem, changeAvatar } = useWorkspaceActions()
@@ -136,4 +133,13 @@ const { addWorkspace, addFolder, renameItem, moveItem, deleteItem, changeAvatar 
 const children = computed(() => {
   return workspacesStore.workspaces.filter(item => item.parentId === props.item.id)
 })
+
+const selected = defineModel<string>('selected')
+const expanded = ref(false)
+watch(selected, () => {
+  if (children.value.some(c => c.id === selected.value)) {
+    expanded.value = true
+  }
+}, { immediate: true })
+
 </script>
