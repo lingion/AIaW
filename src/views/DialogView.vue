@@ -1160,12 +1160,12 @@ function scroll(action: 'up' | 'down' | 'top' | 'bottom') {
 }
 const { perfs } = useUserPerfsStore()
 if (isPlatformEnabled(perfs.enableShortcutKey)) {
-  useListenKey(toRef(perfs, 'scrollUpKey'), () => scroll('up'))
-  useListenKey(toRef(perfs, 'scrollDownKey'), () => scroll('down'))
+  useListenKey(toRef(perfs, 'scrollUpKeyV2'), () => scroll('up'))
+  useListenKey(toRef(perfs, 'scrollDownKeyV2'), () => scroll('down'))
   useListenKey(toRef(perfs, 'scrollTopKey'), () => scroll('top'))
   useListenKey(toRef(perfs, 'scrollBottomKey'), () => scroll('bottom'))
-  useListenKey(toRef(perfs, 'switchPrevKey'), () => switchTo('prev'))
-  useListenKey(toRef(perfs, 'switchNextKey'), () => switchTo('next'))
+  useListenKey(toRef(perfs, 'switchPrevKeyV2'), () => switchTo('prev'))
+  useListenKey(toRef(perfs, 'switchNextKeyV2'), () => switchTo('next'))
   useListenKey(toRef(perfs, 'switchFirstKey'), () => switchTo('first'))
   useListenKey(toRef(perfs, 'switchLastKey'), () => switchTo('last'))
 }

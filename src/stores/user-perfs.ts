@@ -20,12 +20,12 @@ interface Perfs {
   codePasteOptimize: boolean
   dialogScrollBtn: PlatformEnabled
   enableShortcutKey: PlatformEnabled
-  scrollUpKey: ShortcutKey
-  scrollDownKey: ShortcutKey
+  scrollUpKeyV2: ShortcutKey
+  scrollDownKeyV2: ShortcutKey
   scrollTopKey: ShortcutKey
   scrollBottomKey: ShortcutKey
-  switchPrevKey: ShortcutKey
-  switchNextKey: ShortcutKey
+  switchPrevKeyV2: ShortcutKey
+  switchNextKeyV2: ShortcutKey
   switchFirstKey: ShortcutKey
   switchLastKey: ShortcutKey
 }
@@ -59,12 +59,12 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     codePasteOptimize: true,
     dialogScrollBtn: 'always',
     enableShortcutKey: 'desktop-only',
-    scrollUpKey: { key: 'ArrowUp' },
-    scrollDownKey: { key: 'ArrowDown' },
+    scrollUpKeyV2: { key: 'ArrowUp', withCtrl: true },
+    scrollDownKeyV2: { key: 'ArrowDown', withCtrl: true },
     scrollTopKey: { key: 'ArrowUp', withShift: true },
     scrollBottomKey: { key: 'ArrowDown', withShift: true },
-    switchPrevKey: { key: 'ArrowLeft' },
-    switchNextKey: { key: 'ArrowRight' },
+    switchPrevKeyV2: { key: 'ArrowLeft', withCtrl: true },
+    switchNextKeyV2: { key: 'ArrowRight', withCtrl: true },
     switchFirstKey: { key: 'ArrowLeft', withShift: true },
     switchLastKey: { key: 'ArrowRight', withShift: true }
   }
@@ -73,7 +73,7 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     Dark.set(perfs.darkMode)
   })
   function restore() {
-    extend(true, perfs, defaultPerfs)
+    Object.assign(perfs, extend(true, {}, defaultPerfs))
   }
   return { perfs, ready, restore }
 })

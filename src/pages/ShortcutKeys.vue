@@ -48,7 +48,7 @@
           </q-item-section>
           <q-item-section side>
             <shortcut-key-input
-              v-model="perfs.scrollUpKey"
+              v-model="perfs.scrollUpKeyV2"
               v-bind="inputProps"
             />
           </q-item-section>
@@ -61,7 +61,7 @@
           </q-item-section>
           <q-item-section side>
             <shortcut-key-input
-              v-model="perfs.scrollDownKey"
+              v-model="perfs.scrollDownKeyV2"
               v-bind="inputProps"
             />
           </q-item-section>
@@ -100,7 +100,7 @@
           </q-item-section>
           <q-item-section side>
             <shortcut-key-input
-              v-model="perfs.switchPrevKey"
+              v-model="perfs.switchPrevKeyV2"
               v-bind="inputProps"
             />
           </q-item-section>
@@ -113,7 +113,7 @@
           </q-item-section>
           <q-item-section side>
             <shortcut-key-input
-              v-model="perfs.switchNextKey"
+              v-model="perfs.switchNextKeyV2"
               v-bind="inputProps"
             />
           </q-item-section>
