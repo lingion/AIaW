@@ -4,7 +4,7 @@ import { useLiveQuery } from 'src/composables/live-query'
 import { persistentReactive } from 'src/composables/persistent-reactive'
 import { db } from 'src/utils/db'
 import { GradioPluginManifest, HuggingPluginManifest, InstalledPlugin, PluginsData } from 'src/utils/types'
-import { buildLobePlugin, timePlugin, defaultData, whisperPlugin, videoTranscriptPlugin, buildGradioPlugin, calculatorPlugin, huggingToGradio, fluxPlugin, lobeDefaultData, gradioDefaultData, emotionsPlugin, docParsePlugin } from 'src/utils/plugins'
+import { buildLobePlugin, timePlugin, defaultData, whisperPlugin, videoTranscriptPlugin, buildGradioPlugin, calculatorPlugin, huggingToGradio, fluxPlugin, lobeDefaultData, gradioDefaultData, emotionsPlugin, docParsePlugin, mermaidPlugin } from 'src/utils/plugins'
 import { computed } from 'vue'
 import { genId } from 'src/utils/functions'
 
@@ -20,6 +20,7 @@ export const usePluginsStore = defineStore('plugins', () => {
     whisperPlugin,
     fluxPlugin,
     emotionsPlugin,
+    mermaidPlugin,
     docParsePlugin,
     timePlugin,
     ...installed.value.map(i => {

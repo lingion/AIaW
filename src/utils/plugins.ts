@@ -166,7 +166,7 @@ const calculatorPlugin: Plugin = {
   fileparsers: [],
   settings: TObject({}),
   title: '计算器',
-  description: '让 AI 使用计算器进行复杂数值计算'
+  description: '提供一个计算器，让 AI 能够完成更加复杂的计算'
 }
 
 function buildLobePlugin(manifest: LobeChatPluginManifest, available: boolean): Plugin {
@@ -621,6 +621,18 @@ const emotionsPlugin: Plugin = {
   ]
 }
 
+const mermaidPlugin: Plugin = {
+  id: 'aiaw-mermaid',
+  type: 'builtin',
+  available: true,
+  apis: [],
+  fileparsers: [],
+  settings: TObject({}),
+  title: 'Mermaid 图表',
+  description: '让 AI 在回答中使用 Mermaid 语法创建图表',
+  prompt: '在回答中，如果需要绘制图表，你可以直接使用 mermaid 语法创建图表，它们能够被正常渲染。'
+}
+
 const docParsePlugin: Plugin = {
   id: 'aiaw-doc-parse',
   type: 'builtin',
@@ -679,6 +691,11 @@ const defaultData: PluginsData = {
     avatar: { type: 'icon', icon: 'sym_o_mood', hue: 80 },
     fileparsers: {}
   },
+  'aiaw-mermaid': {
+    settings: {},
+    avatar: { type: 'icon', icon: 'sym_o_account_tree', hue: 15 },
+    fileparsers: {}
+  },
   'aiaw-doc-parse': {
     settings: { ocrLanguage: 'en' },
     avatar: { type: 'icon', icon: 'sym_o_description', hue: 190 },
@@ -701,5 +718,6 @@ export {
   whisperPlugin,
   fluxPlugin,
   emotionsPlugin,
+  mermaidPlugin,
   docParsePlugin
 }
