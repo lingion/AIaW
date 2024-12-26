@@ -1,5 +1,5 @@
 import { createOpenAI } from '@ai-sdk/openai'
-import { Model, ModelInputTypes, ProviderType } from './types'
+import { Model, ProviderType } from './types'
 import { Object, String } from '@sinclair/typebox'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
@@ -115,7 +115,7 @@ const ProviderTypes: ProviderType[] = [
   }
 ]
 
-const InputTypes: Record<string, ModelInputTypes> = {
+const InputTypes = {
   textOnly: { user: [], assistant: [], tool: [] },
   commonVision: { user: ['image/*'], assistant: [], tool: [] },
   claudeVision: { user: ['image/*'], assistant: [], tool: ['image/*'] },
@@ -148,7 +148,9 @@ const models: Model[] = [
   { name: 'claude-3-haiku-20240307', inputTypes: InputTypes.claudeVision },
   { name: 'gemini-1.5-pro', inputTypes: InputTypes.commonVision },
   { name: 'gemini-1.5-flash', inputTypes: InputTypes.commonVision },
-  { name: 'gemini-2.0-flash-exp', inputTypes: InputTypes.gemini2 }
+  { name: 'gemini-2.0-flash-exp', inputTypes: InputTypes.gemini2 },
+  { name: 'gemini-2.0-flash-thinking-exp', inputTypes: InputTypes.commonVision },
+  { name: 'deepseek-chat', inputTypes: InputTypes.commonVision }
 ]
 const modelOptions = models.map(m => m.name)
 const dialogOptions = {

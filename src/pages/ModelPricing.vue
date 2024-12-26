@@ -34,12 +34,17 @@
           mt-2
           lh-1.8em
         >
-          以 gpt-4o 作为性能基准，与之相比，claude-3-5-sonnet 在代码方面更强，o1 系列特别擅长逻辑推理，gemini-1.5-pro 则是更便宜的替代选项。<br>
-          gpt-4o-mini 和 gemini-1.5-flash 是低价模型的不错选择，比上述模型价格低了一个数量级，适合用于简单问题和需要大量输出的场景。<br>
-          国产模型的第一梯队是通义千问（qwen）和deepseek，其性能略逊于gpt-4o；其他国产模型（文心一言、豆包、kimi等）则还要排在后面。模型排行榜可参考 <a
-            pri-link
-            href="https://livebench.ai/#/"
-          >LiveBench</a>。
+          <p>
+            以 gpt-4o 作为性能基准，与之相比，claude-3-5-sonnet 在代码方面更强，o1 系列特别擅长逻辑推理，gemini-1.5-pro 则是更便宜的替代选项。<br>
+            gpt-4o-mini 和 gemini-1.5-flash 是低价模型的不错选择，比上述模型价格低了一个数量级，适合用于简单问题和需要大量输出的场景。<br>
+          </p>
+          <p>
+            国产模型的第一梯队是通义千问（qwen）和 deepseek，deepseek v3（即目前的 deepseek-chat）是第一个真正达到 gpt-4o 级别的国产模型；其他国产模型（文心一言、豆包、kimi等）则还要排在后面。模型排行榜可参考 <a
+              pri-link
+              href="https://livebench.ai/#/"
+              target="_blank"
+            >LiveBench</a>。
+          </p>
         </div>
         <div
           text="on-sur-var xs"
@@ -78,7 +83,15 @@
             @update:model-value="calc('budget')"
             filled
             class="flex-1"
-          />
+          >
+            <template #option="{ opt, itemProps, selected }">
+              <model-item
+                :model="opt"
+                :selected="selected"
+                v-bind="itemProps"
+              />
+            </template>
+          </q-select>
           <q-input
             v-model="usage.output"
             @update:model-value="calc('output')"
@@ -91,7 +104,7 @@
           mt-2
           text="on-sur-var xs"
         >
-          * 按每Token输出1.4个汉字（新GPT模型）或1个汉字（其他模型）计算。实际比率有波动，平均而言略大于此值，但还需考虑输入开销
+          * 按每Token输出1.4个汉字（新GPT模型）或1个汉字（其他模型）或1.8个汉字（国产模型）计算。实际比率有波动，平均而言略大于此值，但还需考虑输入开销
         </div>
       </div>
       <div mt-4>
@@ -155,6 +168,7 @@ import { db } from 'src/utils/db'
 import { useQuasar } from 'quasar'
 import { LitellmBaseURL, UsdToCnyRate } from 'src/utils/config'
 import { useRouter } from 'vue-router'
+import ModelItem from 'src/components/ModelItem.vue'
 
 const user = useObservable(db.cloud.currentUser)
 const router = useRouter()
@@ -187,7 +201,7 @@ function calc(accord: 'budget' | 'output') {
 }
 function costPerWord(model: string) {
   const x = modelInfo.value.find(x => x.model_name === model)
-  return x.output_cost_per_token / (model.startsWith('gpt-4') ? 1.4 : 1)
+  return x.output_cost_per_token / (model.startsWith('gpt-4') ? 1.4 : model.startsWith('deepseek') ? 1.8 : 1)
 }
 
 const modelPrices = computed(() => modelInfo.value.map(x => {

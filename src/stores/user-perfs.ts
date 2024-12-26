@@ -51,7 +51,8 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
       'claude-3-5-sonnet-20241022',
       'claude-3-5-sonnet-20240620',
       'gemini-1.5-pro',
-      'gemini-1.5-flash'
+      'gemini-1.5-flash',
+      'deepseek-chat'
     ],
     autoGenTitle: true,
     sendKey: 'ctrl+enter',
