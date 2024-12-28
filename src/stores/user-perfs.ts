@@ -30,6 +30,8 @@ interface Perfs {
   switchLastKey?: ShortcutKey
   regenerateCurrKey?: ShortcutKey
   editCurrKey?: ShortcutKey
+  createDialogKey?: ShortcutKey
+  focusDialogInputKey?: ShortcutKey
 }
 
 export const useUserPerfsStore = defineStore('user-perfs', () => {

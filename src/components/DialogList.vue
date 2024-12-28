@@ -74,10 +74,12 @@ import { db } from 'src/utils/db'
 import { caselessIncludes } from 'src/utils/functions'
 import { Dialog, Workspace } from 'src/utils/types'
 import { dialogOptions } from 'src/utils/values'
-import { computed, inject, ref, Ref } from 'vue'
+import { computed, inject, ref, Ref, toRef } from 'vue'
 import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
 import { useCreateDialog } from 'src/composables/create-dialog'
 import MenuItem from './MenuItem.vue'
+import { useUserPerfsStore } from 'src/stores/user-perfs'
+import { useListenKey } from 'src/composables/listen-key'
 
 const workspace: Ref<Workspace> = inject('workspace')
 const dialogs: Ref<Dialog[]> = inject('dialogs')
@@ -137,4 +139,7 @@ function deleteItem(id) {
     })
   })
 }
+
+const { perfs } = useUserPerfsStore()
+useListenKey(toRef(perfs, 'createDialogKey'), addItem)
 </script>

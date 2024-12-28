@@ -170,6 +170,36 @@
             />
           </q-item-section>
         </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>
+              聚焦输入框
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <shortcut-key-input
+              v-model="perfs.focusDialogInputKey"
+              v-bind="inputProps"
+            />
+          </q-item-section>
+        </q-item>
+        <q-separator spaced />
+        <q-item-label header>
+          对话列表
+        </q-item-label>
+        <q-item>
+          <q-item-section>
+            <q-item-label>
+              新建对话
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <shortcut-key-input
+              v-model="perfs.createDialogKey"
+              v-bind="inputProps"
+            />
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-page>
   </q-page-container>
