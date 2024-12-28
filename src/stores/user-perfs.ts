@@ -32,6 +32,7 @@ interface Perfs {
   editCurrKey?: ShortcutKey
   createDialogKey?: ShortcutKey
   focusDialogInputKey?: ShortcutKey
+  autoFocusDialogInput: PlatformEnabled
 }
 
 export const useUserPerfsStore = defineStore('user-perfs', () => {
@@ -71,7 +72,8 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     switchPrevKeyV2: { key: 'ArrowLeft', withCtrl: true },
     switchNextKeyV2: { key: 'ArrowRight', withCtrl: true },
     switchFirstKey: { key: 'ArrowLeft', withShift: true },
-    switchLastKey: { key: 'ArrowRight', withShift: true }
+    switchLastKey: { key: 'ArrowRight', withShift: true },
+    autoFocusDialogInput: 'desktop-only'
   }
   const [perfs, ready] = persistentReactive('#user-perfs', { ...defaultPerfs })
   watchEffect(() => {

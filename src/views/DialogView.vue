@@ -452,6 +452,9 @@ function getChain(node, route: number[]) {
 }
 
 const messageInput = ref()
+function focusInput() {
+  isPlatformEnabled(perfs.autoFocusDialogInput) && messageInput.value?.focus()
+}
 async function edit(index) {
   const target = chain.value[index - 1]
   const { type, contents } = messageMap.value[chain.value[index]]
@@ -466,7 +469,7 @@ async function edit(index) {
     saveItems(content.items.map(id => itemMap.value[id]))
   })
   await nextTick()
-  messageInput.value.focus()
+  focusInput()
 }
 async function regenerate(index) {
   const target = chain.value[index - 1]
@@ -1059,7 +1062,7 @@ watch(route, to => {
   db.workspaces.update(workspace.value.id, { lastDialogId: props.id } as Partial<Workspace>)
 
   until(dialog).toMatch(val => val?.id === props.id).then(() => {
-    messageInput.value?.focus()
+    focusInput()
     if (to.hash === '#genTitle') {
       genTitle()
       router.replace({ hash: '' })
@@ -1216,7 +1219,7 @@ if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, 'switchLastKey'), () => switchTo('last'))
   useListenKey(toRef(perfs, 'regenerateCurrKey'), () => regenerateCurr())
   useListenKey(toRef(perfs, 'editCurrKey'), () => editCurr())
-  useListenKey(toRef(perfs, 'focusDialogInputKey'), () => messageInput.value.focus())
+  useListenKey(toRef(perfs, 'focusDialogInputKey'), () => focusInput())
 }
 
 defineEmits(['toggle-drawer'])

@@ -159,6 +159,21 @@
             />
           </q-item-section>
         </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>
+              自动聚焦对话输入框
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <platform-enabled-input
+              v-model="perfs.autoFocusDialogInput"
+              class="min-w-120px"
+              dense
+              filled
+            />
+          </q-item-section>
+        </q-item>
         <q-item
           clickable
           v-ripple
