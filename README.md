@@ -44,7 +44,7 @@ AIaW 是新一代 LLM 客户端，全功能、轻量级、可拓展。
 
 - 文本文件支持：支持直接添加文本类型文件（代码、csv等）到用户输入中，文件内容和文件名将作为用户输入的一部分。相比于手动将文件内容粘贴到输入框，此方法更快捷且文件内容不会占据显示空间
 
-- 添加文件：无论是添加文档、视频还是文本文件，均可以通过点击文件图标按钮或者Ctrl+V粘贴来添加
+- 粘贴：通过 Ctrl + V 粘贴，你可以粘贴文本、图片、文件；此外，在输入框之外粘贴文本时，将作为独立的文本块，像文本文件那样
 
 - 引用：用鼠标拖选对话消息内容后，点击“引用”，即可在用户输入中引用该内容。此功能相当于手动复制消息内容并粘贴到输入框中的快捷方式，方便对助手回答的部分内容针对性地追问
 
@@ -53,6 +53,12 @@ AIaW 是新一代 LLM 客户端，全功能、轻量级、可拓展。
 - 键盘控制：支持设置键盘快捷键触发上述的滚动操作，以及用键盘快捷键切换消息链、重新生成、新建对话
 
 [网站链接](https://aiaw.app) - [使用文档](https://docs.aiaw.app/) - [自部署指南](https://docs.aiaw.app/self-host/)
+
+## LightHouse
+
+| Desktop | Mobile |
+| :-----: | :----: |
+| ![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/lighthouse_score_desktop.png) | ![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/lighthouse_score_desktop.png) |
 
 ## Roadmap
 

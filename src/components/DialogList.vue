@@ -71,7 +71,7 @@
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
 import { db } from 'src/utils/db'
-import { caselessIncludes } from 'src/utils/functions'
+import { caselessIncludes, isPlatformEnabled } from 'src/utils/functions'
 import { Dialog, Workspace } from 'src/utils/types'
 import { dialogOptions } from 'src/utils/values'
 import { computed, inject, ref, Ref, toRef } from 'vue'
@@ -141,5 +141,8 @@ function deleteItem(id) {
 }
 
 const { perfs } = useUserPerfsStore()
-useListenKey(toRef(perfs, 'createDialogKey'), addItem)
+
+if (isPlatformEnabled(perfs.enableShortcutKey)) {
+  useListenKey(toRef(perfs, 'createDialogKey'), addItem)
+}
 </script>
