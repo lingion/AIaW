@@ -58,7 +58,7 @@ AIaW 是新一代 LLM 客户端，全功能、轻量级、可拓展。
 
 | Desktop | Mobile |
 | :-----: | :----: |
-| ![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/lighthouse_score_desktop.png) | ![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/lighthouse_score_desktop.png) |
+| ![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/lighthouse_score_desktop.png) | ![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/lighthouse_score_mobile.png) |
 
 ## Roadmap
 
