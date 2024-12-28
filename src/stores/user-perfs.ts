@@ -20,14 +20,16 @@ interface Perfs {
   codePasteOptimize: boolean
   dialogScrollBtn: PlatformEnabled
   enableShortcutKey: PlatformEnabled
-  scrollUpKeyV2: ShortcutKey
-  scrollDownKeyV2: ShortcutKey
-  scrollTopKey: ShortcutKey
-  scrollBottomKey: ShortcutKey
-  switchPrevKeyV2: ShortcutKey
-  switchNextKeyV2: ShortcutKey
-  switchFirstKey: ShortcutKey
-  switchLastKey: ShortcutKey
+  scrollUpKeyV2?: ShortcutKey
+  scrollDownKeyV2?: ShortcutKey
+  scrollTopKey?: ShortcutKey
+  scrollBottomKey?: ShortcutKey
+  switchPrevKeyV2?: ShortcutKey
+  switchNextKeyV2?: ShortcutKey
+  switchFirstKey?: ShortcutKey
+  switchLastKey?: ShortcutKey
+  regenerateCurrKey?: ShortcutKey
+  editCurrKey?: ShortcutKey
 }
 
 export const useUserPerfsStore = defineStore('user-perfs', () => {

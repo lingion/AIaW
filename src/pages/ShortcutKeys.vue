@@ -144,6 +144,32 @@
             />
           </q-item-section>
         </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>
+              重新生成助手消息
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <shortcut-key-input
+              v-model="perfs.regenerateCurrKey"
+              v-bind="inputProps"
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>
+              编辑用户消息
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <shortcut-key-input
+              v-model="perfs.editCurrKey"
+              v-bind="inputProps"
+            />
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-page>
   </q-page-container>

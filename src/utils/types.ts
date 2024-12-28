@@ -408,6 +408,9 @@ interface Assistant {
   modelSettings: ModelSettings
   workspaceId: string
   plugins: AssistantPlugins
+  promptRole: 'system' | 'user' | 'assistant'
+  contextNum?: number
+  stream: boolean
 }
 
 const MarketAssistantSchema = Object({

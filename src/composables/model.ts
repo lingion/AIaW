@@ -9,6 +9,7 @@ import { ProviderTypes } from 'src/utils/values'
 export function useModel(provider: Ref<Provider>, model: Ref<Model>) {
   const sdkModel = ref(null)
   const _model = ref<Model>(null)
+  const _provider = ref<Provider>(null)
   const { perfs } = useUserPerfsStore()
   const user = DexieDBURL ? useObservable(db.cloud.currentUser) : null
   watchEffect(() => {
@@ -16,19 +17,20 @@ export function useModel(provider: Ref<Provider>, model: Ref<Model>) {
     if (!_model.value) {
       sdkModel.value = null
       _model.value = null
+      _provider.value = null
       return
     }
-    let _provider: Provider = null
-    if (provider.value) _provider = provider.value
-    else if (perfs.provider) _provider = perfs.provider
+    if (provider.value) _provider.value = provider.value
+    else if (perfs.provider) _provider.value = perfs.provider
     else if (user?.value.isLoggedIn) {
-      _provider = { type: 'openai', settings: { apiKey: user.value.data.apiKey, baseURL: LitellmBaseURL, compatibility: 'strict' } }
+      _provider.value = { type: 'openai', settings: { apiKey: user.value.data.apiKey, baseURL: LitellmBaseURL, compatibility: 'strict' } }
     } else {
       sdkModel.value = null
       _model.value = null
+      _provider.value = null
       return
     }
-    sdkModel.value = ProviderTypes.find(p => p.name === _provider.type).constructor(_provider.settings)(_model.value.name)
+    sdkModel.value = ProviderTypes.find(p => p.name === _provider.value.type).constructor(_provider.value.settings)(_model.value.name)
   })
-  return { sdkModel, model: _model }
+  return { sdkModel, model: _model, provider: _provider }
 }

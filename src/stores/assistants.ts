@@ -21,6 +21,8 @@ export const useAssistantsStore = defineStore('assistants', () => {
       model: null,
       modelSettings: { ...defaultModelSettings },
       plugins: {},
+      promptRole: 'system',
+      stream: true,
       ...props
     })
   }

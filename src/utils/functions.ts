@@ -81,12 +81,18 @@ function caselessIncludes(a: string, b: string) {
   return a.toLowerCase().includes(b.toLowerCase())
 }
 
+const cjkReg = /[\u4e00-\u9fa5\u0800-\u4e00\uac00-\ud7ff]/
 function displayLength(text: string) {
   let length = 0
   for (const i of text) {
-    length += (/[\u4e00-\u9fa5\u0800-\u4e00\uac00-\ud7ff]/.test(i)) ? 2 : 1
+    length += cjkReg.test(i) ? 2 : 1
   }
   return length
+}
+function textBeginning(text: string, length = 10) {
+  if (cjkReg.test(text.slice(0, length))) length /= 2.5
+  if (text.length < length) return text
+  return text.slice(0, length) + '…'
 }
 
 function parsePageRange(range: string) {
@@ -116,4 +122,24 @@ function isPlatformEnabled(platform: PlatformEnabled) {
   return false
 }
 
-export { randomHash, escapeRegex, defaultAvatar, hctToHex, genId, idTimestamp, JSONEqual, mimeTypeMatch, isTextFile, wrapCode, wrapQuote, parseSeconds, caselessIncludes, displayLength, parsePageRange, pageFhStyle, almostEqual, isPlatformEnabled }
+export {
+  randomHash,
+  escapeRegex,
+  defaultAvatar,
+  hctToHex,
+  genId,
+  idTimestamp,
+  JSONEqual,
+  mimeTypeMatch,
+  isTextFile,
+  wrapCode,
+  wrapQuote,
+  parseSeconds,
+  caselessIncludes,
+  displayLength,
+  parsePageRange,
+  pageFhStyle,
+  almostEqual,
+  isPlatformEnabled,
+  textBeginning
+}

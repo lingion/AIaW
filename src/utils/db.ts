@@ -74,7 +74,9 @@ db.on.populate.subscribe(() => {
       provider: null,
       model: null,
       modelSettings: { ...defaultModelSettings },
-      plugins: {}
+      plugins: {},
+      promptRole: 'system',
+      stream: true
     })
     db.reactives.add({
       key: '#user-data',
@@ -83,6 +85,13 @@ db.on.populate.subscribe(() => {
       }
     })
   }, false)
+})
+
+// Migration
+db.assistants.hook('reading', assistant => {
+  assistant.promptRole ??= 'system'
+  assistant.stream ??= true
+  return assistant
 })
 
 export { db, defaultModelSettings }

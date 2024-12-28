@@ -176,9 +176,90 @@
         <q-separator spaced />
         <q-item-label
           header
-          id="model-settings"
+          id="generate-settings"
         >
-          模型设置
+          生成设置
+        </q-item-label>
+        <q-item>
+          <q-item-section>
+            <q-item-label>流式传输</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-toggle v-model="assistant.stream" />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>重试次数</q-item-label>
+            <q-item-label caption>
+              生成失败时的最大重试次数
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-input
+              class="w-100px"
+              filled
+              dense
+              v-model.number="assistant.modelSettings.maxRetries"
+              type="number"
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>最大调用次数</q-item-label>
+            <q-item-label caption>
+              启用工具调用时，单次回复调用模型的最大次数
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-input
+              class="w-100px"
+              filled
+              dense
+              v-model.number="assistant.modelSettings.maxSteps"
+              type="number"
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>上下文携带条数</q-item-label>
+            <q-item-label caption>
+              包括当前用户消息的最大上下文数量。留空则不限制
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-input
+              class="w-100px"
+              filled
+              dense
+              v-model.number="assistant.contextNum"
+              type="number"
+              clearable
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>提示词角色</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-select
+              class="w-100px"
+              filled
+              dense
+              v-model="assistant.promptRole"
+              :options="['system', 'user', 'assistant']"
+            />
+          </q-item-section>
+        </q-item>
+        <q-separator spaced />
+        <q-item-label
+          header
+          id="model-params"
+        >
+          模型参数
         </q-item-label>
         <q-item>
           <q-item-section>
@@ -307,40 +388,6 @@
               v-model.number="assistant.modelSettings.seed"
               type="number"
               clearable
-            />
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>
-            <q-item-label>最大调用次数</q-item-label>
-            <q-item-label caption>
-              启用工具调用时，单次回复调用模型的最大次数
-            </q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-input
-              class="w-100px"
-              filled
-              dense
-              v-model.number="assistant.modelSettings.maxSteps"
-              type="number"
-            />
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>
-            <q-item-label>重试次数</q-item-label>
-            <q-item-label caption>
-              最大重试次数。设为0则不重试。
-            </q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <q-input
-              class="w-100px"
-              filled
-              dense
-              v-model.number="assistant.modelSettings.maxRetries"
-              type="number"
             />
           </q-item-section>
         </q-item>

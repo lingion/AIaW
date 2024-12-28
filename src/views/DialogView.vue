@@ -364,7 +364,7 @@
 import { computed, inject, onUnmounted, provide, ref, Ref, toRaw, toRef, watch, nextTick } from 'vue'
 import { db } from 'src/utils/db'
 import { useLiveQueryWithDeps } from 'src/composables/live-query'
-import { almostEqual, escapeRegex, genId, isPlatformEnabled, isTextFile, mimeTypeMatch, pageFhStyle, wrapCode } from 'src/utils/functions'
+import { almostEqual, escapeRegex, genId, isPlatformEnabled, isTextFile, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { streamText, CoreMessage, generateText, tool, jsonSchema } from 'ai'
 import { useModel } from 'src/composables/model'
@@ -548,7 +548,17 @@ function onInputFiles({ target }) {
 }
 function onPaste(ev: ClipboardEvent) {
   const { clipboardData } = ev
-  if (clipboardData.types.includes('text/plain')) return
+  if (clipboardData.types.includes('text/plain')) {
+    if (!['TEXTAREA', 'INPUT'].includes(document.activeElement.tagName)) {
+      const text = clipboardData.getData('text/plain')
+      addInputItems([{
+        type: 'text',
+        name: `粘贴文本：${textBeginning(text, 10)}`,
+        contentText: text
+      }])
+    }
+    return
+  }
   parseFiles(Array.from(clipboardData.files) as File[])
 }
 addEventListener('paste', onPaste)
@@ -634,6 +644,7 @@ function getChainMessages() {
   const val: CoreMessage[] = []
   historyChain.value
     .slice(1)
+    .slice(-assistant.value.contextNum || 0)
     .filter(id => messageMap.value[id].status !== 'inputing')
     .map(id => messageMap.value[id].contents)
     .flat()
@@ -920,79 +931,89 @@ async function stream(target, insert = false) {
   try {
     if (noRoundtrip) settings.maxSteps = 1
     abortController.value = new AbortController()
-    const result = await streamText({
+    const messages = getChainMessages()
+    const prompt = getSystemPrompt(enabledPlugins.filter(p => p.prompt || p.actions.length))
+    prompt && messages.unshift({ role: assistant.value.promptRole, content: prompt })
+    const params = {
       model: sdkModel.value,
-      system: getSystemPrompt(enabledPlugins.filter(p => p.prompt || p.actions.length)),
-      messages: getChainMessages(),
+      messages,
       tools,
       ...settings,
       abortSignal: abortController.value.signal
-    })
-    await db.messages.update(id, { status: 'streaming' })
-    for await (const textDelta of result.textStream) {
-      messageContent.text += textDelta
-      for (const action of actions) {
-        const tag = `${action.pluginId}-${action.name}`
-        const openReg = new RegExp(`<${escapeRegex(tag)} +(\\{.*\\}) *>\\n`)
-        const closeReg = new RegExp(`\\n</${escapeRegex(tag)} *>`)
-        const selfCloseReg = new RegExp(`<${escapeRegex(tag)} +(\\{.*\\}) */>`)
-        const openMatch = messageContent.text.match(openReg)
-        const closeMatch = messageContent.text.match(closeReg)
-        const selfCloseMatch = messageContent.text.match(selfCloseReg)
-        if (openMatch) {
-          if (messageContent.type !== 'assistant-message') continue
-          try {
-            const args = JSON.parse(openMatch[1])
-            const [prevText, currText] = messageContent.text.split(openMatch[0])
-            messageContent.text = prevText
-            messageContent = {
-              type: 'assistant-action',
-              pluginId: action.pluginId,
-              name: action.name,
-              args,
-              text: currText,
-              status: 'streaming'
+    }
+    let result
+    if (assistant.value.stream) {
+      result = await streamText(params)
+      await db.messages.update(id, { status: 'streaming' })
+      for await (const textDelta of result.textStream) {
+        messageContent.text += textDelta
+        for (const action of actions) {
+          const tag = `${action.pluginId}-${action.name}`
+          const openReg = new RegExp(`<${escapeRegex(tag)} +(\\{.*\\}) *>\\n`)
+          const closeReg = new RegExp(`\\n</${escapeRegex(tag)} *>`)
+          const selfCloseReg = new RegExp(`<${escapeRegex(tag)} +(\\{.*\\}) */>`)
+          const openMatch = messageContent.text.match(openReg)
+          const closeMatch = messageContent.text.match(closeReg)
+          const selfCloseMatch = messageContent.text.match(selfCloseReg)
+          if (openMatch) {
+            if (messageContent.type !== 'assistant-message') continue
+            try {
+              const args = JSON.parse(openMatch[1])
+              const [prevText, currText] = messageContent.text.split(openMatch[0])
+              messageContent.text = prevText
+              messageContent = {
+                type: 'assistant-action',
+                pluginId: action.pluginId,
+                name: action.name,
+                args,
+                text: currText,
+                status: 'streaming'
+              }
+              contents.push(messageContent)
+            } catch (e) {
+              continue
             }
-            contents.push(messageContent)
-          } catch (e) {
-            continue
-          }
-        } else if (closeMatch) {
-          if (messageContent.type !== 'assistant-action' || messageContent.name !== action.name) continue
-          const [prevText, currText] = messageContent.text.split(closeMatch[0])
-          messageContent.text = prevText
-          messageContent.status = 'ready'
-          messageContent = {
-            type: 'assistant-message',
-            text: currText
-          }
-          contents.push(messageContent)
-        } else if (selfCloseMatch) {
-          if (messageContent.type !== 'assistant-message') continue
-          try {
-            const args = JSON.parse(selfCloseMatch[1])
-            const [prevText, currText] = messageContent.text.split(selfCloseMatch[0])
+          } else if (closeMatch) {
+            if (messageContent.type !== 'assistant-action' || messageContent.name !== action.name) continue
+            const [prevText, currText] = messageContent.text.split(closeMatch[0])
             messageContent.text = prevText
-            messageContent = {
-              type: 'assistant-action',
-              pluginId: action.pluginId,
-              name: action.name,
-              args,
-              status: 'ready'
-            }
-            contents.push(messageContent)
+            messageContent.status = 'ready'
             messageContent = {
               type: 'assistant-message',
               text: currText
             }
             contents.push(messageContent)
-          } catch (e) {
-            continue
+          } else if (selfCloseMatch) {
+            if (messageContent.type !== 'assistant-message') continue
+            try {
+              const args = JSON.parse(selfCloseMatch[1])
+              const [prevText, currText] = messageContent.text.split(selfCloseMatch[0])
+              messageContent.text = prevText
+              messageContent = {
+                type: 'assistant-action',
+                pluginId: action.pluginId,
+                name: action.name,
+                args,
+                status: 'ready'
+              }
+              contents.push(messageContent)
+              messageContent = {
+                type: 'assistant-message',
+                text: currText
+              }
+              contents.push(messageContent)
+            } catch (e) {
+              continue
+            }
           }
         }
+        update()
       }
-      update()
+    } else {
+      result = await generateText(params)
+      messageContent.text = await result.text
     }
+
     const usage = await result.usage
     const warnings = (await result.warnings).map(w => (w.type === 'unsupported-setting' || w.type === 'unsupported-tool') ? w.details : w.message)
     await db.messages.update(id, { contents, status: 'default', generatingSession: null, warnings, usage })
@@ -1055,13 +1076,19 @@ function onEnter(ev) {
 const showVars = ref(true)
 
 const scrollContainer = ref<HTMLElement>()
-function switchTo(target: 'prev' | 'next' | 'first' | 'last') {
+function getEls() {
   const container = scrollContainer.value
   const items: HTMLElement[] = Array.from(document.querySelectorAll('.message-item'))
-
+  return { container, items }
+}
+function itemInView(item: HTMLElement, container: HTMLElement) {
+  return item.offsetTop <= container.scrollTop + container.clientHeight &&
+  item.offsetTop + item.clientHeight > container.scrollTop
+}
+function switchTo(target: 'prev' | 'next' | 'first' | 'last') {
+  const { container, items } = getEls()
   const index = items.findIndex((item, i) =>
-    item.offsetTop <= container.scrollTop + container.clientHeight &&
-    item.offsetTop + item.clientHeight > container.scrollTop &&
+    itemInView(item, container) &&
     dialog.value.msgTree[chain.value[i]].length > 1
   )
   if (index === -1) return
@@ -1083,8 +1110,7 @@ function switchTo(target: 'prev' | 'next' | 'first' | 'last') {
   switchChain(index, to)
 }
 function scroll(action: 'up' | 'down' | 'top' | 'bottom') {
-  const container = scrollContainer.value
-  const items: HTMLElement[] = Array.from(document.querySelectorAll('.message-item'))
+  const { container, items } = getEls()
 
   if (action === 'top') {
     container.scrollTo({ top: 0, behavior: 'smooth' })
@@ -1095,8 +1121,7 @@ function scroll(action: 'up' | 'down' | 'top' | 'bottom') {
   }
 
   // Get current position
-  let index = items.findIndex(item => item.offsetTop <= container.scrollTop && item.offsetTop + item.clientHeight > container.scrollTop)
-  if (container.scrollTop < 16) index = 0
+  const index = items.findIndex(item => itemInView(item, container))
   const itemTypes = items.map(i => i.clientHeight > container.clientHeight ? 'partial' : 'entire')
   let position: 'start' | 'inner' | 'end' | 'out'
   const item = items[index]
@@ -1158,6 +1183,22 @@ function scroll(action: 'up' | 'down' | 'top' | 'bottom') {
   }
   container.scrollTo({ top: top + 2, behavior: 'smooth' })
 }
+function regenerateCurr() {
+  const { container, items } = getEls()
+  const index = items.findIndex(
+    (item, i) => itemInView(item, container) && messageMap.value[chain.value[i + 1]].type === 'assistant'
+  )
+  if (index === -1) return
+  regenerate(index + 1)
+}
+function editCurr() {
+  const { container, items } = getEls()
+  const index = items.findIndex(
+    (item, i) => itemInView(item, container) && messageMap.value[chain.value[i + 1]].type === 'user'
+  )
+  if (index === -1) return
+  edit(index + 1)
+}
 const { perfs } = useUserPerfsStore()
 if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, 'scrollUpKeyV2'), () => scroll('up'))
@@ -1168,6 +1209,8 @@ if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, 'switchNextKeyV2'), () => switchTo('next'))
   useListenKey(toRef(perfs, 'switchFirstKey'), () => switchTo('first'))
   useListenKey(toRef(perfs, 'switchLastKey'), () => switchTo('last'))
+  useListenKey(toRef(perfs, 'regenerateCurrKey'), () => regenerateCurr())
+  useListenKey(toRef(perfs, 'editCurrKey'), () => editCurr())
 }
 
 defineEmits(['toggle-drawer'])

@@ -237,7 +237,14 @@
               常用模型
             </q-item-label>
             <q-item-label caption>
-              用于在对话中快速切换模型
+              用于在对话中快速切换模型。<a
+                v-if="provider?.type === 'openai'"
+                pri-link
+                href="javascript:void(0)"
+                @click="getModelList"
+              >
+                获取模型列表
+              </a>
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -305,6 +312,7 @@ import { useLocateId } from 'src/composables/locate-id'
 import { pageFhStyle } from 'src/utils/functions'
 import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
 import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
+import { useModel } from 'src/composables/model'
 
 const uiStateStore = useUiStateStore()
 const { perfs, restore } = useUserPerfsStore()
@@ -340,6 +348,34 @@ const providerLink = computed(() => {
 })
 const user = DexieDBURL ? useObservable(db.cloud.currentUser) : null
 const { filteredOptions, filterFn } = useFilterOptions(modelOptions)
+
+const { provider } = useModel(ref(), ref())
+function getModelList() {
+  fetch(`${provider.value.settings.baseURL}/models`, {
+    headers: {
+      Authorization: `Bearer ${provider.value.settings.apiKey}`
+    }
+  }).then(res => res.json()).then(({ data }) => {
+    const models = data.map(m => m.id).sort()
+    $q.dialog({
+      title: '选择常用模型',
+      options: {
+        type: 'checkbox',
+        model: models.filter(m => perfs.commonModelOptions.includes(m)),
+        items: models.map(m => ({ label: m, value: m }))
+      },
+      cancel: true
+    }).onOk(val => {
+      perfs.commonModelOptions = val
+    })
+  }).catch(err => {
+    console.error(err)
+    $q.notify({
+      message: '获取模型列表失败',
+      color: 'negative'
+    })
+  })
+}
 
 useLocateId(ref(true))
 </script>

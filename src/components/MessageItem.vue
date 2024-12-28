@@ -220,7 +220,7 @@ import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import PickAvatarDialog from './PickAvatarDialog.vue'
 import MessageFile from './MessageFile.vue'
-import { wrapCode } from 'src/utils/functions'
+import { textBeginning, wrapCode } from 'src/utils/functions'
 import MenuItem from './MenuItem.vue'
 import MessageInfoDialog from './MessageInfoDialog.vue'
 
@@ -361,7 +361,7 @@ function quote() {
   const name = props.message.type === 'assistant' ? '助手消息引用' : '用户消息引用'
   emit('quote', {
     type: 'quote',
-    name: name + ` (${selectedText.value.length})`,
+    name: `${name}：${textBeginning(selectedText.value, 10)}`,
     contentText: selectedText.value
   })
   showQuoteBtn.value = false
