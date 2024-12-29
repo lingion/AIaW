@@ -4,14 +4,13 @@ import { db } from 'src/utils/db'
 import { localData } from 'src/utils/local-data'
 import { dialogOptions } from 'src/utils/values'
 import { onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 export function useFirstVisit() {
   const $q = useQuasar()
-  const route = useRoute()
   const router = useRouter()
   onMounted(() => {
-    if (route.path === '/set-provider') {
+    if (location.pathname === '/set-provider') {
       localData.visited = true
       return
     }

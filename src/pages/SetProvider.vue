@@ -19,10 +19,19 @@ until(() => userPerfsStore.ready).toBeTruthy().then(() => {
     if (!new Validator(ProviderSchema).validate(provider)) {
       throw new Error('Invalid provider schema')
     }
+    const bak = userPerfsStore.perfs.provider
     userPerfsStore.perfs.provider = provider
     $q.notify({
-      message: '已设置服务商',
-      color: 'positive'
+      message: `已设置服务商为：${provider.settings.baseURL}`,
+      color: 'positive',
+      actions: [{
+        label: '还原',
+        handler: () => {
+          userPerfsStore.perfs.provider = bak
+        },
+        color: 'white'
+      }],
+      timeout: 6000
     })
   } catch (e) {
     console.error(e)
@@ -31,7 +40,7 @@ until(() => userPerfsStore.ready).toBeTruthy().then(() => {
       color: 'negative'
     })
   } finally {
-    router.replace('/')
+    router.replace('/settings')
   }
 })
 </script>
