@@ -178,6 +178,11 @@
                 :class="{ 'route-active': sourceCodeMode }"
               />
               <menu-item
+                icon="sym_o_edit"
+                label="直接编辑"
+                @click="edit"
+              />
+              <menu-item
                 icon="sym_o_info"
                 label="更多信息"
                 @click="moreInfo"
@@ -208,7 +213,7 @@ import { db } from 'src/utils/db'
 import 'md-editor-v3/lib/preview.css'
 import { computed, ComputedRef, inject, onUnmounted, reactive, ref, watchEffect } from 'vue'
 import sessions from 'src/utils/sessions'
-import { MessageContent, Message, ApiResultItem } from 'src/utils/types'
+import { MessageContent, Message, ApiResultItem, UserMessageContent, AssistantMessageContent } from 'src/utils/types'
 import CopyBtn from './CopyBtn.vue'
 import AAvatar from './AAvatar.vue'
 import { useAssistantsStore } from 'src/stores/assistants'
@@ -223,6 +228,7 @@ import MessageFile from './MessageFile.vue'
 import { textBeginning, wrapCode } from 'src/utils/functions'
 import MenuItem from './MenuItem.vue'
 import MessageInfoDialog from './MessageInfoDialog.vue'
+import TextareaDialog from './TextareaDialog.vue'
 
 const props = defineProps<{
   message: Message,
@@ -365,6 +371,22 @@ function quote() {
     contentText: selectedText.value
   })
   showQuoteBtn.value = false
+}
+function edit() {
+  const index = props.message.contents.findIndex(content => ['user-message', 'assistant-message'].includes(content.type))
+  if (index === -1) return
+  const content = props.message.contents[index] as UserMessageContent | AssistantMessageContent
+  $q.dialog({
+    component: TextareaDialog,
+    componentProps: {
+      title: '编辑消息',
+      model: content.text
+    }
+  }).onOk(text => {
+    db.messages.update(props.message.id, {
+      [`contents.${index}.text`]: text
+    })
+  })
 }
 
 const itemMap = inject<ComputedRef>('itemMap')

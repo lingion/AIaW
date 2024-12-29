@@ -5,6 +5,7 @@
 
 import { configure } from 'quasar/wrappers'
 import { fileURLToPath } from 'node:url'
+import { copyFileSync } from 'node:fs'
 
 export default configure((ctx) => {
   return {
@@ -63,7 +64,11 @@ export default configure((ctx) => {
 
       // extendViteConf (viteConf) {},
       // viteVuePluginOptions: {},
-
+      afterBuild() {
+        if (ctx.mode.pwa) {
+          copyFileSync('src/version.json', 'dist/pwa/version.json')
+        }
+      },
       vitePlugins: [
         ['@intlify/unplugin-vue-i18n/vite', {
           // if you want to use Vue I18n Legacy API, you need to set `compositionOnly: false`
