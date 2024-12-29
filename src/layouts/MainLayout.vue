@@ -179,6 +179,17 @@ openLastWorkspace()
 
 const $q = useQuasar()
 function notifyVersion() {
-  $q.notify(`当前版本: ${version.version}`)
+  $q.notify({
+    message: `当前版本: ${version.version}`,
+    color: 'inv-sur',
+    textColor: 'inv-on-sur',
+    actions: [{
+      label: '更新日志',
+      handler: () => {
+        window.open('https://github.com/NitroRCr/AIaW/releases', '_blank')
+      },
+      textColor: 'inv-pri'
+    }]
+  })
 }
 </script>
