@@ -24,7 +24,7 @@
             :theme="$q.dark.isActive ? 'dark' : 'light'"
             :auto-fold-threshold="Infinity"
             bg-sur-c-low
-            max-h="80vh"
+            max-h="70vh"
           />
         </div>
         <div v-if="file.contentBuffer">
@@ -49,9 +49,24 @@
         </div>
       </q-card-section>
       <q-card-actions
-        align="right"
         bg-sur-c-low
       >
+        <copy-btn
+          v-if="file.contentText"
+          flat
+          label="复制"
+          color="primary"
+          :value="file.contentText"
+        />
+        <q-btn
+          v-if="file.contentBuffer"
+          flat
+          label="下载"
+          color="primary"
+          icon="sym_o_download"
+          @click="download"
+        />
+        <q-space />
         <q-btn
           flat
           color="primary"
@@ -65,11 +80,12 @@
 
 <script setup lang="ts">
 import { MdPreview } from 'md-editor-v3'
-import { useDialogPluginComponent } from 'quasar'
+import { exportFile, useDialogPluginComponent } from 'quasar'
 import { wrapCode, wrapQuote } from 'src/utils/functions'
 import { StoredItem } from 'src/utils/types'
 import { codeExtensions } from 'src/utils/values'
 import { computed } from 'vue'
+import CopyBtn from './CopyBtn.vue'
 
 const props = defineProps<{
   file: StoredItem
@@ -97,4 +113,8 @@ const markdown = computed(() => {
     ? wrapCode((file.contentText), ext)
     : (file.contentText)
 })
+
+function download() {
+  exportFile(props.file.name, props.file.contentBuffer)
+}
 </script>
