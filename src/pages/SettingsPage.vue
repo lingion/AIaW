@@ -313,7 +313,7 @@ import HctPreviewCircle from 'src/components/HctPreviewCircle.vue'
 import HueSliderDialog from 'src/components/HueSliderDialog.vue'
 import { computed, ref } from 'vue'
 import { useUiStateStore } from 'src/stores/ui-state'
-import { modelOptions } from 'src/utils/values'
+import { dialogOptions, modelOptions } from 'src/utils/values'
 import CopyBtn from 'src/components/CopyBtn.vue'
 import AAvatar from 'src/components/AAvatar.vue'
 import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
@@ -379,7 +379,8 @@ function getModelList() {
         model: models.filter(m => perfs.commonModelOptions.includes(m)),
         items: models.map(m => ({ label: m, value: m }))
       },
-      cancel: true
+      cancel: true,
+      ...dialogOptions
     }).onOk(val => {
       perfs.commonModelOptions = val
     })
