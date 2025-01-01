@@ -407,7 +407,7 @@
 <script setup lang="ts">
 import { syncRef } from 'src/composables/sync-ref'
 import { useAssistantsStore } from 'src/stores/assistants'
-import { inject, toRaw } from 'vue'
+import { computed, inject, toRaw } from 'vue'
 import ProviderInputItems from 'src/components/ProviderInputItems.vue'
 import PromptVarEditor from 'src/components/PromptVarEditor.vue'
 import { usePluginsStore } from 'src/stores/plugins'
@@ -421,6 +421,7 @@ import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
 import PluginTypeBadge from 'src/components/PluginTypeBadge.vue'
 import { useLocateId } from 'src/composables/locate-id'
 import { pageFhStyle } from 'src/utils/functions'
+import { useSetTitle } from 'src/composables/set-title'
 
 const props = defineProps<{
   id: string
@@ -481,4 +482,6 @@ function pickAvatar() {
 
 const rightDrawerAbove = inject('rightDrawerAbove')
 useLocateId(assistant)
+
+useSetTitle(computed(() => assistant.value?.name))
 </script>

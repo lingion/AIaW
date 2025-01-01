@@ -25,7 +25,7 @@ services:
     ports:
       - '9010:9010'
     environment:
-      # 如果需要文档解析
+      # 如果要使用内置的文档解析插件
       LLAMA_CLOUD_API_KEY: xxxxxxx
 ```
 

@@ -192,6 +192,7 @@ import PromptVarInput from 'src/components/PromptVarInput.vue'
 import HintCard from 'src/components/HintCard.vue'
 import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
+import { useSetTitle } from 'src/composables/set-title'
 
 defineEmits(['toggle-drawer'])
 
@@ -217,4 +218,5 @@ const apiMap = computed(() => {
   return val
 })
 
+useSetTitle(computed(() => plugin.value && `插件功能 - ${plugin.value.title}`))
 </script>

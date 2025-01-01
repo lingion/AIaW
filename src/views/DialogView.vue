@@ -397,6 +397,7 @@ import AbortableBtn from 'src/components/AbortableBtn.vue'
 import { MaxMessageFileSizeMB } from 'src/utils/config'
 import ATip from 'src/components/ATip.vue'
 import { useListenKey } from 'src/composables/listen-key'
+import { useSetTitle } from 'src/composables/set-title'
 
 const props = defineProps<{
   id: string
@@ -1223,4 +1224,6 @@ if (isPlatformEnabled(perfs.enableShortcutKey)) {
 }
 
 defineEmits(['toggle-drawer'])
+
+useSetTitle(computed(() => dialog.value?.name))
 </script>

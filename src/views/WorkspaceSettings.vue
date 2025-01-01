@@ -80,6 +80,7 @@ import AAvatar from 'src/components/AAvatar.vue'
 import { useQuasar } from 'quasar'
 import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
 import WorkspaceVarsInput from 'src/components/WorkspaceVarsInput.vue'
+import { useSetTitle } from 'src/composables/set-title'
 
 defineEmits(['toggle-drawer'])
 
@@ -105,4 +106,6 @@ function pickAvatar() {
     componentProps: { model: workspace.value.avatar, defaultTab: 'icon' }
   }).onOk(avatar => { workspace.value.avatar = avatar })
 }
+
+useSetTitle(computed(() => `工作区设置 - ${workspace.value?.name}`))
 </script>

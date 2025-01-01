@@ -204,7 +204,6 @@ interface InstalledLobePlugin {
 interface GradioFileInput {
   name: string
   paramType: 'file'
-  type: string
   mimeTypes: string[]
 }
 interface GradioRangeInput {

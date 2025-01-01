@@ -406,6 +406,7 @@ const gradioTypeMap = {
 }
 
 function huggingToGradio(manifest: HuggingPluginManifest): GradioPluginManifest {
+  const fileInput = manifest.inputs.find(i => i.type === 'file')
   return {
     id: `hf-${manifest._id}`,
     title: manifest.displayName,
@@ -416,16 +417,15 @@ function huggingToGradio(manifest: HuggingPluginManifest): GradioPluginManifest 
       icon: huggingIconsMap[manifest.icon] ?? 'sym_o_extension',
       hue: huggingColorsMap[manifest.color] ?? 300
     },
-    endpoints: [manifest.inputs.some(i => i.type === 'file') ? {
+    endpoints: [fileInput ? {
       type: 'fileparser',
       name: manifest.name,
       description: manifest.description,
       path: manifest.endpoint,
       inputs: [{
-        name: 'file',
+        name: fileInput.name,
         paramType: 'file',
-        type: 'file',
-        mimeTypes: manifest.inputs.find(i => i.type === 'file').mimeTypes.split(',')
+        mimeTypes: fileInput.mimeTypes.split(',')
       }, ...manifest.inputs.filter(i => i.paramType === 'fixed') as GradioFixedInput[]],
       outputIdxs: [manifest.outputComponentIdx]
     } : {
@@ -454,7 +454,6 @@ const whisperPluginManifest: GradioPluginManifest = {
     path: '/transcribe',
     inputs: [{
       name: 'audio',
-      type: 'file',
       mimeTypes: ['audio/*'],
       paramType: 'file'
     }, {

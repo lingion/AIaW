@@ -41,13 +41,13 @@ const routes: RouteRecordRaw[] = [
           }
         ]
       },
-      { path: '/settings', component: SettingsPage },
-      { path: '/shortcut-keys', component: ShortcutKeys },
+      { path: '/settings', component: SettingsPage, meta: { title: '设置' } },
+      { path: '/shortcut-keys', component: ShortcutKeys, meta: { title: '键盘快捷键' } },
       {
         path: '/plugins/',
         component: PluginsPage,
         children: [
-          { path: '', component: PluginsMarket },
+          { path: '', component: PluginsMarket, meta: { title: '插件市场' } },
           { path: ':pluginId', component: PluginSettings, props: route => ({ id: route.params.pluginId }) }
         ]
       },
@@ -55,7 +55,7 @@ const routes: RouteRecordRaw[] = [
         path: '/assistants/',
         component: AssistantsPage,
         children: [
-          { path: '', component: AssistantsMarket },
+          { path: '', component: AssistantsMarket, meta: { title: '助手市场' } },
           { path: ':assistantId', component: AssistantView, props: route => ({ id: route.params.assistantId }) },
           {
             path: ':assistantId/plugins/:pluginId',
@@ -64,13 +64,12 @@ const routes: RouteRecordRaw[] = [
           }
         ]
       },
-      { path: '/assistants', component: AssistantsPage },
       { path: '/set-provider', component: SetProvider },
       ...(DexieDBURL ? [
-        { path: '/account', component: AccountPage }
+        { path: '/account', component: AccountPage, meta: { title: '账号' } }
       ] : []),
       ...(DexieDBURL && LitellmBaseURL ? [
-        { path: '/model-pricing', component: ModelPricing }
+        { path: '/model-pricing', component: ModelPricing, meta: { title: '模型价格' } }
       ] : []),
       { path: '/', component: EmptyPage },
 

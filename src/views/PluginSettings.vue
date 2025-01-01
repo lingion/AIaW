@@ -106,6 +106,7 @@ import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
 import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
 import ListInput from 'src/components/ListInput.vue'
 import JsonInput from 'src/components/JsonInput.vue'
+import { useSetTitle } from 'src/composables/set-title'
 
 const props = defineProps<{
   id: string
@@ -130,4 +131,6 @@ function pickAvatar() {
     data[props.id].avatar = avatar
   })
 }
+
+useSetTitle(computed(() => plugin.value && `插件设置 - ${plugin.value.title}`))
 </script>

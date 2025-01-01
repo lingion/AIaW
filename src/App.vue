@@ -3,6 +3,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRouter } from 'vue-router'
 import { useFirstVisit } from './composables/first-visit'
 import { useLoginDialogs } from './composables/login-dialogs'
 import { useSetTheme } from './composables/set-theme'
@@ -14,5 +15,12 @@ defineOptions({
 useSetTheme()
 useLoginDialogs()
 useFirstVisit()
+
+const router = useRouter()
+router.afterEach(to => {
+  if (to.meta.title) {
+    document.title = `${to.meta.title} - AI as Workspace`
+  }
+})
 
 </script>
