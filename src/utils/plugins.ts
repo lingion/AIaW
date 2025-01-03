@@ -615,7 +615,7 @@ const emotionsPlugin: Plugin = {
       name: 'displayWidth',
       label: '显示大小',
       type: 'number',
-      default: '100'
+      default: 100
     }
   ]
 }

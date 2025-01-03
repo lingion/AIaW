@@ -8,7 +8,7 @@ AIaW 支持几种不同类型的插件，它们的配置文件写法也不同。
 
 ## Gradio 插件
 
-[Gradio](https://www.gradio.app/) 是一个基于 python 的应用开发框架。使用它可以快速地开发简单的应用，Huggingface 上的各种 [Spaces](https://huggingface.co/spaces) 就是最常见的例子。
+[Gradio](https://www.gradio.app/) 是一个基于 python 的应用程序开发框架。使用它可以快速地开发简单的应用，HuggingFace 上的各种 [Spaces](https://huggingface.co/spaces) 就是最常见的例子。
 
 Gradio 应用在提供简单的界面的同时，也提供了 API。AIaW 的 Gradio 类型插件就是通过 API 调用 Gradio 应用来实现各种功能的。
 
@@ -20,6 +20,8 @@ Gradio 应用在提供简单的界面的同时，也提供了 API。AIaW 的 Gra
 - Gradio 应用易于调用其他 AI 模型
 - Gradio 应用可以免费托管在 HF Spaces
 - Gradio 应用生态丰富，如果 HF Spaces 有现成的满足功能的应用，可以直接将其配置为插件而无需开发
+
+关于 Gradio 应用的开发，请参考 [Gradio](https://www.gradio.app/) 的文档。这里我们只讲插件的配置。
 
 下面以内置的「图像生成: FLUX」插件为例，介绍 Gradio 插件的配置文件格式：
 
@@ -57,7 +59,7 @@ interface GradioPluginManifest {
 - `id`: 插件的 ID；每个插件的 ID 必须不同
 - `title`: 插件的显示名称
 - `description`: 对用户展示的插件描述；此描述不会输入给 AI
-- `prompt`: 可选；[插件的提示词](plugins#提示词)
+- `prompt`: 可选；[插件的提示词](plugins#提示词)。在提示词中可以使用[提示词变量](#promptvars)
 - `promptVars`: 可选；提示词变量；[具体说明](#promptvars)
 - `avatar`: 插件的图标；[具体说明](#avatar)
 - `endpoints`: 插件的接口定义；工具调用/文件解析器/信息获取 都定义在此处；[具体说明](#endpoints)
@@ -122,9 +124,14 @@ type Avatar = TextAvatar | UrlAvatar | IconAvatar
 
 ### endpoints
 
-`endpoints` 定义了插件可调用的接口。Gradio 类型插件调用的是 Gradio 应用的接口。在 HF Space 页面的下方点击「通过 API 使用」，即可看到该应用的接口的参数。
+`endpoints` 定义了插件可调用的接口。Gradio 类型插件调用的是 Gradio 应用的接口。在 HF Space 页面的下方点击「通过 API 使用」，即可看到该应用的接口和参数。
 
-「图像生成: FLUX」插件只定义了一个工具调用（`tool`）接口：
+`endpoint` 可定义为以下三种类型：
+- `tool`: 工具调用
+- `fileparser`: 文件解析器
+- `info`: 信息获取
+
+「图像生成: FLUX」插件只定义了一个工具调用接口：
 
 ::: code-group
 
@@ -321,7 +328,7 @@ type GradioApiInput = GradioFixedInput | GradioOptionalInput | GradioRequiredInp
 
 #### 文件解析器
 
-`endpoints` 的元素除了工具调用（`tool`），还可以是文件解析器（`fileparser`）；以「语音识别：Whisper」插件的文件解析器为例：
+`endpoints` 的元素也可以是文件解析器（`fileparser`）；以「语音识别：Whisper」插件的文件解析器为例：
 
 ::: code-group
 ```json [示例值]
@@ -413,9 +420,63 @@ interface GradioManifestFileparser {
 - `hint`: 可选；输入框的提示（placeholder）
 - `mask`: 可选；用于固定格式的输入，规则详见 Quasar 文档：[Mask](https://quasar.dev/vue-components/input#mask)
 
-### promptVars
+#### 信息获取
+
+信息获取（`info`）接口用于向模型提供信息。它和工具调用的不同之处在于，调用时的输入参数值是预定义好的而不是模型提供的。
+
+信息获取需要结合 `prompt` 使用。它的调用结果将作为一个提示词变量的值，然后在插件的 `prompt` 中可以使用这个变量，由此通过提示词向模型提供信息。
+
+它是在每次生成前调用的，调用结果不会缓存。
+
+```typescript [TS 类型定义]
+interface GradioManifestInfo {
+  type: 'info'
+  name: string
+  description: string
+  path: string
+  inputs: GradioApiInput[]
+  outputIdxs: number[]
+}
+```
+
+- `type`: 值为 `info`
+- `name`: 名称；在 `prompt` 中使用 `infos.{name}` 来访问变量
+- `description`: 在插件功能页面展示给用户的描述
+- `inputs`: 输入参数，和 `tool` 参数的格式一样，只是变成了由用户在插件功能页面输入参数值而不是模型提供；用户仍然可以在插件设置页面被更改 `fixed` 参数的值和 `optional` 参数的默认值。
+- `outputIdxs`: 选取调用结果的索引数组；
+
+`info` 的调用结果也是一个数组，数组元素的格式为：
 
 ```typescript
+interface ApiResultItem {
+  type: 'text' | 'file'
+  contentText?: string
+  contentBuffer?: ArrayBuffer
+  name?: string
+  mimeType?: string
+}
+```
+
+在 `prompt` 中可以使用 `infos.info_a[0].contentText` 类似格式访问调用结果。
+
+### promptVars
+
+通过 `promptVars` 可定义插件的变量，变量可在插件的 `prompt` 中使用；变量的值可在插件功能页面更改。使用变量可以允许用户对插件的提示词进行微调。
+
+::: code-group
+```json [示例值]
+[
+  {
+    "id": "displayWidth",
+    "name": "displayWidth",
+    "label": "显示大小",
+    "type": "number",
+    "default": 100
+  }
+]
+```
+```typescript [TS 类型定义]
+type PromptVarValue = string | number | boolean | string[]
 interface PromptVar {
   id: string
   name: string
@@ -425,7 +486,45 @@ interface PromptVar {
   default?: PromptVarValue
 }
 ```
-
-::: warning 文档施工中...
-当前内容可能不全
 :::
+
+此外，还有几个「通用提示词变量」，可以在插件的 `prompt` 中使用：
+
+| 变量名 | 内容 | 示例值 |
+| ----- | ---- | ---- |
+| _currentTime | 当前时间 | "Tue Dec 10 2024 17:22:11 GMT+0800 (中国标准时间)" |
+| _userLanguage | 用户语言 `navigator.language` | "zh-CN" |
+| _workspaceId | 工作区 ID | "1ielm0e6n464itr2ps" |
+| _workspaceName | 工作区名称 | "示例工作区" |
+| _assistantId | 助手 ID | "1ielm0e6n464itssd3" |
+| _assistantName | 助手名称 | "默认助手" |
+| _dialogId | 对话 ID | "1ielm5fg6464ittksm" |
+| _modelId | 模型 ID | "gpt-4o" |
+| _isDarkMode | 当前是否为深色模式 | false |
+| _platform | 根据用户使用的平台信息 | quasar 的 Platform 对象。详见[这里](https://quasar.dev/options/platform-detection#properties) |
+
+### 仅提示词插件
+
+Gradio 类型插件不一定都要调用 Gradio 接口，仅包含提示词的 Gradio 类型插件也是可以的。
+
+具体来说，`endpoints` 可以为空数组，然后设置 `prompt`，也可以添加 `promptVars`。
+
+## LobeChat 插件
+
+AIaW 兼容部分 LobeChat 插件，具体来说：
+
+- 支持 `default` 和 `markdown` 类型插件，不支持 `standalone` 类型。
+- 不支持 openapi 插件
+- 不支持 `ui` 属性
+
+对于支持的插件，你可以直接在插件市场添加其 Manifest。
+
+LobeChat 插件的开发指南，请参考 [LobeChat 的文档](https://lobehub.com/zh/docs/usage/plugins/development)。
+
+## 发布插件
+
+在插件市场手动添加 Manifest 就可以使用自定义插件。你也可以将插件发布，这样其他人也可以直接在插件市场安装。
+
+要发布插件，请将插件信息和 Manifest 添加到源码的 `/public/plugins.json` 中，然后提交 PR。
+
+建议直接将 manifest 写在文件中，因为使用链接的话，manifest 是可变的。我们更有可能怀疑其安全性而拒绝 PR。

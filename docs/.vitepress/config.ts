@@ -64,6 +64,9 @@ export default defineConfig({
         },
         detailedView: true
       }
+    },
+    outline: {
+      level: [2, 3]
     }
   },
   head: [

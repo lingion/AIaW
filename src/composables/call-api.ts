@@ -1,8 +1,6 @@
 import { usePluginsStore } from 'src/stores/plugins'
 import { Schema, Validator } from '@cfworker/json-schema'
-import { Plugin, PluginApi, StoredItem } from 'src/utils/types'
-import { db } from 'src/utils/db'
-import { genId } from 'src/utils/functions'
+import { ApiResultItem, Plugin, PluginApi } from 'src/utils/types'
 
 export function useCallApi({ workspace, dialog }) {
   const pluginsStore = usePluginsStore()
@@ -18,7 +16,7 @@ export function useCallApi({ workspace, dialog }) {
     return { valid, settings }
   }
 
-  async function callApi(plugin: Plugin, api: PluginApi, args): Promise<{ result?: StoredItem[], error?: string }> {
+  async function callApi(plugin: Plugin, api: PluginApi, args): Promise<{ result?: ApiResultItem[], error?: string }> {
     const { valid: argValid } = new Validator(api.parameters as Schema).validate(args)
     if (!argValid) {
       return { result: null, error: 'Arguments validation failed' }
@@ -28,9 +26,7 @@ export function useCallApi({ workspace, dialog }) {
       return { result: null, error: 'Plugin settings validation failed' }
     }
     try {
-      const res = await api.execute(args, settings)
-      const result = res.map(i => ({ ...i, id: genId(), dialogId: dialog.value.id, references: 1 }))
-      await db.items.bulkPut(result)
+      const result = await api.execute(args, settings)
       return { result, error: null }
     } catch (e) {
       return { result: null, error: e.message }

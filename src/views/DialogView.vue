@@ -851,7 +851,9 @@ async function stream(target, insert = false) {
     }
     contents.push(content)
     update()
-    const { result, error } = await callApi(plugin, api, args)
+    const { result: apiResult, error } = await callApi(plugin, api, args)
+    const result: StoredItem[] = apiResult.map(r => ({ ...r, id: genId(), dialogId: props.id, references: 0 }))
+    saveItems(result)
     if (error) {
       content.status = 'failed'
       content.error = error

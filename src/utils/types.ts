@@ -14,7 +14,7 @@ interface ModelSettings {
   seed?: number
 }
 
-type PromptVarValue = string | boolean | string[]
+type PromptVarValue = string | number | boolean | string[]
 
 interface PromptVar {
   id: string
@@ -76,18 +76,19 @@ interface AvatarImage {
   contentBuffer: ArrayBuffer
   mimeType: string
 }
-interface StoredItem {
-  id: string
+interface ApiResultItem {
   type: 'text' | 'file' | 'quote'
-  dialogId: string
-  references: number
   contentText?: string
   contentBuffer?: ArrayBuffer
   name?: string
   mimeType?: string
 }
+interface StoredItem extends ApiResultItem {
+  id: string
+  dialogId: string
+  references: number
+}
 type StoredItemId = StoredItem['id']
-type ApiResultItem = Omit<StoredItem, 'dialogId' | 'id' | 'references'>
 
 interface UserMessageContent {
   type: 'user-message'
