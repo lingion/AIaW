@@ -22,11 +22,13 @@
       >
         <q-list style="min-width: 100px">
           <menu-item
+            v-if="workspaceId !== '$root'"
             icon="sym_o_add_comment"
             label="新建对话"
             @click="createDialog({ assistantId: assistant.id })"
           />
           <menu-item
+            v-if="workspaceId !== '$root'"
             icon="sym_o_move_item"
             label="移至全局"
             @click="move(assistant.id, '$root')"

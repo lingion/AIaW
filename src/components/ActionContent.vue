@@ -78,12 +78,14 @@
 
 <script setup lang="ts">
 import { usePluginsStore } from 'src/stores/plugins'
-import { AssistantActionContent } from 'src/utils/types'
-import { computed, inject, ref, watch } from 'vue'
+import { AssistantActionContent, Dialog, StoredItem } from 'src/utils/types'
+import { computed, inject, Ref, ref, watch } from 'vue'
 import AAvatar from './AAvatar.vue'
 import { engine } from 'src/utils/template-engine'
 import { MdPreview } from 'md-editor-v3'
 import { useCallApi } from 'src/composables/call-api'
+import { genId } from 'src/utils/functions'
+import { db } from 'src/utils/db'
 
 const props = defineProps<{
   content: AssistantActionContent
@@ -124,7 +126,8 @@ watch(() => props.content, () => {
   contentMd.value = engine.parseAndRenderSync(contentTemplate, { content: props.content })
 }, { deep: true, immediate: true })
 
-const { callApi } = useCallApi({ workspace: inject('workspace'), dialog: inject('dialog') })
+const dialog = inject<Ref<Dialog>>('dialog')
+const { callApi } = useCallApi({ workspace: inject('workspace'), dialog })
 const emit = defineEmits(['update'])
 async function execute() {
   const { name, args } = props.content
@@ -132,7 +135,9 @@ async function execute() {
     ...props.content,
     status: 'calling'
   })
-  const { result, error } = await callApi(plugin.value, plugin.value.apis.find(a => a.name === name), args)
+  const { result: apiResult, error } = await callApi(plugin.value, plugin.value.apis.find(a => a.name === name), args)
+  const result: StoredItem[] = apiResult.map(r => ({ ...r, id: genId(), dialogId: dialog.value.id, references: 1 }))
+  await db.items.bulkAdd(result)
   emit('update', {
     ...props.content,
     result: result.map(item => item.id),

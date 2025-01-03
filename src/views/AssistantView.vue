@@ -398,6 +398,95 @@
         >
           提示：不是所有服务商都支持全部参数
         </q-item-label>
+        <q-separator spaced />
+        <q-item-label
+          header
+          id="model-params"
+        >
+          元数据
+        </q-item-label>
+        <q-item>
+          <q-item-section>
+            <q-item-label>作者</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-input
+              class="w-150px"
+              filled
+              dense
+              v-model="assistant.author"
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>描述</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-input
+              class="xs:w-250px sm:w-400px"
+              filled
+              dense
+              autogrow
+              v-model="assistant.description"
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>主页</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-input
+              class="xs:w-250px sm:w-400px"
+              filled
+              dense
+              v-model="assistant.homepage"
+            />
+          </q-item-section>
+        </q-item>
+        <q-separator spaced />
+        <q-item>
+          <q-item-section>
+            <q-item-label>导出</q-item-label>
+            <q-item-label caption>
+              导出助手为 JSON，用于<a
+                href="https://docs.aiaw.app/usage/assistants.html#分享助手"
+                target="_blank"
+                pri-link
+              >分享或发布助手</a>
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-btn
+              flat
+              label="导出"
+              bg-pri-c
+              text-on-pri-c
+            >
+              <q-menu>
+                <q-item
+                  clickable
+                  v-close-popup
+                  @click="exportFile(`${assistant.name}.json`, assistantJson)"
+                >
+                  <q-item-section>
+                    导出为文件
+                  </q-item-section>
+                </q-item>
+                <q-item
+                  clickable
+                  v-close-popup
+                  @click="copyToClipboard(assistantJson)"
+                >
+                  <q-item-section>
+                    导出到剪贴板
+                  </q-item-section>
+                </q-item>
+              </q-menu>
+            </q-btn>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-page>
   </q-page-container>
@@ -414,7 +503,7 @@ import { usePluginsStore } from 'src/stores/plugins'
 import { AssistantPlugin, Plugin, Assistant } from 'src/utils/types'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import AAvatar from 'src/components/AAvatar.vue'
-import { useQuasar } from 'quasar'
+import { copyToClipboard, exportFile, useQuasar } from 'quasar'
 import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
 import ModelInputItems from 'src/components/ModelInputItems.vue'
 import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
@@ -484,4 +573,9 @@ const rightDrawerAbove = inject('rightDrawerAbove')
 useLocateId(assistant)
 
 useSetTitle(computed(() => assistant.value?.name))
+
+const assistantJson = computed(() => {
+  const { name, avatar, prompt, promptVars, promptTemplate, model, modelSettings, author, homepage, description } = assistant.value
+  return JSON.stringify({ name, avatar, prompt, promptVars, promptTemplate, model, modelSettings, author, homepage, description })
+})
 </script>

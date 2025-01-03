@@ -24,6 +24,7 @@ export default defineConfig({
           { text: '插件配置与开发', link: '/usage/plugin-dev' },
           { text: '提示词变量', link: '/usage/prompt-vars' },
           { text: '工作区', link: '/usage/workspaces' },
+          { text: '助手', link: '/usage/assistants' },
           { text: '个性化设置', link: '/usage/personalization' },
           { text: '数据与同步', link: '/usage/data-sync' },
           { text: '模型服务', link: '/usage/model-service' }

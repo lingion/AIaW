@@ -24,11 +24,29 @@
           </q-item-section>
         </q-item>
         <q-item>
-          <q-item-section avatar>
+          <q-item-section min-w="50px">
             描述
           </q-item-section>
           <q-item-section side>
             {{ plugin.description }}
+          </q-item-section>
+        </q-item>
+        <q-item v-if="plugin.author">
+          <q-item-section>作者</q-item-section>
+          <q-item-section side>
+            {{ plugin.author }}
+          </q-item-section>
+        </q-item>
+        <q-item v-if="plugin.homepage">
+          <q-item-section>主页</q-item-section>
+          <q-item-section side>
+            <a
+              pri-link
+              :href="plugin.homepage"
+              target="_blank"
+            >
+              {{ plugin.homepage }}
+            </a>
           </q-item-section>
         </q-item>
         <q-item

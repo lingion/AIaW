@@ -21,7 +21,7 @@ Gradio 应用在提供简单的界面的同时，也提供了 API。AIaW 的 Gra
 - Gradio 应用可以免费托管在 HF Spaces
 - Gradio 应用生态丰富，如果 HF Spaces 有现成的满足功能的应用，可以直接将其配置为插件而无需开发
 
-关于 Gradio 应用的开发，请参考 [Gradio](https://www.gradio.app/) 的文档。这里我们只讲插件的配置。
+关于 Gradio 应用的开发，请参考 [Gradio](https://www.gradio.app/) 的文档。这里只讲插件的配置。
 
 下面以内置的「图像生成: FLUX」插件为例，介绍 Gradio 插件的配置文件格式：
 
@@ -52,6 +52,8 @@ interface GradioPluginManifest {
   avatar: Avatar
   endpoints: GradioManifestEndpoint[]
   noRoundtrip?: boolean
+  author?: string
+  homepage?: string
 }
 ```
 :::
@@ -69,6 +71,8 @@ interface GradioPluginManifest {
 
   这两种格式都可以。不过，由于中国大陆屏蔽了 HuggingFace 主站，但没有屏蔽 `*.hf.space`，我们建议**始终使用后一种写法**（即使用链接），以避免中国大陆的用户无法调用插件。通过观察两种格式不难发现，由路径简单改写即可得到对应的链接。
 - `noRoundtrip`: 可选；默认情况下，调用工具之后，会携带调用结果再次调用LLM，以根据调用结果生成回答。不过由于这是图像生成插件，生成图像后无需助手继续回答，故将其设置为 `true` 以禁用此行为。
+- `author`: 可选；插件的作者
+- `homepage`: 可选；插件/作者的主页
 
 ### avatar
 

@@ -4,6 +4,43 @@
       助手市场
     </q-toolbar-title>
     <q-space />
+    <q-btn
+      flat
+      dense
+      round
+      icon="sym_o_add"
+      title="导入"
+    >
+      <q-menu>
+        <q-list>
+          <q-item
+            clickable
+            v-close-popup
+            @click="fileInput.click()"
+          >
+            <q-item-section>
+              选择文件
+            </q-item-section>
+          </q-item>
+          <q-item
+            clickable
+            v-close-popup
+            @click="clipboardImport"
+          >
+            <q-item-section>
+              从剪贴板导入
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-menu>
+      <input
+        ref="fileInput"
+        type="file"
+        accept=".json"
+        un-hidden
+        @change="onFileInput"
+      >
+    </q-btn>
   </view-common-header>
   <q-page-container>
     <q-page
@@ -142,13 +179,14 @@ function addToWorkspace(item) {
 }
 function add(item, workspaceId) {
   if (!new Validator(MarketAssistantSchema).validate(item).valid) {
+    console.log(new Validator(MarketAssistantSchema).validate(item).errors)
     $q.notify({
       message: '助手数据格式错误',
       color: 'negative'
     })
     return
   }
-  const { name, avatar, prompt, promptVars, promptTemplate, model, modelSettings } = toRaw(item)
+  const { name, avatar, prompt, promptVars, promptTemplate, model, modelSettings, author, homepage, description } = toRaw(item)
   store.add({
     name,
     avatar,
@@ -157,7 +195,10 @@ function add(item, workspaceId) {
     promptTemplate: promptTemplate ?? AssistantDefaultPrompt,
     workspaceId,
     model,
-    modelSettings: modelSettings ?? { ...defaultModelSettings }
+    modelSettings: modelSettings ?? { ...defaultModelSettings },
+    author,
+    homepage,
+    description
   }).then(() => {
     $q.notify({
       message: '已添加'
@@ -169,5 +210,23 @@ function add(item, workspaceId) {
       color: 'negative'
     })
   })
+}
+
+const fileInput = ref<HTMLInputElement>()
+async function onFileInput() {
+  const file = fileInput.value.files[0]
+  addToGlobal(JSON.parse(await file.text()))
+}
+
+async function clipboardImport() {
+  try {
+    const text = await navigator.clipboard.readText()
+    addToGlobal(JSON.parse(text))
+  } catch (err) {
+    $q.notify({
+      message: '导入失败',
+      color: 'negative'
+    })
+  }
 }
 </script>

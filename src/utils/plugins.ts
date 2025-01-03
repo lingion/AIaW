@@ -201,7 +201,9 @@ function buildLobePlugin(manifest: LobeChatPluginManifest, available: boolean): 
     description: meta.description,
     prompt: manifest.systemRole ?? meta.description,
     settings: settings ?? TObject({}),
-    noRoundtrip: manifest.type === 'markdown'
+    noRoundtrip: manifest.type === 'markdown',
+    author: manifest.author,
+    homepage: manifest.homepage
   }
 }
 function buildHuggingParams(inputs: HuggingPluginManifest['inputs']) {
@@ -340,7 +342,9 @@ function buildGradioPlugin(manifest: GradioPluginManifest, available: boolean): 
     noRoundtrip,
     settings: TObject(settings),
     apis: [...infos, ...tools, ...actions],
-    fileparsers
+    fileparsers,
+    author: manifest.author,
+    homepage: manifest.homepage
   }
 }
 

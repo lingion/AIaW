@@ -55,8 +55,13 @@ const $q = useQuasar()
 function deleteItem(plugin) {
   $q.dialog({
     title: '卸载插件',
-    message: `确定要卸载插件“${plugin.title}”吗？`,
-    cancel: true
+    message: `确定要卸载插件「${plugin.title}」吗？`,
+    cancel: true,
+    ok: {
+      label: '卸载',
+      color: 'err',
+      flat: true
+    }
   }).onOk(() => {
     pluginsStore.uninstall(plugin.id)
   })

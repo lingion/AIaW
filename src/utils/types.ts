@@ -1,5 +1,5 @@
 import { LobeChatPluginManifest, PluginSchema } from '@lobehub/chat-plugin-sdk'
-import { Any, Array, Boolean, Literal, Number, Object, Optional, Static, String, Union } from '@sinclair/typebox'
+import { Any, Array, Boolean, Literal, Null, Number, Object, Optional, Static, String, TSchema, Union } from '@sinclair/typebox'
 import { LanguageModelUsage } from 'ai'
 
 interface ModelSettings {
@@ -193,6 +193,8 @@ interface Plugin {
   promptVars?: PromptVar[]
   settings: PluginSchema
   noRoundtrip?: boolean
+  author?: string
+  homepage?: string
 }
 
 interface InstalledLobePlugin {
@@ -285,6 +287,8 @@ interface GradioPluginManifest {
   avatar: Avatar
   endpoints: GradioManifestEndpoint[]
   noRoundtrip?: boolean
+  author?: string
+  homepage?: string
 }
 const GradioPluginManifestSchema = Object({
   id: String(),
@@ -411,17 +415,23 @@ interface Assistant {
   promptRole: 'system' | 'user' | 'assistant'
   contextNum?: number
   stream: boolean
+  description?: string
+  author?: string
+  homepage?: string
 }
 
+const TSOptional = <T extends TSchema>(schema: T) => Optional(Union([Null(), schema]))
 const MarketAssistantSchema = Object({
   name: String(),
   avatar: Object(undefined),
-  description: String(),
-  prompt: String(),
-  promptVars: Optional(Array(Object(undefined))),
-  promptTemplate: Optional(String()),
-  model: Optional(Object(undefined)),
-  modelSettings: Optional(Object(undefined))
+  description: TSOptional(String()),
+  prompt: TSOptional(String()),
+  promptVars: TSOptional(Array(Object(undefined))),
+  promptTemplate: TSOptional(String()),
+  model: TSOptional(Object(undefined)),
+  modelSettings: TSOptional(Object(undefined)),
+  author: TSOptional(String()),
+  homepage: TSOptional(String())
 })
 type MarketAssistant = Static<typeof MarketAssistantSchema>
 
