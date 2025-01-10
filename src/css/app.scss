@@ -41,10 +41,6 @@ body.body--light {
     background-color: var(--a-sur-c);
   }
 
-  .q-btn--rectangle {
-    border-radius: 4px;
-  }
-
   .q-tooltip--style {
     --at-apply: 'bg-inv-sur text-inv-on-sur';
   }
@@ -95,6 +91,10 @@ body.body--light {
   .q-item--active {
     --at-apply: 'bg-sec-c text-on-sec-c';
   }
+}
+
+.q-btn--rectangle {
+  border-radius: 4px;
 }
 
 .q-field--dark:not(.q-field--highlighted) .q-field__label,
@@ -186,6 +186,10 @@ body.desktop {
   *::-webkit-scrollbar-button {
     display: none;
     /* 隐藏滚动条按钮 */
+  }
+
+  ::-webkit-scrollbar-corner {
+    background-color: transparent;
   }
 }
 

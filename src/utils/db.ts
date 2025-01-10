@@ -1,6 +1,6 @@
 import Dexie from 'dexie'
 import { defaultAvatar, genId } from './functions'
-import { Workspace, Folder, Dialog, Message, Assistant, Canvas, StoredReactive, InstalledPlugin, AvatarImage, StoredItem } from './types'
+import { Workspace, Folder, Dialog, Message, Assistant, Artifact, StoredReactive, InstalledPlugin, AvatarImage, StoredItem } from './types'
 import { AssistantDefaultPrompt, exampleWsIndexContent } from './templates'
 import dexieCloud, { DexieCloudTable } from 'dexie-cloud-addon'
 import { DexieDBURL } from './config'
@@ -10,7 +10,7 @@ type Db = Dexie & {
   dialogs: DexieCloudTable<Dialog, 'id'>
   messages: DexieCloudTable<Message, 'id'>
   assistants: DexieCloudTable<Assistant, 'id'>
-  canvases: DexieCloudTable<Canvas, 'id'>
+  canvases: DexieCloudTable<Artifact, 'id'>
   installedPluginsV2: DexieCloudTable<InstalledPlugin, 'id'>
   reactives: DexieCloudTable<StoredReactive, 'key'>
   avatarImages: DexieCloudTable<AvatarImage, 'id'>

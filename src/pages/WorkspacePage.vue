@@ -4,36 +4,102 @@
     <q-drawer
       show-if-above
       bg-sur-c-low
-      :width="250"
+      :width="drawerWidth"
       :breakpoint="drawerBreakpoint"
       side="right"
       v-model="drawerOpen"
+      flex
     >
       <div
-        h="48px"
-        p-2
-        flex
-        items-center
+        v-if="showArtifacts"
+        h-full
+        min-w-0
+        flex="~ col 1"
+        pl-2
       >
-        <q-space />
-        <q-btn
-          flat
-          dense
-          round
-          icon="sym_o_home"
-          :to="`/workspaces/${id}`"
-          :class="{'route-active': $route.path === `/workspaces/${id}`}"
-        />
-        <q-btn
-          flat
-          dense
-          round
-          icon="sym_o_settings"
-          :to="`/workspaces/${id}/settings`"
-          :class="{'route-active': $route.path === `/workspaces/${id}/settings`}"
+        <div
+          flex
+          items-center
+          h="50px"
+        >
+          <q-tabs
+            inline-label
+            dense
+            mt="14px"
+            rd-t
+          >
+            <q-route-tab
+              no-caps
+              v-for="artifact in openedArtifacts"
+              :key="artifact.id"
+              :to="{ query: { artifactId: artifact.id } }"
+              :class="{'text-pri': focusedArtifact?.id === artifact.id}"
+              pl-3
+              pr-2
+            >
+              <q-icon name="sym_o_code" />
+              <div ml-2>
+                {{ artifact.name }}
+              </div>
+              <q-btn
+                ml-1
+                flat
+                dense
+                round
+                icon="sym_o_close"
+                title="关闭"
+                size="sm"
+                text-out
+                @click.prevent.stop="closeArtifact(artifact)"
+              />
+            </q-route-tab>
+          </q-tabs>
+          <q-space />
+          <q-btn
+            flat
+            dense
+            round
+            icon="sym_o_close"
+            text-on-sur-var
+            @click="closeAllArtifacts"
+          />
+        </div>
+        <edit-artifact
+          :artifact="focusedArtifact"
+          v-if="focusedArtifact"
         />
       </div>
-      <div>
+      <div
+        w="250px"
+        h-full
+        flex="~ col"
+      >
+        <div
+          h="48px"
+          p-2
+          flex
+          items-center
+        >
+          <q-space />
+          <q-btn
+            flat
+            dense
+            round
+            icon="sym_o_home"
+            :to="`/workspaces/${id}`"
+            :class="{'route-active': $route.path === `/workspaces/${id}`}"
+            title="工作区主页"
+          />
+          <q-btn
+            flat
+            dense
+            round
+            icon="sym_o_settings"
+            :to="`/workspaces/${id}/settings`"
+            :class="{'route-active': $route.path === `/workspaces/${id}/settings`}"
+            title="工作区设置"
+          />
+        </div>
         <q-expansion-item
           label="助手"
           header-class="text-lg"
@@ -46,9 +112,40 @@
         </q-expansion-item>
         <q-separator />
         <q-expansion-item
+          label="Artifacts"
+          header-class="text-lg"
+          max-h="40vh"
+        >
+          <artifacts-list
+            mt-2
+            :workspace-id="workspace.id"
+          />
+        </q-expansion-item>
+        <div py-2>
+          <q-btn
+            ml-2
+            flat
+            icon="sym_o_add"
+            label="创建"
+            text-sec
+            @click="createEmptyArtifact"
+          />
+          <select-file-btn
+            ml-2
+            flat
+            icon="sym_o_file_open"
+            label="选择文件"
+            text-sec
+            @input="artifactFromFiles"
+          />
+        </div>
+        <q-separator />
+        <q-expansion-item
           label="对话"
           header-class="text-lg"
           default-opened
+          flex-1
+          of-y-auto
         >
           <dialog-list />
         </q-expansion-item>
@@ -65,13 +162,21 @@
 import { computed, provide, ref, watch } from 'vue'
 import AssistantList from 'src/components/AssistantList.vue'
 import DialogList from 'src/components/DialogList.vue'
+import ArtifactsList from 'src/components/ArtifactsList.vue'
 import { useWorkspacesStore } from 'src/stores/workspaces'
 import { useLiveQueryWithDeps } from 'src/composables/live-query'
 import { db } from 'src/utils/db'
-import { Workspace, Dialog } from 'src/utils/types'
+import { Workspace, Dialog, Artifact } from 'src/utils/types'
 import { useUserDataStore } from 'src/stores/user-data'
 import { useQuasar } from 'quasar'
 import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
+import { useCreateArtifact } from 'src/composables/create-artifact'
+import { dialogOptions } from 'src/utils/values'
+import SelectFileBtn from 'src/components/SelectFileBtn.vue'
+import { getFileExt, isTextFile } from 'src/utils/functions'
+import { useRoute, useRouter } from 'vue-router'
+import EditArtifact from 'src/views/EditArtifact.vue'
+import { useCloseArtifact } from 'src/composables/close-artifact'
 
 const props = defineProps<{
   id: string
@@ -81,9 +186,71 @@ const workspacesStore = useWorkspacesStore()
 
 const workspace = computed(() => workspacesStore.workspaces.find(item => item.id === props.id) as Workspace)
 const dialogs = useLiveQueryWithDeps(() => props.id, () => db.dialogs.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Dialog[] })
+const artifacts = useLiveQueryWithDeps(() => props.id, () => db.canvases.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Artifact[] })
 
 provide('workspace', workspace)
 provide('dialogs', dialogs)
+provide('artifacts', artifacts)
+
+const $q = useQuasar()
+const { createArtifact } = useCreateArtifact(workspace)
+function createEmptyArtifact() {
+  $q.dialog({
+    title: '创建 Artifact',
+    prompt: {
+      model: '',
+      type: 'text',
+      label: '名称',
+      isValid: v => !!v.trim()
+    },
+    cancel: true,
+    ok: '创建',
+    ...dialogOptions
+  }).onOk(name => {
+    const language = getFileExt(name)
+    createArtifact({ name, language }, 'edit')
+  })
+}
+async function artifactFromFiles(files: File[]) {
+  for (const file of files) {
+    if (!await isTextFile(file)) {
+      console.log('非文本文件', file)
+      $q.notify({
+        message: `非文本文件：${file.name}`,
+        color: 'negative'
+      })
+      continue
+    }
+    const text = await file.text()
+    await createArtifact({
+      name: file.name,
+      language: getFileExt(file.name),
+      versions: [{ date: new Date(file.lastModified), text }],
+      currIndex: 0,
+      tmp: text
+    })
+  }
+}
+const drawerBreakpoint = 960
+const openedArtifacts = computed(() => artifacts.value.filter(a => a.open))
+const showArtifacts = computed(() => $q.screen.width > drawerBreakpoint && openedArtifacts.value.length)
+const route = useRoute()
+const focusedArtifact = computed(() =>
+  openedArtifacts.value.find(a => a.id === route.query.artifactId) || openedArtifacts.value.at(-1)
+)
+const router = useRouter()
+watch(focusedArtifact, val => {
+  if (val && val.id !== route.query.artifactId) {
+    router.replace({ query: { artifactId: val.id } })
+  }
+}, { immediate: true })
+const { closeArtifact } = useCloseArtifact()
+function closeAllArtifacts() {
+  for (const artifact of openedArtifacts.value) {
+    closeArtifact(artifact)
+  }
+}
+const drawerWidth = computed(() => showArtifacts.value ? innerWidth / 2 : 250)
 
 const { data } = useUserDataStore()
 watch(workspace, val => {
@@ -94,8 +261,6 @@ watch(workspace, val => {
 
 const drawerOpen = ref(false)
 
-const drawerBreakpoint = 960
-const $q = useQuasar()
 const rightDrawerAbove = computed(() => $q.screen.width > drawerBreakpoint)
 provide('rightDrawerAbove', rightDrawerAbove)
 </script>

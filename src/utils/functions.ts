@@ -1,5 +1,5 @@
 import { Hct, hexFromArgb } from '@material/material-color-utilities'
-import { Avatar, PlatformEnabled } from './types'
+import { Artifact, Avatar, PlatformEnabled } from './types'
 import { Platform } from 'quasar'
 
 function randomHash(digits = 64) {
@@ -122,6 +122,28 @@ function isPlatformEnabled(platform: PlatformEnabled) {
   return false
 }
 
+function getFileExt(filename: string) {
+  return filename.match(/\.(\w+)$/)?.[1]
+}
+
+function saveArtifactChanges(artifact: Artifact): Partial<Artifact> {
+  return {
+    versions: [
+      ...artifact.versions.slice(0, artifact.currIndex + 1),
+      {
+        date: new Date(),
+        text: artifact.tmp
+      }
+    ],
+    currIndex: artifact.currIndex + 1
+  }
+}
+function restoreArtifactChanges(artifact: Artifact): Partial<Artifact> {
+  return {
+    tmp: artifact.versions[artifact.currIndex].text
+  }
+}
+
 export {
   randomHash,
   escapeRegex,
@@ -141,5 +163,8 @@ export {
   pageFhStyle,
   almostEqual,
   isPlatformEnabled,
-  textBeginning
+  textBeginning,
+  getFileExt,
+  saveArtifactChanges,
+  restoreArtifactChanges
 }

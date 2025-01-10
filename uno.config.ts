@@ -1,6 +1,6 @@
 import { Hct, hexFromArgb } from '@material/material-color-utilities'
 import presetRemToPx from '@unocss/preset-rem-to-px'
-import { defineConfig, presetAttributify, presetUno, transformerDirectives } from 'unocss'
+import { defineConfig, presetAttributify, presetUno, transformerDirectives, transformerVariantGroup } from 'unocss'
 
 const textColors = {
   pri: 'var(--a-pri)',
@@ -101,6 +101,7 @@ export default defineConfig({
     ...Object.keys(bgColors).map(x => `bg-${x}`)
   ],
   transformers: [
-    transformerDirectives()
+    transformerDirectives(),
+    transformerVariantGroup()
   ]
 })

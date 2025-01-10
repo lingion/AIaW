@@ -86,7 +86,7 @@ pnpm install
 # 构建为 PWA，输出在 dist/pwa
 pnpm build -m pwa
 
-# 构建为普通 SPA，输出在 dist/spa
+# 或者构建为普通 SPA，输出在 dist/spa
 pnpm build
 ```
 

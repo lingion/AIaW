@@ -40,7 +40,6 @@
     "dexie": "^4.0.10",
     "dexie-cloud-addon": "^4.0.8",
     "expr-eval": "^2.0.2",
-    "highlight.js": "^11.10.0",
     "json-schema": "^0.4.0",
     "liquidjs": "^10.16.7",
     "md-editor-v3": "^5.0.2",
