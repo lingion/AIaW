@@ -24,6 +24,7 @@ export function useLoginDialogs() {
         },
         cancel: true,
         ok: '下一步',
+        noRouteDismiss: true,
         ...dialogOptions
       }).onOk(email => {
         interaction.onSubmit({ email })
@@ -39,6 +40,7 @@ export function useLoginDialogs() {
         },
         cancel: true,
         persistent: true,
+        noRouteDismiss: true,
         ...dialogOptions
       }).onOk(otp => {
         interaction.onSubmit({ otp })

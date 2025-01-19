@@ -157,6 +157,9 @@ const dialogOptions = {
   color: 'primary'
 }
 
+const mdPreviewThemes = ['default', 'vuepress', 'github', 'mk-cute', 'smart-blue', 'cyanosis', 'arknights']
+const mdCodeThemes = ['atom', 'ally', 'github', 'gradient', 'kimbie', 'paraiso', 'qtcreator', 'stackoverflow']
+
 const codeExtensions = [
   'abap',
   'asc',
@@ -1710,4 +1713,14 @@ const materialSymbols = [
   'chalet'
 ]
 
-export { ProviderTypes, models, InputTypes, modelOptions, dialogOptions, codeExtensions, materialSymbols }
+export {
+  ProviderTypes,
+  models,
+  InputTypes,
+  modelOptions,
+  dialogOptions,
+  codeExtensions,
+  materialSymbols,
+  mdPreviewThemes,
+  mdCodeThemes
+}

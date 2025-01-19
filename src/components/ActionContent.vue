@@ -67,8 +67,7 @@
       <template #default>
         <md-preview
           :model-value="contentMd"
-          preview-theme="vuepress"
-          :theme="$q.dark.isActive ? 'dark' : 'light'"
+          v-bind="mdPreviewProps"
           bg-sur-c-low
         />
       </template>
@@ -86,6 +85,7 @@ import { MdPreview } from 'md-editor-v3'
 import { useCallApi } from 'src/composables/call-api'
 import { genId } from 'src/utils/functions'
 import { db } from 'src/utils/db'
+import { useMdPreviewProps } from 'src/composables/md-preview-props'
 
 const props = defineProps<{
   content: AssistantActionContent
@@ -145,4 +145,6 @@ async function execute() {
     status: error ? 'failed' : 'completed'
   })
 }
+
+const mdPreviewProps = useMdPreviewProps()
 </script>

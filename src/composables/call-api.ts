@@ -19,17 +19,17 @@ export function useCallApi({ workspace, dialog }) {
   async function callApi(plugin: Plugin, api: PluginApi, args): Promise<{ result?: ApiResultItem[], error?: string }> {
     const { valid: argValid } = new Validator(api.parameters as Schema).validate(args)
     if (!argValid) {
-      return { result: null, error: 'Arguments validation failed' }
+      return { result: [], error: '调用参数校验失败' }
     }
     const { valid: SettingsValid, settings } = getPluginSettings(plugin)
     if (!SettingsValid) {
-      return { result: null, error: 'Plugin settings validation failed' }
+      return { result: [], error: '插件设置校验失败，请检查插件设置' }
     }
     try {
       const result = await api.execute(args, settings)
       return { result, error: null }
     } catch (e) {
-      return { result: null, error: e.message }
+      return { result: [], error: e.message }
     }
   }
   return { getPluginSettings, callApi }

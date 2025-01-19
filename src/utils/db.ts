@@ -1,7 +1,7 @@
 import Dexie from 'dexie'
 import { defaultAvatar, genId } from './functions'
-import { Workspace, Folder, Dialog, Message, Assistant, Canvas, StoredReactive, InstalledPlugin, AvatarImage, StoredItem } from './types'
-import { AssistantDefaultPrompt, exampleWsIndexContent } from './templates'
+import { Workspace, Folder, Dialog, Message, Assistant, Artifact, StoredReactive, InstalledPlugin, AvatarImage, StoredItem } from './types'
+import { AssistantDefaultPrompt, ExampleWsIndexContent } from './templates'
 import dexieCloud, { DexieCloudTable } from 'dexie-cloud-addon'
 import { DexieDBURL } from './config'
 
@@ -10,7 +10,7 @@ type Db = Dexie & {
   dialogs: DexieCloudTable<Dialog, 'id'>
   messages: DexieCloudTable<Message, 'id'>
   assistants: DexieCloudTable<Assistant, 'id'>
-  canvases: DexieCloudTable<Canvas, 'id'>
+  artifacts: DexieCloudTable<Artifact, 'id'>
   installedPluginsV2: DexieCloudTable<InstalledPlugin, 'id'>
   reactives: DexieCloudTable<StoredReactive, 'key'>
   avatarImages: DexieCloudTable<AvatarImage, 'id'>
@@ -27,12 +27,12 @@ if (DexieDBURL) {
     nameSuffix: false
   })
 }
-db.version(4).stores({
+db.version(5).stores({
   workspaces: 'id, type, parentId',
   dialogs: 'id, workspaceId',
   messages: 'id, type, dialogId',
   assistants: 'id, workspaceId',
-  canvases: 'id, workspaceId',
+  artifacts: 'id, workspaceId',
   installedPluginsV2: 'key, id',
   reactives: 'key',
   avatarImages: 'id',
@@ -60,7 +60,7 @@ db.on.populate.subscribe(() => {
       parentId: '$root',
       prompt: '',
       defaultAssistantId: initialAssistantId,
-      indexContent: exampleWsIndexContent,
+      indexContent: ExampleWsIndexContent,
       vars: {}
     } as Workspace)
     db.assistants.add({

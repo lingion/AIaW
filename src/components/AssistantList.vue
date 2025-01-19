@@ -41,7 +41,7 @@
           <menu-item
             icon="sym_o_delete"
             label="删除"
-            @click="deleteItem(assistant.id)"
+            @click="deleteItem(assistant)"
             hover:text-err
           />
         </q-list>
@@ -75,6 +75,7 @@ import AAvatar from './AAvatar.vue'
 import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
 import { useCreateDialog } from 'src/composables/create-dialog'
 import MenuItem from './MenuItem.vue'
+import { dialogOptions } from 'src/utils/values'
 
 const props = defineProps<{
   workspaceId: string
@@ -107,16 +108,17 @@ function moveToWorkspace(id) {
     move(id, workspaceId)
   })
 }
-function deleteItem(id) {
+function deleteItem({ id, name }) {
   $q.dialog({
     title: '删除助手',
-    message: '确定要删除助手吗？',
+    message: `确定要删除助手「${name}」吗？`,
     cancel: true,
     ok: {
       label: '删除',
       color: 'err',
       flat: true
-    }
+    },
+    ...dialogOptions
   }).onOk(() => {
     assistantsStore.delete(id)
   })

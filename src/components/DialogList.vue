@@ -29,7 +29,7 @@
       v-for="dialog in filteredDialogs"
       :key="dialog.id"
       clickable
-      :to="`/workspaces/${workspace.id}/dialogs/${dialog.id}`"
+      :to="{ path: `/workspaces/${workspace.id}/dialogs/${dialog.id}`, query: $route.query }"
       active-class="bg-sec-c text-on-sec-c"
       item-rd
       min-h="40px"
@@ -44,7 +44,7 @@
           <menu-item
             icon="sym_o_edit"
             label="修改标题"
-            @click="renameItem(dialog.id, dialog.name)"
+            @click="renameItem(dialog)"
           />
           <menu-item
             icon="sym_o_auto_fix"
@@ -54,12 +54,12 @@
           <menu-item
             icon="sym_o_move_item"
             label="移动至"
-            @click="moveItem(dialog.id)"
+            @click="moveItem(dialog)"
           />
           <menu-item
             icon="sym_o_delete"
             label="删除"
-            @click="deleteItem(dialog.id)"
+            @click="deleteItem(dialog)"
             hover:text-err
           />
         </q-list>
@@ -95,14 +95,14 @@ async function addItem() {
   await createDialog()
 }
 
-function renameItem(id, oldName) {
+function renameItem({ id, name }) {
   $q.dialog({
-    title: '重命名',
-    message: '请输入新名称：',
+    title: '修改标题',
     prompt: {
-      model: oldName,
+      model: name,
       type: 'text',
-      isValid: v => v.trim() && v !== oldName
+      label: '标题',
+      isValid: v => v.trim() && v !== name
     },
     cancel: true,
     ...dialogOptions
@@ -110,7 +110,7 @@ function renameItem(id, oldName) {
     db.dialogs.update(id, { name: newName.trim() })
   })
 }
-function moveItem(id) {
+function moveItem({ id }) {
   $q.dialog({
     component: SelectWorkspaceDialog,
     componentProps: {
@@ -120,10 +120,10 @@ function moveItem(id) {
     db.dialogs.update(id, { workspaceId })
   })
 }
-function deleteItem(id) {
+function deleteItem({ id, name }) {
   $q.dialog({
     title: '删除对话',
-    message: '确定要删除对话吗？',
+    message: `确定要删除对话「${name}」吗？`,
     cancel: true,
     ok: {
       label: '删除',

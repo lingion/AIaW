@@ -13,8 +13,7 @@
         bg-sur
         rd-lg
         :model-value="contentMd"
-        preview-theme="vuepress"
-        :theme="$q.dark.isActive ? 'dark' : 'light'"
+        v-bind="mdPreviewProps"
         max-w="1000px"
         m-a
       />
@@ -31,6 +30,7 @@ import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import { MdPreview } from 'md-editor-v3'
 import { engine } from 'src/utils/template-engine'
 import { useSetTitle } from 'src/composables/set-title'
+import { useMdPreviewProps } from 'src/composables/md-preview-props'
 
 defineEmits(['toggle-drawer'])
 
@@ -44,4 +44,6 @@ const workspace = syncRef(
 const contentMd = computed(() => engine.parseAndRenderSync(workspace.value.indexContent, { workspace: workspace.value }))
 
 useSetTitle(computed(() => workspace.value?.name))
+
+const mdPreviewProps = useMdPreviewProps()
 </script>

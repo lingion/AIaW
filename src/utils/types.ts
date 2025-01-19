@@ -435,19 +435,22 @@ const MarketAssistantSchema = Object({
 })
 type MarketAssistant = Static<typeof MarketAssistantSchema>
 
-interface CanvasVersion {
+interface ArtifactVersion {
   date: Date
   text: string
 }
 
-interface Canvas {
+interface Artifact {
   id: string
   name: string
   workspaceId: string
-  versions: CanvasVersion[]
+  versions: ArtifactVersion[]
   currIndex: number
   readable: boolean
   writable: boolean
+  open: boolean
+  language?: string
+  tmp: string
 }
 
 interface StoredReactive {
@@ -468,6 +471,12 @@ interface ShortcutKey {
 }
 
 type PlatformEnabled = 'always' | 'desktop-only' | 'mobile-only' | 'never'
+
+interface ConvertArtifactOptions {
+  name?: string
+  lang?: string
+  reserveOriginal: boolean
+}
 
 export {
   ApiCallError,
@@ -502,7 +511,7 @@ export type {
   Dialog,
   Message,
   Assistant,
-  Canvas,
+  Artifact,
   StoredReactive,
   StoredItem,
   StoredItemId,
@@ -533,5 +542,6 @@ export type {
   MarketAssistant,
   OrderItem,
   ShortcutKey,
-  PlatformEnabled
+  PlatformEnabled,
+  ConvertArtifactOptions
 }

@@ -41,10 +41,6 @@ body.body--light {
     background-color: var(--a-sur-c);
   }
 
-  .q-btn--rectangle {
-    border-radius: 4px;
-  }
-
   .q-tooltip--style {
     --at-apply: 'bg-inv-sur text-inv-on-sur';
   }
@@ -95,6 +91,16 @@ body.body--light {
   .q-item--active {
     --at-apply: 'bg-sec-c text-on-sec-c';
   }
+
+  .q-btn.sm-icon .q-icon,
+  .q-btn[sm-icon=""] .q-icon {
+    font-size: 1.4em;
+    margin-right: 8px;
+  }
+}
+
+.q-btn--rectangle {
+  border-radius: 4px;
 }
 
 .q-field--dark:not(.q-field--highlighted) .q-field__label,
@@ -187,12 +193,16 @@ body.desktop {
     display: none;
     /* 隐藏滚动条按钮 */
   }
+
+  ::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
 }
 
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 
 .fade-enter-from,
@@ -200,8 +210,8 @@ body.desktop {
   opacity: 0;
 }
 
-/* MD vuepress theme override */
-body .vuepress-theme {
+/* MD theme override */
+body div.md-editor-preview {
   word-break: normal;
 
   --md-theme-quote-border: 4px solid var(--a-pri) !important;
@@ -209,7 +219,11 @@ body .vuepress-theme {
   --md-theme-link-hover-color: var(--a-pri-dim) !important;
 
   h1 {
-    font-size: 2em;
+    font-size: 1.8em;
+  }
+
+  h2 {
+    font-size: 1.55em;
   }
 
   p {
@@ -219,6 +233,32 @@ body .vuepress-theme {
   .katex-html {
     overflow-x: auto;
     overflow-y: hidden;
+  }
+
+  .md-editor-code-action {
+    user-select: none;
+
+    .md-editor-copy-button,
+    .md-editor-convert-artifact {
+      font-family: 'Material Symbols Outlined';
+      line-height: 32px;
+      font-size: 16px;
+    }
+
+    .md-editor-lang,
+    .md-editor-copy-button,
+    .md-editor-convert-artifact {
+      margin-right: 0 !important;
+      padding: 0 4px;
+    }
+
+    .md-editor-collapse-tips {
+      margin-right: 8px !important;
+    }
+  }
+
+  router-link {
+    --at-apply: 'pri-link cursor-pointer font-600';
   }
 }
 
