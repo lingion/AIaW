@@ -15,10 +15,10 @@ export function useCloseArtifact() {
         }
       }).onOk((save: boolean) => {
         const changes = save ? saveArtifactChanges(artifact) : restoreArtifactChanges(artifact)
-        db.canvases.update(artifact.id, { open: false, ...changes })
+        db.artifacts.update(artifact.id, { open: false, ...changes })
       })
     } else {
-      db.canvases.update(artifact.id, { open: false })
+      db.artifacts.update(artifact.id, { open: false })
     }
   }
   return { closeArtifact }

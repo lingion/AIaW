@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="mode === 'edit'"
     flex-1
     of-y-auto
   >
@@ -7,6 +8,18 @@
       :language="props.artifact.language"
       :model-value="props.artifact.tmp"
       @update:model-value="update({ tmp: $event })"
+    />
+  </div>
+  <div
+    v-else
+    flex-1
+    of-y-auto
+    bg-sur
+  >
+    <md-preview
+      :model-value="props.artifact.tmp"
+      v-bind="mdPreviewProps"
+      bg-sur
     />
   </div>
   <div
@@ -29,7 +42,7 @@
       />
     </div>
     <q-space />
-    <div>
+    <div mr-2>
       <q-input
         :model-value="artifact.language"
         @update:model-value="update({ language: $event as string })"
@@ -39,7 +52,25 @@
         class="w-120px"
       />
     </div>
-    <div ml-2>
+    <q-btn
+      v-if="mode === 'view'"
+      icon="sym_o_edit"
+      title="编辑"
+      @click="mode = 'edit'"
+      flat
+      dense
+      round
+    />
+    <q-btn
+      v-if="viewable && mode === 'edit'"
+      icon="sym_o_preview"
+      title="预览"
+      @click="mode = 'view'"
+      flat
+      dense
+      round
+    />
+    <div>
       <q-checkbox
         ml-2
         label="可读"
@@ -66,16 +97,18 @@ import CodeJar from 'src/components/CodeJar.vue'
 import { useListenKey } from 'src/composables/listen-key'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { db } from 'src/utils/db'
-import { saveArtifactChanges } from 'src/utils/functions'
+import { artifactUnsaved, saveArtifactChanges } from 'src/utils/functions'
 import { Artifact } from 'src/utils/types'
-import { toRef } from 'vue'
+import { computed, ref, toRef, watchEffect } from 'vue'
+import { useMdPreviewProps } from 'src/composables/md-preview-props'
+import { MdPreview } from 'md-editor-v3'
 
 const props = defineProps<{
   artifact: Artifact
 }>()
 
 function update(changes: Partial<Artifact>) {
-  db.canvases.update(props.artifact.id, changes)
+  db.artifacts.update(props.artifact.id, changes)
 }
 function setIndex(index: number) {
   update({
@@ -85,9 +118,17 @@ function setIndex(index: number) {
 }
 function save() {
   const { artifact } = props
-  if (artifact.tmp === artifact.versions[artifact.currIndex].text) return
-  db.canvases.update(artifact.id, saveArtifactChanges(artifact))
+  if (!artifactUnsaved(artifact)) return
+  db.artifacts.update(artifact.id, saveArtifactChanges(artifact))
 }
 const { perfs } = useUserPerfsStore()
 useListenKey(toRef(perfs, 'saveArtifactKey'), save)
+
+const mode = ref<'edit' | 'view'>('edit')
+const viewable = computed(() => ['markdown', 'md', 'svg', 'txt'].includes(props.artifact.language))
+watchEffect(() => {
+  mode.value = viewable.value ? 'view' : 'edit'
+})
+
+const mdPreviewProps = useMdPreviewProps()
 </script>

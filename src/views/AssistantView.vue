@@ -468,7 +468,7 @@
                 <q-item
                   clickable
                   v-close-popup
-                  @click="exportFile(`${assistant.name}.json`, assistantJson)"
+                  @click="exportAssistant('file')"
                 >
                   <q-item-section>
                     导出为文件
@@ -477,7 +477,7 @@
                 <q-item
                   clickable
                   v-close-popup
-                  @click="copyToClipboard(assistantJson)"
+                  @click="exportAssistant('clipboard')"
                 >
                   <q-item-section>
                     导出到剪贴板
@@ -509,8 +509,9 @@ import ModelInputItems from 'src/components/ModelInputItems.vue'
 import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
 import PluginTypeBadge from 'src/components/PluginTypeBadge.vue'
 import { useLocateId } from 'src/composables/locate-id'
-import { pageFhStyle } from 'src/utils/functions'
+import { blobToBase64, pageFhStyle } from 'src/utils/functions'
 import { useSetTitle } from 'src/composables/set-title'
+import { db } from 'src/utils/db'
 
 const props = defineProps<{
   id: string
@@ -574,8 +575,19 @@ useLocateId(assistant)
 
 useSetTitle(computed(() => assistant.value?.name))
 
-const assistantJson = computed(() => {
-  const { name, avatar, prompt, promptVars, promptTemplate, model, modelSettings, author, homepage, description } = assistant.value
-  return JSON.stringify({ name, avatar, prompt, promptVars, promptTemplate, model, modelSettings, author, homepage, description })
-})
+async function exportAssistant(target: 'file' | 'clipboard') {
+  let { avatar } = assistant.value
+  if (avatar.type === 'image') {
+    const avatarImage = await db.avatarImages.get(avatar.imageId)
+    const base64 = await blobToBase64(new Blob([avatarImage.contentBuffer], { type: avatarImage.mimeType }))
+    avatar = { type: 'url', url: base64 }
+  }
+  const { name, prompt, promptVars, promptTemplate, model, modelSettings, author, homepage, description } = assistant.value
+  const json = JSON.stringify({ name, avatar, prompt, promptVars, promptTemplate, model, modelSettings, author, homepage, description })
+  if (target === 'file') {
+    exportFile(`${name}.json`, json)
+  } else {
+    copyToClipboard(json)
+  }
+}
 </script>

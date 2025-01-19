@@ -179,7 +179,6 @@ function addToWorkspace(item) {
 }
 function add(item, workspaceId) {
   if (!new Validator(MarketAssistantSchema).validate(item).valid) {
-    console.log(new Validator(MarketAssistantSchema).validate(item).errors)
     $q.notify({
       message: '助手数据格式错误',
       color: 'negative'

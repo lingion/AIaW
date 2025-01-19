@@ -60,6 +60,7 @@ function onDrop({ dataTransfer }) {
   }
 }
 function onPaste(ev: ClipboardEvent) {
+  if (!show.value) return
   ev.stopPropagation()
   if (ev.clipboardData.files.length) {
     emit('input', Array.from(ev.clipboardData.files))

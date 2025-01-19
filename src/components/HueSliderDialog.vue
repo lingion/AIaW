@@ -16,6 +16,7 @@
             label="Hue"
             v-model.number="model"
             class="grow"
+            @keyup.enter="onDialogOK(model)"
           />
           <hct-preview-circle
             m-1

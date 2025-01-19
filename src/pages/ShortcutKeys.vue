@@ -200,6 +200,23 @@
             />
           </q-item-section>
         </q-item>
+        <q-separator spaced />
+        <q-item-label header>
+          编辑 Artifacts
+        </q-item-label>
+        <q-item>
+          <q-item-section>
+            <q-item-label>
+              保存 Artifact
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <shortcut-key-input
+              v-model="perfs.saveArtifactKey"
+              v-bind="inputProps"
+            />
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-page>
   </q-page-container>

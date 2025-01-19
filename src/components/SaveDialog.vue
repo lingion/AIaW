@@ -2,6 +2,7 @@
   <q-dialog
     ref="dialogRef"
     @hide="onDialogHide"
+    no-route-dismiss
   >
     <q-card min-w="320px">
       <q-card-section>

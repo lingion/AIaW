@@ -144,6 +144,19 @@ function restoreArtifactChanges(artifact: Artifact): Partial<Artifact> {
   }
 }
 
+function blobToBase64(blob: Blob) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(reader.result as string)
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
+}
+
+function artifactUnsaved(artifact: Artifact) {
+  return artifact.tmp !== artifact.versions[artifact.currIndex].text
+}
+
 export {
   randomHash,
   escapeRegex,
@@ -166,5 +179,7 @@ export {
   textBeginning,
   getFileExt,
   saveArtifactChanges,
-  restoreArtifactChanges
+  restoreArtifactChanges,
+  blobToBase64,
+  artifactUnsaved
 }

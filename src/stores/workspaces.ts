@@ -3,7 +3,7 @@ import { useLiveQuery } from 'src/composables/live-query'
 import { db } from 'src/utils/db'
 import { genId } from 'src/utils/functions'
 import { Folder, Workspace } from 'src/utils/types'
-import { defaultWsIndexContent } from 'src/utils/templates'
+import { DefaultWsIndexContent } from 'src/utils/templates'
 
 export const useWorkspacesStore = defineStore('workspaces', () => {
   const workspaces = useLiveQuery(() => db.workspaces.toArray(), { initialValue: [] as Workspace[] })
@@ -16,7 +16,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
       type: 'workspace',
       parentId: '$root',
       prompt: '',
-      indexContent: defaultWsIndexContent,
+      indexContent: DefaultWsIndexContent,
       vars: {},
       ...props
     } as Workspace)
@@ -46,14 +46,14 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
     for (const key of keys) {
       await deleteItem(key)
     }
-    await db.transaction('rw', [db.workspaces, db.dialogs, db.messages, db.items, db.assistants, db.canvases], async () => {
+    await db.transaction('rw', [db.workspaces, db.dialogs, db.messages, db.items, db.assistants, db.artifacts], async () => {
       await db.dialogs.where('workspaceId').equals(id).eachKey(dialogId => {
         db.messages.where('dialogId').equals(dialogId).delete()
         db.items.where('dialogId').equals(dialogId).delete()
       })
       await db.dialogs.where('workspaceId').equals(id).delete()
       await db.assistants.where('workspaceId').equals(id).delete()
-      await db.canvases.where('workspaceId').equals(id).delete()
+      await db.artifacts.where('workspaceId').equals(id).delete()
       await db.workspaces.delete(id)
     })
     return true

@@ -77,6 +77,9 @@ importers:
       dexie-cloud-addon:
         specifier: ^4.0.8
         version: 4.0.8(dexie@4.0.10)
+      dexie-export-import:
+        specifier: ^4.1.4
+        version: 4.1.4(dexie@4.0.10)
       expr-eval:
         specifier: ^2.0.2
         version: 2.0.2
@@ -87,8 +90,8 @@ importers:
         specifier: ^10.16.7
         version: 10.16.7
       md-editor-v3:
-        specifier: ^5.0.2
-        version: 5.0.2(@codemirror/view@6.33.0)(@lezer/common@1.2.1)(vue@3.5.12(typescript@5.5.4))
+        specifier: ^5.2.1
+        version: 5.2.1(@codemirror/view@6.33.0)(@lezer/common@1.2.1)(vue@3.5.12(typescript@5.5.4))
       ollama-ai-provider:
         specifier: ^1.1.0
         version: 1.1.0(zod@3.23.8)
@@ -1838,51 +1841,61 @@ packages:
     resolution: {integrity: sha512-QAg11ZIt6mcmzpNE6JZBpKfJaKkqTm1A9+y9O+frdZJEuhQxiugM05gnCWiANHj4RmbgeVJpTdmKRmH/a+0QbA==}
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-arm-musleabihf@4.28.1':
     resolution: {integrity: sha512-dRP9PEBfolq1dmMcFqbEPSd9VlRuVWEGSmbxVEfiq2cs2jlZAl0YNxFzAQS2OrQmsLBLAATDMb3Z6MFv5vOcXg==}
     cpu: [arm]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-arm64-gnu@4.28.1':
     resolution: {integrity: sha512-uGr8khxO+CKT4XU8ZUH1TTEUtlktK6Kgtv0+6bIFSeiSlnGJHG1tSFSjm41uQ9sAO/5ULx9mWOz70jYLyv1QkA==}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-arm64-musl@4.28.1':
     resolution: {integrity: sha512-QF54q8MYGAqMLrX2t7tNpi01nvq5RI59UBNx+3+37zoKX5KViPo/gk2QLhsuqok05sSCRluj0D00LzCwBikb0A==}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-loongarch64-gnu@4.28.1':
     resolution: {integrity: sha512-vPul4uodvWvLhRco2w0GcyZcdyBfpfDRgNKU+p35AWEbJ/HPs1tOUrkSueVbBS0RQHAf/A+nNtDpvw95PeVKOA==}
     cpu: [loong64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-powerpc64le-gnu@4.28.1':
     resolution: {integrity: sha512-pTnTdBuC2+pt1Rmm2SV7JWRqzhYpEILML4PKODqLz+C7Ou2apEV52h19CR7es+u04KlqplggmN9sqZlekg3R1A==}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-riscv64-gnu@4.28.1':
     resolution: {integrity: sha512-vWXy1Nfg7TPBSuAncfInmAI/WZDd5vOklyLJDdIRKABcZWojNDY0NJwruY2AcnCLnRJKSaBgf/GiJfauu8cQZA==}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-s390x-gnu@4.28.1':
     resolution: {integrity: sha512-/yqC2Y53oZjb0yz8PVuGOQQNOTwxcizudunl/tFs1aLvObTclTwZ0JhXF2XcPT/zuaymemCDSuuUPXJJyqeDOg==}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-x64-gnu@4.28.1':
     resolution: {integrity: sha512-fzgeABz7rrAlKYB0y2kSEiURrI0691CSL0+KXwKwhxvj92VULEDQLpBYLHpF49MSiPG4sq5CK3qHMnb9tlCjBw==}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-x64-musl@4.28.1':
     resolution: {integrity: sha512-xQTDVzSGiMlSshpJCtudbWyRfLaNiVPXt1WgdWTwWz9n0U12cI2ZVtWe/Jgwyv/6wjL7b66uu61Vg0POWVfz4g==}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-win32-arm64-msvc@4.28.1':
     resolution: {integrity: sha512-wSXmDRVupJstFP7elGMgv+2HqXelQhuNf+IS4V+nUpNVi/GUiBgDmfwD0UGN3pcAnWsgKG3I52wMOBnk1VHr/A==}
@@ -3068,6 +3081,11 @@ packages:
   dexie-cloud-common@1.0.47:
     resolution: {integrity: sha512-/8KexyBjnps7ixY4NtkA2AwKVEHrWnPWjkCrA5khB1DkIWSARJD0lR313dZC/O5Y78/FnqcaqnVqyOJkRytyuw==}
 
+  dexie-export-import@4.1.4:
+    resolution: {integrity: sha512-3bw171qUuOTWSYLXI7C/0M6p1X65Rho3tu1IvD9By8jn0+3t3dLSkDlZ1BC6MbABl3kRlhtGigzC+SF+qcS5Og==}
+    peerDependencies:
+      dexie: ^2.0.4 || ^3.0.0 || ^4.0.1
+
   dexie@4.0.10:
     resolution: {integrity: sha512-eM2RzuR3i+M046r2Q0Optl3pS31qTWf8aFuA7H9wnsHTwl8EPvroVLwvQene/6paAs39Tbk6fWZcn2aZaHkc/w==}
 
@@ -4072,10 +4090,10 @@ packages:
     resolution: {integrity: sha512-4MqMiKP90ybymYvsut0CH2g4XWbfLtmlCkXmtmdcDCxNB+mQcu1w/1+L/VD7vi/PSv7X2JYV7SCcR+jiPXnQtA==}
     engines: {node: '>= 0.4'}
 
-  md-editor-v3@5.0.2:
-    resolution: {integrity: sha512-KznY8NWYdof7sndGQN22/dgCUKNR4KAzpz6W7/gIrcTUOvSlltIzY0CedF9lWWG38dC75/CN/wDOIXxnDxfUUg==}
+  md-editor-v3@5.2.1:
+    resolution: {integrity: sha512-FPbVEO/9xovXM5OULfBPdM22LrKevEHnkjmYF0pqi34UF/Wt3d5LW/UX2DehwCTmYua6N7385K93un58K69xPA==}
     peerDependencies:
-      vue: ^3.5.0
+      vue: ^3.5.3
 
   mdast-util-to-hast@13.2.0:
     resolution: {integrity: sha512-QGYKEuUsYT9ykKBCMOEDLsU5JRObWQusAolFMeko/tYPufNkRffBAQjIE+99jbA87xv6FgmjLtwjh9wBWajwAA==}
@@ -9400,6 +9418,10 @@ snapshots:
     dependencies:
       lib0: 0.2.98
 
+  dexie-export-import@4.1.4(dexie@4.0.10):
+    dependencies:
+      dexie: 4.0.10
+
   dexie@4.0.10: {}
 
   diff-match-patch@1.0.5: {}
@@ -10528,7 +10550,7 @@ snapshots:
 
   math-intrinsics@1.0.0: {}
 
-  md-editor-v3@5.0.2(@codemirror/view@6.33.0)(@lezer/common@1.2.1)(vue@3.5.12(typescript@5.5.4)):
+  md-editor-v3@5.2.1(@codemirror/view@6.33.0)(@lezer/common@1.2.1)(vue@3.5.12(typescript@5.5.4)):
     dependencies:
       '@codemirror/lang-markdown': 6.3.1
       '@codemirror/language-data': 6.5.1(@codemirror/view@6.33.0)

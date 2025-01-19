@@ -472,6 +472,12 @@ interface ShortcutKey {
 
 type PlatformEnabled = 'always' | 'desktop-only' | 'mobile-only' | 'never'
 
+interface ConvertArtifactOptions {
+  name?: string
+  lang?: string
+  reserveOriginal: boolean
+}
+
 export {
   ApiCallError,
   HuggingPluginManifestSchema,
@@ -536,5 +542,6 @@ export type {
   MarketAssistant,
   OrderItem,
   ShortcutKey,
-  PlatformEnabled
+  PlatformEnabled,
+  ConvertArtifactOptions
 }

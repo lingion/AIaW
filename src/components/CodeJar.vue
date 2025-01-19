@@ -21,17 +21,24 @@ const el = ref(null)
 
 const tab = computed(() => /\n {2}\w/g.test(model.value) ? '  ' : '    ')
 
+function highlight(editor: HTMLElement) {
+  if (!window.hljs) {
+    setTimeout(() => {
+      highlight(editor)
+    }, 100)
+    return
+  }
+  const code = editor.textContent
+  const html = props.language && window.hljs.getLanguage(props.language)
+    ? window.hljs.highlight(code, { language: props.language, ignoreIllegals: true }).value
+    : window.hljs.highlightAuto(code).value
+  editor.innerHTML = html
+}
+
 onMounted(() => {
   const jar = CodeJar(
     el.value,
-    withLineNumbers(editor => {
-      if (!window.hljs) return
-      const code = editor.textContent
-      const html = props.language && window.hljs.getLanguage(props.language)
-        ? window.hljs.highlight(code, { language: props.language, ignoreIllegals: true }).value
-        : window.hljs.highlightAuto(code).value
-      editor.innerHTML = html
-    })
+    withLineNumbers(highlight)
   )
   jar.onUpdate(code => {
     model.value = code
@@ -73,7 +80,7 @@ onMounted(() => {
   --md-theme-code-block-color: #747384;
   --md-theme-code-block-bg-color: #f8f8f8;
 }
-body.dark .codejar-wrap {
+.body--dark .codejar-wrap {
   --md-theme-code-block-color: #999;
   --md-theme-code-block-bg-color: #1a1a1a;
 }

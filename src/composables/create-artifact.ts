@@ -8,7 +8,7 @@ export function useCreateArtifact(workspace: Ref<Workspace>) {
   const router = useRouter()
   async function createArtifact(props: Partial<Artifact> = {}, mode?: 'edit' | 'view') {
     const id = genId()
-    await db.canvases.add({
+    await db.artifacts.add({
       id,
       name: 'new_artifact',
       versions: [{ date: new Date(), text: '' }],
@@ -21,6 +21,7 @@ export function useCreateArtifact(workspace: Ref<Workspace>) {
       ...props
     })
     router.push({ query: { artifactId: id, mode } })
+    return id
   }
   return { createArtifact }
 }

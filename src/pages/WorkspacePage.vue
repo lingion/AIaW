@@ -10,12 +10,19 @@
       v-model="drawerOpen"
       flex
     >
+      <dragable-separator
+        v-if="showArtifacts"
+        v-model="widthWithArtifacts"
+        reverse
+        :min="600"
+        h-full
+        w-2
+      />
       <div
         v-if="showArtifacts"
         h-full
         min-w-0
         flex="~ col 1"
-        pl-2
       >
         <div
           flex
@@ -33,13 +40,16 @@
               v-for="artifact in openedArtifacts"
               :key="artifact.id"
               :to="{ query: { artifactId: artifact.id } }"
-              :class="{'text-pri': focusedArtifact?.id === artifact.id}"
+              :class="{'text-pri icon-fill': focusedArtifact?.id === artifact.id}"
               pl-3
               pr-2
             >
-              <q-icon name="sym_o_code" />
+              <artifact-item-icon :artifact="artifact" />
               <div ml-2>
                 {{ artifact.name }}
+              </div>
+              <div v-if="artifactUnsaved(artifact)">
+                *
               </div>
               <q-btn
                 ml-1
@@ -52,6 +62,7 @@
                 text-out
                 @click.prevent.stop="closeArtifact(artifact)"
               />
+              <artifact-item-menu :artifact />
             </q-route-tab>
           </q-tabs>
           <q-space />
@@ -60,6 +71,7 @@
             dense
             round
             icon="sym_o_close"
+            title="关闭全部 Artifacts"
             text-on-sur-var
             @click="closeAllArtifacts"
           />
@@ -110,35 +122,38 @@
             :workspace-id="workspace.id"
           />
         </q-expansion-item>
-        <q-separator />
-        <q-expansion-item
-          label="Artifacts"
-          header-class="text-lg"
-          max-h="40vh"
-        >
-          <artifacts-list
-            mt-2
-            :workspace-id="workspace.id"
-          />
-        </q-expansion-item>
-        <div py-2>
-          <q-btn
-            ml-2
-            flat
-            icon="sym_o_add"
-            label="创建"
-            text-sec
-            @click="createEmptyArtifact"
-          />
-          <select-file-btn
-            ml-2
-            flat
-            icon="sym_o_file_open"
-            label="选择文件"
-            text-sec
-            @input="artifactFromFiles"
-          />
-        </div>
+        <template v-if="isPlatformEnabled(perfs.artifactsShow)">
+          <q-separator />
+          <q-expansion-item
+            label="Artifacts"
+            header-class="text-lg"
+            max-h="40vh"
+            of-y-auto
+          >
+            <artifacts-list
+              mt-2
+              :workspace-id="workspace.id"
+            />
+          </q-expansion-item>
+          <div py-2>
+            <q-btn
+              ml-2
+              flat
+              icon="sym_o_add"
+              label="创建"
+              text-sec
+              @click="createEmptyArtifact"
+            />
+            <select-file-btn
+              ml-2
+              flat
+              icon="sym_o_file_open"
+              label="选择文件"
+              text-sec
+              @input="artifactFromFiles"
+            />
+          </div>
+        </template>
         <q-separator />
         <q-expansion-item
           label="对话"
@@ -173,10 +188,14 @@ import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
 import { useCreateArtifact } from 'src/composables/create-artifact'
 import { dialogOptions } from 'src/utils/values'
 import SelectFileBtn from 'src/components/SelectFileBtn.vue'
-import { getFileExt, isTextFile } from 'src/utils/functions'
+import { artifactUnsaved, getFileExt, isPlatformEnabled, isTextFile } from 'src/utils/functions'
 import { useRoute, useRouter } from 'vue-router'
 import EditArtifact from 'src/views/EditArtifact.vue'
 import { useCloseArtifact } from 'src/composables/close-artifact'
+import ArtifactItemMenu from 'src/components/ArtifactItemMenu.vue'
+import DragableSeparator from 'src/components/DragableSeparator.vue'
+import ArtifactItemIcon from 'src/components/ArtifactItemIcon.vue'
+import { useUserPerfsStore } from 'src/stores/user-perfs'
 
 const props = defineProps<{
   id: string
@@ -186,7 +205,7 @@ const workspacesStore = useWorkspacesStore()
 
 const workspace = computed(() => workspacesStore.workspaces.find(item => item.id === props.id) as Workspace)
 const dialogs = useLiveQueryWithDeps(() => props.id, () => db.dialogs.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Dialog[] })
-const artifacts = useLiveQueryWithDeps(() => props.id, () => db.canvases.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Artifact[] })
+const artifacts = useLiveQueryWithDeps(() => props.id, () => db.artifacts.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Artifact[] })
 
 provide('workspace', workspace)
 provide('dialogs', dialogs)
@@ -214,7 +233,6 @@ function createEmptyArtifact() {
 async function artifactFromFiles(files: File[]) {
   for (const file of files) {
     if (!await isTextFile(file)) {
-      console.log('非文本文件', file)
       $q.notify({
         message: `非文本文件：${file.name}`,
         color: 'negative'
@@ -231,26 +249,41 @@ async function artifactFromFiles(files: File[]) {
     })
   }
 }
+
 const drawerBreakpoint = 960
 const openedArtifacts = computed(() => artifacts.value.filter(a => a.open))
 const showArtifacts = computed(() => $q.screen.width > drawerBreakpoint && openedArtifacts.value.length)
+provide('showArtifacts', showArtifacts)
 const route = useRoute()
 const focusedArtifact = computed(() =>
   openedArtifacts.value.find(a => a.id === route.query.artifactId) || openedArtifacts.value.at(-1)
 )
 const router = useRouter()
 watch(focusedArtifact, val => {
-  if (val && val.id !== route.query.artifactId) {
-    router.replace({ query: { artifactId: val.id } })
+  if (val) {
+    val.id !== route.query.artifactId && router.replace({ query: { artifactId: val.id } })
+  } else {
+    router.replace({ query: { artifactId: undefined } })
   }
 }, { immediate: true })
+watch(() => route.query.openArtifact, val => {
+  if (!val) return
+  const artifact = artifacts.value.find(a => a.id === val)
+  if (artifact) {
+    !artifact.open && db.artifacts.update(artifact.id, { open: true })
+    router.replace({ query: { artifactId: artifact.id } })
+  } else {
+    router.replace({ query: { artifactId: focusedArtifact.value?.id } })
+  }
+})
 const { closeArtifact } = useCloseArtifact()
 function closeAllArtifacts() {
   for (const artifact of openedArtifacts.value) {
     closeArtifact(artifact)
   }
 }
-const drawerWidth = computed(() => showArtifacts.value ? innerWidth / 2 : 250)
+const widthWithArtifacts = ref(Math.max(innerWidth / 2, 600))
+const drawerWidth = computed(() => showArtifacts.value ? widthWithArtifacts.value : 250)
 
 const { data } = useUserDataStore()
 watch(workspace, val => {
@@ -263,4 +296,7 @@ const drawerOpen = ref(false)
 
 const rightDrawerAbove = computed(() => $q.screen.width > drawerBreakpoint)
 provide('rightDrawerAbove', rightDrawerAbove)
+provide('workspace', workspace)
+
+const { perfs } = useUserPerfsStore()
 </script>

@@ -32,6 +32,7 @@
       <div
         position-relative
         :class="message.type === 'user' ? 'min-h-48px' : 'min-h-24px min-w-80px'"
+        ref="messageContentEl"
       >
         <div
           v-for="(content, index) in contents"
@@ -41,7 +42,8 @@
         >
           <div
             ref="textDiv"
-            @mouseup="onMouseUp"
+            @mouseup="onSelect('mouse')"
+            @touchend="onSelect('touch')"
             pos-relative
             overflow-visible
             v-if="(content.type === 'assistant-message' || content.type === 'user-message') && content.text"
@@ -50,20 +52,48 @@
               :class="message.type === 'user' ? 'bg-sur-c-low' : 'bg-sur'"
               rd-lg
               :model-value="content.text"
-              preview-theme="vuepress"
-              :theme="$q.dark.isActive ? 'dark' : 'light'"
-              :auto-fold-threshold="Infinity"
+              v-bind="mdPreviewProps"
+              @on-html-changed="onHtmlChanged"
             />
-            <q-btn
-              v-if="showQuoteBtn"
-              label="引用"
-              pos-absolute
-              z-3
-              :style="quoteBtnStyle"
-              bg-sec-c
-              text-on-sec-c
-              @click="quote"
-            />
+            <transition name="fade">
+              <q-btn-group
+                v-if="showFloatBtns"
+                :style="floatBtnStyle"
+                pos-absolute
+                z-3
+                bg-sec-c
+                text-on-sec-c
+                @click="showFloatBtns = false"
+              >
+                <q-btn
+                  icon="sym_o_format_quote"
+                  label="引用"
+                  @click="quote"
+                  no-caps
+                  sm-icon
+                />
+                <template v-if="selected.original">
+                  <q-separator vertical />
+                  <q-btn
+                    icon="sym_o_content_copy"
+                    label="Markdown"
+                    @click="copyToClipboard(selected.text)"
+                    title="复制原 Markdown 文本"
+                    no-caps
+                    sm-icon
+                  />
+                  <q-separator vertical />
+                  <q-btn
+                    icon="sym_o_convert_to_text"
+                    label="Artifact"
+                    title="转换为 Artifact"
+                    @click="selectedConvertArtifact"
+                    no-caps
+                    sm-icon
+                  />
+                </template>
+              </q-btn-group>
+            </transition>
           </div>
           <div
             v-if="content.type === 'user-message' && content.items.length"
@@ -133,13 +163,13 @@
       <div
         v-if="['default', 'failed'].includes(message.status)"
         text-on-sur-var
-        :class="message.type === 'assistant' ? 'ml-4' : 'm-1'"
+        :class="message.type === 'assistant' ? 'ml-4' : 'mt-1 ml-1'"
       >
         <copy-btn
           round
           flat
           dense
-          :value="text"
+          :value="textContent.text"
         />
         <q-btn
           v-if="message.type === 'assistant'"
@@ -197,11 +227,12 @@
         :max="childNum"
         input
         :boundary-links="false"
+        :class="message.type === 'assistant' ? 'mx-2' : ''"
       />
     </div>
     <div
       v-if="!colMode"
-      w="xs:16px sm:125px lg:20%"
+      w="xs:16px sm:20%"
       shrink-0
     />
   </div>
@@ -211,9 +242,9 @@
 import { MdPreview } from 'md-editor-v3'
 import { db } from 'src/utils/db'
 import 'md-editor-v3/lib/preview.css'
-import { computed, ComputedRef, inject, onUnmounted, reactive, ref, watchEffect } from 'vue'
+import { computed, ComputedRef, inject, nextTick, onUnmounted, reactive, ref, watchEffect } from 'vue'
 import sessions from 'src/utils/sessions'
-import { MessageContent, Message, ApiResultItem, UserMessageContent, AssistantMessageContent } from 'src/utils/types'
+import { MessageContent, Message, ApiResultItem, UserMessageContent, AssistantMessageContent, ConvertArtifactOptions } from 'src/utils/types'
 import CopyBtn from './CopyBtn.vue'
 import AAvatar from './AAvatar.vue'
 import { useAssistantsStore } from 'src/stores/assistants'
@@ -221,14 +252,16 @@ import { useUserPerfsStore } from 'src/stores/user-perfs'
 import MessageImage from './MessageImage.vue'
 import ToolContent from './ToolContent.vue'
 import ActionContent from './ActionContent.vue'
-import { useQuasar } from 'quasar'
+import { copyToClipboard, useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import PickAvatarDialog from './PickAvatarDialog.vue'
 import MessageFile from './MessageFile.vue'
-import { textBeginning, wrapCode } from 'src/utils/functions'
+import { escapeRegex, isPlatformEnabled, textBeginning, wrapCode } from 'src/utils/functions'
 import MenuItem from './MenuItem.vue'
 import MessageInfoDialog from './MessageInfoDialog.vue'
 import TextareaDialog from './TextareaDialog.vue'
+import { useMdPreviewProps } from 'src/composables/md-preview-props'
+import ConvertArtifactDialog from './ConvertArtifactDialog.vue'
 
 const props = defineProps<{
   message: Message,
@@ -261,6 +294,8 @@ const emit = defineEmits<{
   regenerate: []
   edit: []
   quote: [ApiResultItem]
+  'extract-artifact': [[string, RegExp | string, ConvertArtifactOptions]],
+  rendered: []
 }>()
 
 watchEffect(async () => {
@@ -296,10 +331,8 @@ watchEffect(async () => {
   }
 })
 
-const text = computed(() => props.message.contents
-  .filter(content => 'text' in content && content.text)
-  .map((content: MessageContent & { text: string }) => content.text)
-  .join('\n'))
+const textIndex = computed(() => props.message.contents.findIndex(c => ['user-message', 'assistant-message'].includes(c.type)))
+const textContent = computed(() => (props.message.contents[textIndex.value] as UserMessageContent | AssistantMessageContent))
 
 const { perfs } = useUserPerfsStore()
 const assistantsStore = useAssistantsStore()
@@ -321,7 +354,8 @@ async function updateContent(index, value) {
   })
 }
 
-const colMode = computed(() => $q.screen.lt.md && props.message.type === 'assistant')
+const showArtifacts = inject<ComputedRef>('showArtifacts')
+const colMode = computed(() => (showArtifacts.value || $q.screen.lt.md) && props.message.type === 'assistant')
 
 const router = useRouter()
 function onAvatarClick() {
@@ -335,30 +369,49 @@ function onAvatarClick() {
   }
 }
 
-const showQuoteBtn = ref(false)
-const quoteBtnStyle = reactive({
+const showFloatBtns = ref(false)
+const floatBtnStyle = reactive({
   top: undefined,
   left: undefined
 })
 const textDiv = ref()
-const selectedText = ref(null)
-function onMouseUp() {
-  if (!perfs.messageQuoteBtn) return
+const selected = reactive({
+  text: null,
+  original: false
+})
+function getDataLine(node: Node, ttl = 3) {
+  if (ttl === 0) return -1
+  if (node.nodeType !== Node.ELEMENT_NODE) return getDataLine(node.parentElement, ttl - 1)
+  const val = (node as Element).getAttribute('data-line')
+  return val ? parseInt(val) : getDataLine(node.parentElement, ttl - 1)
+}
+function onSelect(mode: 'mouse' | 'touch') {
+  if (!perfs.messageSelectionBtn) return
   const selection = document.getSelection()
   const text = selection.toString()
   if (!text) return
+  const start = getDataLine(selection.anchorNode)
+  const end = getDataLine(selection.focusNode)
+  if (start === -1 || end === -1 || start === end) {
+    selected.text = text
+    selected.original = false
+  } else {
+    selected.text = textContent.value.text.split('\n').slice(start, end + 1).join('\n')
+    selected.original = true
+  }
   const range = selection.getRangeAt(0)
   const targetRects = range.getBoundingClientRect()
   const baseRects = textDiv.value[0].getBoundingClientRect()
-  quoteBtnStyle.top = targetRects.top - baseRects.top - 48 + 'px'
-  quoteBtnStyle.left = targetRects.left - baseRects.left + 'px'
-  showQuoteBtn.value = true
-  selectedText.value = text
+  floatBtnStyle.top = targetRects.top < 48 || mode === 'touch'
+    ? targetRects.bottom - baseRects.top + 12 + 'px'
+    : targetRects.top - baseRects.top - 48 + 'px'
+  floatBtnStyle.left = targetRects.left - baseRects.left + 'px'
+  showFloatBtns.value = true
 }
-if (perfs.messageQuoteBtn) {
+if (perfs.messageSelectionBtn) {
   const listener = () => {
-    showQuoteBtn.value = false
-    selectedText.value = null
+    showFloatBtns.value = false
+    selected.text = null
   }
   document.addEventListener('selectionchange', listener)
   onUnmounted(() => document.removeEventListener('selectionchange', listener))
@@ -367,29 +420,80 @@ function quote() {
   const name = props.message.type === 'assistant' ? '助手消息引用' : '用户消息引用'
   emit('quote', {
     type: 'quote',
-    name: `${name}：${textBeginning(selectedText.value, 10)}`,
-    contentText: selectedText.value
+    name: `${name}：${textBeginning(selected.text, 10)}`,
+    contentText: selected.text
   })
-  showQuoteBtn.value = false
 }
 function edit() {
-  const index = props.message.contents.findIndex(content => ['user-message', 'assistant-message'].includes(content.type))
-  if (index === -1) return
-  const content = props.message.contents[index] as UserMessageContent | AssistantMessageContent
   $q.dialog({
     component: TextareaDialog,
     componentProps: {
       title: '编辑消息',
-      model: content.text
+      model: textContent.value.text
     }
   }).onOk(text => {
     db.messages.update(props.message.id, {
-      [`contents.${index}.text`]: text
+      [`contents.${textIndex.value}.text`]: text
     })
   })
 }
 
 const itemMap = inject<ComputedRef>('itemMap')
+
+function convertArtifact(text: string, pattern, lang: string) {
+  if (perfs.artifactsAutoName) {
+    emit('extract-artifact', [text, pattern, {
+      lang,
+      reserveOriginal: perfs.artifactsReserveOriginal
+    }])
+  } else {
+    $q.dialog({
+      component: ConvertArtifactDialog,
+      componentProps: {
+        lang
+      }
+    }).onOk(async (options: ConvertArtifactOptions) => {
+      emit('extract-artifact', [text, pattern, options])
+    })
+  }
+}
+
+function selectedConvertArtifact() {
+  const text = selected.text
+  convertArtifact(text, text, 'markdown')
+}
+
+function onHtmlChanged() {
+  nextTick(() => {
+    injectConvertArtifact()
+    emit('rendered')
+  })
+}
+const messageContentEl = ref()
+function injectConvertArtifact() {
+  if (!isPlatformEnabled(perfs.artifactsShow)) return
+  const el: HTMLElement = messageContentEl.value
+  el.querySelectorAll('.md-editor-code').forEach(code => {
+    if (code.querySelector('.md-editor-convert-artifact')) return
+    const anchor = code.querySelector('.md-editor-collapse-tips')
+    const btn = document.createElement('span')
+    btn.innerHTML = 'convert_to_text'
+    btn.classList.add('md-editor-convert-artifact')
+    btn.addEventListener('click', (ev) => {
+      ev.preventDefault()
+      ev.stopPropagation()
+      const text = code.querySelector('pre code').textContent
+      const lang = code.querySelector('pre code').getAttribute('language')
+      const pattern = new RegExp(`\`{3,}.*\\n${escapeRegex(text)}\\s*\`{3,}`, 'g')
+      convertArtifact(text, pattern, lang)
+    })
+    btn.title = '转换为 Artifact'
+    code.querySelector('.md-editor-code-action').insertBefore(btn, anchor)
+    code.querySelector<HTMLElement>('.md-editor-copy-button').title = '复制代码'
+    code.querySelector<HTMLElement>('.md-editor-collapse-tips').title = '折叠'
+  })
+}
+const mdPreviewProps = useMdPreviewProps()
 </script>
 
 <style lang="scss">
