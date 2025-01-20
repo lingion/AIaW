@@ -1,14 +1,74 @@
-import { Number, Object, Optional, String } from '@sinclair/typebox'
-import { Artifact } from './types'
+import { Array as TArray, Boolean, Object, Optional, String } from '@sinclair/typebox'
+import { Artifact, Plugin, PluginApi, PluginData } from './types'
 import { engine } from './template-engine'
 import { db } from './db'
 import { saveArtifactChanges } from './functions'
-import { jsonSchema, tool as sdkTool } from 'ai'
+
+const pluginId = 'aiaw-artifacts'
+
+const api: PluginApi = {
+  type: 'tool',
+  name: 'edit',
+  description: '修改 Artifact',
+  prompt: '修改 Artifact',
+  parameters: Object({
+    id: String({
+      description: '要修改的 Artifact 的 id'
+    }),
+    updates: TArray(Object({
+      pattern: String({
+        description: '要替换的旧内容的Javascript 正则表达式字符串。你可以使用 `[\\s\\S]*` 来覆写全部内容'
+      }),
+      multiple: Boolean({
+        description: '替换全部匹配项而不是第一个匹配项'
+      }),
+      replacement: String({
+        description: '替换后的新内容'
+      })
+    }), {
+      description: '按顺序执行的替换修改操作列表'
+    }),
+    newName: Optional(String({
+      description: '如果要修改 Artifact 的名称，请填写此项。一般情况下不修改名称'
+    }))
+  }),
+  async execute({ id, updates, newName }) {
+    const artifact = await db.artifacts.get(id)
+    if (!artifact || !artifact.writable) throw new Error(`Artifact ${id} not found`)
+    let content = artifact.versions[artifact.currIndex].text
+    for (const update of updates) {
+      const pattern = update.multiple ? new RegExp(update.pattern, 'g') : new RegExp(update.pattern)
+      content = content.replace(pattern, update.replacement)
+    }
+    artifact.tmp = content
+    await db.artifacts.update(id, {
+      ...saveArtifactChanges(artifact),
+      tmp: artifact.tmp,
+      name: newName ?? artifact.name
+    })
+    return [{
+      type: 'text',
+      contentText: '修改成功'
+    }]
+  }
+}
+
+const plugin: Plugin = {
+  id: pluginId,
+  type: 'builtin',
+  available: false,
+  apis: [api],
+  fileparsers: [],
+  title: 'Artifacts',
+  settings: Object({})
+}
 
 const promptTemplate =
 `Artifacts 是用户可能修改或复用的独立内容（代码、文章等），为了清晰地展示，将显示在单独的 UI 窗口中。
 
-你可以通过调用工具 \`edit-artifact\` 修改 \`writable\` 属性为 \`true\` 的 Artifacts。若需要同时修改 Artifacts 和回答用户，请先回答用户，再调用工具修改 Artifacts。
+你可以通过调用工具 \`edit-artifact\` 修改 \`writable\` 属性为 \`true\` 的 Artifacts。请先回答用户，说明你要做的修改，再调用工具修改 Artifacts。
+
+下面是已有的 Artifacts：
 
 {%- for artifact in artifacts %}
 <artifact id="{{ artifact.id }}" name="{{ artifact.name }}" writable="{{ artifact.writable }}">
@@ -17,68 +77,20 @@ const promptTemplate =
 {%- endfor %}
 `
 
-const actionsDescription =
-`
-可用的 action 有：
-- overwrite: 使用 \`new_str\` 覆盖当前内容
-- replace: 使用 \`new_str\` 替换当前内容中 \`old_str\` 部分
-- insert: 将 \`new_str\` 插入到 \`insert_line\` 行
-`
+function getPrompt(artifacts: Artifact[]) {
+  return engine.parseAndRenderSync(promptTemplate, { artifacts: artifacts.filter(a => a.readable) })
+}
 
-export function useArtifactsPlugin(artifacts: Artifact[]) {
-  const enabledPlugin = {
-    id: 'aiaw-artifacts',
-    prompt: engine.parseAndRenderSync(promptTemplate, { artifacts: artifacts.filter(a => a.readable) }),
-    actions: []
-  }
-  const tool = sdkTool({
-    description: '修改 Artifact',
-    parameters: jsonSchema(Object({
-      id: String({
-        description: '要修改的 Artifact 的 id'
-      }),
-      action: String({
-        description: actionsDescription
-      }),
-      newStr: String({
-        description: '新内容'
-      }),
-      oldStr: Optional(String({
-        description: 'replace 时，要替换的旧内容'
-      })),
-      insertLine: Optional(Number({
-        description: 'insert 时，会将新内容插入到第 `insertLine` 行之后；默认插入到末尾'
-      })),
-      newName: Optional(String({
-        description: 'artifact 的新名称；默认不会更改名称'
-      }))
-    })),
-    execute: async ({ id, action, newStr, oldStr, insertLine, newName }) => {
-      const artifact = await db.artifacts.get(id)
-      if (!artifact || !artifact.writable) throw new Error(`Artifact ${id} not found`)
-      const oldContent = artifact.versions[artifact.currIndex].text
-      if (action === 'overwrite') {
-        artifact.tmp = newStr
-      } else if (action === 'replace') {
-        artifact.tmp = oldContent.replaceAll(oldStr, newStr)
-      } else if (action === 'insert') {
-        const lines = oldContent.split('\n')
-        lines.splice(insertLine ?? lines.length, 0, newStr)
-        artifact.tmp = lines.join('\n')
-      }
-      await db.artifacts.update(id, {
-        ...saveArtifactChanges(artifact),
-        tmp: artifact.tmp,
-        name: newName ?? artifact.name
-      })
-      return [{
-        type: 'text',
-        contentText: '修改成功'
-      }]
-    }
-  })
-  return {
-    enabledPlugin,
-    tool
-  }
+const defaultData: PluginData = {
+  settings: {},
+  avatar: { type: 'icon', icon: 'sym_o_convert_to_text', hue: 45 },
+  fileparsers: {}
+}
+
+export default {
+  pluginId,
+  plugin,
+  defaultData,
+  getPrompt,
+  api
 }

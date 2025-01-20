@@ -35,7 +35,7 @@ interface Perfs {
   focusDialogInputKey?: ShortcutKey
   saveArtifactKey?: ShortcutKey
   autoFocusDialogInput: PlatformEnabled
-  artifactsShow: PlatformEnabled
+  artifactsEnabled: PlatformEnabled
   artifactsAutoExtract: boolean
   artifactsAutoName: boolean
   artifactsReserveOriginal: boolean
@@ -86,7 +86,7 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     switchLastKey: { key: 'ArrowRight', withShift: true },
     saveArtifactKey: { key: 'KeyS', withCtrl: true },
     autoFocusDialogInput: 'desktop-only',
-    artifactsShow: 'desktop-only',
+    artifactsEnabled: 'desktop-only',
     artifactsAutoExtract: false,
     artifactsAutoName: false,
     artifactsReserveOriginal: false,

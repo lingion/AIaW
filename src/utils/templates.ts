@@ -103,11 +103,8 @@ const ExtractArtifactSchema = Object({
   found: Boolean({
     description: '是否有适合提取为 Artifact 的独立内容'
   }),
-  beginning: Optional(String({
-    description: '提取的 Artifact 的开头，需原样复制，长度足够用于定位 Artifact 在 message 中的位置即可，不要太长。如果 Artifact 代码块，请**不要**包含开头的 "\`\`\`" 标记。'
-  })),
-  ending: Optional(String({
-    description: '提取的 Artifact 的结尾，需原样复制，长度足够用于定位 Artifact 在 message 中的位置即可，不要太长。如果 Artifact 代码块，请**不要**包含结尾的 "\`\`\`" 标记。'
+  regex: Optional(String({
+    description: '用于提取 Artifacts 的 JS 正则表达式字符串，需恰好匹配整个 Artifact。Artifacts 很长，可用 `[\\s\\S]*` 匹配中间任意内容。如果 Artifact 代码块，请**不要**包含开头的 "\`\`\`" 标记。'
   })),
   name: Optional(String({
     description: '根据 Artifact 内容为 Artifact 命名。像文件名那样带后缀。命名格式需符合对应语言代码的文件命名规范。'
@@ -127,7 +124,7 @@ Artifacts 可以是一长段完整的代码、一篇完整的文章、报告。�
 对于其他内容（一般的问题解答、操作步骤等）则不提取，认为未找到 Artifact。
 
 如果没有适合提取为 Artifact 的独立内容，返回 \`found\` 为 false 即可；
-如果有，请确定 Artifact 在 assistant message 中的范围，给出 Artifact 的 beginning 和 ending，以及它的语言和命名。
+如果有，请确定 Artifact 在 assistant message 中的范围，给出用于提取 Artifact 的正则表达式，以及 Artifact 的语言和命名。
 
 如果 Artifact 是代码块，则它必须是完整的代码块，不能是代码块的一部分或者多个短代码块。不合适的情况认为没有找到 Artifact 即可。
 

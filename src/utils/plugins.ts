@@ -8,6 +8,7 @@ import { Parser } from 'expr-eval'
 import { parseDoc } from './doc-parse'
 import { corsFetch } from './cors-fetch'
 import { DocParseBaseURL } from './config'
+import artifacts from './artifacts-plugin'
 
 const timePlugin: Plugin = {
   id: 'aiaw-time',
@@ -705,7 +706,8 @@ const defaultData: PluginsData = {
     fileparsers: {
       parse: { enabled: true, mimeTypes: ['application/*'] }
     }
-  }
+  },
+  [artifacts.pluginId]: artifacts.defaultData
 }
 
 export {

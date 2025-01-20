@@ -400,8 +400,8 @@ import { MaxMessageFileSizeMB } from 'src/utils/config'
 import ATip from 'src/components/ATip.vue'
 import { useListenKey } from 'src/composables/listen-key'
 import { useSetTitle } from 'src/composables/set-title'
-import { useArtifactsPlugin } from 'src/utils/artifacts-plugin'
 import { useCreateArtifact } from 'src/composables/create-artifact'
+import artifactsPlugin from 'src/utils/artifacts-plugin'
 
 const props = defineProps<{
   id: string
@@ -713,7 +713,8 @@ function getChainMessages() {
             type: 'tool-result',
             toolName: name,
             toolCallId: id,
-            result: result.map(id => itemMap.value[id])
+            result: toToolResultContent(result.map(id => itemMap.value[id])),
+            experimental_content: toToolResultContent(result.map(id => itemMap.value[id]))
           }]
         })
       } else if (content.type === 'assistant-action') {
@@ -850,7 +851,7 @@ async function stream(target, insert = false) {
     const content: MessageContent = {
       type: 'assistant-tool',
       pluginId: plugin.id,
-      name: api.name,
+      name: `${plugin.id}-${api.name}`,
       args,
       status: 'calling'
     }
@@ -893,17 +894,7 @@ async function stream(target, insert = false) {
           if (error) throw new ApiCallError(error)
           return result
         },
-        experimental_toToolResultContent(items: StoredItem[]) {
-          const val = []
-          for (const item of items) {
-            if (item.type === 'text') {
-              val.push({ type: 'text', text: item.contentText })
-            } else if (mimeTypeMatch(item.mimeType, model.value.inputTypes.tool)) {
-              val.push({ type: item.mimeType.startsWith('image/') ? 'image' : 'file', mimeType: item.mimeType, data: item.contentBuffer })
-            }
-          }
-          return val
-        }
+        experimental_toToolResultContent: toToolResultContent
       })
     })
     const pluginInfos = {}
@@ -942,10 +933,23 @@ async function stream(target, insert = false) {
       $q.notify({ message: `插件「${p.title}」提示词模板解析失败`, color: 'negative' })
     }
   }))
-  if (artifacts.value.some(a => a.open)) {
-    const { enabledPlugin, tool } = useArtifactsPlugin(artifacts.value.filter(a => a.open))
-    enabledPlugins.push(enabledPlugin)
-    tools['edit-artifact'] = tool
+  if (isPlatformEnabled(perfs.artifactsEnabled) && artifacts.value.some(a => a.open)) {
+    const { plugin, getPrompt, api } = artifactsPlugin
+    enabledPlugins.push({
+      id: plugin.id,
+      prompt: getPrompt(artifacts.value.filter(a => a.open)),
+      actions: []
+    })
+    tools[`${plugin.id}-${api.name}`] = tool({
+      description: api.prompt,
+      parameters: jsonSchema(api.parameters),
+      async execute(args) {
+        const { result, error } = await callTool(plugin, api, args)
+        if (error) throw new ApiCallError(error)
+        return result
+      },
+      experimental_toToolResultContent: toToolResultContent
+    })
   }
   try {
     if (noRoundtrip) settings.maxSteps = 1
@@ -1051,12 +1055,25 @@ async function stream(target, insert = false) {
   }
   perfs.artifactsAutoExtract && autoExtractArtifact()
 }
+function toToolResultContent(items: StoredItem[]) {
+  const val = []
+  for (const item of items) {
+    if (item.type === 'text') {
+      val.push({ type: 'text', text: item.contentText })
+    } else if (mimeTypeMatch(item.mimeType, model.value.inputTypes.tool)) {
+      val.push({ type: item.mimeType.startsWith('image/') ? 'image' : 'file', mimeType: item.mimeType, data: item.contentBuffer })
+    }
+  }
+  return val
+}
 const lockingBottom = ref(false)
+let lastScrollTop
 function scrollListener() {
   const container = scrollContainer.value
-  if (container.scrollTop + container.clientHeight < container.scrollHeight - 50) {
+  if (container.scrollTop < lastScrollTop) {
     lockingBottom.value = false
   }
+  lastScrollTop = container.scrollTop
 }
 function lockBottom() {
   lockingBottom.value && scroll('bottom', 'auto')
@@ -1079,7 +1096,7 @@ async function genTitle() {
         lang: 'zh-CN'
       })
     })
-    dialog.value.name = text
+    await db.dialogs.update(props.id, { name: text })
   } catch (e) {
     console.error(e)
     $q.notify({ message: '总结对话失败，请检查系统助手设置', color: 'negative' })
@@ -1286,10 +1303,9 @@ async function autoExtractArtifact() {
     })
   })
   const object: ExtractArtifactResult = JSON.parse(text)
+  console.log(object)
   if (!object.found) return
-  const begginning = escapeRegex(object.beginning)
-  const endding = escapeRegex(object.ending)
-  const reg = new RegExp(`(\`{3,}.*\\n)?(${begginning}[\\s\\S]*${endding})(\\s*\`{3,})?`)
+  const reg = new RegExp(`(\`{3,}.*\\n)?(${object.regex})(\\s*\`{3,})?`)
   const content = message.contents.find(c => c.type === 'assistant-message')
   const match = content.text.match(reg)
   if (!match) return

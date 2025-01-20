@@ -174,12 +174,12 @@
           <q-item>
             <q-item-section>
               <q-item-label>
-                显示 Artifacts 功能
+                启用 Artifacts 功能
               </q-item-label>
             </q-item-section>
             <q-item-section side>
               <platform-enabled-input
-                v-model="perfs.artifactsShow"
+                v-model="perfs.artifactsEnabled"
                 class="min-w-120px"
                 dense
                 filled

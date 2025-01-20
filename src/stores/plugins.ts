@@ -7,6 +7,7 @@ import { GradioPluginManifest, HuggingPluginManifest, InstalledPlugin, PluginsDa
 import { buildLobePlugin, timePlugin, defaultData, whisperPlugin, videoTranscriptPlugin, buildGradioPlugin, calculatorPlugin, huggingToGradio, fluxPlugin, lobeDefaultData, gradioDefaultData, emotionsPlugin, docParsePlugin, mermaidPlugin } from 'src/utils/plugins'
 import { computed } from 'vue'
 import { genId } from 'src/utils/functions'
+import artifacts from 'src/utils/artifacts-plugin'
 
 export const usePluginsStore = defineStore('plugins', () => {
   const installed = useLiveQuery(() => db.installedPluginsV2.toArray(), {
@@ -23,6 +24,7 @@ export const usePluginsStore = defineStore('plugins', () => {
     mermaidPlugin,
     docParsePlugin,
     timePlugin,
+    artifacts.plugin,
     ...installed.value.map(i => {
       if (i.type === 'lobechat') return buildLobePlugin(i.manifest, i.available)
       else return buildGradioPlugin(i.manifest, i.available)

@@ -471,7 +471,7 @@ function onHtmlChanged() {
 }
 const messageContentEl = ref()
 function injectConvertArtifact() {
-  if (!isPlatformEnabled(perfs.artifactsShow)) return
+  if (!isPlatformEnabled(perfs.artifactsEnabled)) return
   const el: HTMLElement = messageContentEl.value
   el.querySelectorAll('.md-editor-code').forEach(code => {
     if (code.querySelector('.md-editor-convert-artifact')) return

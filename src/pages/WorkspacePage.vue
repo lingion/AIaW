@@ -122,7 +122,7 @@
             :workspace-id="workspace.id"
           />
         </q-expansion-item>
-        <template v-if="isPlatformEnabled(perfs.artifactsShow)">
+        <template v-if="isPlatformEnabled(perfs.artifactsEnabled)">
           <q-separator />
           <q-expansion-item
             label="Artifacts"
