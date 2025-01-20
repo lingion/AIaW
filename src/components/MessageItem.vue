@@ -82,15 +82,17 @@
                     no-caps
                     sm-icon
                   />
-                  <q-separator vertical />
-                  <q-btn
-                    icon="sym_o_convert_to_text"
-                    label="Artifact"
-                    title="转换为 Artifact"
-                    @click="selectedConvertArtifact"
-                    no-caps
-                    sm-icon
-                  />
+                  <template v-if="isPlatformEnabled(perfs.artifactsEnabled)">
+                    <q-separator vertical />
+                    <q-btn
+                      icon="sym_o_convert_to_text"
+                      label="Artifact"
+                      title="转换为 Artifact"
+                      @click="selectedConvertArtifact"
+                      no-caps
+                      sm-icon
+                    />
+                  </template>
                 </template>
               </q-btn-group>
             </transition>
