@@ -84,7 +84,6 @@
           </q-item-label>
           <a-tip
             tip-key="configure-common-models"
-            dense
             rd-0
           >
             可以在 <router-link

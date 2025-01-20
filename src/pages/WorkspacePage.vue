@@ -130,6 +130,18 @@
             max-h="40vh"
             of-y-auto
           >
+            <a-tip
+              tip-key="artifacts-usage"
+              rd-0
+            >
+              可参考 <a
+                href="https://docs.aiaw.app/usage/artifacts.html"
+                target="_blank"
+                pri-link
+              >
+                Artifacts 使用指南
+              </a>
+            </a-tip>
             <artifacts-list
               mt-2
               :workspace-id="workspace.id"
@@ -196,6 +208,7 @@ import ArtifactItemMenu from 'src/components/ArtifactItemMenu.vue'
 import DragableSeparator from 'src/components/DragableSeparator.vue'
 import ArtifactItemIcon from 'src/components/ArtifactItemIcon.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
+import ATip from 'src/components/ATip.vue'
 
 const props = defineProps<{
   id: string

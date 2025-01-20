@@ -32,6 +32,7 @@ db.version(5).stores({
   dialogs: 'id, workspaceId',
   messages: 'id, type, dialogId',
   assistants: 'id, workspaceId',
+  canvases: 'id, workspaceId', // deprecated
   artifacts: 'id, workspaceId',
   installedPluginsV2: 'key, id',
   reactives: 'key',

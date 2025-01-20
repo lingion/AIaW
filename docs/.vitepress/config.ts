@@ -17,6 +17,7 @@ export default defineConfig({
         text: '使用文档',
         items: [
           { text: '功能概览', link: '/usage/' },
+          { text: 'Artifacts', link: '/usage/artifacts' },
           { text: '文件解析', link: '/usage/file-parse' },
           { text: '多模态', link: '/usage/multimodal' },
           { text: '跨平台', link: '/usage/cross-platform' },

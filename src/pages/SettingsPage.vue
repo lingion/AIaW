@@ -192,7 +192,7 @@
                 自动提取 Artifact
               </q-item-label>
               <q-item-label caption>
-                自动提取助手回答中的 Artifact。可能需要一个比较好的系统助手模型
+                自动提取助手回答中的 Artifact
               </q-item-label>
             </q-item-section>
             <q-item-section side>
