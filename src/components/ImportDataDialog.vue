@@ -46,7 +46,7 @@
         <q-btn
           flat
           color="primary"
-          label="确定"
+          label="导入"
           :loading
           :disable="!file"
           @click="importData"
