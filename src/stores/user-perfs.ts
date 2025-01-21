@@ -68,7 +68,8 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
       'claude-3-5-sonnet-20240620',
       'gemini-1.5-pro',
       'gemini-1.5-flash',
-      'deepseek-chat'
+      'deepseek-chat',
+      'deepseek-reasoner'
     ],
     autoGenTitle: true,
     sendKey: 'ctrl+enter',
@@ -84,6 +85,10 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     switchNextKeyV2: { key: 'ArrowRight', withCtrl: true },
     switchFirstKey: { key: 'ArrowLeft', withShift: true },
     switchLastKey: { key: 'ArrowRight', withShift: true },
+    regenerateCurrKey: null,
+    editCurrKey: null,
+    createDialogKey: null,
+    focusDialogInputKey: null,
     saveArtifactKey: { key: 'KeyS', withCtrl: true },
     autoFocusDialogInput: 'desktop-only',
     artifactsEnabled: 'desktop-only',
@@ -93,6 +98,7 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     mdPreviewTheme: 'vuepress',
     mdCodeTheme: 'atom',
     mdNoMermaid: false,
+    mdAutoFoldThreshold: null,
     streamingLockBottom: true
   }
   const [perfs, ready] = persistentReactive('#user-perfs', { ...defaultPerfs })

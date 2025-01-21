@@ -39,7 +39,7 @@
             gpt-4o-mini 和 gemini-1.5-flash 是低价模型的不错选择，比上述模型价格低了一个数量级，适合用于简单问题和需要大量输出的场景。<br>
           </p>
           <p>
-            国产模型的第一梯队是通义千问（qwen）和 deepseek，deepseek v3（即目前的 deepseek-chat）是第一个真正达到 gpt-4o 级别的国产模型，性价比很高；其他国产模型（文心一言、豆包、kimi等）则还要排在后面。模型排行榜可参考 <a
+            国产模型的第一梯队是通义千问（qwen）和 deepseek；deepseek v3（即目前的 deepseek-chat）是第一个真正达到 gpt-4o 级别的国产模型，deepseek r1 （即目前的 deepseek-reasoner）则是第一个对标 o1 的推理模型；其他国产模型（文心一言、豆包、kimi等）则还要排在后面。模型排行榜可参考 <a
               pri-link
               href="https://livebench.ai/#/"
               target="_blank"

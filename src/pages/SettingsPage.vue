@@ -19,7 +19,7 @@
   <q-page-container>
     <q-page :style-fn="pageFhStyle">
       <q-list
-        pb-2
+        pb-4
         max-w="1000px"
         mx-a
       >
@@ -413,6 +413,41 @@
           </q-item>
         </q-expansion-item>
         <q-separator spaced />
+        <q-item-label
+          header
+          id="ui"
+        >
+          数据
+        </q-item-label>
+        <q-item>
+          <q-item-section avatar>
+            <q-icon name="sym_o_database" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>用户数据</q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <div
+              flex
+              gap-2
+            >
+              <q-btn
+                label="导出"
+                @click="exportData"
+                unelevated
+                bg-sec-c
+                text-on-sec-c
+              />
+              <q-btn
+                label="导入"
+                unelevated
+                bg-sec-c
+                text-on-sec-c
+                @click="importData"
+              />
+            </div>
+          </q-item-section>
+        </q-item>
         <q-item
           clickable
           v-ripple
@@ -432,7 +467,7 @@
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
+import { exportFile, useQuasar } from 'quasar'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import HctPreviewCircle from 'src/components/HctPreviewCircle.vue'
 import HueSliderDialog from 'src/components/HueSliderDialog.vue'
@@ -453,6 +488,8 @@ import { pageFhStyle } from 'src/utils/functions'
 import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
 import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
 import { useModel } from 'src/composables/model'
+import { exportDB } from 'dexie-export-import'
+import ImportDataDialog from 'src/components/ImportDataDialog.vue'
 
 const uiStateStore = useUiStateStore()
 const { perfs, restore } = useUserPerfsStore()
@@ -478,8 +515,9 @@ function pickUserAvatar() {
 function restoreSettings() {
   $q.dialog({
     title: '恢复默认设置',
-    message: '确定将所有本地设置恢复默认？',
-    cancel: true
+    message: '确定将所有设置恢复默认？',
+    cancel: true,
+    ...dialogOptions
   }).onOk(() => { restore() })
 }
 const providerLink = computed(() => {
@@ -515,6 +553,23 @@ function getModelList() {
       message: '获取模型列表失败',
       color: 'negative'
     })
+  })
+}
+
+function exportData() {
+  exportDB(db).then(blob => {
+    exportFile('aiaw_user_db.json', blob)
+  }).catch(err => {
+    console.error(err)
+    $q.notify({
+      message: '导出失败',
+      color: 'negative'
+    })
+  })
+}
+function importData() {
+  $q.dialog({
+    component: ImportDataDialog
   })
 }
 
