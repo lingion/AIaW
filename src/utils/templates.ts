@@ -148,7 +148,7 @@ ${JSON.stringify(ExtractArtifactSchema, null, 2)}
 </chat_history>
 `
 const NameArtifactPrompt =
-`请根据该文件的内容，为该文件命名（带后缀）。命名格式需符合对应语言代码的文件命名规范，如 "hello_world.py", "hello-world.js", "HelloWorld.java" 等。只回答文件名：
+`请根据该文件的内容，为该文件命名（带后缀）。命名格式需符合对应语言代码的文件命名规范，如 "hello_world.py"（下划线格式）, "hello-world.js"（连字符格式）, "HelloWorld.java"（驼峰格式） 等。只回答文件名：
 
 <file_content>
 {{ content }}

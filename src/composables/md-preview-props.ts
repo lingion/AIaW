@@ -50,6 +50,7 @@ export function useMdPreviewProps() {
     previewTheme: perfs.mdPreviewTheme,
     codeTheme: perfs.mdCodeTheme,
     autoFoldThreshold: perfs.mdAutoFoldThreshold ?? Infinity,
-    noMermaid: perfs.mdNoMermaid
+    noMermaid: perfs.mdNoMermaid,
+    mdHeadingId: (text, level, index) => `${text}-${level}-${index}`
   }))
 }

@@ -44,6 +44,7 @@ interface Perfs {
   mdNoMermaid: MdPreviewProps['noMermaid']
   mdAutoFoldThreshold?: MdPreviewProps['autoFoldThreshold']
   streamingLockBottom: boolean
+  messageCatalog: boolean
 }
 
 export const useUserPerfsStore = defineStore('user-perfs', () => {
@@ -99,7 +100,8 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     mdCodeTheme: 'atom',
     mdNoMermaid: false,
     mdAutoFoldThreshold: null,
-    streamingLockBottom: true
+    streamingLockBottom: true,
+    messageCatalog: true
   }
   const [perfs, ready] = persistentReactive('#user-perfs', { ...defaultPerfs })
   watchEffect(() => {

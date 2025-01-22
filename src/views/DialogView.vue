@@ -135,6 +135,7 @@
             :model-value="dialog.msgRoute[index - 1] + 1"
             :message="messageMap[i]"
             :child-num="dialog.msgTree[chain[index - 1]].length"
+            :scroll-container
             @update:model-value="switchChain(index - 1, $event - 1)"
             @edit="edit(index)"
             @regenerate="regenerate(index)"
@@ -695,13 +696,13 @@ function getChainMessages() {
         })
       } else if (content.type === 'assistant-tool') {
         if (content.status !== 'completed') return
-        const { name, args, result } = content
+        const { name, args, result, pluginId } = content
         const id = genId()
         val.push({
           role: 'assistant',
           content: [{
             type: 'tool-call',
-            toolName: name,
+            toolName: `${pluginId}-${name}`,
             toolCallId: id,
             args
           }]
@@ -710,7 +711,7 @@ function getChainMessages() {
           role: 'tool',
           content: [{
             type: 'tool-result',
-            toolName: name,
+            toolName: `${pluginId}-${name}`,
             toolCallId: id,
             result: toToolResultContent(result.map(id => itemMap.value[id])),
             experimental_content: toToolResultContent(result.map(id => itemMap.value[id]))
@@ -850,7 +851,7 @@ async function stream(target, insert = false) {
     const content: MessageContent = {
       type: 'assistant-tool',
       pluginId: plugin.id,
-      name: `${plugin.id}-${api.name}`,
+      name: api.name,
       args,
       status: 'calling'
     }

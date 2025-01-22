@@ -170,6 +170,19 @@
             <q-toggle v-model="perfs.streamingLockBottom" />
           </q-item-section>
         </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>
+              消息内容目录
+            </q-item-label>
+            <q-item-label caption>
+              空间足够时，在消息旁边显示目录
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-toggle v-model="perfs.messageCatalog" />
+          </q-item-section>
+        </q-item>
         <q-expansion-item label="Artifacts 设置">
           <q-item>
             <q-item-section>

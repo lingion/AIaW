@@ -20,7 +20,7 @@ const api: PluginApi = {
         description: '要替换的旧内容的Javascript 正则表达式字符串。你可以使用 `[\\s\\S]*` 来覆写全部内容'
       }),
       multiple: Boolean({
-        description: '替换全部匹配项而不是第一个匹配项'
+        description: '为 true 时，替换全部匹配项；为 false 时，只替换第一个匹配项'
       }),
       replacement: String({
         description: '替换后的新内容'

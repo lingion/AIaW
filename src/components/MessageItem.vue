@@ -2,28 +2,31 @@
   <div
     flex
     :class="{ 'flex-row-reverse': message.type === 'user', 'flex-col px-2': colMode }"
+    relative
   >
-    <div
-      flex
-      :class="[
-        colMode ? 'flex-row items-center' : 'flex-col',
-        message.type === 'assistant' ? 'pl-2' : ''
-      ]"
-    >
-      <a-avatar
-        v-if="avatar"
-        :avatar
-        :size="colMode ? '36px' : '48px'"
-        :class="colMode ? 'mx-2' : 'xs:mx-3 sm:mx-4'"
-        @click="onAvatarClick"
-        cursor-pointer
-      />
+    <div>
       <div
-        v-if="name"
-        :class="colMode ? 'mx-2' : 'my-2 text-xs'"
-        text="center on-sur-var"
+        flex
+        :class="[
+          colMode ? 'flex-row items-center' : 'flex-col pos-sticky top-0',
+          message.type === 'assistant' ? 'pl-2' : ''
+        ]"
       >
-        {{ name }}
+        <a-avatar
+          v-if="avatar"
+          :avatar
+          :size="colMode ? '36px' : '48px'"
+          :class="colMode ? 'mx-2' : 'xs:mx-3 sm:mx-4'"
+          @click="onAvatarClick"
+          cursor-pointer
+        />
+        <div
+          v-if="name"
+          :class="colMode ? 'mx-2' : 'my-2 text-xs'"
+          text="center on-sur-var"
+        >
+          {{ name }}
+        </div>
       </div>
     </div>
     <div
@@ -50,6 +53,7 @@
           >
             <md-preview
               :class="message.type === 'user' ? 'bg-sur-c-low' : 'bg-sur'"
+              :id="mdId"
               rd-lg
               :model-value="content.text"
               v-bind="mdPreviewProps"
@@ -234,14 +238,25 @@
     </div>
     <div
       v-if="!colMode"
-      w="xs:16px sm:20%"
+      w="xs:24px sm:22.5%"
       shrink-0
-    />
+    >
+      <md-catalog
+        pos-sticky
+        top-0
+        px-2
+        pb-4
+        v-if="perfs.messageCatalog && scrollContainer && $q.screen.gt.xs"
+        :editor-id="mdId"
+        :scroll-element="scrollContainer"
+        :md-heading-id="mdPreviewProps.mdHeadingId"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { MdPreview } from 'md-editor-v3'
+import { MdPreview, MdCatalog } from 'md-editor-v3'
 import { db } from 'src/utils/db'
 import 'md-editor-v3/lib/preview.css'
 import { computed, ComputedRef, inject, nextTick, onUnmounted, reactive, ref, watchEffect } from 'vue'
@@ -258,7 +273,7 @@ import { copyToClipboard, useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import PickAvatarDialog from './PickAvatarDialog.vue'
 import MessageFile from './MessageFile.vue'
-import { escapeRegex, isPlatformEnabled, textBeginning, wrapCode } from 'src/utils/functions'
+import { escapeRegex, genId, isPlatformEnabled, textBeginning, wrapCode } from 'src/utils/functions'
 import MenuItem from './MenuItem.vue'
 import MessageInfoDialog from './MessageInfoDialog.vue'
 import TextareaDialog from './TextareaDialog.vue'
@@ -267,8 +282,11 @@ import ConvertArtifactDialog from './ConvertArtifactDialog.vue'
 
 const props = defineProps<{
   message: Message,
-  childNum: number
+  childNum: number,
+  scrollContainer: HTMLElement
 }>()
+
+const mdId = `md-${genId()}`
 
 const $q = useQuasar()
 function moreInfo() {
