@@ -36,6 +36,7 @@
         position-relative
         :class="message.type === 'user' ? 'min-h-48px' : 'min-h-24px min-w-80px'"
         ref="messageContentEl"
+        class="group"
       >
         <div
           v-for="(content, index) in contents"
@@ -151,7 +152,6 @@
             {{ warning }}
           </div>
         </div>
-
         <q-icon
           v-if="message.status === 'inputing'"
           name="sym_o_edit"
@@ -161,6 +161,20 @@
           translate-x="-100%"
           text-on-sur-var
         />
+        <div
+          text="out xs"
+          pos-absolute
+          right-1
+          bottom--1
+          translate-y="100%"
+          opacity-0
+          group-hover:opacity-100
+          transition="opacity 250"
+          whitespace-nowrap
+        >
+          <span>{{ message.modelName }}</span>
+          <span ml-3>{{ idDateString(message.id) }}</span>
+        </div>
       </div>
       <q-linear-progress
         v-if="['pending', 'streaming'].includes(message.status)"
@@ -273,7 +287,7 @@ import { copyToClipboard, useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import PickAvatarDialog from './PickAvatarDialog.vue'
 import MessageFile from './MessageFile.vue'
-import { escapeRegex, genId, isPlatformEnabled, textBeginning, wrapCode } from 'src/utils/functions'
+import { escapeRegex, genId, idDateString, isPlatformEnabled, textBeginning, wrapCode } from 'src/utils/functions'
 import MenuItem from './MenuItem.vue'
 import MessageInfoDialog from './MessageInfoDialog.vue'
 import TextareaDialog from './TextareaDialog.vue'

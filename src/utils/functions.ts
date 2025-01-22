@@ -34,6 +34,9 @@ function genId() {
 function idTimestamp(id: string) {
   return parseInt(id.slice(0, 9), 32)
 }
+function idDateString(id: string) {
+  return new Date(idTimestamp(id)).toLocaleString()
+}
 
 function JSONEqual(a, b) {
   return JSON.stringify(a) === JSON.stringify(b)
@@ -164,6 +167,7 @@ export {
   hctToHex,
   genId,
   idTimestamp,
+  idDateString,
   JSONEqual,
   mimeTypeMatch,
   isTextFile,

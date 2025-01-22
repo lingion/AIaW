@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 import { useDialogPluginComponent } from 'quasar'
-import { idTimestamp } from 'src/utils/functions'
+import { idDateString } from 'src/utils/functions'
 import { Message } from 'src/utils/types'
 import { computed } from 'vue'
 
@@ -78,7 +78,7 @@ const props = defineProps<{
 const length = computed(() => props.message.contents.filter(
   c => c.type === 'assistant-message' || c.type === 'user-message'
 ).reduce((prev, cur) => prev + cur.text.length, 0))
-const createdAt = computed(() => new Date(idTimestamp(props.message.id)).toLocaleString())
+const createdAt = computed(() => idDateString(props.message.id))
 
 defineEmits([
   ...useDialogPluginComponent.emits
