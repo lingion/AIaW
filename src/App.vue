@@ -7,6 +7,7 @@ import { useRouter } from 'vue-router'
 import { useFirstVisit } from './composables/first-visit'
 import { useLoginDialogs } from './composables/login-dialogs'
 import { useSetTheme } from './composables/set-theme'
+import { useSubscriptionNotify } from './composables/subscription-notify'
 
 defineOptions({
   name: 'App'
@@ -15,6 +16,7 @@ defineOptions({
 useSetTheme()
 useLoginDialogs()
 useFirstVisit()
+useSubscriptionNotify()
 
 const router = useRouter()
 router.afterEach(to => {

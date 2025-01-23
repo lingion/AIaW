@@ -72,14 +72,14 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1(codejar@4.2.0)
       dexie:
-        specifier: ^4.0.10
-        version: 4.0.10
+        specifier: ^4.0.11
+        version: 4.0.11
       dexie-cloud-addon:
-        specifier: ^4.0.8
-        version: 4.0.8(dexie@4.0.10)
+        specifier: ^4.0.11
+        version: 4.0.11(dexie@4.0.11)
       dexie-export-import:
         specifier: ^4.1.4
-        version: 4.1.4(dexie@4.0.10)
+        version: 4.1.4(dexie@4.0.11)
       expr-eval:
         specifier: ^2.0.2
         version: 2.0.2
@@ -3073,11 +3073,11 @@ packages:
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
 
-  dexie-cloud-addon@4.0.8:
-    resolution: {integrity: sha512-wD+eObGcqiL+PjQ6t3bLsXLnuJhPUw+WpMh1fvbMUPRSq7ODZjjXOz1zSzIw/fK6VDgrGbYS7B0BFWBfQNz5UQ==}
+  dexie-cloud-addon@4.0.11:
+    resolution: {integrity: sha512-CkszT8Eg8Nk2GV6rDRpoimH/Kb8an8LY9eU2QA20m8CVlmtuKjetIrxoBlA0lNRaUXP5r+6O69AUwne4NldhrA==}
     engines: {node: '>=14'}
     peerDependencies:
-      dexie: ^4.0.1-alpha.5
+      dexie: ^4.0.11
 
   dexie-cloud-common@1.0.47:
     resolution: {integrity: sha512-/8KexyBjnps7ixY4NtkA2AwKVEHrWnPWjkCrA5khB1DkIWSARJD0lR313dZC/O5Y78/FnqcaqnVqyOJkRytyuw==}
@@ -3087,8 +3087,8 @@ packages:
     peerDependencies:
       dexie: ^2.0.4 || ^3.0.0 || ^4.0.1
 
-  dexie@4.0.10:
-    resolution: {integrity: sha512-eM2RzuR3i+M046r2Q0Optl3pS31qTWf8aFuA7H9wnsHTwl8EPvroVLwvQene/6paAs39Tbk6fWZcn2aZaHkc/w==}
+  dexie@4.0.11:
+    resolution: {integrity: sha512-SOKO002EqlvBYYKQSew3iymBoN2EQ4BDw/3yprjh7kAfFzjBYkaMNa/pZvcA7HSWlcKSQb9XhPe3wKyQ0x4A8A==}
 
   diff-match-patch@1.0.5:
     resolution: {integrity: sha512-IayShXAgj/QMXgB0IWmKx+rOPuGMhqm5w6jvFxmVenXKIzRqTAAsbBPT3kWQeGANj3jGgvcvv4yK6SxqYmikgw==}
@@ -9415,9 +9415,9 @@ snapshots:
     dependencies:
       dequal: 2.0.3
 
-  dexie-cloud-addon@4.0.8(dexie@4.0.10):
+  dexie-cloud-addon@4.0.11(dexie@4.0.11):
     dependencies:
-      dexie: 4.0.10
+      dexie: 4.0.11
       dexie-cloud-common: 1.0.47
       rxjs: 7.8.1
 
@@ -9425,11 +9425,11 @@ snapshots:
     dependencies:
       lib0: 0.2.98
 
-  dexie-export-import@4.1.4(dexie@4.0.10):
+  dexie-export-import@4.1.4(dexie@4.0.11):
     dependencies:
-      dexie: 4.0.10
+      dexie: 4.0.11
 
-  dexie@4.0.10: {}
+  dexie@4.0.11: {}
 
   diff-match-patch@1.0.5: {}
 

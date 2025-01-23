@@ -1303,7 +1303,6 @@ async function autoExtractArtifact() {
     })
   })
   const object: ExtractArtifactResult = JSON.parse(text)
-  console.log(object)
   if (!object.found) return
   const reg = new RegExp(`(\`{3,}.*\\n)?(${object.regex})(\\s*\`{3,})?`)
   const content = message.contents.find(c => c.type === 'assistant-message')
