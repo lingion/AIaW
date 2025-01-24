@@ -274,12 +274,16 @@ body {
     width: 2px;
   }
 
-  .md-editor-catalog-active>span {
-    color: var(--a-pri);
+  .md-editor-catalog-link>span {
+    color: var(--a-on-sur-var);
+
+    &:hover {
+      color: var(--a-pri-dim);
+    }
   }
 
-  .md-editor-catalog-link>span:hover {
-    color: var(--a-pri-dim);
+  .md-editor-catalog-active>span {
+    color: var(--a-pri);
   }
 }
 

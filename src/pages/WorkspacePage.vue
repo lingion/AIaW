@@ -240,7 +240,7 @@ function createEmptyArtifact() {
     ...dialogOptions
   }).onOk(name => {
     const language = getFileExt(name)
-    createArtifact({ name, language }, 'edit')
+    createArtifact({ name, language })
   })
 }
 async function artifactFromFiles(files: File[]) {

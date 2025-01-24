@@ -139,7 +139,7 @@
             @update:model-value="switchChain(index - 1, $event - 1)"
             @edit="edit(index)"
             @regenerate="regenerate(index)"
-            @quote="addInputItems([$event])"
+            @quote="quote"
             @extract-artifact="extractArtifact(messageMap[i], ...$event)"
             @rendered="messageMap[i].generatingSession && lockBottom()"
             pt-2
@@ -367,7 +367,7 @@
 import { computed, inject, onUnmounted, provide, ref, Ref, toRaw, toRef, watch, nextTick } from 'vue'
 import { db } from 'src/utils/db'
 import { useLiveQueryWithDeps } from 'src/composables/live-query'
-import { almostEqual, escapeRegex, genId, isPlatformEnabled, isTextFile, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode } from 'src/utils/functions'
+import { almostEqual, displayLength, escapeRegex, genId, isPlatformEnabled, isTextFile, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode, wrapQuote } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { streamText, CoreMessage, generateText, tool, jsonSchema } from 'ai'
 import { useModel } from 'src/composables/model'
@@ -546,7 +546,7 @@ function onTextPaste(ev: ClipboardEvent) {
     const lang = JSON.parse(data).mode ?? ''
     if (lang === 'markdown') return
     const wrappedCode = wrapCode(code, lang)
-    document.execCommand('insertText', false, wrappedCode)
+    document.execCommand('insertText', false, '\n' + wrappedCode)
     ev.preventDefault()
   }
 }
@@ -565,7 +565,7 @@ function onPaste(ev: ClipboardEvent) {
       const text = clipboardData.getData('text/plain')
       addInputItems([{
         type: 'text',
-        name: `粘贴文本：${textBeginning(text, 10)}`,
+        name: `粘贴文本：${textBeginning(text, 12)}`,
         contentText: text
       }])
     }
@@ -629,6 +629,14 @@ async function parseFiles(files: File[]) {
   }).onOk((files: ApiResultItem[]) => {
     addInputItems(files)
   })
+}
+function quote(item: ApiResultItem) {
+  if (displayLength(item.contentText) > 200) {
+    addInputItems([item])
+  } else {
+    const { text } = inputMessageContent.value
+    updateInputText(text ? text + '\n' + wrapQuote(item.contentText) : wrapQuote(item.contentText))
+  }
 }
 async function addInputItems(items: ApiResultItem[]) {
   const storedItems = items.map(i => ({ ...i, id: genId(), dialogId: props.id, references: 0 }))

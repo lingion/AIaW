@@ -6,7 +6,7 @@ import { useRouter } from 'vue-router'
 
 export function useCreateArtifact(workspace: Ref<Workspace>) {
   const router = useRouter()
-  async function createArtifact(props: Partial<Artifact> = {}, mode?: 'edit' | 'view') {
+  async function createArtifact(props: Partial<Artifact> = {}) {
     const id = genId()
     await db.artifacts.add({
       id,
@@ -20,7 +20,7 @@ export function useCreateArtifact(workspace: Ref<Workspace>) {
       tmp: '',
       ...props
     })
-    router.push({ query: { artifactId: id, mode } })
+    router.push({ query: { artifactId: id } })
     return id
   }
   return { createArtifact }

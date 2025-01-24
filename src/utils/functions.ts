@@ -93,9 +93,13 @@ function displayLength(text: string) {
   return length
 }
 function textBeginning(text: string, length = 10) {
-  if (cjkReg.test(text.slice(0, length))) length /= 2.5
-  if (text.length < length) return text
-  return text.slice(0, length) + '…'
+  let res = ''
+  for (const i of text) {
+    res += i
+    length -= cjkReg.test(i) ? 2 : 1
+    if (length <= 0) return res + '…'
+  }
+  return res
 }
 
 function parsePageRange(range: string) {

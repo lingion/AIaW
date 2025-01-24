@@ -26,6 +26,8 @@ npx dexie-cloud create
 
 你会被提示验证邮箱。然后在控制台输出中能看到创建的数据库地址，将其填入 `DEXIE_DB_URL` 变量。
 
+此命令也会在当前目录生成 `dexie-cloud.json` 和 `dexie-cloud.key`，其中后者包含对数据库有完全权限的私钥，**请妥善保管，不要将它们公开**
+
 将你的域名添加到白名单中：
 
 ```bash
@@ -35,6 +37,8 @@ npx dexie-cloud whitelist https://yourdomain.com
 你可以在 [DexieCloud Manager](https://manager.dexie.cloud/) 管理在你的部署中注册的用户。
 
 值得注意的是，Dexie Cloud 的免费计划额度为 100MB 储存空间、3 个 prod 用户，再往上则需要付费。
+
+更多信息详见 [DexieCloud 文档](https://dexie.org/cloud/#getting-started)
 
 ### 模型服务
 
