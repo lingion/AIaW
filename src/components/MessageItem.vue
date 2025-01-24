@@ -162,6 +162,7 @@
           text-on-sur-var
         />
         <div
+          v-if="message.status !== 'streaming'"
           text="out xs"
           pos-absolute
           right-1

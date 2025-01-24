@@ -2,55 +2,84 @@
 
 # AI as Workspace
 
-AIaW 是新一代 LLM 客户端，全功能、轻量级、可拓展。
+精心设计的 AI 客户端
 
-[网站链接](https://aiaw.app) - [使用文档](https://docs.aiaw.app/) - [自部署指南](https://docs.aiaw.app/self-host/)
+## 功能概览
 
-## 基本功能
+### 对话页面
 
-- 流式传输、上传图片、latex公式…… 这些基本的功能自然都有，无需多提
+- 用户输入预览
+- 修改提问、重新生成 以分叉的形式呈现
+- 自定义键盘快捷键
+- 对齐到消息开头/结尾的快速滚动
 
-- [跨平台](https://docs.aiaw.app/usage/cross-platform.html)：响应式界面设计，适配手机、电脑等不同大小和比例的屏幕
+![](https://fs.krytro.com/aiaw/dialog.webp)
 
-- 多服务商支持：支持 OpenAI、Anthropic、Google 等不同服务商
+### 细节设计
 
-- 修改提问、重新生成 以分叉的形式实现，像 Chatgpt 官网那样（整个对话呈现“树”的结构）
+- 支持将文本类型文件（代码、csv等）作为附件，AI 能看到文件内容和文件名；避免文件内容占据显示空间
+- 对于大段的文本，可在**输入框外**使用 Ctrl + V 粘贴，也将作为附件；避免大段内容占据显示空间
 
-- [文件解析](https://docs.aiaw.app/usage/file-parse.html)：支持上传 Word、PDF、PPT、Excel等格式文档，自动解析为文本输入
+![](https://fs.krytro.com/aiaw/text-item.webp)
 
-- 视频解析：支持选择视频文件并指定时长范围，将自动转稿为文本输入，以此实现对视频内容的提问
+- 可在用户输入中引用先前消息中的内容，方便对助手回答的部分内容针对性地追问
+- 选中多行消息文本后，可直接复制 Markdown 原文
 
-- [插件系统](https://docs.aiaw.app/usage/plugins.html)：内置了计算器、图像生成等插件。此外可在插件商店安装更多插件
+![](https://fs.krytro.com/aiaw/text-selection.webp)
 
-- 助手市场：获取各种各样定制提示词的助手（提示词来自[lobe-chat-agents](https://github.com/lobehub/lobe-chat-agents)）
+- 粘贴从 VSCode 复制的代码时，自动用代码块包裹，并标明语言
 
-- 本地优先+实时云同步：所有数据储存在本地，因此无需加载且离线可浏览。登录即可启用跨设备实时云同步
+![](https://fs.krytro.com/aiaw/paste-code.webp)
 
-- 界面主题：Material 3 设计风格；支持深色/浅色模式；支持自定义主题色
+### 多工作区
 
-## 拓展使用
+- 创建多个工作区，将不同主题的对话分隔开
+- 可将多个工作区放入一个文件夹中；支持嵌套
+- 一个工作区中可创建多个助手，也可以创建全局助手
 
-- [多工作区](https://docs.aiaw.app/usage/workspaces.html)：在左侧边栏，你可以创建多个工作区，将不同主题的对话、不同类型的助手分隔开；还可以创建文件夹，将多个工作区放入其中；支持嵌套
+<img src="https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/usage/res/workspace-list.png" width="378">
 
-- [提示词变量](https://docs.aiaw.app/usage/prompt-vars.html)：除了在助手的“角色设定”中设置普通的静态提示词外，你可以通过创建提示词变量、编辑提示词模板，来构建动态且可复用的提示词
+### 数据储存
 
-- 插件拓展性：支持将任意 Gradio 应用配置为插件，同时兼容部分 LobeChat 插件；插件不仅仅提供工具调用，文件解析功能也可以通过插件拓展；工具调用支持多模态的结果
+- 数据首先储存在本地，无需加载且离线可浏览
+- 登录后可使用云同步，跨设备实时同步
+- 多窗口协同支持：同一浏览器打开多个标签，数据响应式同步
 
-## 细节设计
+### [Artifacts](https://docs.aiaw.app/usage/artifacts.html)
 
-- 用户输入预览：提供正在输入的内容的实时预览；借鉴自NextChat
+- 可将助手回答的任意部分转为 Artifacts
+- 用户可编辑，带版本控制，代码高亮
+- 可控制助手对 Artifacts 的读写权限
+- 可同时打开多个 Artifacts
 
-- 代码粘贴优化：在输入框粘贴从 VSCode 复制的代码时，自动用 markdown 代码块包裹，并标明语言
+![](https://fs.krytro.com/aiaw/convert-artifact.webp)
 
-- 文本文件支持：支持直接添加文本类型文件（代码、csv等）到用户输入中，文件内容和文件名将作为用户输入的一部分。相比于手动将文件内容粘贴到输入框，此方法更快捷且文件内容不会占据显示空间
+### [插件系统](https://docs.aiaw.app/usage/plugins.html)
 
-- 粘贴：通过 Ctrl + V 粘贴，你可以粘贴文本、图片、文件；此外，在输入框之外粘贴文本时，将作为独立的文本块，像文本文件那样
+- 内置计算器、[文档解析、视频解析](https://docs.aiaw.app/usage/file-parse.html)、图像生成等插件
+- 可在插件市场安装更多插件
+- 可将 Gradio 应用配置为插件；兼容部分 LobeChat 插件；
+- 插件不只是工具调用
 
-- 引用：用鼠标拖选对话消息内容后，点击“引用”，即可在用户输入中引用该内容。此功能相当于手动复制消息内容并粘贴到输入框中的快捷方式，方便对助手回答的部分内容针对性地追问
+![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/plugin-market.webp)
 
-- 快速滚动：对话右下角有快速滚动按钮，除了一般的滚动到顶部/底部，中间两个按钮是对齐到消息开头/末尾或者上一条/下一条消息的滚动，在消息较长时很方便
+### 轻量，高性能
 
-- 键盘控制：支持设置键盘快捷键触发上述的滚动操作，以及用键盘快捷键切换消息链、重新生成、新建对话
+- 启动迅速，无需等待
+- 切换对话丝滑流畅
+
+![](https://fs.krytro.com/aiaw/switch-dialog.webp)
+
+### [动态提示词](https://docs.aiaw.app/usage/prompt-vars.html)
+
+- 通过创建提示词变量，使用模板语法，构建动态可复用的提示词
+- 抽离提示词中的重复部分，放入工作区变量，实现提示词的复用
+
+<img src="https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/usage/res/assistant-prompt-vars.png" width="378">
+
+### 其他功能
+
+多服务商支持、助手市场、深色模式、自定义主题色、[跨平台](https://docs.aiaw.app/usage/cross-platform.html)
 
 [网站链接](https://aiaw.app) - [使用文档](https://docs.aiaw.app/) - [自部署指南](https://docs.aiaw.app/self-host/)
 

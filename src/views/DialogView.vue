@@ -1062,6 +1062,7 @@ async function stream(target, insert = false) {
     await db.messages.update(id, { contents, error: e.message, status: 'failed', generatingSession: null })
   }
   perfs.artifactsAutoExtract && autoExtractArtifact()
+  lockingBottom.value = false
 }
 function toToolResultContent(items: StoredItem[]) {
   const val = []
@@ -1087,9 +1088,13 @@ function lockBottom() {
   lockingBottom.value && scroll('bottom', 'auto')
 }
 watch(lockingBottom, val => {
-  val
-    ? scrollContainer.value.addEventListener('scroll', scrollListener)
-    : scrollContainer.value.removeEventListener('scroll', scrollListener)
+  if (val) {
+    lastScrollTop = scrollContainer.value.scrollTop
+    scrollContainer.value.addEventListener('scroll', scrollListener)
+  } else {
+    lastScrollTop = null
+    scrollContainer.value.removeEventListener('scroll', scrollListener)
+  }
 })
 const activePlugins = computed<Plugin[]>(() => pluginsStore.plugins.filter(p => p.available && assistant.value.plugins[p.id]?.enabled))
 const usage = computed(() => messageMap.value[chain.value.at(-2)]?.usage)
