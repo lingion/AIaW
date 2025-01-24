@@ -13,23 +13,23 @@
 - 自定义键盘快捷键
 - 对齐到消息开头/结尾的快速滚动
 
-![](https://fs.krytro.com/aiaw/dialog.webp)
+<img src="https://fs.krytro.com/aiaw/dialog.webp" width="600">
 
 ### 细节设计
 
 - 支持将文本类型文件（代码、csv等）作为附件，AI 能看到文件内容和文件名；避免文件内容占据显示空间
 - 对于大段的文本，可在**输入框外**使用 Ctrl + V 粘贴，也将作为附件；避免大段内容占据显示空间
 
-![](https://fs.krytro.com/aiaw/text-item.webp)
+<img src="https://fs.krytro.com/aiaw/text-item.webp" width="600">
 
 - 可在用户输入中引用先前消息中的内容，方便对助手回答的部分内容针对性地追问
 - 选中多行消息文本后，可直接复制 Markdown 原文
 
-![](https://fs.krytro.com/aiaw/text-selection.webp)
+<img src="https://fs.krytro.com/aiaw/text-selection.webp" width="600">
 
 - 粘贴从 VSCode 复制的代码时，自动用代码块包裹，并标明语言
 
-![](https://fs.krytro.com/aiaw/paste-code.webp)
+<img src="https://fs.krytro.com/aiaw/paste-code.webp" width="600">
 
 ### 多工作区
 
@@ -52,7 +52,7 @@
 - 可控制助手对 Artifacts 的读写权限
 - 可同时打开多个 Artifacts
 
-![](https://fs.krytro.com/aiaw/convert-artifact.webp)
+<img src="https://fs.krytro.com/aiaw/convert-artifact.webp" width="600">
 
 ### [插件系统](https://docs.aiaw.app/usage/plugins.html)
 
@@ -61,14 +61,14 @@
 - 可将 Gradio 应用配置为插件；兼容部分 LobeChat 插件；
 - 插件不只是工具调用
 
-![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/plugin-market.webp)
+![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/plugin-market.png)
 
 ### 轻量，高性能
 
 - 启动迅速，无需等待
 - 切换对话丝滑流畅
 
-![](https://fs.krytro.com/aiaw/switch-dialog.webp)
+<img src="https://fs.krytro.com/aiaw/switch-dialog.webp" width="600">
 
 ### [动态提示词](https://docs.aiaw.app/usage/prompt-vars.html)
 
