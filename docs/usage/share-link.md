@@ -8,7 +8,7 @@ https://aiaw.app/set-provider?provider={"type":"openai","settings":{"apiKey":"{k
 
 对于其他服务商，也可以参考设置中的分享链接格式设置。
 
-## New API 设置示例
+## [New API](https://github.com/Calcium-Ion/new-api) 设置示例
 
 在 运营设置 > 聊天配置 中添加一项：
 

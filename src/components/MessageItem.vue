@@ -35,7 +35,6 @@
       <div
         position-relative
         :class="message.type === 'user' ? 'min-h-48px' : 'min-h-24px min-w-80px'"
-        ref="messageContentEl"
         class="group"
       >
         <div
@@ -44,6 +43,17 @@
           :class="message.type === 'user' ? 'bg-sur-c-low' : 'bg-sur'"
           rd-lg
         >
+          <md-preview
+            v-if="content.type === 'assistant-message' && content.reasoning"
+            :model-value="`\`\`\`思考内容\n${content.reasoning}\n\`\`\``"
+            v-bind="mdPreviewProps"
+            @on-html-changed="onHtmlChanged(false)"
+            class="content-reasoning"
+            bg-sur
+            no-highlight
+            :show-code-row-number="false"
+            :auto-fold-threshold="message.generatingSession ? Infinity : 0"
+          />
           <div
             ref="textDiv"
             @mouseup="onSelect('mouse')"
@@ -58,7 +68,7 @@
               rd-lg
               :model-value="content.text"
               v-bind="mdPreviewProps"
-              @on-html-changed="onHtmlChanged"
+              @on-html-changed="onHtmlChanged(true)"
             />
             <transition name="fade">
               <q-btn-group
@@ -498,16 +508,15 @@ function selectedConvertArtifact() {
   convertArtifact(text, text, 'markdown')
 }
 
-function onHtmlChanged() {
+function onHtmlChanged(inject = false) {
   nextTick(() => {
-    injectConvertArtifact()
+    inject && injectConvertArtifact()
     emit('rendered')
   })
 }
-const messageContentEl = ref()
 function injectConvertArtifact() {
   if (!isPlatformEnabled(perfs.artifactsEnabled)) return
-  const el: HTMLElement = messageContentEl.value
+  const el: HTMLElement = textDiv.value[0]
   el.querySelectorAll('.md-editor-code').forEach(code => {
     if (code.querySelector('.md-editor-convert-artifact')) return
     const anchor = code.querySelector('.md-editor-collapse-tips')
@@ -534,5 +543,14 @@ const mdPreviewProps = useMdPreviewProps()
 <style lang="scss">
 .md-editor-preview-wrapper {
   --at-apply: 'py-0';
+}
+.content-reasoning {
+  code {
+    white-space: pre-wrap !important;
+  }
+
+  details {
+    margin: 0 !important;
+  }
 }
 </style>

@@ -99,6 +99,7 @@ interface UserMessageContent {
 interface AssistantMessageContent {
   type: 'assistant-message'
   text: string
+  reasoning?: string
 }
 
 interface AssistantToolContent {

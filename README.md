@@ -91,6 +91,10 @@
 | :-----: | :----: |
 | ![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/lighthouse_score_desktop.png) | ![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/lighthouse_score_mobile.png) |
 
+## 相关项目
+
+- [New API](https://github.com/Calcium-Ion/new-api): AI模型接口管理与分发系统，支持将多种大模型转为OpenAI格式调用
+
 ## Roadmap
 
 - [ ] 补全文档

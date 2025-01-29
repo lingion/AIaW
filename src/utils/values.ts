@@ -10,6 +10,7 @@ import { createTogetherAI } from '@ai-sdk/togetherai'
 import { createCohere } from '@ai-sdk/cohere'
 import { createGroq } from '@ai-sdk/groq'
 import { createOllama } from 'ollama-ai-provider'
+import { createDeepSeek } from '@ai-sdk/deepseek'
 
 const commonSettings = {
   baseURL: String({ title: 'API 地址', description: '默认为该服务商官方地址' }),
@@ -62,6 +63,14 @@ const ProviderTypes: ProviderType[] = [
     }),
     initialSettings: {},
     constructor: createGoogleGenerativeAI
+  },
+  {
+    name: 'deepseek',
+    label: 'DeepSeek',
+    avatar: { type: 'svg', name: 'deepseek-c' },
+    settings: Object(commonSettings),
+    initialSettings: {},
+    constructor: createDeepSeek
   },
   {
     name: 'mistral',
