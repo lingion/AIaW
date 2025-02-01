@@ -34,7 +34,7 @@ const avatar = computed<Avatar>(() => {
   const m = props.model
   if (m.includes('gpt-4')) return { type: 'svg', name: 'openai', hue: 307 }
   if (m.includes('gpt')) return { type: 'svg', name: 'openai', hue: 160 }
-  if (m.startsWith('o1')) return { type: 'svg', name: 'openai', hue: 88 }
+  if (m.startsWith('o1') || m.startsWith('o3')) return { type: 'svg', name: 'openai', hue: 88 }
   if (m.startsWith('claude') || m.startsWith('c-')) return { type: 'svg', name: 'claude-c' }
   if (m.startsWith('gemini')) return { type: 'svg', name: 'gemini-c' }
   if (m.startsWith('gemma')) return { type: 'svg', name: 'gemma-c' }
