@@ -283,7 +283,6 @@
 <script setup lang="ts">
 import { MdPreview, MdCatalog } from 'md-editor-v3'
 import { db } from 'src/utils/db'
-import 'md-editor-v3/lib/preview.css'
 import { computed, ComputedRef, inject, nextTick, onUnmounted, reactive, ref, watchEffect } from 'vue'
 import sessions from 'src/utils/sessions'
 import { MessageContent, Message, ApiResultItem, UserMessageContent, AssistantMessageContent, ConvertArtifactOptions } from 'src/utils/types'

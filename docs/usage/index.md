@@ -36,6 +36,9 @@
 - [多工作区](workspaces)：在左侧边栏，你可以创建多个工作区，将不同主题的对话、不同类型的助手分隔开；还可以创建文件夹，将多个工作区放入其中；支持嵌套
 <img src="/usage/res/workspace-list.png" width="378">
 
+- [Artifacts](artifacts)：可将助手回答的任意部分转为 Artifacts，将显示在独立的窗口中，方便修改和复用
+<img src="https://fs.krytro.com/aiaw/convert-artifact.webp" width="600">
+
 - [提示词变量](prompt-vars)：除了在助手的“角色设定”中设置普通的静态提示词外，你可以通过创建提示词变量、编辑提示词模板，来构建动态且可复用的提示词
 <img src="/usage/res/assistant-prompt-vars.png">
 

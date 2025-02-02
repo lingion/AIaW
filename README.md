@@ -1,4 +1,4 @@
-![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/combine.webp)
+![](docs/public/combine.webp)
 
 # AI as Workspace
 
@@ -39,7 +39,7 @@
 - 可将多个工作区放入一个文件夹中；支持嵌套
 - 一个工作区中可创建多个助手，也可以创建全局助手
 
-<img src="https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/usage/res/workspace-list.png" width="378">
+<img src="docs/usage/res/workspace-list.png" width="378">
 
 ### 数据储存
 
@@ -63,7 +63,7 @@
 - 可将 Gradio 应用配置为插件；兼容部分 LobeChat 插件；
 - 插件不只是工具调用
 
-![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/plugin-market.png)
+![](docs/public/plugin-market.png)
 
 ### 轻量，高性能
 
@@ -77,7 +77,7 @@
 - 通过创建提示词变量，使用模板语法，构建动态可复用的提示词
 - 抽离提示词中的重复部分，放入工作区变量，实现提示词的复用
 
-<img src="https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/usage/res/assistant-prompt-vars.png" width="378">
+<img src="docs/usage/res/assistant-prompt-vars.png" width="378">
 
 ### 其他功能
 
@@ -89,7 +89,7 @@
 
 | Desktop | Mobile |
 | :-----: | :----: |
-| ![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/lighthouse_score_desktop.png) | ![](https://raw.githubusercontent.com/NitroRCr/AIaW/refs/heads/master/docs/public/lighthouse_score_mobile.png) |
+| ![](docs/public/lighthouse_score_desktop.png) | ![](docs/public/lighthouse_score_mobile.png) |
 
 ## 相关项目
 

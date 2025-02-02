@@ -3,6 +3,7 @@ import { useQuasar } from 'quasar'
 import router from 'src/router'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { computed } from 'vue'
+import 'md-editor-v3/lib/preview.css'
 
 config({
   editorConfig: {
