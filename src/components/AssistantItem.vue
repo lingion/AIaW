@@ -6,7 +6,7 @@
     >
       <a-avatar
         v-if="assistant"
-        size="md"
+        size="30px"
         :avatar="assistant.avatar"
       />
       <q-icon

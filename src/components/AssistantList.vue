@@ -7,10 +7,15 @@
       :to="getLink(assistant.id)"
       active-class="route-active"
       item-rd
+      py-1.5
+      min-h-0
     >
-      <q-item-section avatar>
+      <q-item-section
+        avatar
+        min-w-0
+      >
         <a-avatar
-          size="md"
+          size="30px"
           :avatar="assistant.avatar"
         />
       </q-item-section>
@@ -52,6 +57,7 @@
       @click="addItem"
       text-sec
       item-rd
+      min-h="42px"
     >
       <q-item-section
         avatar

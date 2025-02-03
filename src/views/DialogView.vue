@@ -6,8 +6,9 @@
         :assistant
         v-if="dialog"
         text-base
-        dense
         item-rd
+        py-1
+        min-h-0
       />
       <q-menu>
         <q-list>
@@ -18,6 +19,8 @@
             :assistant="a"
             @click="dialog.assistantId = a.id"
             v-close-popup
+            py-1.5
+            min-h-0
           />
         </q-list>
       </q-menu>

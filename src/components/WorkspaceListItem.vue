@@ -4,7 +4,7 @@
     :label="item.name"
     :content-inset-level="0.5"
     item-rd
-    :header-class="{ 'route-active': item.id === selected }"
+    :header-class="[{ 'route-active': item.id === selected }, 'py-1.5 min-h-0']"
     @update:model-value="accept === 'folder' && (selected = item.id)"
     v-model="expanded"
   >
@@ -75,6 +75,8 @@
     @click="selected = item.id"
     :class="{ 'route-active': item.id === selected }"
     item-rd
+    py-1.5
+    min-h-0
   >
     <q-item-section
       avatar

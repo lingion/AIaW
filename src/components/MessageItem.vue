@@ -83,7 +83,7 @@
                 <q-btn
                   icon="sym_o_format_quote"
                   label="引用"
-                  @click="quote"
+                  @click="quote(selected.text)"
                   no-caps
                   sm-icon
                 />
@@ -242,6 +242,11 @@
                 icon="sym_o_edit"
                 label="直接编辑"
                 @click="edit"
+              />
+              <menu-item
+                icon="sym_o_format_quote"
+                label="引用"
+                @click="quote(textContent.text)"
               />
               <menu-item
                 icon="sym_o_info"
@@ -460,12 +465,12 @@ if (perfs.messageSelectionBtn) {
   document.addEventListener('selectionchange', listener)
   onUnmounted(() => document.removeEventListener('selectionchange', listener))
 }
-function quote() {
+function quote(text: string) {
   const name = props.message.type === 'assistant' ? '助手消息引用' : '用户消息引用'
   emit('quote', {
     type: 'quote',
-    name: `${name}：${textBeginning(selected.text, 10)}`,
-    contentText: selected.text
+    name: `${name}：${textBeginning(text, 10)}`,
+    contentText: text
   })
 }
 function edit() {
@@ -549,7 +554,7 @@ const mdPreviewProps = useMdPreviewProps()
   }
 
   details {
-    margin: 0 !important;
+    margin: 8px 0 0 0 !important;
   }
 }
 </style>
