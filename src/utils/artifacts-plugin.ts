@@ -1,4 +1,4 @@
-import { Array as TArray, Boolean, Object, Optional, String } from '@sinclair/typebox'
+import { Array as TArray, Object, Optional, String } from '@sinclair/typebox'
 import { Artifact, Plugin, PluginApi, PluginData } from './types'
 import { engine } from './template-engine'
 import { db } from './db'
@@ -17,11 +17,11 @@ const api: PluginApi = {
     }),
     updates: TArray(Object({
       pattern: String({
-        description: '要替换的旧内容的Javascript 正则表达式字符串。你可以使用 `[\\s\\S]*` 来覆写全部内容'
+        description: '要替换的旧内容的 JS 正则表达式字符串。你可以使用 `[\\s\\S]*` 来覆写全部内容'
       }),
-      multiple: Boolean({
-        description: '为 true 时，替换全部匹配项；为 false 时，只替换第一个匹配项'
-      }),
+      flags: Optional(String({
+        description: 'JS 正则表达式的 flags，如 `g` 表示全局匹配。默认无 flags'
+      })),
       replacement: String({
         description: '替换后的新内容'
       })
@@ -37,7 +37,7 @@ const api: PluginApi = {
     if (!artifact || !artifact.writable) throw new Error(`Artifact ${id} not found`)
     let content = artifact.versions[artifact.currIndex].text
     for (const update of updates) {
-      const pattern = update.multiple ? new RegExp(update.pattern, 'g') : new RegExp(update.pattern)
+      const pattern = new RegExp(update.pattern, update.flags)
       content = content.replace(pattern, update.replacement)
     }
     artifact.tmp = content

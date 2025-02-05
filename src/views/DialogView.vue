@@ -544,7 +544,7 @@ function onTextPaste(ev: ClipboardEvent) {
     const code = clipboardData.getData('text/plain')
       .replace(/\r\n/g, '\n')
       .replace(/\r/g, '\n')
-    if (!/\s/.test(code)) return
+    if (!/\n/.test(code)) return
     const data = clipboardData.getData('vscode-editor-data')
     const lang = JSON.parse(data).mode ?? ''
     if (lang === 'markdown') return
@@ -977,7 +977,7 @@ async function stream(target, insert = false) {
     }
     let result: StreamTextResult<any, any> | GenerateTextResult<any, any>
     if (assistant.value.stream) {
-      result = await streamText(params)
+      result = streamText(params)
       await db.messages.update(id, { status: 'streaming' })
       lockingBottom.value = perfs.streamingLockBottom
       for await (const part of result.fullStream) {
@@ -1231,16 +1231,16 @@ if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, 'focusDialogInputKey'), () => focusInput())
 }
 
-async function genArtifactName(content: string) {
+async function genArtifactName(content: string, lang?: string) {
   const { text } = await generateText({
     model: systemModel.sdkModel.value,
-    prompt: engine.parseAndRenderSync(NameArtifactPrompt, { content })
+    prompt: engine.parseAndRenderSync(NameArtifactPrompt, { content, lang })
   })
   return text
 }
 const { createArtifact } = useCreateArtifact(workspace)
 async function extractArtifact(message: Message, text: string, pattern, options: ConvertArtifactOptions) {
-  const name = options.name || await genArtifactName(text)
+  const name = options.name || await genArtifactName(text, options.lang)
   const id = await createArtifact({
     name,
     language: options.lang,
