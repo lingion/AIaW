@@ -62,13 +62,11 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     },
     commonModelOptions: [
       'gpt-4o',
-      'gpt-4o-2024-08-06',
       'gpt-4o-mini',
-      'o1-mini',
+      'o3-mini',
       'claude-3-5-sonnet-20241022',
-      'claude-3-5-sonnet-20240620',
       'gemini-1.5-pro',
-      'gemini-1.5-flash',
+      'gemini-2.0-flash',
       'deepseek-chat',
       'deepseek-reasoner'
     ],
