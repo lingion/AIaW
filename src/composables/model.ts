@@ -5,6 +5,10 @@ import { useObservable } from '@vueuse/rxjs'
 import { db } from 'src/utils/db'
 import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
 import { ProviderTypes } from 'src/utils/values'
+import { wrapLanguageModel } from 'ai'
+import { FormattingReenabled } from 'src/utils/middlewares'
+
+const FormattingModels = ['o1', 'o3-mini', 'o3-mini-2025-01-31']
 
 export function useModel(provider: Ref<Provider>, model: Ref<Model>) {
   const sdkModel = ref(null)
@@ -31,6 +35,12 @@ export function useModel(provider: Ref<Provider>, model: Ref<Model>) {
       return
     }
     sdkModel.value = ProviderTypes.find(p => p.name === _provider.value.type).constructor(_provider.value.settings)(_model.value.name)
+    if (FormattingModels.includes(_model.value.name)) {
+      sdkModel.value = wrapLanguageModel({
+        model: sdkModel.value,
+        middleware: FormattingReenabled
+      })
+    }
   })
   return { sdkModel, model: _model, provider: _provider }
 }
