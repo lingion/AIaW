@@ -59,7 +59,8 @@ type Avatar = SvgAvatar | TextAvatar | ImageAvatar | UrlAvatar | IconAvatar
 
 const ProviderSchema = Object({
   type: String(),
-  settings: Object(undefined)
+  settings: Object(undefined),
+  options: Optional(Object(undefined))
 })
 type Provider = Static<typeof ProviderSchema>
 interface ProviderType {
@@ -67,6 +68,7 @@ interface ProviderType {
   label: string
   avatar: Avatar
   settings: PluginSchema
+  options?: PluginSchema
   initialSettings
   constructor: (settings) => any
 }
