@@ -1,6 +1,8 @@
 /dist
 /src-capacitor
 /src-cordova
+/src-tauri
+/android
 /.quasar
 /node_modules
 .eslintrc.cjs

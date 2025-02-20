@@ -528,15 +528,9 @@ const assistant = syncRef<Assistant>(
 
 function setPlugin(plugin: Plugin, enabled: boolean) {
   if (enabled && !assistant.value.plugins[plugin.id]) {
-    const assistantPlugin: AssistantPlugin = { enabled: true, infos: [], tools: [], actions: [], vars: {} }
+    const assistantPlugin: AssistantPlugin = { enabled: true, infos: [], tools: [], resources: [], vars: {} }
     plugin.apis.forEach(api => {
-      if (api.type === 'action') {
-        assistantPlugin.actions.push({
-          name: api.name,
-          enabled: true,
-          autoExecute: false
-        })
-      } else if (api.type === 'tool') {
+      if (api.type === 'tool') {
         assistantPlugin.tools.push({
           name: api.name,
           enabled: true

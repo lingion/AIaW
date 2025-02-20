@@ -137,11 +137,6 @@
             :content
             my-2
           />
-          <action-content
-            v-if="content.type === 'assistant-action'"
-            :content
-            @update="updateContent(index, $event)"
-          />
         </div>
         <div
           text-err
@@ -297,7 +292,6 @@ import { useAssistantsStore } from 'src/stores/assistants'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import MessageImage from './MessageImage.vue'
 import ToolContent from './ToolContent.vue'
-import ActionContent from './ActionContent.vue'
 import { copyToClipboard, useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import PickAvatarDialog from './PickAvatarDialog.vue'
@@ -361,18 +355,6 @@ watchEffect(async () => {
             status: 'failed',
             error: 'Tool call aborted'
           }
-        } else if (content.type === 'assistant-action' && content.status === 'streaming') {
-          return {
-            ...content,
-            status: 'failed',
-            error: 'Action stream aborted'
-          }
-        } else if (content.type === 'assistant-action' && content.status === 'calling') {
-          return {
-            ...content,
-            status: 'failed',
-            error: 'Action call aborted'
-          }
         }
         return content
       }) as MessageContent[]
@@ -396,12 +378,6 @@ const name = computed(() =>
     ? null
     : assistantsStore.assistants.find(a => a.id === props.message.assistantId)?.name
 )
-
-async function updateContent(index, value) {
-  await db.messages.update(props.message.id, {
-    [`contents.${index}`]: value
-  })
-}
 
 const showArtifacts = inject<ComputedRef>('showArtifacts')
 const colMode = computed(() => (showArtifacts.value || $q.screen.lt.md) && props.message.type === 'assistant')

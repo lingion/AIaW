@@ -164,6 +164,32 @@ function artifactUnsaved(artifact: Artifact) {
   return artifact.tmp !== artifact.versions[artifact.currIndex].text
 }
 
+function base64ToArrayBuffer(base64: string): ArrayBuffer {
+  const base64WithoutPrefix = base64.split(',').pop() || base64
+  const binaryString = atob(base64WithoutPrefix)
+
+  const len = binaryString.length
+  const bytes = new Uint8Array(len)
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i)
+  }
+
+  return bytes.buffer
+}
+
+function removeUndefinedProps(obj) {
+  if (typeof obj !== 'object' || obj === null) return
+
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        removeUndefinedProps(obj[key])
+      }
+      if (obj[key] === undefined) delete obj[key]
+    }
+  }
+}
+
 export {
   randomHash,
   escapeRegex,
@@ -189,5 +215,7 @@ export {
   saveArtifactChanges,
   restoreArtifactChanges,
   blobToBase64,
-  artifactUnsaved
+  base64ToArrayBuffer,
+  artifactUnsaved,
+  removeUndefinedProps
 }

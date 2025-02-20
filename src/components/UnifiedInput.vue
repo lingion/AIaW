@@ -10,7 +10,10 @@
     v-model="model"
     class="min-w-120px"
   />
-  <q-item v-else-if="component === 'item'">
+  <q-item
+    v-else-if="component === 'item'"
+    v-bind="itemProps"
+  >
     <q-item-section>
       <q-item-label>
         {{ label }}
@@ -34,7 +37,7 @@
           ...inputProps
         }"
         :class="{
-          'xs:w-200px sm:w-250px': ['string', 'array'].includes(type),
+          'xs:w-200px sm:w-250px': ['string', 'array'].includes(type) && !options,
           'xs:w-100px sm:w-150px': type === 'number'
         }"
       />
@@ -52,6 +55,7 @@ defineProps<{
   label?: string
   description?: string
   inputProps?: Record<string, any>
+  itemProps?: Record<string, any>
   lazy?: boolean
 }>()
 

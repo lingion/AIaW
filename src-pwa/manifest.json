@@ -2,7 +2,7 @@
   "name": "AI as Workspace",
   "short_name": "AIaW",
   "orientation": "portrait",
-  "background_color": "#ffffff",
+  "background_color": "#fdf8fd",
   "icons": [
     {
       "src": "icons/icon-128x128.png",

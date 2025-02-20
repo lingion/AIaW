@@ -60,7 +60,6 @@
 import { importInto } from 'dexie-export-import'
 import { useDialogPluginComponent, useQuasar } from 'quasar'
 import { db } from 'src/utils/db'
-import { ConvertArtifactOptions } from 'src/utils/types'
 import { reactive, ref } from 'vue'
 
 const file = ref<File>(null)
@@ -102,5 +101,5 @@ function importData() {
   })
 }
 
-const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent<ConvertArtifactOptions>()
+const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 </script>

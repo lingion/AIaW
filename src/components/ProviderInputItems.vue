@@ -44,16 +44,6 @@
       clearable: true
     }"
   />
-  <json-input
-    v-if="provider && providerType.options"
-    :schema="providerType.options"
-    v-model="provider.settings"
-    component="item"
-    lazy
-    :input-props="{
-      clearable: true
-    }"
-  />
 </template>
 
 <script setup lang="ts">

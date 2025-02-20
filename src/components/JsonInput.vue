@@ -26,6 +26,7 @@
         placeholder: sch.default,
         ...inputProps
       }"
+      :item-props
     />
   </template>
 </template>
@@ -39,6 +40,7 @@ defineProps<{
   prefix?: string
   component: 'input' | 'item'
   inputProps?: Record<string, any>
+  itemProps?: Record<string, any>
   lazy?: boolean
 }>()
 

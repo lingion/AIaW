@@ -33,6 +33,7 @@
           dense
           round
           icon="sym_o_delete"
+          title="卸载"
           v-if="plugin.type !== 'builtin'"
           @click.prevent.stop="deleteItem(plugin)"
         />

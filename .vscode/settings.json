@@ -27,5 +27,6 @@
   },
   "[scss]": {
     "editor.defaultFormatter": "vscode.css-language-features"
-  }
+  },
+  "rust-analyzer.initializeStopped": true
 }

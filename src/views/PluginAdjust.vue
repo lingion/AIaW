@@ -18,11 +18,11 @@
             <q-item-section
               avatar
               text-sec
-              w=" xs:100px md:150px"
+              w="xs:120px sm:200px"
             >
               信息提供
             </q-item-section>
-            <q-item-section>
+            <q-item-section text-on-sur-var>
               参数
             </q-item-section>
             <q-item-section side>
@@ -37,7 +37,7 @@
           >
             <q-item-section
               avatar
-              w=" xs:100px md:150px"
+              w="xs:120px sm:200px"
             >
               <q-item-label>{{ info.name }}</q-item-label>
               <q-item-label caption>
@@ -52,19 +52,7 @@
               />
             </q-item-section>
             <q-item-section side>
-              <div
-                flex
-                items-center
-              >
-                <q-checkbox v-model="info.enabled" />
-                <q-btn
-                  ml-2
-                  flat
-                  round
-                  icon="sym_o_close"
-                  @click="assistantPlugin.infos.splice(assistantPlugin.infos.indexOf(info), 1)"
-                />
-              </div>
+              <q-checkbox v-model="info.enabled" />
             </q-item-section>
           </q-item>
           <q-separator spaced />
@@ -91,54 +79,7 @@
               </q-item-label>
             </q-item-section>
             <q-item-section side>
-              <div
-                flex
-                items-center
-              >
-                <q-checkbox v-model="tool.enabled" />
-              </div>
-            </q-item-section>
-          </q-item>
-          <q-separator spaced />
-        </template>
-        <template v-if="assistantPlugin.actions.length">
-          <q-item>
-            <q-item-section text-sec>
-              操作执行
-            </q-item-section>
-            <q-item-section side>
-              <div
-                flex
-                items-center
-              >
-                <span>自动执行</span>
-                <span
-                  ml-4
-                >启用</span>
-              </div>
-            </q-item-section>
-          </q-item>
-          <q-item
-            v-for="action of assistantPlugin.actions"
-            :key="action.name"
-          >
-            <q-item-section>
-              <q-item-label>{{ action.name }}</q-item-label>
-              <q-item-label caption>
-                {{ apiMap[action.name]?.description ?? '' }}
-              </q-item-label>
-            </q-item-section>
-            <q-item-section side>
-              <div
-                flex
-                items-center
-              >
-                <q-checkbox v-model="action.autoExecute" />
-                <q-checkbox
-                  ml-4
-                  v-model="action.enabled"
-                />
-              </div>
+              <q-checkbox v-model="tool.enabled" />
             </q-item-section>
           </q-item>
           <q-separator spaced />
@@ -172,7 +113,7 @@
       </q-list>
       <hint-card
         mt="250px"
-        v-if="!assistantPlugin.infos.length && !assistantPlugin.tools.length && !assistantPlugin.actions.length && !plugin.promptVars?.length"
+        v-if="!assistantPlugin.infos.length && !assistantPlugin.tools.length && !assistantPlugin.resources.length && !plugin.promptVars?.length"
         img-url="/emotions/nachoneko/7.webp"
         message="这个插件没有可配置的项目"
       />

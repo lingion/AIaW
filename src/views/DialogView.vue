@@ -228,6 +228,8 @@
         </div>
         <div
           flex
+          flex-wrap
+          justify-end
           text-sec
           items-center
         >
@@ -272,6 +274,20 @@
             round
             @click="showVars = !showVars"
             :class="{ 'text-ter': showVars }"
+          />
+          <model-options-btn
+            :provider-type="provider.type"
+            :model-name="model.name"
+            v-model="modelOptions"
+            flat
+            round
+          />
+          <add-info-btn
+            :plugins="activePlugins"
+            :assistant-plugins="assistant.plugins"
+            @add="addInputItems"
+            flat
+            round
           />
           <q-space />
           <div
@@ -377,7 +393,7 @@ import { useModel } from 'src/composables/model'
 import { throttle, useQuasar } from 'quasar'
 import AssistantItem from 'src/components/AssistantItem.vue'
 import { useSystemModel } from 'src/composables/system-model'
-import { ActionMessage, ExtractArtifactPrompt, ExtractArtifactResult, GenDialogTitle, NameArtifactPrompt, PluginsPrompt } from 'src/utils/templates'
+import { ExtractArtifactPrompt, ExtractArtifactResult, GenDialogTitle, NameArtifactPrompt, PluginsPrompt } from 'src/utils/templates'
 import sessions from 'src/utils/sessions'
 import PromptVarInput from 'src/components/PromptVarInput.vue'
 import { MessageContent, PluginApi, ApiCallError, Plugin, Dialog, Message, Workspace, UserMessageContent, StoredItem, ModelSettings, ApiResultItem, Artifact, ConvertArtifactOptions, AssistantMessageContent } from 'src/utils/types'
@@ -405,6 +421,8 @@ import { useListenKey } from 'src/composables/listen-key'
 import { useSetTitle } from 'src/composables/set-title'
 import { useCreateArtifact } from 'src/composables/create-artifact'
 import artifactsPlugin from 'src/utils/artifacts-plugin'
+import ModelOptionsBtn from 'src/components/ModelOptionsBtn.vue'
+import AddInfoBtn from 'src/components/AddInfoBtn.vue'
 
 const props = defineProps<{
   id: string
@@ -728,14 +746,6 @@ function getChainMessages() {
             experimental_content: toToolResultContent(result.map(id => itemMap.value[id]))
           }]
         })
-      } else if (content.type === 'assistant-action') {
-        val.push({
-          role: 'assistant',
-          content: [{
-            type: 'text',
-            text: engine.parseAndRenderSync(ActionMessage, { action: content })
-          }]
-        })
       }
     })
   return val
@@ -779,7 +789,8 @@ const pluginsStore = usePluginsStore()
 
 const { callApi } = useCallApi({ workspace, dialog })
 
-const { sdkModel, model } = useModel(computed(() => assistant.value?.provider), computed(() => dialog.value?.modelOverride || assistant.value?.model))
+const modelOptions = ref({})
+const { sdkModel, provider, model } = useModel(computed(() => assistant.value?.provider), computed(() => dialog.value?.modelOverride || assistant.value?.model), modelOptions)
 const $q = useQuasar()
 const { data } = useUserDataStore()
 async function send() {
@@ -883,7 +894,6 @@ async function stream(target, insert = false) {
   }
   const { plugins } = assistant.value
   const tools = {}
-  const actions = []
   const enabledPlugins = []
   let noRoundtrip = true
   await Promise.all(activePlugins.value.map(async p => {
@@ -912,6 +922,7 @@ async function stream(target, insert = false) {
     await Promise.all(plugin.infos.map(async api => {
       if (!api.enabled) return
       const a = p.apis.find(a => a.name === api.name)
+      if (a.infoType !== 'prompt-var') return
       try {
         pluginInfos[a.name] = await callApi(p, a, api.args)
       } catch (e) {
@@ -919,26 +930,10 @@ async function stream(target, insert = false) {
       }
     }))
 
-    const pluginActions = []
-    plugin.actions.forEach(api => {
-      if (!api.enabled) return
-      const a = p.apis.find(a => a.name === api.name)
-      const { name, prompt } = a
-      actions.push({
-        pluginId: p.id,
-        name
-      })
-
-      pluginActions.push({
-        name,
-        prompt: engine.parseAndRenderSync(prompt, pluginVars)
-      })
-    })
     try {
       enabledPlugins.push({
         id: p.id,
-        prompt: p.prompt && engine.parseAndRenderSync(p.prompt, { ...pluginVars, infos: pluginInfos }),
-        actions: pluginActions
+        prompt: p.prompt && engine.parseAndRenderSync(p.prompt, { ...pluginVars, infos: pluginInfos })
       })
     } catch (e) {
       $q.notify({ message: `插件「${p.title}」提示词模板解析失败`, color: 'negative' })
@@ -966,7 +961,7 @@ async function stream(target, insert = false) {
     if (noRoundtrip) settings.maxSteps = 1
     abortController.value = new AbortController()
     const messages = getChainMessages()
-    const prompt = getSystemPrompt(enabledPlugins.filter(p => p.prompt || p.actions.length))
+    const prompt = getSystemPrompt(enabledPlugins.filter(p => p.prompt))
     prompt && messages.unshift({ role: assistant.value.promptRole, content: prompt })
     const params = {
       model: sdkModel.value,

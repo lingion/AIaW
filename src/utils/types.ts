@@ -1,4 +1,5 @@
 import { LobeChatPluginManifest, PluginSchema } from '@lobehub/chat-plugin-sdk'
+import { Prompt, Resource, Tool } from '@modelcontextprotocol/sdk/types.js'
 import { Any, Array, Boolean, Literal, Null, Number, Object, Optional, Static, String, TSchema, Union } from '@sinclair/typebox'
 import { LanguageModelUsage } from 'ai'
 
@@ -68,7 +69,6 @@ interface ProviderType {
   label: string
   avatar: Avatar
   settings: PluginSchema
-  options?: PluginSchema
   initialSettings
   constructor: (settings) => any
 }
@@ -114,18 +114,7 @@ interface AssistantToolContent {
   error?: string
 }
 
-interface AssistantActionContent {
-  type: 'assistant-action'
-  pluginId: string
-  name: string
-  args
-  text?: string
-  result?: StoredItemId[]
-  status: 'streaming' | 'aborted' | 'ready' | 'calling' | 'failed' | 'completed',
-  error?: string
-}
-
-type MessageContent = UserMessageContent | AssistantMessageContent | AssistantToolContent | AssistantActionContent
+type MessageContent = UserMessageContent | AssistantMessageContent | AssistantToolContent
 
 class ApiCallError extends Error {}
 
@@ -134,6 +123,7 @@ interface AssistantPluginInfo {
   enabled: boolean
   args
 }
+type AssistantPluginResource = AssistantPluginInfo
 
 interface AssistantPluginTool {
   name: string
@@ -155,7 +145,7 @@ interface AssistantPlugin {
   enabled: boolean
   infos: AssistantPluginInfo[]
   tools: AssistantPluginTool[]
-  actions: AssistantPluginAction[]
+  resources: AssistantPluginResource[]
   vars: Record<string, PromptVarValue>
 }
 
@@ -164,9 +154,10 @@ interface AssistantPlugins {
 }
 
 interface PluginApi {
-  type: 'info' | 'tool' | 'action'
+  type: 'info' | 'tool'
+  infoType?: 'resource' | 'prompt' | 'prompt-var'
   name: string
-  description: string
+  description?: string
   prompt?: string
   parameters: PluginSchema
   showComponents?: string[]
@@ -186,7 +177,7 @@ interface PluginFileparser {
 
 interface Plugin {
   id: string
-  type: 'builtin' | 'lobechat' | 'gradio'
+  type: 'builtin' | 'lobechat' | 'gradio' | 'mcp'
   available: boolean
   apis: PluginApi[]
   fileparsers: PluginFileparser[]
@@ -272,6 +263,7 @@ interface GradioManifestAction {
 }
 interface GradioManifestInfo {
   type: 'info'
+  infoType?: 'resource' | 'prompt' | 'prompt-var'
   name: string
   description: string
   path: string
@@ -292,6 +284,35 @@ interface GradioPluginManifest {
   noRoundtrip?: boolean
   author?: string
   homepage?: string
+}
+const TransportConfSchema = Union([
+  Object({
+    type: Literal('stdio'),
+    command: String(),
+    env: Optional(Object(undefined)),
+    cwd: Optional(String())
+  }),
+  Object({
+    type: Literal('sse'),
+    url: String()
+  })
+])
+type TransportConf = Static<typeof TransportConfSchema>
+const McpPluginManifestSchema = Object({
+  id: String(),
+  title: String(),
+  transport: TransportConfSchema,
+  description: Optional(String()),
+  avatar: Optional(Object(undefined)),
+  noRoundtrip: Optional(Boolean()),
+  author: Optional(String()),
+  homepage: Optional(String())
+})
+type McpPluginManifest = Static<typeof McpPluginManifestSchema>
+interface McpPluginDump extends McpPluginManifest {
+  tools: Tool[]
+  resources: Resource[]
+  prompts: Prompt[]
 }
 const GradioPluginManifestSchema = Object({
   id: String(),
@@ -330,6 +351,7 @@ const LobePluginManifestSchema = Object({
   type: Optional(Union([Literal('default'), Literal('markdown')]))
 })
 type HuggingPluginManifest = Static<typeof HuggingPluginManifestSchema>
+type PluginManifest = LobeChatPluginManifest | GradioPluginManifest | HuggingPluginManifest | McpPluginManifest
 interface InstalledGradioPlugin {
   id: string
   key: string
@@ -337,8 +359,14 @@ interface InstalledGradioPlugin {
   available: boolean
   manifest: GradioPluginManifest
 }
-type InstalledPlugin = InstalledLobePlugin | InstalledGradioPlugin
-
+interface InstalledMcpPlugin {
+  id: string
+  key: string
+  type: 'mcp'
+  available: boolean
+  manifest: McpPluginDump
+}
+type InstalledPlugin = InstalledLobePlugin | InstalledGradioPlugin | InstalledMcpPlugin
 interface PluginData {
   settings
   avatar: Avatar
@@ -376,6 +404,11 @@ interface Workspace {
   indexContent: string
   defaultAssistantId?: string
   lastDialogId?: string
+  listOpen: {
+    assistants: boolean
+    artifacts: boolean
+    dialogs: boolean
+  }
 }
 
 interface Dialog {
@@ -485,6 +518,7 @@ export {
   ApiCallError,
   HuggingPluginManifestSchema,
   GradioPluginManifestSchema,
+  McpPluginManifestSchema,
   LobePluginManifestSchema,
   MarketAssistantSchema,
   ProviderSchema
@@ -498,7 +532,6 @@ export type {
   UserMessageContent,
   AssistantMessageContent,
   AssistantToolContent,
-  AssistantActionContent,
   MessageContent,
   PluginApi,
   Plugin,
@@ -539,6 +572,7 @@ export type {
   GradioManifestTool,
   GradioManifestEndpoint,
   HuggingPluginManifest,
+  PluginManifest,
   InstalledPlugin,
   Model,
   ModelInputTypes,
@@ -546,5 +580,8 @@ export type {
   OrderItem,
   ShortcutKey,
   PlatformEnabled,
-  ConvertArtifactOptions
+  ConvertArtifactOptions,
+  McpPluginDump,
+  McpPluginManifest,
+  TransportConf
 }

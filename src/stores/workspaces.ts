@@ -18,6 +18,11 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
       prompt: '',
       indexContent: DefaultWsIndexContent,
       vars: {},
+      listOpen: {
+        assistants: true,
+        artifacts: false,
+        dialogs: true
+      },
       ...props
     } as Workspace)
   }

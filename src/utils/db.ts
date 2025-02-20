@@ -62,7 +62,12 @@ db.on.populate.subscribe(() => {
       prompt: '',
       defaultAssistantId: initialAssistantId,
       indexContent: ExampleWsIndexContent,
-      vars: {}
+      vars: {},
+      listOpen: {
+        assistants: true,
+        artifacts: false,
+        dialogs: true
+      }
     } as Workspace)
     db.assistants.add({
       id: initialAssistantId,
@@ -93,6 +98,17 @@ db.assistants.hook('reading', assistant => {
   assistant.promptRole ??= 'system'
   assistant.stream ??= true
   return assistant
+})
+// Migration to v1.4
+db.workspaces.hook('reading', workspace => {
+  if (workspace.type === 'workspace') {
+    workspace.listOpen ??= {
+      assistants: true,
+      artifacts: false,
+      dialogs: true
+    }
+  }
+  return workspace
 })
 
 export { db, defaultModelSettings }

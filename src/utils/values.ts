@@ -1,6 +1,6 @@
 import { createOpenAI } from '@ai-sdk/openai'
 import { Model, ProviderType } from './types'
-import { Boolean, Object, Optional, String, Unsafe } from '@sinclair/typebox'
+import { Object, String } from '@sinclair/typebox'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createAzure } from '@ai-sdk/azure'
@@ -26,13 +26,6 @@ const ProviderTypes: ProviderType[] = [
       baseURL: String({ title: 'API 地址', description: '默认为 OpenAI 官方地址', default: 'https://api.openai.com/v1' }),
       organization: String({ title: '组织', description: 'OpenAI 组织；可选' }),
       project: String({ title: '项目', description: 'OpenAI 项目；可选' })
-    }),
-    options: Object({
-      reasoningEffort: Optional(Unsafe({
-        title: '推理模型：推理力度',
-        type: 'string',
-        enum: ['low', 'medium', 'high']
-      }))
     }),
     initialSettings: { compatibility: 'strict' },
     constructor: createOpenAI
@@ -67,9 +60,6 @@ const ProviderTypes: ProviderType[] = [
     settings: Object({
       ...commonSettings,
       baseURL: String({ title: 'API 地址', description: '默认为 Google 官方地址', default: 'https://generativelanguage.googleapis.com/v1beta' })
-    }),
-    options: Object({
-      useSearchGrounding: Optional(Boolean({ title: '使用搜索' }))
     }),
     initialSettings: {},
     constructor: createGoogleGenerativeAI

@@ -62,7 +62,15 @@ export default configure((ctx) => {
       // polyfillModulePreload: true,
       // distDir
 
-      // extendViteConf (viteConf) {},
+      extendViteConf() {
+        return {
+          server: {
+            watch: {
+              ignored: ['**/src-tauri/**', '**/.venv/**']
+            }
+          }
+        }
+      },
       // viteVuePluginOptions: {},
       afterBuild() {
         if (ctx.mode.pwa) {

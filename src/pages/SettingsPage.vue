@@ -30,7 +30,7 @@
           自定义服务商
         </q-item-label>
         <provider-input-items v-model="perfs.provider" />
-        <q-item>
+        <q-item v-if="perfs.provider">
           <q-item-section>
             <q-item-label>分享链接</q-item-label>
             <q-item-label caption>
@@ -361,6 +361,22 @@
                 />
               </template>
             </q-select>
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section avatar>
+            <q-icon name="sym_o_report" />
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>
+              显示警告
+            </q-item-label>
+            <q-item-label caption>
+              显示响应中的警告信息
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-toggle v-model="perfs.showWarnings" />
           </q-item-section>
         </q-item>
         <q-expansion-item

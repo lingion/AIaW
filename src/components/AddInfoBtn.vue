@@ -1,0 +1,106 @@
+<template>
+  <q-btn
+    v-if="pluginInfos.length"
+    icon="sym_o_attachment"
+  >
+    <q-menu>
+      <q-list>
+        <template
+          v-for="{ plugin, apis } of pluginInfos"
+          :key="plugin.id"
+        >
+          <q-item-label
+            header
+            py-2
+          >
+            {{ plugin.title }}
+          </q-item-label>
+          <q-item
+            v-for="api of apis"
+            :key="api.name"
+            min-h="40px"
+            clickable
+            @click="call(plugin, api)"
+            v-close-popup
+            max-w="300px"
+          >
+            <q-item-section avatar>
+              <q-icon :name="api.infoType === 'resource' ? 'sym_o_description' : 'sym_o_prompt_suggestion'" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>
+                {{ api.name }}
+              </q-item-label>
+              <q-item-label
+                v-if="api.description"
+                caption
+              >
+                {{ textBeginning(api.description, 60) }}
+              </q-item-label>
+            </q-item-section>
+          </q-item>
+        </template>
+      </q-list>
+    </q-menu>
+  </q-btn>
+</template>
+
+<script setup lang="ts">
+import { useQuasar } from 'quasar'
+import { useCallApi } from 'src/composables/call-api'
+import { ApiResultItem, AssistantPlugins, Dialog, Plugin, PluginApi, Workspace } from 'src/utils/types'
+import { computed, inject, Ref } from 'vue'
+import JsonInputDialog from './JsonInputDialog.vue'
+import { textBeginning } from 'src/utils/functions'
+
+const props = defineProps<{
+  plugins: Plugin[]
+  assistantPlugins: AssistantPlugins
+}>()
+
+const workspace = inject<Ref<Workspace>>('workspace')
+const dialog = inject<Ref<Dialog>>('dialog')
+
+const pluginInfos = computed<{ plugin: Plugin, apis: PluginApi[] }[]>(() =>
+  props.plugins.map(p => ({
+    plugin: p,
+    apis: p.apis.filter(a => {
+      const plugin = props.assistantPlugins[p.id]
+      return a.type === 'info' &&
+        ['resource', 'prompt'].includes(a.infoType) &&
+        plugin?.infos.some(i => i.name === a.name && i.enabled)
+    })
+  })).filter(p => p.apis.length)
+)
+
+const $q = useQuasar()
+const { callApi } = useCallApi({ workspace, dialog })
+function handleResult(res: Awaited<ReturnType<typeof callApi>>) {
+  res.error && $q.notify({
+    message: res.error,
+    color: 'negative'
+  })
+  res.result && emit('add', res.result)
+}
+function call(plugin: Plugin, api: PluginApi) {
+  if (!Object.keys(api.parameters.properties).length) {
+    callApi(plugin, api, {}).then(handleResult)
+  } else {
+    const { args } = props.assistantPlugins[plugin.id].infos.find(i => i.name === api.name)
+    $q.dialog({
+      component: JsonInputDialog,
+      componentProps: {
+        title: '参数',
+        schema: api.parameters,
+        model: args
+      }
+    }).onOk(args => {
+      callApi(plugin, api, args).then(handleResult)
+    })
+  }
+}
+
+const emit = defineEmits<{
+  add: [ApiResultItem[]]
+}>()
+</script>

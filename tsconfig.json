@@ -10,6 +10,7 @@
     "./node_modules",
     "./src-capacitor",
     "./src-cordova",
+    "./src-tauri",
     "./quasar.config.*.temporary.compiled*"
   ]
 }

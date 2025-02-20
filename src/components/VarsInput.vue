@@ -9,11 +9,8 @@
       </q-item-section>
       <q-item-section>
         <q-input
-          placeholder="输入变量内容..."
           v-model="model[key]"
-          filled
-          autogrow
-          clearable
+          v-bind="inputProps"
         />
       </q-item-section>
       <q-item-section side>
@@ -43,7 +40,11 @@
 import { useQuasar } from 'quasar'
 import { dialogOptions } from 'src/utils/values'
 
-const model = defineModel<object>()
+const model = defineModel<Record<string, string>>()
+
+defineProps<{
+  inputProps: Record<string, any>
+}>()
 
 const $q = useQuasar()
 

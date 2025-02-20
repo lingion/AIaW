@@ -61,8 +61,14 @@
       <q-item-label header>
         工作区变量
       </q-item-label>
-      <workspace-vars-input
+      <vars-input
         v-model="workspace.vars"
+        :input-props="{
+          filled: true,
+          autogrow: true,
+          clearale: true,
+          placeholder:'输入变量内容...'
+        }"
       />
     </q-page>
   </q-page-container>
@@ -79,7 +85,7 @@ import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import AAvatar from 'src/components/AAvatar.vue'
 import { useQuasar } from 'quasar'
 import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
-import WorkspaceVarsInput from 'src/components/WorkspaceVarsInput.vue'
+import VarsInput from 'src/components/VarsInput.vue'
 import { useSetTitle } from 'src/composables/set-title'
 
 defineEmits(['toggle-drawer'])

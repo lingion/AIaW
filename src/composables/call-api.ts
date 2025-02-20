@@ -1,17 +1,20 @@
 import { usePluginsStore } from 'src/stores/plugins'
 import { Schema, Validator } from '@cfworker/json-schema'
 import { ApiResultItem, Plugin, PluginApi } from 'src/utils/types'
+import { removeUndefinedProps } from 'src/utils/functions'
+import { toRaw } from 'vue'
 
 export function useCallApi({ workspace, dialog }) {
   const pluginsStore = usePluginsStore()
   function getPluginSettings(plugin: Plugin) {
-    const settings = pluginsStore.data[plugin.id].settings
+    const settings = toRaw(pluginsStore.data[plugin.id].settings)
     if (plugin.settings.properties._workspaceId) {
       settings._workspaceId = workspace.value.id
     }
     if (plugin.settings.properties._dialogId) {
       settings._dialogId = dialog.value.id
     }
+    removeUndefinedProps(settings)
     const { valid } = new Validator(plugin.settings as Schema).validate(settings)
     return { valid, settings }
   }

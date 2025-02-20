@@ -115,7 +115,8 @@
         <q-expansion-item
           label="助手"
           header-class="text-lg"
-          default-opened
+          :model-value="workspace.listOpen.assistants"
+          @update:model-value="setListOpen('assistants', $event)"
         >
           <assistant-list
             my-2
@@ -126,6 +127,8 @@
           <q-separator />
           <q-expansion-item
             label="Artifacts"
+            :model-value="workspace.listOpen.artifacts"
+            @update:model-value="setListOpen('artifacts', $event)"
             header-class="text-lg"
             max-h="40vh"
             of-y-auto
@@ -170,7 +173,8 @@
         <q-expansion-item
           label="对话"
           header-class="text-lg"
-          default-opened
+          :model-value="workspace.listOpen.dialogs"
+          @update:model-value="setListOpen('dialogs', $event)"
           flex-1
           of-y-auto
         >
@@ -312,4 +316,10 @@ provide('rightDrawerAbove', rightDrawerAbove)
 provide('workspace', workspace)
 
 const { perfs } = useUserPerfsStore()
+
+function setListOpen(key: keyof Workspace['listOpen'], value: boolean) {
+  db.workspaces.update(workspace.value.id, {
+    listOpen: { ...workspace.value.listOpen, [key]: value }
+  } as Partial<Workspace>)
+}
 </script>

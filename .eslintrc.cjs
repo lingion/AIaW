@@ -99,6 +99,7 @@ module.exports = {
     'no-unused-vars': 'off',
 
     'space-before-function-paren': 'off',
+    'no-prototype-builtins': 'off',
 
     '@typescript-eslint/no-explicit-any': 'off',
 

@@ -1,14 +1,17 @@
-import { GradioFixedInput, GradioManifestEndpoint, GradioPluginManifest, GradioApiInput, HuggingPluginManifest, Plugin, PluginApi, PluginData, PluginsData } from './types'
-import { defaultAvatar, parsePageRange, parseSeconds } from './functions'
-import { createHeadersWithPluginSettings, LobeChatPluginManifest } from '@lobehub/chat-plugin-sdk'
+import { GradioFixedInput, GradioManifestEndpoint, GradioPluginManifest, GradioApiInput, HuggingPluginManifest, Plugin, PluginApi, PluginData, PluginsData, McpPluginDump, McpPluginManifest, Avatar } from './types'
+import { base64ToArrayBuffer, defaultAvatar, parsePageRange, parseSeconds } from './functions'
+import { createHeadersWithPluginSettings, LobeChatPluginManifest, PluginSchema } from '@lobehub/chat-plugin-sdk'
 import { Boolean as TBoolean, Number as TNumber, Object as TObject, Optional as TOptional, String as TString } from '@sinclair/typebox'
-import { Client } from '@gradio/client'
+import { Client as GradioClient } from '@gradio/client'
 import { AudioEncoderSupported, extractAudioBlob } from './audio-process'
 import { Parser } from 'expr-eval'
 import { parseDoc } from './doc-parse'
 import { corsFetch } from './cors-fetch'
 import { DocParseBaseURL } from './config'
 import artifacts from './artifacts-plugin'
+import { CallToolResult, GetPromptResult, ReadResourceResult } from '@modelcontextprotocol/sdk/types.js'
+import { fetch, IsTauri } from './platform-api'
+import { getClient } from './mcp-client'
 
 const timePlugin: Plugin = {
   id: 'aiaw-time',
@@ -252,7 +255,7 @@ function buildGradioPlugin(manifest: GradioPluginManifest, available: boolean): 
   }
   async function predict(endpoint: GradioManifestEndpoint, args, settings) {
     const options = settings._hfToken ? { hf_token: settings._hfToken } : undefined
-    const app = await Client.connect(manifest.baseUrl, options)
+    const app = await GradioClient.connect(manifest.baseUrl, options)
     const { data } = await app.predict(endpoint.path, { ...settings[endpoint.name], ...args })
     return await Promise.all(endpoint.outputIdxs.map(async i => {
       const d = data[i]
@@ -273,9 +276,10 @@ function buildGradioPlugin(manifest: GradioPluginManifest, available: boolean): 
     }))
   }
   const infos: PluginApi[] = manifest.endpoints.filter(e => e.type === 'info').map(e => {
-    const { name, description } = e
+    const { name, description, infoType } = e
     return {
-      type: 'tool',
+      type: 'info',
+      infoType: infoType ?? 'prompt-var',
       name,
       description,
       prompt: description,
@@ -294,21 +298,6 @@ function buildGradioPlugin(manifest: GradioPluginManifest, available: boolean): 
       prompt: description,
       parameters: buildHuggingParams(e.inputs),
       showComponents,
-      async execute(args, settings) {
-        return await predict(e, args, settings)
-      }
-    }
-  })
-  const actions: PluginApi[] = manifest.endpoints.filter(e => e.type === 'action').map(e => {
-    const { name, description, showComponents, autoExecute } = e
-    return {
-      type: 'action',
-      name,
-      description,
-      prompt: description,
-      parameters: buildHuggingParams(e.inputs),
-      showComponents,
-      autoExecute,
       async execute(args, settings) {
         return await predict(e, args, settings)
       }
@@ -342,10 +331,155 @@ function buildGradioPlugin(manifest: GradioPluginManifest, available: boolean): 
     promptVars,
     noRoundtrip,
     settings: TObject(settings),
-    apis: [...infos, ...tools, ...actions],
+    apis: [...infos, ...tools],
     fileparsers,
     author: manifest.author,
     homepage: manifest.homepage
+  }
+}
+
+function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
+  const resourceToResultItem = (resource, name?) => resource.text ? {
+    type: 'text' as const,
+    name,
+    contentText: `<resource uri="${resource.uri}">\n${resource.text}\n</resource>`
+  } : {
+    type: 'file' as const,
+    name,
+    contentBuffer: base64ToArrayBuffer(resource.blob as string),
+    mimeType: resource.mimeType
+  }
+  const { id, title, description, transport, noRoundtrip, author, homepage } = dump
+  const tools: PluginApi[] = dump.tools.map(tool => ({
+    type: 'tool',
+    name: tool.name,
+    description: tool.description,
+    prompt: tool.description,
+    parameters: tool.inputSchema as PluginSchema,
+    async execute(args, settings) {
+      const client = await getClient(id, { type: transport.type, ...settings })
+      const res: CallToolResult = await client.callTool({
+        name: tool.name,
+        arguments: args
+      })
+      return res.content.map(i => {
+        if (i.type === 'text') {
+          return {
+            type: 'text' as const,
+            contentText: i.text
+          }
+        } else if (i.type === 'image') {
+          return {
+            type: 'file' as const,
+            contentBuffer: base64ToArrayBuffer(i.data),
+            mimeType: i.mimeType
+          }
+        } else {
+          // type: 'resource'
+          return resourceToResultItem(i.resource)
+        }
+      })
+    }
+  }))
+  const resources: PluginApi[] = dump.resources.map(resource => {
+    const { name, description, uri } = resource
+    return {
+      type: 'info',
+      infoType: 'resource',
+      name,
+      description,
+      parameters: TObject({}),
+      async execute(args, settings) {
+        const client = await getClient(id, { type: transport.type, ...settings })
+        const res: ReadResourceResult = await client.readResource({ uri })
+        return res.contents.map(c => resourceToResultItem(c, name))
+      }
+    }
+  })
+  const prompts: PluginApi[] = dump.prompts.map(prompt => {
+    const { name, description } = prompt
+    const params: Record<string, any> = {}
+    prompt.arguments.forEach(arg => {
+      const t = TString({ title: arg.name, description: arg.description })
+      params[arg.name] = arg.required ? t : TOptional(t)
+    })
+    return {
+      type: 'info',
+      infoType: 'prompt',
+      name,
+      description,
+      parameters: TObject(params),
+      async execute(args, settings) {
+        const client = await getClient(id, { type: transport.type, ...settings })
+        const res: GetPromptResult = await client.getPrompt(args)
+        return res.messages.map(m => {
+          const { content } = m
+          if (content.type === 'text') {
+            return {
+              type: 'text',
+              name,
+              contentText: content.text
+            }
+          } else if (content.type === 'image') {
+            return {
+              type: 'file',
+              name,
+              contentBuffer: base64ToArrayBuffer(content.data),
+              mimeType: content.mimeType
+            }
+          } else {
+            // type: 'resource'
+            return resourceToResultItem(content.resource, content.resource.uri)
+          }
+        })
+      }
+    }
+  })
+  let settings: Record<string, any>
+  if (transport.type === 'stdio') {
+    const env: Record<string, any> = {}
+    settings = {
+      command: TString({ title: '运行命令' }),
+      cwd: TOptional(TString({ title: '工作目录' }))
+    }
+    if (transport.env) {
+      for (const key in transport.env) {
+        env[key] = TString()
+      }
+      settings.env = TObject(env)
+    }
+  } else {
+    settings = {
+      url: TString({ title: 'SSE URL' })
+    }
+  }
+  return {
+    id,
+    type: 'mcp',
+    title,
+    description,
+    available: available && IsTauri,
+    settings: TObject(settings),
+    apis: [...tools, ...resources, ...prompts],
+    fileparsers: [],
+    noRoundtrip,
+    author,
+    homepage
+  }
+}
+
+async function dumpMcpPlugin(manifest: McpPluginManifest): Promise<McpPluginDump> {
+  const client = await getClient(manifest.id, manifest.transport)
+  const capabilities = client.getServerCapabilities()
+  const { tools } = capabilities.tools ? await client.listTools() : { tools: [] }
+  const { resources } = capabilities.resources ? await client.listResources() : { resources: [] }
+  const res = capabilities.prompts ? await client.listPrompts() : { prompts: [] }
+  console.log('res', res)
+  return {
+    ...manifest,
+    tools,
+    resources,
+    prompts: res.prompts
   }
 }
 
@@ -381,6 +515,19 @@ function gradioDefaultData(manifest: GradioPluginManifest): PluginData {
     }
   })
   return { settings, avatar: manifest.avatar, fileparsers }
+}
+
+function mcpDefaultData(manifest: McpPluginManifest): PluginData {
+  const { transport } = manifest
+  const settings = transport.type === 'stdio' ? {
+    command: transport.command,
+    cwd: transport.cwd,
+    env: transport.env
+  } : {
+    url: transport.url
+  }
+  const avatar = manifest.avatar as Avatar ?? defaultAvatar(manifest.title[0].toUpperCase())
+  return { settings, avatar, fileparsers: {} }
 }
 
 const huggingIconsMap = {
@@ -715,9 +862,12 @@ export {
   calculatorPlugin,
   buildLobePlugin,
   buildGradioPlugin,
+  buildMcpPlugin,
+  dumpMcpPlugin,
   huggingToGradio,
   lobeDefaultData,
   gradioDefaultData,
+  mcpDefaultData,
   defaultData,
   videoTranscriptPlugin,
   whisperPlugin,

@@ -7,10 +7,11 @@ import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
 import { ProviderTypes } from 'src/utils/values'
 import { wrapLanguageModel } from 'ai'
 import { FormattingReenabled } from 'src/utils/middlewares'
+import { fetch } from 'src/utils/platform-api'
 
 const FormattingModels = ['o1', 'o3-mini', 'o3-mini-2025-01-31']
 
-export function useModel(provider: Ref<Provider>, model: Ref<Model>) {
+export function useModel(provider: Ref<Provider>, model: Ref<Model>, options?: Ref<Record<string, any>>) {
   const sdkModel = ref(null)
   const _model = ref<Model>(null)
   const _provider = ref<Provider>(null)
@@ -37,8 +38,11 @@ export function useModel(provider: Ref<Provider>, model: Ref<Model>) {
       _provider.value = null
       return
     }
-    const sdkProvider = ProviderTypes.find(p => p.name === _provider.value.type).constructor(_provider.value.settings)
-    sdkModel.value = sdkProvider(_model.value.name, _provider.value.options)
+    const sdkProvider = ProviderTypes.find(p => p.name === _provider.value.type).constructor({
+      ..._provider.value.settings,
+      fetch
+    })
+    sdkModel.value = sdkProvider(_model.value.name, options?.value)
     if (FormattingModels.includes(_model.value.name)) {
       sdkModel.value = wrapLanguageModel({
         model: sdkModel.value,

@@ -36,36 +36,9 @@ const PluginsPrompt =
 {{ plugin.prompt }}
 </plugin_prompt>
 {%- endif %}
-{%- for action in plugin.actions %}
-<plugin_action name="{{ action.name }}">
-{{ action.prompt }}
-</plugin_action>
-{%- endfor %}
 </plugin>
 {%- endfor %}
 </plugins>
-`
-
-const ActionMessage =
-`<!-- 助手调用 Action 的记录 -->
-## action
-{%- if action._content %}
-<{{ action.pluginId }}-{{ action.name }} {{ action.args | json }}>
-{{ action._content }}
-</{{ action.pluginId }}-{{ action.name }}>
-{%- else %}
-<{{ action.pluginId }}-{{ action.name }} {{ action.args | json }} />
-{%- endif %}
-## status
-{{ action.status }}
-{%- if action.result %}
-## result
-{{ action.result }}
-{%- endif %}
-{%- if action.error %}
-## error
-{{ action.error }}
-{%- endif %}
 `
 
 const AssistantDefaultPrompt =
@@ -165,7 +138,6 @@ const ExampleWsIndexContent = DefaultWsIndexContent
 export {
   GenDialogTitle,
   PluginsPrompt,
-  ActionMessage,
   AssistantDefaultPrompt,
   DefaultWsIndexContent,
   ExampleWsIndexContent,
