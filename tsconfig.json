@@ -1,16 +1,6 @@
 {
-  "extends": "@quasar/app-vite/tsconfig-preset",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "strict": false
-  },
+  "extends": "./.quasar/tsconfig.json",
   "exclude": [
-    "./dist",
-    "./.quasar",
-    "./node_modules",
-    "./src-capacitor",
-    "./src-cordova",
-    "./src-tauri",
-    "./quasar.config.*.temporary.compiled*"
+    "./src-tauri"
   ]
 }

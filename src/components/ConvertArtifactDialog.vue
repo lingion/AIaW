@@ -6,7 +6,7 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          转换为 Artifact
+          {{ $t('convertArtifactDialog.title') }}
         </div>
       </q-card-section>
       <q-card-section
@@ -19,7 +19,7 @@
         >
           <q-input
             v-model="options.name"
-            label="名称"
+            :label="$t('convertArtifactDialog.name')"
             dense
             class="grow"
             @keyup.enter="onDialogOK(options)"
@@ -27,7 +27,7 @@
           />
           <q-input
             v-model="options.lang"
-            label="语言"
+            :label="$t('convertArtifactDialog.lang')"
             dense
             class="w-100px ml-2"
             @keyup.enter="onDialogOK(options)"
@@ -36,7 +36,7 @@
         <div my-2>
           <q-checkbox
             v-model="options.reserveOriginal"
-            label="保留原文"
+            :label="$t('convertArtifactDialog.reserveOriginal')"
           />
         </div>
       </q-card-section>
@@ -44,20 +44,20 @@
         <q-btn
           flat
           color="primary"
-          label="取消"
+          :label="$t('convertArtifactDialog.cancel')"
           @click="onDialogCancel"
         />
         <q-space />
         <q-btn
           flat
           color="primary"
-          label="自动命名"
+          :label="$t('convertArtifactDialog.autoName')"
           @click="onDialogOK({ ...options, name: null })"
         />
         <q-btn
           flat
           color="primary"
-          label="确定"
+          :label="$t('convertArtifactDialog.ok')"
           @click="onDialogOK(options)"
         />
       </q-card-actions>

@@ -6,14 +6,14 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          订阅云同步服务
+          {{ $t('subscribeDialog.title') }}
         </div>
       </q-card-section>
       <q-card-section p-0>
         <q-list>
           <q-item>
             <q-item-section>
-              订阅时长（月）
+              {{ $t('subscribeDialog.duration') }}
             </q-item-section>
             <q-item-section side>
               <q-input
@@ -25,18 +25,18 @@
           </q-item>
           <q-item>
             <q-item-section>
-              应付金额
+              {{ $t('subscribeDialog.amountDue') }}
             </q-item-section>
             <q-item-section side>
-              ￥{{ valid ? (amount * SyncServicePrice).toFixed(2) : '-' }}
+              {{ valid ? `￥${(amount * SyncServicePrice).toFixed(2)}` : '-' }}
             </q-item-section>
           </q-item>
           <q-item>
             <q-item-section>
-              支付方式
+              {{ $t('subscribeDialog.paymentMethod') }}
             </q-item-section>
             <q-item-section side>
-              目前仅支持支付宝
+              {{ $t('subscribeDialog.alipayOnly') }}
             </q-item-section>
           </q-item>
         </q-list>
@@ -45,13 +45,13 @@
         <q-btn
           flat
           color="primary"
-          label="取消"
+          :label="$t('subscribeDialog.cancel')"
           @click="onDialogCancel"
         />
         <q-btn
           flat
           color="primary"
-          label="下单"
+          :label="$t('subscribeDialog.order')"
           :loading
           :disable="!valid"
           @click="order({ type: 'sync-service', amount })"

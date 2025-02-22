@@ -6,11 +6,11 @@
   >
     <template v-if="dense">
       <div class="top-row">
-        <span style="font-weight: 500;">TIP</span>
+        <span style="font-weight: 500;">{{ $t('aTip.tip') }}</span>
         <div class="spacer" />
         <q-btn
           flat
-          label="不再提示"
+          :label="$t('aTip.dismiss')"
           @click="dismiss"
         />
       </div>
@@ -29,7 +29,7 @@
       <q-btn
         flat
         class="ml-2"
-        label="不再提示"
+        :label="$t('aTip.dismiss')"
         @click="dismiss"
       />
     </template>

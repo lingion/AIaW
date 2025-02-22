@@ -13,11 +13,11 @@
         >
           <q-tab
             name="stdio"
-            label="STDIO"
+            :label="$t('addMcpPluginDialog.stdio')"
           />
           <q-tab
             name="sse"
-            label="SSE"
+            :label="$t('addMcpPluginDialog.sse')"
           />
         </q-tabs>
 
@@ -35,10 +35,10 @@
               <q-item>
                 <q-item-section>
                   <q-item-label>
-                    插件名称
+                    {{ $t('addMcpPluginDialog.pluginName') }}
                   </q-item-label>
                   <q-item-label caption>
-                    任意名称即可
+                    {{ $t('addMcpPluginDialog.pluginNameCaption') }}
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -52,10 +52,10 @@
               <q-item>
                 <q-item-section>
                   <q-item-label>
-                    运行命令
+                    {{ $t('addMcpPluginDialog.command') }}
                   </q-item-label>
                   <q-item-label caption>
-                    MCP服务端的运行命令
+                    {{ $t('addMcpPluginDialog.commandCaption') }}
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -69,10 +69,10 @@
               <q-item>
                 <q-item-section>
                   <q-item-label>
-                    工作目录
+                    {{ $t('addMcpPluginDialog.workDir') }}
                   </q-item-label>
                   <q-item-label caption>
-                    可选
+                    {{ $t('addMcpPluginDialog.workDirCaption') }}
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -88,14 +88,14 @@
                 header
                 py-2
               >
-                环境变量
+                {{ $t('addMcpPluginDialog.envVars') }}
               </q-item-label>
               <vars-input
                 v-model="stdioOptions.env"
                 :input-props="{
                   dense: true,
                   clearale: true,
-                  placeholder:'输入变量值...'
+                  placeholder: $t('addMcpPluginDialog.inputVarsPlaceholder')
                 }"
               />
             </q-list>
@@ -109,10 +109,10 @@
               <q-item>
                 <q-item-section>
                   <q-item-label>
-                    插件名称
+                    {{ $t('addMcpPluginDialog.pluginName') }}
                   </q-item-label>
                   <q-item-label caption>
-                    任意名称即可
+                    {{ $t('addMcpPluginDialog.pluginNameCaption') }}
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -124,7 +124,7 @@
               </q-item>
               <q-item>
                 <q-item-section>
-                  URL
+                  {{ $t('addMcpPluginDialog.url') }}
                 </q-item-section>
                 <q-item-section side>
                   <q-input
@@ -141,13 +141,13 @@
         <q-btn
           flat
           color="primary"
-          label="取消"
+          :label="$t('addMcpPluginDialog.cancel')"
           @click="onDialogCancel"
         />
         <q-btn
           flat
           color="primary"
-          label="安装"
+          :label="$t('addMcpPluginDialog.install')"
           :disable="!valid"
           :loading
           @click="add"
@@ -164,6 +164,9 @@ import VarsInput from 'src/components/VarsInput.vue'
 import { useInstallPlugin } from 'src/composables/install-plugin'
 import { McpPluginManifest } from 'src/utils/types'
 import { genId } from 'src/utils/functions'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const type = ref<'stdio' | 'sse'>('stdio')
 const title = ref('')
@@ -200,7 +203,7 @@ function add() {
   }).catch(err => {
     console.error(err)
     $q.notify({
-      message: `安装失败: ${err.message}`,
+      message: `${t('addMcpPluginDialog.installFailed')}: ${err.message}`,
       color: 'negative'
     })
   }).finally(() => {

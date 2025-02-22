@@ -9,7 +9,7 @@
     v-model="drawerOpen"
   >
     <q-expansion-item
-      label="全局助手"
+      :label="$t('assistantsPage.globalAssistant')"
       header-class="text-lg"
       default-opened
     >

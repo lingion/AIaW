@@ -17,7 +17,7 @@
     </q-item-section>
     <q-item-section>
       <q-item-label whitespace-nowrap>
-        {{ assistant ? assistant.name : '未选择' }}
+        {{ assistant ? assistant.name : $t('assistantItem.unselected') }}
         <q-badge
           bg-pri-c
           text-on-pri-c
@@ -25,7 +25,7 @@
           py-1
           v-if="assistant && assistant.workspaceId === '$root'"
         >
-          全局
+          {{ $t('assistantItem.global') }}
         </q-badge>
       </q-item-label>
     </q-item-section>

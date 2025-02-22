@@ -52,6 +52,7 @@ import { ApiResultItem, AssistantPlugins, Dialog, Plugin, PluginApi, Workspace }
 import { computed, inject, Ref } from 'vue'
 import JsonInputDialog from './JsonInputDialog.vue'
 import { textBeginning } from 'src/utils/functions'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   plugins: Plugin[]
@@ -75,6 +76,8 @@ const pluginInfos = computed<{ plugin: Plugin, apis: PluginApi[] }[]>(() =>
 
 const $q = useQuasar()
 const { callApi } = useCallApi({ workspace, dialog })
+const { t } = useI18n()
+
 function handleResult(res: Awaited<ReturnType<typeof callApi>>) {
   res.error && $q.notify({
     message: res.error,
@@ -90,7 +93,7 @@ function call(plugin: Plugin, api: PluginApi) {
     $q.dialog({
       component: JsonInputDialog,
       componentProps: {
-        title: '参数',
+        title: t('addInfoBtn.parameter'),
         schema: api.parameters,
         model: args
       }

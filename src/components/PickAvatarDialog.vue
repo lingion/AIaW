@@ -17,19 +17,19 @@
         >
           <q-tab
             name="ai"
-            label="AI"
+            :label="$t('pickAvatarDialog.ai')"
           />
           <q-tab
             name="icon"
-            label="图标"
+            :label="$t('pickAvatarDialog.icon')"
           />
           <q-tab
             name="text"
-            label="文字"
+            :label="$t('pickAvatarDialog.text')"
           />
           <q-tab
             name="image"
-            label="图片"
+            :label="$t('pickAvatarDialog.image')"
           />
         </q-tabs>
 
@@ -41,21 +41,21 @@
         >
           <q-tab-panel name="ai">
             <avatar-panel
-              title="AI & 公司"
+              :title="$t('pickAvatarDialog.aiCompany')"
               :items="presetAvatars.monoSvgs"
               @select="select($event, true)"
               :selected
             />
             <avatar-panel
               mt-2
-              title="彩色"
+              :title="$t('pickAvatarDialog.color')"
               :items="presetAvatars.colorSvgs"
               @select="select($event, false)"
               :selected
             />
             <avatar-panel
               mt-2
-              title="AI? & 公司?"
+              :title="$t('pickAvatarDialog.aiCompanyQuestion')"
               :items="presetAvatars.definitelyAIs"
               @select="select($event, $event.type === 'svg')"
               :selected
@@ -76,11 +76,11 @@
 
           <q-tab-panel name="text">
             <q-input
-              label="文字"
+              :label="$t('pickAvatarDialog.textLabel')"
               :model-value="selected.type === 'text' ? selected.text : null"
               @update:model-value="setText($event as string)"
               class="mb-2"
-              hint="支持 Emoji"
+              :hint="$t('pickAvatarDialog.textHint')"
             />
           </q-tab-panel>
 
@@ -92,11 +92,11 @@
       <q-separator :vertical="!$q.screen.lt.sm" />
       <div flex="~ col">
         <q-list
-          min-w="220px"
+          min-w="225px"
           mt-2
         >
           <q-item>
-            <q-item-section>预览</q-item-section>
+            <q-item-section>{{ $t('pickAvatarDialog.preview') }}</q-item-section>
             <q-item-section
               side
               text-on-sur
@@ -108,7 +108,7 @@
             </q-item-section>
           </q-item>
           <q-item>
-            <q-item-section>显示背景</q-item-section>
+            <q-item-section>{{ $t('pickAvatarDialog.showBackground') }}</q-item-section>
             <q-item-section side>
               <q-toggle
                 :model-value="typeof selected.hue === 'number'"
@@ -118,7 +118,7 @@
           </q-item>
           <q-item v-if="typeof selected.hue === 'number'">
             <q-item-section avatar>
-              背景色
+              {{ $t('pickAvatarDialog.backgroundColor') }}
             </q-item-section>
             <q-item-section>
               <hue-slider v-model="selected.hue" />
@@ -133,14 +133,14 @@
         >
           <q-space />
           <q-btn
-            label="取消"
+            :label="$t('pickAvatarDialog.cancel')"
             @click="onDialogCancel"
             flat
             bg-sec-c
             text-on-sec-c
           />
           <q-btn
-            label="确定"
+            :label="$t('pickAvatarDialog.confirm')"
             @click="onDialogOK(selected)"
             flat
             bg-pri

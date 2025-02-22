@@ -7,30 +7,30 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          保存修改
+          {{ $t('saveDialog.title') }}
         </div>
       </q-card-section>
       <q-card-section pt-0>
-        是否保存对「{{ name }}」的修改？
+        {{ $t('saveDialog.message', { name }) }}
       </q-card-section>
       <q-card-actions>
         <q-btn
           flat
           color="primary"
-          label="取消"
+          :label="$t('saveDialog.cancel')"
           @click="onDialogCancel"
         />
         <q-space />
         <q-btn
           flat
-          label="不保存"
+          :label="$t('saveDialog.dontSave')"
           text="pri hover:err"
           @click="onDialogOK(false)"
         />
         <q-btn
           flat
           color="primary"
-          label="保存"
+          :label="$t('saveDialog.save')"
           @click="onDialogOK(true)"
         />
       </q-card-actions>

@@ -3,10 +3,12 @@ import { GradioPluginManifestSchema, HuggingPluginManifestSchema, LobePluginMani
 import { Validator } from '@cfworker/json-schema'
 import { toRaw } from 'vue'
 import { useQuasar } from 'quasar'
+import { useI18n } from 'vue-i18n'
 
 export function useInstallPlugin() {
   const store = usePluginsStore()
   const $q = useQuasar()
+  const { t } = useI18n()
   async function install(source) {
     let manifest
     if (typeof source === 'string') {
@@ -16,7 +18,7 @@ export function useInstallPlugin() {
         } catch (err) {
           console.error(err)
           $q.notify({
-            message: `获取插件配置失败：${err.message}`,
+            message: t('plugin.fetchFailed', { message: err.message }),
             color: 'negative'
           })
           return
@@ -26,7 +28,7 @@ export function useInstallPlugin() {
           manifest = JSON.parse(source)
         } catch (err) {
           $q.notify({
-            message: '格式错误',
+            message: t('plugin.formatError'),
             color: 'negative'
           })
           return
@@ -45,7 +47,7 @@ export function useInstallPlugin() {
       await store.installMcpPlugin(manifest)
     } else {
       $q.notify({
-        message: '不支持的插件格式',
+        message: t('plugin.unsupportedFormat'),
         color: 'negative'
       })
     }

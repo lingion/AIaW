@@ -6,14 +6,14 @@
     <q-card min-w="300px">
       <q-card-section>
         <div class="text-h6">
-          {{ message.type === 'user' ? '用户消息信息' : '助手消息信息' }}
+          {{ message.type === 'user' ? $t('messageInfoDialog.userMessageInfo') : $t('messageInfoDialog.assistantMessageInfo') }}
         </div>
       </q-card-section>
       <q-card-section p-0>
         <q-list>
           <q-item>
             <q-item-section>
-              ID
+              {{ $t('messageInfoDialog.id') }}
             </q-item-section>
             <q-item-section side>
               {{ message.id }}
@@ -21,7 +21,7 @@
           </q-item>
           <q-item>
             <q-item-section>
-              创建时间
+              {{ $t('messageInfoDialog.createdAt') }}
             </q-item-section>
             <q-item-section side>
               {{ createdAt }}
@@ -29,7 +29,7 @@
           </q-item>
           <q-item>
             <q-item-section>
-              文本长度
+              {{ $t('messageInfoDialog.textLength') }}
             </q-item-section>
             <q-item-section side>
               {{ length }}
@@ -37,7 +37,7 @@
           </q-item>
           <q-item v-if="message.modelName">
             <q-item-section>
-              模型
+              {{ $t('messageInfoDialog.model') }}
             </q-item-section>
             <q-item-section side>
               {{ message.modelName }}
@@ -45,10 +45,10 @@
           </q-item>
           <q-item v-if="message.usage">
             <q-item-section>
-              Token 开销
+              {{ $t('messageInfoDialog.tokenUsage') }}
             </q-item-section>
             <q-item-section side>
-              提示：{{ message.usage.promptTokens }} ，补全：{{ message.usage.completionTokens }}
+              {{ $t('messageInfoDialog.prompt') }}{{ message.usage.promptTokens }} ，{{ $t('messageInfoDialog.completion') }}{{ message.usage.completionTokens }}
             </q-item-section>
           </q-item>
         </q-list>
@@ -57,7 +57,7 @@
         <q-btn
           flat
           color="primary"
-          label="确定"
+          :label="$t('messageInfoDialog.ok')"
           @click="onDialogOK"
         />
       </q-card-actions>

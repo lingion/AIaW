@@ -12,9 +12,9 @@
     cursor-pointer
   >
     <div text="xl center out">
-      点击选择图片<br>
-      拖拽到此处<br>
-      或者 Ctrl+V 粘贴
+      {{ $t('imageInputArea.clickToSelect') }}<br>
+      {{ $t('imageInputArea.dragHere') }}<br>
+      {{ $t('imageInputArea.paste') }}
     </div>
     <input
       ref="imageInput"

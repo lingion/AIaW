@@ -12,7 +12,7 @@
         @click="uiStateStore.mainDrawerOpen = !uiStateStore.mainDrawerOpen"
       />
       <q-toolbar-title>
-        模型价格
+        {{ $t('modelPricing.modelPrice') }}
       </q-toolbar-title>
     </q-toolbar>
   </q-header>
@@ -28,32 +28,28 @@
           text-lg
           mt-4
         >
-          模型性能
+          {{ $t('modelPricing.modelPerformance') }}
         </div>
         <div
           mt-2
           lh-1.8em
         >
           <p>
-            以 gpt-4o 作为性能基准，与之相比，claude-3-5-sonnet 在代码方面更强，o1 系列特别擅长逻辑推理，gemini-1.5-pro 则是更便宜的替代选项。<br>
-            gpt-4o-mini 和 gemini-1.5-flash 是低价模型的不错选择，比上述模型价格低了一个数量级，适合用于简单问题和需要大量输出的场景。<br>
+            {{ $t('modelPricing.modelPerformanceDescription1') }}<br>
+            {{ $t('modelPricing.modelPerformanceDescription2') }}<br>
           </p>
           <p>
-            国产模型的第一梯队是通义千问（qwen）和 deepseek；deepseek v3（即目前的 deepseek-chat）是第一个真正达到 gpt-4o 级别的国产模型，deepseek r1 （即目前的 deepseek-reasoner）则是第一个对标 o1 的推理模型；其他国产模型（文心一言、豆包、kimi等）则还要排在后面。模型排行榜可参考 <a
-              pri-link
-              href="https://livebench.ai/#/"
-              target="_blank"
-            >LiveBench</a>。
+            {{ $t('modelPricing.modelPerformanceDescription3') }}
           </p>
           <p>
-            此外，还有几个免费模型（下方价格为 0 的），它们主要是实验模型。免费模型不保证可用性。
+            {{ $t('modelPricing.freeModelDisclaimer') }}
           </p>
         </div>
         <div
           text="on-sur-var xs"
           mt-2
         >
-          * 以上观点仅供参考，模型效果以实际使用为准
+          * {{ $t('modelPricing.performanceNote') }}
         </div>
       </div>
       <div>
@@ -61,11 +57,11 @@
           text-lg
           mt-4
         >
-          用量计算器
+          {{ $t('modelPricing.usageCalculator') }}
         </div>
 
         <div mt-2>
-          所有模型以各服务商官方API价格扣费，按USD/CNY=7汇率计算。
+          {{ $t('modelPricing.usageDescription') }}
         </div>
         <div
           flex
@@ -75,14 +71,14 @@
           <q-input
             v-model="usage.budget"
             @update:model-value="calc('budget')"
-            label="使用额度（元）"
+            :label="$t('modelPricing.budgetLabel')"
             filled
             class="flex-1"
           />
           <q-select
             v-model="usage.model"
             :options="modelInfo.map(x => x.model_name)"
-            label="模型"
+            :label="$t('modelPricing.modelLabel')"
             @update:model-value="calc('budget')"
             filled
             class="flex-1"
@@ -99,7 +95,7 @@
             v-model="usage.output"
             @update:model-value="calc('output')"
             filled
-            label="输出字数"
+            :label="$t('modelPricing.outputLabel')"
             class="flex-1"
           />
         </div>
@@ -107,7 +103,7 @@
           mt-2
           text="on-sur-var xs"
         >
-          * 按每Token输出1.4个汉字（新GPT模型）或1个汉字（其他模型）或1.8个汉字（国产模型）计算。实际比率有波动，平均而言略大于此值，但还需考虑输入开销
+          * {{ $t('modelPricing.tokenOutputNote') }}
         </div>
       </div>
       <div mt-4>
@@ -115,7 +111,7 @@
           text-lg
           my-2
         >
-          可用模型
+          {{ $t('modelPricing.availableModels') }}
         </div>
         <q-table
           flat
@@ -133,8 +129,8 @@
               toggle-color="primary"
               unelevated
               :options="[
-                {label: '￥', value: true},
-                {label: '$', value: false}
+                {label: t('modelPricing.currencyCNY'), value: true},
+                {label: t('modelPricing.currencyUSD'), value: false}
               ]"
               bg-sur-c
             />
@@ -145,8 +141,8 @@
               toggle-color="primary"
               unelevated
               :options="[
-                {label: 'K Tokens', value: false},
-                {label: 'M Tokens', value: true}
+                {label: t('modelPricing.unitKTokens'), value: false},
+                {label: t('modelPricing.unitMTokens'), value: true}
               ]"
               no-caps
               bg-sur-c
@@ -171,6 +167,7 @@ import { db } from 'src/utils/db'
 import { useQuasar } from 'quasar'
 import { LitellmBaseURL, UsdToCnyRate } from 'src/utils/config'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import ModelItem from 'src/components/ModelItem.vue'
 
 const user = useObservable(db.cloud.currentUser)
@@ -184,6 +181,7 @@ db.on('ready', () => {
   }
 })
 const uiStateStore = useUiStateStore()
+const { t } = useI18n()
 
 const unit = reactive({
   cny: true,
@@ -246,7 +244,7 @@ async function loadModels() {
   } catch (e) {
     console.error(e)
     $q.notify({
-      message: '获取模型价格失败',
+      message: t('modelPricing.getModelPriceFailed'),
       color: 'negative'
     })
   }
@@ -255,9 +253,9 @@ async function loadModels() {
 const modelPricingColumns = computed(() => {
   const u = `${unit.cny ? '￥' : '$ '}/ ${unit.mTokens ? 'M Tokens' : 'K Tokens'}`
   return [
-    { name: 'modelName', label: '模型', field: 'modelName', align: 'left' as const, sortable: true },
-    { name: 'inputCost', label: `输入价格 (${u})`, field: 'inputCost', sortable: true },
-    { name: 'outputCost', label: `输出价格 (${u})`, field: 'outputCost', sortable: true }
+    { name: 'modelName', label: t('modelPricing.modelName'), field: 'modelName', align: 'left' as const, sortable: true },
+    { name: 'inputCost', label: t('modelPricing.inputPrice') + ` (${u})`, field: 'inputCost', sortable: true },
+    { name: 'outputCost', label: t('modelPricing.outputPrice') + ` (${u})`, field: 'outputCost', sortable: true }
   ]
 })
 

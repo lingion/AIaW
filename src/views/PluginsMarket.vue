@@ -1,7 +1,7 @@
 <template>
   <view-common-header @toggle-drawer="$emit('toggle-drawer')">
     <q-toolbar-title>
-      插件市场
+      {{ $t('pluginsMarket.title') }}
     </q-toolbar-title>
     <q-space />
     <q-btn
@@ -9,7 +9,7 @@
       dense
       round
       icon="sym_o_add"
-      title="手动安装"
+      :title="$t('pluginsMarket.manualInstall')"
     >
       <q-menu>
         <q-list>
@@ -19,7 +19,7 @@
             @click="fileInput.click()"
           >
             <q-item-section>
-              选择配置文件
+              {{ $t('pluginsMarket.selectConfig') }}
             </q-item-section>
           </q-item>
           <q-item
@@ -28,7 +28,7 @@
             @click="clipboardImport"
           >
             <q-item-section>
-              从剪贴板导入
+              {{ $t('pluginsMarket.importFromClipboard') }}
             </q-item-section>
           </q-item>
           <q-item
@@ -37,7 +37,7 @@
             @click="addMcpPlugin"
           >
             <q-item-section>
-              添加 MCP 插件
+              {{ $t('pluginsMarket.addMcpPlugin') }}
             </q-item-section>
           </q-item>
         </q-list>
@@ -61,11 +61,11 @@
         tip-key="plugins-market-right-drawer"
         mb-2
       >
-        已安装的插件在右侧边栏
+        {{ $t('pluginsMarket.rightDrawerTip') }}
       </a-tip>
       <div>
         <q-input
-          label="搜索"
+          :label="$t('pluginsMarket.search')"
           outlined
           v-model="query"
         />
@@ -117,6 +117,7 @@ import PluginTypeBadge from 'src/components/PluginTypeBadge.vue'
 import AddMcpPluginDialog from 'src/components/AddMcpPluginDialog.vue'
 import { useInstallPlugin } from 'src/composables/install-plugin'
 import InstallPluginBtn from 'src/components/InstallPluginBtn.vue'
+import { useI18n } from 'vue-i18n'
 
 defineEmits(['toggle-drawer'])
 
@@ -131,6 +132,7 @@ const filterList = computed(() =>
 
 const $q = useQuasar()
 const loading = ref(false)
+const { t } = useI18n()
 function load() {
   loading.value = true
   fetch('/plugins.json')
@@ -140,11 +142,11 @@ function load() {
     }).catch(err => {
       console.error(err)
       $q.notify({
-        message: '加载插件列表失败',
+        message: t('pluginsMarket.loadError'),
         color: 'err-c',
         textColor: 'on-err-c',
         actions: [{
-          label: '重试',
+          label: t('pluginsMarket.retry'),
           color: 'on-sur',
           handler: load
         }]

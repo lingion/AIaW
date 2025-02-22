@@ -1,6 +1,6 @@
 <template>
   <q-item>
-    <q-item-section>模型</q-item-section>
+    <q-item-section>{{ $t('modelInputItems.model') }}</q-item-section>
     <q-item-section side>
       <autocomplete-input
         class="w-250px"
@@ -21,13 +21,13 @@
     </q-item-section>
   </q-item>
   <q-expansion-item
-    label="多模态能力"
-    caption="修改模型的多模态能力配置"
+    :label="$t('modelInputItems.multimodalCapabilities')"
+    :caption="$t('modelInputItems.multimodalCapabilitiesCaption')"
     v-if="model"
   >
     <q-item>
       <q-item-section>
-        用户输入支持类型
+        {{ $t('modelInputItems.userInputTypes') }}
       </q-item-section>
       <q-item-section side>
         <list-input
@@ -41,7 +41,7 @@
     </q-item>
     <q-item>
       <q-item-section>
-        助手消息支持类型
+        {{ $t('modelInputItems.assistantMessageTypes') }}
       </q-item-section>
       <q-item-section side>
         <list-input
@@ -55,7 +55,7 @@
     </q-item>
     <q-item>
       <q-item-section>
-        工具结果支持类型
+        {{ $t('modelInputItems.toolResultTypes') }}
       </q-item-section>
       <q-item-section side>
         <list-input

@@ -17,9 +17,9 @@
             cursor-pointer
           >
             <div text="xl center out">
-              点击选择文件<br>
-              拖拽到此处<br>
-              或者 Ctrl+V 粘贴
+              {{ $t('selectFileBtn.clickToSelect') }}<br>
+              {{ $t('selectFileBtn.dragHere') }}<br>
+              {{ $t('selectFileBtn.paste') }}
             </div>
           </div>
         </q-card-section>

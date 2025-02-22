@@ -6,7 +6,7 @@
         outlined
         v-model="filter"
         clearable
-        placeholder="搜索 Artifacts..."
+        :placeholder="$t('artifactsList.searchPlaceholder')"
       />
     </div>
     <q-item
@@ -40,7 +40,7 @@
           dense
           round
           icon="sym_o_close"
-          title="关闭"
+          :title="$t('artifactsList.close')"
           size="sm"
           @click.prevent.stop="closeArtifact(artifact)"
         />

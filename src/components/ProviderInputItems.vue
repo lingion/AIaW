@@ -1,6 +1,6 @@
 <template>
   <q-item>
-    <q-item-section>服务商</q-item-section>
+    <q-item-section>{{ $t('providerInputItems.provider') }}</q-item-section>
     <q-item-section side>
       <q-select
         class="w-150px"

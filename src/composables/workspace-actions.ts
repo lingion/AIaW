@@ -7,43 +7,45 @@ import SelectWorkspaceDialog from 'src/components/SelectWorkspaceDialog.vue'
 import { genId } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { db } from 'src/utils/db'
+import { useI18n } from 'vue-i18n'
 
 export function useWorkspaceActions() {
   const workspacesStore = useWorkspacesStore()
   const assistantsStore = useAssistantsStore()
   const $q = useQuasar()
+  const { t } = useI18n()
   function addWorkspace(parentId = '$root') {
     $q.dialog({
-      title: '新建工作区',
+      title: t('workspace.newWorkspace'),
       prompt: {
         model: '',
         type: 'text',
         isValid: v => !!v.trim(),
-        label: '名称'
+        label: t('workspace.name')
       },
       cancel: true,
-      ok: '创建',
+      ok: t('workspace.create'),
       ...dialogOptions
     }).onOk(name => {
       const workspaceId = genId()
       const assistantId = genId()
       db.transaction('rw', db.workspaces, db.assistants, () => {
         workspacesStore.addWorkspace({ id: workspaceId, name: name.trim(), parentId, defaultAssistantId: assistantId })
-        assistantsStore.add({ id: assistantId, name: '默认助手', workspaceId })
+        assistantsStore.add({ id: assistantId, name: t('workspace.defaultAssistant'), workspaceId })
       })
     })
   }
   function addFolder(parentId = '$root') {
     $q.dialog({
-      title: '新建文件夹',
+      title: t('workspace.newFolder'),
       prompt: {
         model: '',
         type: 'text',
         isValid: v => !!v.trim(),
-        label: '名称'
+        label: t('workspace.name')
       },
       cancel: true,
-      ok: '创建',
+      ok: t('workspace.create'),
       ...dialogOptions
     }).onOk(name => {
       workspacesStore.addFolder({ name: name.trim(), parentId })
@@ -52,12 +54,12 @@ export function useWorkspaceActions() {
   function renameItem(item) {
     if (item) {
       $q.dialog({
-        title: '重命名',
+        title: t('workspace.rename'),
         prompt: {
           model: item.name,
           type: 'text',
           isValid: v => !!v.trim() && v !== item.name,
-          label: '名称'
+          label: t('workspace.name')
         },
         cancel: true,
         ...dialogOptions
@@ -87,11 +89,11 @@ export function useWorkspaceActions() {
   }
   function deleteItem({ id, type, name }) {
     $q.dialog({
-      title: type === 'workspace' ? '删除工作区' : '删除文件夹',
-      message: type === 'workspace' ? `确定要删除工作区「${name}」吗？其内部的所有对话和助手都将被删除` : `确定要删除文件夹「${name}」吗？其内部的所有工作区都将被删除`,
+      title: type === 'workspace' ? t('workspace.deleteWorkspace') : t('workspace.deleteFolder'),
+      message: type === 'workspace' ? t('workspace.confirmDeleteWorkspace', { name }) : t('workspace.confirmDeleteFolder', { name }),
       cancel: true,
       ok: {
-        label: '删除',
+        label: t('workspace.delete'),
         color: 'err',
         flat: true
       },

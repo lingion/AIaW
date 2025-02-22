@@ -6,7 +6,7 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          {{ accept === 'workspace' ? '选择工作区' : '选择文件夹' }}
+          {{ accept === 'workspace' ? $t('selectWorkspaceDialog.selectWorkspace') : $t('selectWorkspaceDialog.selectFolder') }}
         </div>
       </q-card-section>
       <q-card-section p-0>
@@ -19,13 +19,13 @@
         <q-btn
           flat
           color="primary"
-          label="取消"
+          :label="$t('selectWorkspaceDialog.cancel')"
           @click="onDialogCancel"
         />
         <q-btn
           flat
           color="primary"
-          label="确定"
+          :label="$t('selectWorkspaceDialog.confirm')"
           :disable="!selected || exclude?.includes(selected)"
           @click="onDialogOK(selected)"
         />

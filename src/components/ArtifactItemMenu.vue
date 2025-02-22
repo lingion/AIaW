@@ -6,28 +6,28 @@
       <menu-item
         v-if="artifact.open"
         icon="sym_o_save"
-        label="保存"
+        :label="$t('artifactItemMenu.save')"
         :disable="!artifactUnsaved(artifact)"
         @click="saveItem(artifact)"
       />
       <menu-item
         icon="sym_o_edit"
-        label="重命名"
+        :label="$t('artifactItemMenu.rename')"
         @click="renameItem(artifact)"
       />
       <menu-item
         icon="sym_o_move_item"
-        label="移动至"
+        :label="$t('artifactItemMenu.moveTo')"
         @click="moveItem(artifact)"
       />
       <menu-item
         icon="sym_o_download"
-        label="下载"
+        :label="$t('artifactItemMenu.download')"
         @click="downloadItem(artifact)"
       />
       <menu-item
         icon="sym_o_delete"
-        label="删除"
+        :label="$t('artifactItemMenu.delete')"
         @click="deleteItem(artifact)"
         hover:text-err
       />
@@ -43,8 +43,10 @@ import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
 import { Artifact } from 'src/utils/types'
 import { db } from 'src/utils/db'
 import { artifactUnsaved, saveArtifactChanges } from 'src/utils/functions'
+import { useI18n } from 'vue-i18n'
 
 const $q = useQuasar()
+const { t } = useI18n()
 
 defineProps<{
   artifact: Artifact
@@ -52,11 +54,11 @@ defineProps<{
 
 function renameItem({ id, name }) {
   $q.dialog({
-    title: '重命名',
+    title: t('artifactItemMenu.rename'),
     prompt: {
       model: name,
       type: 'text',
-      label: '名称',
+      label: t('artifactItemMenu.rename'),
       isValid: v => v.trim() && v !== name
     },
     cancel: true,
@@ -80,11 +82,11 @@ function downloadItem({ name, versions, currIndex }) {
 }
 function deleteItem({ id, name }) {
   $q.dialog({
-    title: '删除 Artifact',
-    message: `确定要删除 Artifact「${name}」吗？`,
+    title: t('artifactItemMenu.deleteConfirmTitle'),
+    message: t('artifactItemMenu.deleteConfirmMessage', { name }),
     cancel: true,
     ok: {
-      label: '删除',
+      label: t('artifactItemMenu.deleteConfirmOk'),
       color: 'err',
       flat: true
     },

@@ -7,11 +7,13 @@ import { useQuasar } from 'quasar'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { ProviderSchema } from 'src/utils/types'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const route = useRoute()
 const userPerfsStore = useUserPerfsStore()
 const $q = useQuasar()
+const { t } = useI18n()
 
 until(() => userPerfsStore.ready).toBeTruthy().then(() => {
   try {
@@ -22,10 +24,10 @@ until(() => userPerfsStore.ready).toBeTruthy().then(() => {
     const bak = userPerfsStore.perfs.provider
     userPerfsStore.perfs.provider = provider
     $q.notify({
-      message: `已设置服务商为：${provider.settings.baseURL}`,
+      message: t('setProviderPage.providerSet', { baseURL: provider.settings.baseURL }),
       color: 'positive',
       actions: [{
-        label: '还原',
+        label: t('setProviderPage.restore'),
         handler: () => {
           userPerfsStore.perfs.provider = bak
         },
@@ -36,7 +38,7 @@ until(() => userPerfsStore.ready).toBeTruthy().then(() => {
   } catch (e) {
     console.error(e)
     $q.notify({
-      message: '设置服务商失败：格式错误',
+      message: t('setProviderPage.providerSetFailed'),
       color: 'negative'
     })
   } finally {

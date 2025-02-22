@@ -7,14 +7,14 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          支付
+          {{ $t('payDialog.pay') }}
         </div>
       </q-card-section>
       <q-card-section
         p-0
         flex="~ col items-center"
       >
-        <div>使用支付宝，扫码支付{{ price }}元</div>
+        <div>{{ $t('payDialog.payWithAlipay', { price: props.price }) }}</div>
         <vue-qrcode
           :value="props.qrCode"
           :options="{
@@ -30,7 +30,7 @@
         <q-btn
           flat
           text-err
-          label="取消订单"
+          :label="$t('payDialog.cancelOrder')"
           @click="cancelOrder"
           :loading="cancelLoading"
         />
@@ -45,9 +45,11 @@ import VueQrcode from '@chenfengyuan/vue-qrcode'
 import { BudgetBaseURL } from 'src/utils/config'
 import { db } from 'src/utils/db'
 import { computed, onBeforeUnmount, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { hexFromArgb } from '@material/material-color-utilities'
 
+const { t } = useI18n()
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 
 const props = defineProps<{
@@ -77,12 +79,12 @@ async function cancelOrder() {
     if (!res.ok) throw new Error('Failed to cancel order')
     onDialogCancel()
     $q.notify({
-      message: '订单已取消'
+      message: t('payDialog.orderCancelled')
     })
   } catch (err) {
     console.error(err)
     $q.notify({
-      message: '取消订单失败',
+      message: t('payDialog.cancelOrderFailed'),
       color: 'negative'
     })
   } finally {
@@ -104,19 +106,19 @@ async function checkOrderStatus() {
     if (body.status === 'completed') {
       onDialogOK()
       $q.notify({
-        message: '支付成功',
+        message: t('payDialog.paymentSuccess'),
         color: 'positive'
       })
     } else if (body.status === 'cancelled') {
       onDialogCancel()
       $q.notify({
-        message: '订单已取消'
+        message: t('payDialog.orderCancelled')
       })
     }
   } catch (err) {
     console.error(err)
     $q.notify({
-      message: '检查订单状态失败',
+      message: t('payDialog.checkOrderStatusFailed'),
       color: 'negative'
     })
   }

@@ -1,7 +1,7 @@
 <template>
   <view-common-header @toggle-drawer="$emit('toggle-drawer')">
     <q-toolbar-title>
-      助手市场
+      {{ $t('assistantsMarket.title') }}
     </q-toolbar-title>
     <q-space />
     <q-btn
@@ -9,7 +9,7 @@
       dense
       round
       icon="sym_o_add"
-      title="导入"
+      :title="$t('assistantsMarket.import')"
     >
       <q-menu>
         <q-list>
@@ -19,7 +19,7 @@
             @click="fileInput.click()"
           >
             <q-item-section>
-              选择文件
+              {{ $t('assistantsMarket.selectFile') }}
             </q-item-section>
           </q-item>
           <q-item
@@ -28,7 +28,7 @@
             @click="clipboardImport"
           >
             <q-item-section>
-              从剪贴板导入
+              {{ $t('assistantsMarket.importFromClipboard') }}
             </q-item-section>
           </q-item>
         </q-list>
@@ -49,12 +49,11 @@
     >
       <div>
         <q-input
-          label="搜索"
+          :label="$t('assistantsMarket.search')"
           outlined
           v-model="query"
         />
       </div>
-      <!-- No height limit. Use `q-virtual-scroll` to just make it load asynchronously. -->
       <q-virtual-scroll
         mt-2
         v-slot="{ item, index }"
@@ -79,7 +78,7 @@
               unelevated
               bg-pri-c
               text-on-pri-c
-              label="添加"
+              :label="$t('assistantsMarket.add')"
             >
               <q-menu>
                 <q-list>
@@ -89,7 +88,7 @@
                     @click="addToGlobal(item)"
                   >
                     <q-item-section>
-                      添加至全局
+                      {{ $t('assistantsMarket.addToGlobal') }}
                     </q-item-section>
                   </q-item>
                   <q-item
@@ -98,7 +97,7 @@
                     @click="addToWorkspace(item)"
                   >
                     <q-item-section>
-                      添加至工作区
+                      {{ $t('assistantsMarket.addToWorkspace') }}
                     </q-item-section>
                   </q-item>
                 </q-list>
@@ -114,6 +113,7 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, toRaw } from 'vue'
+import { useI18n } from 'vue-i18n'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import { useQuasar } from 'quasar'
 import { MarketAssistantSchema } from 'src/utils/types'
@@ -125,6 +125,7 @@ import { AssistantDefaultPrompt } from 'src/utils/templates'
 import { defaultModelSettings } from 'src/utils/db'
 import SelectWorkspaceDialog from 'src/components/SelectWorkspaceDialog.vue'
 
+const { t } = useI18n()
 defineEmits(['toggle-drawer'])
 
 const query = ref('')
@@ -147,11 +148,11 @@ function load() {
     }).catch(err => {
       console.error(err)
       $q.notify({
-        message: '加载助手列表失败',
+        message: t('assistantsMarket.loadError'),
         color: 'err-c',
         textColor: 'on-err-c',
         actions: [{
-          label: '重试',
+          label: t('assistantsMarket.retry'),
           color: 'on-sur',
           handler: load
         }]
@@ -180,7 +181,7 @@ function addToWorkspace(item) {
 function add(item, workspaceId) {
   if (!new Validator(MarketAssistantSchema).validate(item).valid) {
     $q.notify({
-      message: '助手数据格式错误',
+      message: t('assistantsMarket.formatError'),
       color: 'negative'
     })
     return
@@ -200,12 +201,12 @@ function add(item, workspaceId) {
     description
   }).then(() => {
     $q.notify({
-      message: '已添加'
+      message: t('assistantsMarket.added')
     })
   }).catch(err => {
     console.error(err)
     $q.notify({
-      message: '添加失败',
+      message: t('assistantsMarket.addError'),
       color: 'negative'
     })
   })
@@ -223,7 +224,7 @@ async function clipboardImport() {
     addToGlobal(JSON.parse(text))
   } catch (err) {
     $q.notify({
-      message: '导入失败',
+      message: t('assistantsMarket.importError'),
       color: 'negative'
     })
   }

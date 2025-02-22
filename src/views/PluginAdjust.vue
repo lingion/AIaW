@@ -20,14 +20,14 @@
               text-sec
               w="xs:120px sm:200px"
             >
-              信息提供
+              {{ $t('pluginAdjust.infoProvider') }}
             </q-item-section>
             <q-item-section text-on-sur-var>
-              参数
+              {{ $t('pluginAdjust.parameters') }}
             </q-item-section>
             <q-item-section side>
               <div>
-                启用
+                {{ $t('pluginAdjust.enable') }}
               </div>
             </q-item-section>
           </q-item>
@@ -60,11 +60,11 @@
         <template v-if="assistantPlugin.tools.length">
           <q-item>
             <q-item-section text-sec>
-              工具调用
+              {{ $t('pluginAdjust.toolCall') }}
             </q-item-section>
             <q-item-section side>
               <div>
-                启用
+                {{ $t('pluginAdjust.enable') }}
               </div>
             </q-item-section>
           </q-item>
@@ -87,7 +87,7 @@
         <template v-if="plugin.promptVars?.length">
           <q-item>
             <q-item-section text-sec>
-              变量
+              {{ $t('pluginAdjust.variables') }}
             </q-item-section>
           </q-item>
           <prompt-var-input
@@ -103,19 +103,20 @@
           p="x-4 y-2"
           text-on-sur-var
         >
-          提示：插件的全局设置在<router-link
+          {{ $t('pluginAdjust.globalSettingsTip') }}
+          <router-link
             :to="`/plugins/${plugin.id}`"
             pri-link
           >
-            插件设置
-          </router-link>页面
+            {{ $t('pluginAdjust.pluginSettings') }}
+          </router-link>
         </q-item-label>
       </q-list>
       <hint-card
         mt="250px"
         v-if="!assistantPlugin.infos.length && !assistantPlugin.tools.length && !assistantPlugin.resources.length && !plugin.promptVars?.length"
         img-url="/emotions/nachoneko/7.webp"
-        message="这个插件没有可配置的项目"
+        :message="$t('pluginAdjust.noConfigurableItems')"
       />
     </q-page>
   </q-page-container>
@@ -134,6 +135,7 @@ import HintCard from 'src/components/HintCard.vue'
 import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import { useSetTitle } from 'src/composables/set-title'
+import { useI18n } from 'vue-i18n'
 
 defineEmits(['toggle-drawer'])
 
@@ -159,5 +161,6 @@ const apiMap = computed(() => {
   return val
 })
 
-useSetTitle(computed(() => plugin.value && `插件功能 - ${plugin.value.title}`))
+const { t } = useI18n()
+useSetTitle(computed(() => plugin.value && `${t('pluginAdjust.pluginFunction')} - ${plugin.value.title}`))
 </script>

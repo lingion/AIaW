@@ -32,7 +32,7 @@
         py-2
         text-sec
       >
-        工作区
+        {{ t('mainLayout.workspace', 4) }}
       </div>
       <workspace-nav mt-2 />
       <q-list
@@ -49,7 +49,7 @@
             <q-icon name="sym_o_robot_2" />
           </q-item-section>
           <q-item-section>
-            助手
+            {{ t('mainLayout.assistants') }}
           </q-item-section>
         </q-item>
         <q-item
@@ -62,7 +62,7 @@
             <q-icon name="sym_o_extension" />
           </q-item-section>
           <q-item-section>
-            插件
+            {{ t('mainLayout.plugins') }}
           </q-item-section>
         </q-item>
         <q-item
@@ -75,7 +75,7 @@
             <q-icon name="sym_o_settings" />
           </q-item-section>
           <q-item-section>
-            设置
+            {{ t('mainLayout.settings') }}
           </q-item-section>
         </q-item>
         <q-separator spaced />
@@ -87,6 +87,7 @@
           <account-btn
             v-if="DexieDBURL"
             flat
+            no-caps
           />
           <q-btn
             v-else
@@ -94,7 +95,7 @@
             dense
             round
             icon="sym_o_book_2"
-            title="使用指南"
+            :title="t('mainLayout.usageGuide')"
             href="https://docs.aiaw.app/usage/"
             target="_blank"
           />
@@ -110,7 +111,7 @@
               <q-list>
                 <menu-item
                   icon="sym_o_book_2"
-                  label="使用指南"
+                  :label="t('mainLayout.usageGuide')"
                   href="https://docs.aiaw.app/usage/"
                   target="_blank"
                 />
@@ -156,6 +157,7 @@ import MenuItem from 'src/components/MenuItem.vue'
 import { DexieDBURL } from 'src/utils/config'
 import { useQuasar } from 'quasar'
 import version from 'src/version.json'
+import { useI18n } from 'vue-i18n'
 
 defineOptions({
   name: 'MainLayout'
@@ -178,14 +180,15 @@ async function openLastWorkspace() {
 }
 openLastWorkspace()
 
+const { t } = useI18n()
 const $q = useQuasar()
 function notifyVersion() {
   $q.notify({
-    message: `当前版本: ${version.version}`,
+    message: `${t('mainLayout.currentVersion')}: ${version.version}`,
     color: 'inv-sur',
     textColor: 'inv-on-sur',
     actions: [{
-      label: '更新日志',
+      label: t('mainLayout.changeLog'),
       handler: () => {
         window.open('https://github.com/NitroRCr/AIaW/releases', '_blank')
       },

@@ -4,26 +4,28 @@ import { db } from 'src/utils/db'
 import { watch } from 'vue'
 import { dialogOptions } from 'src/utils/values'
 import { DexieDBURL } from 'src/utils/config'
+import { useI18n } from 'vue-i18n'
 
 export function useLoginDialogs() {
   if (!DexieDBURL) return
   const userInteraction = useObservable(db.cloud.userInteraction)
   const user = useObservable(db.cloud.currentUser)
   const $q = useQuasar()
+  const { t } = useI18n()
   let loginNotify = false
 
   watch(userInteraction, interaction => {
     if (!interaction) return
     if (interaction.type === 'email') {
       $q.dialog({
-        title: '登录/注册',
+        title: t('login.register'),
         prompt: {
           model: '',
           type: 'email',
           label: 'Email'
         },
         cancel: true,
-        ok: '下一步',
+        ok: t('login.next'),
         noRouteDismiss: true,
         ...dialogOptions
       }).onOk(email => {
@@ -31,12 +33,12 @@ export function useLoginDialogs() {
       })
     } else if (interaction.type === 'otp') {
       $q.dialog({
-        title: 'OTP验证码',
-        message: '请输入验证邮件中的OTP验证码',
+        title: t('login.otp'),
+        message: t('login.enterOtp'),
         prompt: {
           model: '',
           type: 'text',
-          label: 'OTP验证码'
+          label: t('login.otp')
         },
         cancel: true,
         persistent: true,
@@ -50,10 +52,10 @@ export function useLoginDialogs() {
       })
     } else if (interaction.type === 'logout-confirmation') {
       $q.dialog({
-        title: '退出登录',
-        message: '确定要退出登录吗？',
+        title: t('login.logout'),
+        message: t('login.confirmLogout'),
         cancel: true,
-        ok: '退出登录',
+        ok: t('login.logout'),
         persistent: true,
         ...dialogOptions
       }).onOk(() => {
@@ -71,7 +73,7 @@ export function useLoginDialogs() {
     }
   })
   watch(() => user.value.isLoggedIn, isLoggedIn => {
-    isLoggedIn && loginNotify && $q.notify(`已登录：${user.value.email}`)
+    isLoggedIn && loginNotify && $q.notify(t('login.loggedIn', { email: user.value.email }))
     loginNotify = false
   })
 }

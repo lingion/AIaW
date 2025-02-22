@@ -10,7 +10,7 @@
       :name="icon"
       v-else
     />
-    <span ml-2>{{ loading ? '停止' : label }}</span>
+    <span ml-2>{{ loading ? $t('abortableBtn.stop') : label }}</span>
   </q-btn>
 </template>
 

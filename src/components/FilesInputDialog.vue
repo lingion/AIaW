@@ -16,9 +16,9 @@
       cursor-pointer
     >
       <div text="xl center out">
-        点击选择图片<br>
-        拖拽到此处<br>
-        或者 Ctrl+V 粘贴
+        {{ $t('filesInputDialog.clickToSelect') }}<br>
+        {{ $t('filesInputDialog.dragHere') }}<br>
+        {{ $t('filesInputDialog.paste') }}
       </div>
       <input
         ref="fileInput"

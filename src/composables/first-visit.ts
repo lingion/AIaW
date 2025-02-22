@@ -5,10 +5,13 @@ import { localData } from 'src/utils/local-data'
 import { dialogOptions } from 'src/utils/values'
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 export function useFirstVisit() {
   const $q = useQuasar()
   const router = useRouter()
+  const { t } = useI18n()
+
   onMounted(() => {
     if (location.pathname === '/set-provider') {
       localData.visited = true
@@ -17,15 +20,15 @@ export function useFirstVisit() {
     if (!localData.visited) {
       const serviceAvailable = DexieDBURL && LitellmBaseURL
       const message = serviceAvailable
-        ? 'AIaW 是全功能、轻量级、可拓展的 AI 客户端。<br><br>为了使用 AI 模型，你需要<b>配置服务商（API）</b>或者<b>登录</b>。<br>登录之后，还可以使用跨设备实时云同步功能。'
-        : 'AIaW 是全功能、轻量级、可拓展的 AI 客户端。<br><br>为了使用 AI 模型，你需要<b>配置服务商（API）</b>。'
+        ? t('firstVisit.messageWithLogin')
+        : t('firstVisit.messageWithoutLogin')
       $q.dialog({
-        title: '欢迎使用 AI as Workspace',
+        title: t('firstVisit.title'),
         message,
         html: true,
-        cancel: '配置服务商',
+        cancel: t('firstVisit.cancel'),
         persistent: true,
-        ok: serviceAvailable ? '登录' : false,
+        ok: serviceAvailable ? t('firstVisit.ok') : false,
         ...dialogOptions
       }).onCancel(() => {
         router.push('/settings')

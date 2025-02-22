@@ -8,7 +8,7 @@
       my-3
     />
     <q-btn
-      label="添加变量"
+      :label="$t('promptVarEditor.addVariable')"
       icon="sym_o_add"
       flat
       w-full

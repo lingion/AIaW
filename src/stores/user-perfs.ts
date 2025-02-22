@@ -46,6 +46,7 @@ interface Perfs {
   streamingLockBottom: boolean
   messageCatalog: boolean
   showWarnings: boolean
+  language: 'en-US' | 'zh-CN' | 'zh-TW' | null
 }
 
 export const useUserPerfsStore = defineStore('user-perfs', () => {
@@ -101,7 +102,8 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     mdAutoFoldThreshold: null,
     streamingLockBottom: true,
     messageCatalog: true,
-    showWarnings: false
+    showWarnings: false,
+    language: null
   }
   const [perfs, ready] = persistentReactive('#user-perfs', { ...defaultPerfs })
   watchEffect(() => {

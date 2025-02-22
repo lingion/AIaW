@@ -51,7 +51,7 @@
               header
               pb-2
             >
-              助手模型
+              {{ $t('dialogView.assistantModel') }}
             </q-item-label>
             <model-item
               v-if="assistant.model"
@@ -67,7 +67,7 @@
               header
               pb-2
             >
-              全局默认
+              {{ $t('dialogView.globalDefault') }}
             </q-item-label>
             <model-item
               v-if="perfs.model"
@@ -83,18 +83,18 @@
             header
             py-2
           >
-            常用模型
+            {{ $t('dialogView.commonModels') }}
           </q-item-label>
           <a-tip
             tip-key="configure-common-models"
             rd-0
           >
-            可以在 <router-link
+            {{ $t('dialogView.modelsConfigGuide1') }}<router-link
               to="/settings#ui"
               pri-link
             >
-              设置
-            </router-link> 中配置 常用模型
+              {{ $t('dialogView.settings') }}
+            </router-link> {{ $t('dialogView.modelsConfigGuide2') }}
           </a-tip>
           <model-item
             v-for="m of perfs.commonModelOptions"
@@ -237,7 +237,7 @@
             v-if="model && mimeTypeMatch('image/webp', model.inputTypes.user)"
             flat
             icon="sym_o_image"
-            title="添加图片"
+            :title="$t('dialogView.addImage')"
             round
             @click="imageInput.click()"
           >
@@ -253,7 +253,7 @@
           <q-btn
             flat
             icon="sym_o_folder"
-            title="添加文件"
+            :title="$t('dialogView.addFile')"
             round
             @click="fileInput.click()"
           >
@@ -270,7 +270,7 @@
             v-if="assistant?.promptVars.length"
             flat
             icon="sym_o_tune"
-            :title="showVars ? '隐藏变量' : '显示变量'"
+            :title="showVars ? $t('dialogView.hideVars') : $t('dialogView.showVars')"
             round
             @click="showVars = !showVars"
             :class="{ 'text-ter': showVars }"
@@ -306,7 +306,7 @@
               py-1
             >{{ activePlugins.length }}</code>
             <q-tooltip>
-              已启用插件
+              {{ $t('dialogView.enabledPlugins') }}
               <template
                 v-for="p of activePlugins"
                 :key="p.id"
@@ -330,13 +330,13 @@
               py-1
             >{{ usage.promptTokens }}+{{ usage.completionTokens }}</code>
             <q-tooltip>
-              上条消息 Token 消耗<br>
-              提示：{{ usage.promptTokens }}，补全：{{ usage.completionTokens }}
+              {{ $t('dialogView.messageTokens') }}<br>
+              {{ $t('dialogView.tokenPrompt') }}：{{ usage.promptTokens }}，{{ $t('dialogView.tokenCompletion') }}：{{ usage.completionTokens }}
             </q-tooltip>
           </div>
           <abortable-btn
             icon="sym_o_send"
-            label="发送"
+            :label="$t('dialogView.send')"
             @click="send"
             @abort="abortController?.abort()"
             :loading="!!messageMap[chain.at(-2)]?.generatingSession"
@@ -372,7 +372,7 @@
           outlined
           autogrow
           clearable
-          placeholder="输入聊天内容..."
+          :placeholder="$t('dialogView.chatPlaceholder')"
           @keydown.enter="onEnter"
           @paste="onTextPaste"
         />
@@ -423,6 +423,9 @@ import { useCreateArtifact } from 'src/composables/create-artifact'
 import artifactsPlugin from 'src/utils/artifacts-plugin'
 import ModelOptionsBtn from 'src/components/ModelOptionsBtn.vue'
 import AddInfoBtn from 'src/components/AddInfoBtn.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   id: string
@@ -586,7 +589,7 @@ function onPaste(ev: ClipboardEvent) {
       const text = clipboardData.getData('text/plain')
       addInputItems([{
         type: 'text',
-        name: `粘贴文本：${textBeginning(text, 12)}`,
+        name: t('dialogView.pastedText', { text: textBeginning(text, 12) }),
         contentText: text
       }])
     }
@@ -631,7 +634,7 @@ async function parseFiles(files: File[]) {
   }
   for (const file of supportedFiles) {
     if (file.size > MaxMessageFileSizeMB * 1024 * 1024) {
-      $q.notify({ message: `文件太大（>${MaxMessageFileSizeMB}MB）`, color: 'negative' })
+      $q.notify({ message: t('dialogView.fileTooLarge', { maxSize: MaxMessageFileSizeMB }), color: 'negative' })
       continue
     }
     const f = file.type.startsWith('image/') && file.size > 512 * 1024 ? await scaleBlob(file, 2048 * 2048) : file
@@ -765,7 +768,7 @@ function getSystemPrompt(enabledPlugins) {
     return prompt.trim() ? prompt : undefined
   } catch (e) {
     console.error(e)
-    $q.notify({ message: '提示词解析失败，请检查助手提示词模板', color: 'negative' })
+    $q.notify({ message: t('dialogView.promptParseFailed'), color: 'negative' })
     throw e
   }
 }
@@ -795,20 +798,20 @@ const $q = useQuasar()
 const { data } = useUserDataStore()
 async function send() {
   if (!assistant.value) {
-    $q.notify({ message: '请设置助手', color: 'negative' })
+    $q.notify({ message: t('dialogView.errors.setAssistant'), color: 'negative' })
     return
   }
   if (!sdkModel.value) {
-    $q.notify({ message: '请配置服务商、模型或者登录', color: 'negative' })
+    $q.notify({ message: t('dialogView.errors.configModel'), color: 'negative' })
     return
   }
   if (!data.noobAlertDismissed && chain.value.length > 10 && dialogs.value.length < 3) {
     $q.dialog({
-      title: '是否需要新建对话？',
-      message: '一个新用户常见的误区是，始终在一个对话中提问，即使问题之间没有关联。\n实际上，当你问一个与前文无关的新问题时，就应该新建一个对话，以避免上下文的累计导致输入开销不断增大',
+      title: t('dialogView.noobAlert.title'),
+      message: t('dialogView.noobAlert.message'),
       persistent: true,
-      ok: '我会新建一个对话',
-      cancel: '我知道这些，无需提醒',
+      ok: t('dialogView.noobAlert.okBtn'),
+      cancel: t('dialogView.noobAlert.cancelBtn'),
       ...dialogOptions
     }).onCancel(() => {
       data.noobAlertDismissed = true
@@ -926,7 +929,7 @@ async function stream(target, insert = false) {
       try {
         pluginInfos[a.name] = await callApi(p, a, api.args)
       } catch (e) {
-        $q.notify({ message: `调用插件信息失败：${e.message}`, color: 'negative' })
+        $q.notify({ message: t('dialogView.callPluginInfoFailed', { message: e.message }), color: 'negative' })
       }
     }))
 
@@ -936,7 +939,7 @@ async function stream(target, insert = false) {
         prompt: p.prompt && engine.parseAndRenderSync(p.prompt, { ...pluginVars, infos: pluginInfos })
       })
     } catch (e) {
-      $q.notify({ message: `插件「${p.title}」提示词模板解析失败`, color: 'negative' })
+      $q.notify({ message: t('dialogView.pluginPromptParseFailed', { title: p.title }), color: 'negative' })
     }
   }))
   if (isPlatformEnabled(perfs.artifactsEnabled) && artifacts.value.some(a => a.open)) {
@@ -999,10 +1002,10 @@ async function stream(target, insert = false) {
     console.error(e)
     if (e.data?.error?.type === 'budget_exceeded') {
       $q.notify({
-        message: '模型服务额度不足',
+        message: t('dialogView.errors.insufficientQuota'),
         color: 'err-c',
         textColor: 'on-err-c',
-        actions: [{ label: '充值', color: 'on-sur', handler() { router.push('/account') } }]
+        actions: [{ label: t('dialogView.recharge'), color: 'on-sur', handler() { router.push('/account') } }]
       })
     }
     await db.messages.update(id, { contents, error: e.message, status: 'failed', generatingSession: null })
@@ -1058,7 +1061,7 @@ async function genTitle() {
     await db.dialogs.update(props.id, { name: text })
   } catch (e) {
     console.error(e)
-    $q.notify({ message: '总结对话失败，请检查系统助手设置', color: 'negative' })
+    $q.notify({ message: t('dialogView.summarizeFailed'), color: 'negative' })
   }
 }
 const route = useRoute()
@@ -1246,7 +1249,7 @@ async function extractArtifact(message: Message, text: string, pattern, options:
     tmp: text
   })
   if (options.reserveOriginal) return
-  const to = `> 已转为 Artifact：<router-link to="?openArtifact=${id}">${name}</router-link>\n`
+  const to = `> ${t('dialogView.convertedToArtifact')}: <router-link to="?openArtifact=${id}">${name}</router-link>\n`
   const index = message.contents.findIndex(c => ['assistant-message', 'user-message'].includes(c.type))
   const content = message.contents[index] as UserMessageContent | AssistantMessageContent
   await db.messages.update(message.id, {

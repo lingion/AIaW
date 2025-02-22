@@ -1,7 +1,7 @@
 <template>
   <view-common-header @toggle-drawer="$emit('toggle-drawer')">
     <q-toolbar-title>
-      助手设置
+      {{ $t('assistantView.header') }}
     </q-toolbar-title>
     <q-space />
   </view-common-header>
@@ -20,10 +20,10 @@
           header
           id="assistant"
         >
-          助手
+          {{ $t('assistantView.assistant') }}
         </q-item-label>
         <q-item>
-          <q-item-section>名称</q-item-section>
+          <q-item-section>{{ $t('assistantView.name') }}</q-item-section>
           <q-item-section side>
             <q-input
               class="w-150px"
@@ -37,14 +37,14 @@
           clickable
           @click="pickAvatar"
         >
-          <q-item-section>头像</q-item-section>
+          <q-item-section>{{ $t('assistantView.avatar') }}</q-item-section>
           <q-item-section side>
             <a-avatar :avatar="assistant.avatar" />
           </q-item-section>
         </q-item>
         <q-item>
           <q-item-section avatar>
-            角色设定
+            {{ $t('assistantView.roleSetting') }}
           </q-item-section>
           <q-item-section>
             <q-input
@@ -57,7 +57,7 @@
         </q-item>
         <q-item>
           <q-item-section avatar>
-            提示词模板
+            {{ $t('assistantView.promptTemplate') }}
           </q-item-section>
           <q-item-section>
             <q-input
@@ -70,7 +70,7 @@
         </q-item>
         <q-item>
           <q-item-section avatar>
-            提示词变量
+            {{ $t('assistantView.promptVars') }}
           </q-item-section>
           <q-item-section>
             <prompt-var-editor
@@ -84,18 +84,18 @@
           p="x-4 y-2"
           text-on-sur-var
         >
-          可参考提示词变量/模板的<a
+          {{ $t('assistantView.promptVarsGuide') }}<a
             href="https://docs.aiaw.app/usage/prompt-vars.html"
             target="_blank"
             pri-link
-          >使用指南</a>
+          >{{ $t('assistantView.promptVarsGuide') }}</a>
         </q-item-label>
         <q-separator spaced />
         <q-item-label
           header
           id="model"
         >
-          模型
+          {{ $t('assistantView.model') }}
         </q-item-label>
         <model-input-items v-model="assistant.model" />
         <q-item-label
@@ -103,14 +103,14 @@
           p="x-4 y-2"
           text-on-sur-var
         >
-          留空则使用全局模型设置；此设置也会被对话中切换的模型覆盖
+          {{ $t('assistantView.modelEmptyTip') }}
         </q-item-label>
         <q-separator spaced />
         <q-item-label
           header
           id="provider"
         >
-          服务商
+          {{ $t('assistantView.provider') }}
         </q-item-label>
         <provider-input-items v-model="assistant.provider" />
         <q-item-label
@@ -118,15 +118,15 @@
           p="x-4 y-2"
           text-on-sur-var
         >
-          留空则使用全局服务商设置
+          {{ $t('assistantView.providerEmptyTip') }}
         </q-item-label>
         <q-separator spaced />
         <q-item id="plugins">
           <q-item-section text-sec>
-            插件
+            {{ $t('assistantView.plugins') }}
           </q-item-section>
           <q-item-section side>
-            启用
+            {{ $t('assistantView.enable') }}
           </q-item-section>
         </q-item>
         <q-item
@@ -163,7 +163,7 @@
                 icon="sym_o_tune"
                 :to="`${assistant.id}/plugins/${plugin.id}`"
                 v-if="assistant.plugins[plugin.id]?.enabled"
-                title="插件功能"
+                :title="$t('assistantView.pluginFunction')"
                 mr-2
               />
               <q-checkbox
@@ -178,11 +178,11 @@
           header
           id="generate-settings"
         >
-          生成设置
+          {{ $t('assistantView.generateSettings') }}
         </q-item-label>
         <q-item>
           <q-item-section>
-            <q-item-label>流式传输</q-item-label>
+            <q-item-label>{{ $t('assistantView.stream') }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-toggle v-model="assistant.stream" />
@@ -190,9 +190,9 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>重试次数</q-item-label>
+            <q-item-label>{{ $t('assistantView.maxRetries') }}</q-item-label>
             <q-item-label caption>
-              生成失败时的最大重试次数
+              {{ $t('assistantView.maxRetriesTip') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -207,9 +207,9 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>最大调用次数</q-item-label>
+            <q-item-label>{{ $t('assistantView.maxSteps') }}</q-item-label>
             <q-item-label caption>
-              启用工具调用时，单次回复调用模型的最大次数
+              {{ $t('assistantView.maxStepsTip') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -224,9 +224,9 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>上下文携带条数</q-item-label>
+            <q-item-label>{{ $t('assistantView.contextNum') }}</q-item-label>
             <q-item-label caption>
-              包括当前用户消息的最大上下文数量。留空则不限制
+              {{ $t('assistantView.contextNumTip') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -242,7 +242,7 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>提示词角色</q-item-label>
+            <q-item-label>{{ $t('assistantView.promptRole') }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-select
@@ -259,13 +259,13 @@
           header
           id="model-params"
         >
-          模型参数
+          {{ $t('assistantView.modelParams') }}
         </q-item-label>
         <q-item>
           <q-item-section>
-            <q-item-label>随机性<code>temperature</code></q-item-label>
+            <q-item-label>{{ $t('assistantView.temperature') }}<code>temperature</code></q-item-label>
             <q-item-label caption>
-              值越大，回复越随机
+              {{ $t('assistantView.temperatureTip') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -281,9 +281,9 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>核采样<code>topP</code></q-item-label>
+            <q-item-label>{{ $t('assistantView.topP') }}<code>topP</code></q-item-label>
             <q-item-label caption>
-              与随机性类似，但不要和随机性一起更改
+              {{ $t('assistantView.topPTip') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -299,9 +299,9 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>存在惩罚<code>presencePenalty</code></q-item-label>
+            <q-item-label>{{ $t('assistantView.presencePenalty') }}<code>presencePenalty</code></q-item-label>
             <q-item-label caption>
-              值越大，越有可能扩展到新话题
+              {{ $t('assistantView.presencePenaltyTip') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -317,9 +317,9 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>频率惩罚<code>frequencyPenalty</code></q-item-label>
+            <q-item-label>{{ $t('assistantView.frequencyPenalty') }}<code>frequencyPenalty</code></q-item-label>
             <q-item-label caption>
-              值越大，越有可能降低重复字词
+              {{ $t('assistantView.frequencyPenaltyTip') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -335,9 +335,9 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>停止词<code>stopSequences</code></q-item-label>
+            <q-item-label>{{ $t('assistantView.stopSequences') }}<code>stopSequences</code></q-item-label>
             <q-item-label caption>
-              当模型生成停止词时，就会停止生成。按回车添加值。
+              {{ $t('assistantView.stopSequencesTip') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -357,9 +357,9 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>单次回复限制<code>maxTokens</code></q-item-label>
+            <q-item-label>{{ $t('assistantView.maxTokens') }}<code>maxTokens</code></q-item-label>
             <q-item-label caption>
-              单次生成的最大token数
+              {{ $t('assistantView.maxTokensTip') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -375,9 +375,9 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>种子<code>seed</code></q-item-label>
+            <q-item-label>{{ $t('assistantView.seed') }}<code>seed</code></q-item-label>
             <q-item-label caption>
-              用于随机采样的种子（整数）。用于生成确定性的结果。
+              {{ $t('assistantView.seedTip') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -396,18 +396,18 @@
           p="x-4 y-2"
           text-on-sur-var
         >
-          提示：不是所有服务商都支持全部参数
+          {{ $t('assistantView.notAllParamsSupported') }}
         </q-item-label>
         <q-separator spaced />
         <q-item-label
           header
           id="model-params"
         >
-          元数据
+          {{ $t('assistantView.metadata') }}
         </q-item-label>
         <q-item>
           <q-item-section>
-            <q-item-label>作者</q-item-label>
+            <q-item-label>{{ $t('assistantView.author') }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-input
@@ -420,7 +420,7 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>描述</q-item-label>
+            <q-item-label>{{ $t('assistantView.description') }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-input
@@ -434,7 +434,7 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>主页</q-item-label>
+            <q-item-label>{{ $t('assistantView.homepage') }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-input
@@ -448,19 +448,19 @@
         <q-separator spaced />
         <q-item>
           <q-item-section>
-            <q-item-label>导出</q-item-label>
+            <q-item-label>{{ $t('assistantView.export') }}</q-item-label>
             <q-item-label caption>
-              导出助手为 JSON，用于<a
+              {{ $t('assistantView.exportTip') }}<a
                 href="https://docs.aiaw.app/usage/assistants.html#分享助手"
                 target="_blank"
                 pri-link
-              >分享或发布助手</a>
+              >{{ $t('assistantView.exportTip') }}</a>
             </q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-btn
               flat
-              label="导出"
+              :label="$t('assistantView.export')"
               bg-pri-c
               text-on-pri-c
             >
@@ -471,7 +471,7 @@
                   @click="exportAssistant('file')"
                 >
                   <q-item-section>
-                    导出为文件
+                    {{ $t('assistantView.exportToFile') }}
                   </q-item-section>
                 </q-item>
                 <q-item
@@ -480,7 +480,7 @@
                   @click="exportAssistant('clipboard')"
                 >
                   <q-item-section>
-                    导出到剪贴板
+                    {{ $t('assistantView.exportToClipboard') }}
                   </q-item-section>
                 </q-item>
               </q-menu>

@@ -6,7 +6,7 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          解析文件
+          {{ $t('parseFilesDialog.parseFiles') }}
         </div>
       </q-card-section>
       <q-card-section :class="{ 'px-0': $q.screen.xs }">
@@ -50,7 +50,7 @@
                 v-model="selected[index]"
                 @update:model-value="ranges[index] = null"
                 :options="allOptions[index]"
-                label="解析器"
+                :label="$t('parseFilesDialog.parser')"
                 dense
               >
                 <template #option="{ opt, itemProps }">
@@ -71,7 +71,7 @@
                 v-else
                 text-err
               >
-                该类型无可用解析器
+                {{ $t('parseFilesDialog.noParserAvailable') }}
               </div>
             </q-item-section>
           </q-item>
@@ -81,7 +81,7 @@
         <q-btn
           flat
           color="primary"
-          label="取消"
+          :label="$t('parseFilesDialog.cancel')"
           @click="onDialogCancel"
         />
         <q-btn
@@ -89,7 +89,7 @@
           color="primary"
           :loading="loading"
           :disable="!selected.some(x => x)"
-          label="解析"
+          :label="$t('parseFilesDialog.parse')"
           @click="parse"
         />
       </q-card-actions>
@@ -102,6 +102,9 @@ import { useDialogPluginComponent, useQuasar } from 'quasar'
 import { usePluginsStore } from 'src/stores/plugins'
 import { mimeTypeMatch } from 'src/utils/functions'
 import { computed, reactive, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   files: File[]
@@ -156,7 +159,7 @@ async function parse() {
     } catch (e) {
       console.error(e)
       $q.notify({
-        message: `"${file.name}" 解析失败: ${e}`,
+        message: t('parseFilesDialog.parseFailed', { file: file.name, error: e }),
         color: 'negative'
       })
       return []

@@ -27,13 +27,13 @@
         <q-btn
           flat
           color="primary"
-          label="取消"
+          :label="$t('textareaDialog.cancel')"
           @click="onDialogCancel"
         />
         <q-btn
           flat
           color="primary"
-          label="确定"
+          :label="$t('textareaDialog.confirm')"
           @click="onDialogOK(value)"
         />
       </q-card-actions>

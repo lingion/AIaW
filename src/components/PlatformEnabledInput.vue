@@ -9,12 +9,15 @@
 
 <script setup lang="ts">
 import { PlatformEnabled } from 'src/utils/types'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const model = defineModel<PlatformEnabled>()
 const options = [
-  { label: '始终启用', value: 'always' },
-  { label: '仅桌面端', value: 'desktop-only' },
-  { label: '仅移动端', value: 'mobile-only' },
-  { label: '始终禁用', value: 'never' }
+  { label: t('platformEnabledInput.alwaysEnabled'), value: 'always' },
+  { label: t('platformEnabledInput.desktopOnly'), value: 'desktop-only' },
+  { label: t('platformEnabledInput.mobileOnly'), value: 'mobile-only' },
+  { label: t('platformEnabledInput.alwaysDisabled'), value: 'never' }
 ]
 </script>

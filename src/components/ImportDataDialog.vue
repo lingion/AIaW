@@ -6,7 +6,7 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          导入用户数据
+          {{ $t('importDataDialog.title') }}
         </div>
       </q-card-section>
       <q-card-section
@@ -16,23 +16,23 @@
         <div px-2>
           <q-file
             v-model="file"
-            label="数据文件"
+            :label="$t('importDataDialog.fileLabel')"
             dense
           />
         </div>
         <div my-2>
           <q-checkbox
             v-model="options.overwrite"
-            label="覆盖已有数据"
+            :label="$t('importDataDialog.overwrite')"
           /><br>
           <q-checkbox
             v-model="options.force"
-            label="强制写入"
+            :label="$t('importDataDialog.force')"
           /><br>
           <q-checkbox
             color="err"
             v-model="options.clear"
-            label="导入前清空现有数据"
+            :label="$t('importDataDialog.clear')"
           />
         </div>
       </q-card-section>
@@ -40,13 +40,13 @@
         <q-btn
           flat
           color="primary"
-          label="取消"
+          :label="$t('importDataDialog.cancel')"
           @click="onDialogCancel"
         />
         <q-btn
           flat
           color="primary"
-          label="导入"
+          :label="$t('importDataDialog.import')"
           :loading
           :disable="!file"
           @click="importData"
@@ -61,7 +61,9 @@ import { importInto } from 'dexie-export-import'
 import { useDialogPluginComponent, useQuasar } from 'quasar'
 import { db } from 'src/utils/db'
 import { reactive, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const file = ref<File>(null)
 
 const options = reactive({
@@ -86,14 +88,14 @@ function importData() {
     clearTablesBeforeImport: clear
   }).then(() => {
     $q.notify({
-      message: '导入成功',
+      message: t('importDataDialog.importSuccess'),
       color: 'positive'
     })
     onDialogOK()
   }).catch(e => {
     console.error(e)
     $q.notify({
-      message: `导入失败：${e.message}`,
+      message: t('importDataDialog.importFailed', { message: e.message }),
       color: 'negative'
     })
   }).finally(() => {

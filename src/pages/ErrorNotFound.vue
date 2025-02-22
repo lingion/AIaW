@@ -21,7 +21,7 @@
         />
         <hint-card
           img-url="/emotions/nachoneko/19.webp"
-          message="这里什么都没有..."
+          message="$t('errorNotFound.message')"
         />
       </q-page>
     </q-page-container>

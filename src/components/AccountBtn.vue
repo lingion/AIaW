@@ -3,7 +3,7 @@
     icon="sym_o_account_circle"
     @click="onClick"
     :class="{ 'route-active': $route.path === '/account' }"
-    :label="user.isLoggedIn ? '账号' : '登录'"
+    :label="user.isLoggedIn ? $t('accountBtn.account') : $t('accountBtn.login')"
   />
 </template>
 

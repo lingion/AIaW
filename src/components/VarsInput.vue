@@ -25,7 +25,7 @@
     <q-item>
       <q-item-section>
         <q-btn
-          label="添加变量"
+          :label="$t('varsInput.addVariable')"
           icon="sym_o_add"
           flat
           text-sec
@@ -39,6 +39,9 @@
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
 import { dialogOptions } from 'src/utils/values'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const model = defineModel<Record<string, string>>()
 
@@ -50,11 +53,11 @@ const $q = useQuasar()
 
 function add() {
   $q.dialog({
-    title: '添加变量',
+    title: t('varsInput.addVariable'),
     prompt: {
       model: '',
       type: 'text',
-      label: '变量名'
+      label: t('varsInput.variableName')
     },
     cancel: true,
     ...dialogOptions

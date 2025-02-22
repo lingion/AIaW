@@ -29,23 +29,23 @@
           <menu-item
             v-if="workspaceId !== '$root'"
             icon="sym_o_add_comment"
-            label="新建对话"
+            :label="$t('assistantList.newDialog')"
             @click="createDialog({ assistantId: assistant.id })"
           />
           <menu-item
             v-if="workspaceId !== '$root'"
             icon="sym_o_move_item"
-            label="移至全局"
+            :label="$t('assistantList.moveToGlobal')"
             @click="move(assistant.id, '$root')"
           />
           <menu-item
             icon="sym_o_move_item"
-            label="移至工作区"
+            :label="$t('assistantList.moveToWorkspace')"
             @click="moveToWorkspace(assistant.id)"
           />
           <menu-item
             icon="sym_o_delete"
-            label="删除"
+            :label="$t('assistantList.delete')"
             @click="deleteItem(assistant)"
             hover:text-err
           />
@@ -66,7 +66,7 @@
         <q-icon name="sym_o_add" />
       </q-item-section>
       <q-item-section>
-        新建助手
+        {{ $t('assistantList.newAssistant') }}
       </q-item-section>
     </q-item>
   </q-list>
@@ -82,6 +82,9 @@ import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
 import { useCreateDialog } from 'src/composables/create-dialog'
 import MenuItem from './MenuItem.vue'
 import { dialogOptions } from 'src/utils/values'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   workspaceId: string
@@ -116,11 +119,11 @@ function moveToWorkspace(id) {
 }
 function deleteItem({ id, name }) {
   $q.dialog({
-    title: '删除助手',
-    message: `确定要删除助手「${name}」吗？`,
+    title: t('assistantList.deleteConfirmTitle'),
+    message: t('assistantList.deleteConfirmMessage', { name }),
     cancel: true,
     ok: {
-      label: '删除',
+      label: t('assistantList.delete'),
       color: 'err',
       flat: true
     },

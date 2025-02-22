@@ -3,9 +3,11 @@ import { BudgetBaseURL } from 'src/utils/config'
 import { db } from 'src/utils/db'
 import { OrderItem } from 'src/utils/types'
 import { Ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 export function useOrder(loading: Ref<boolean>, onDialogOK: (res) => void) {
   const $q = useQuasar()
+  const { t } = useI18n()
   async function order(item: OrderItem) {
     try {
       loading.value = true
@@ -29,7 +31,7 @@ export function useOrder(loading: Ref<boolean>, onDialogOK: (res) => void) {
     } catch (error) {
       console.error(error)
       $q.notify({
-        message: '下单失败',
+        message: t('order.failure'),
         color: 'negative'
       })
     } finally {

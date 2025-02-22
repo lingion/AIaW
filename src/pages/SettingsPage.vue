@@ -12,7 +12,7 @@
         @click="uiStateStore.mainDrawerOpen = !uiStateStore.mainDrawerOpen"
       />
       <q-toolbar-title>
-        设置
+        {{ $t('settingsPage.title') }}
       </q-toolbar-title>
     </q-toolbar>
   </q-header>
@@ -27,19 +27,19 @@
           header
           id="custom-provider"
         >
-          自定义服务商
+          {{ $t('settingsPage.customProviderHeader') }}
         </q-item-label>
         <provider-input-items v-model="perfs.provider" />
         <q-item v-if="perfs.provider">
           <q-item-section>
-            <q-item-label>分享链接</q-item-label>
+            <q-item-label>{{ $t('settingsPage.shareLinkLabel') }}</q-item-label>
             <q-item-label caption>
-              用于分享你的服务商设置。其他人打开链接后，会自动应用此设置
+              {{ $t('settingsPage.shareLinkCaption') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
             <copy-btn
-              label="复制链接"
+              :label="$t('settingsPage.copyLinkLabel')"
               :value="providerLink"
               flat
               text-pri
@@ -52,19 +52,21 @@
           text-on-sur-var
           v-if="!perfs.provider && user?.isLoggedIn && LitellmBaseURL"
         >
-          当前未配置自定义服务商，将默认使用我们提供的模型服务。详见<router-link
+          {{ $t('settingsPage.noProviderConfigured') }}
+          <router-link
             pri-link
             to="/account"
           >
-            账号
-          </router-link>页面
+            {{ $t('settingsPage.accountPage') }}
+          </router-link>
+          {{ $t('settingsPage.pageSuffix') }}
         </q-item-label>
         <q-separator spaced />
         <q-item-label
           header
           id="default-model"
         >
-          默认模型
+          {{ $t('settingsPage.defaultModelHeader') }}
         </q-item-label>
         <model-input-items v-model="perfs.model" />
         <q-separator spaced />
@@ -72,7 +74,7 @@
           header
           id="system-assistant"
         >
-          系统助手
+          {{ $t('settingsPage.systemAssistantHeader') }}
         </q-item-label>
         <provider-input-items v-model="perfs.systemProvider" />
         <model-input-items v-model="perfs.systemModel" />
@@ -81,20 +83,20 @@
           p="x-4 y-2"
           text-on-sur-var
         >
-          用于总结对话标题、提取 Artifacts。如果留空，则使用默认服务商设置
+          {{ $t('settingsPage.systemAssistantCaption') }}
         </q-item-label>
         <q-separator spaced />
         <q-item-label
           header
           id="operation"
         >
-          功能
+          {{ $t('settingsPage.operationHeader') }}
         </q-item-label>
         <q-item>
           <q-item-section>
-            <q-item-label>自动总结对话标题</q-item-label>
+            <q-item-label>{{ $t('settingsPage.autoSummarizeTitle') }}</q-item-label>
             <q-item-label caption>
-              在第一轮对话结束时，自动总结标题
+              {{ $t('settingsPage.autoSummarizeCaption') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -104,10 +106,10 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              消息选中文本菜单
+              {{ $t('settingsPage.messageSelectionMenu') }}
             </q-item-label>
             <q-item-label caption>
-              选中消息文本时，显示操作按钮
+              {{ $t('settingsPage.messageSelectionCaption') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -117,10 +119,10 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              代码粘贴优化
+              {{ $t('settingsPage.codePasteOptimize') }}
             </q-item-label>
             <q-item-label caption>
-              粘贴从 VSCode 复制的代码时，自动用 markdown 代码块包裹
+              {{ $t('settingsPage.codePasteCaption') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -130,10 +132,10 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              快速滚动按钮
+              {{ $t('settingsPage.quickScrollButton') }}
             </q-item-label>
             <q-item-label caption>
-              在对话右下角显示快速滚动按钮。关闭后，你仍然可以使用键盘快捷键滚动
+              {{ $t('settingsPage.quickScrollCaption') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -148,7 +150,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              自动聚焦对话输入框
+              {{ $t('settingsPage.autoFocusInput') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -163,7 +165,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              生成时自动锁定底部
+              {{ $t('settingsPage.autoLockBottom') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -173,21 +175,21 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              消息内容目录
+              {{ $t('settingsPage.messageContentCatalog') }}
             </q-item-label>
             <q-item-label caption>
-              空间足够时，在消息旁边显示目录
+              {{ $t('settingsPage.messageContentCatalogCaption') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-toggle v-model="perfs.messageCatalog" />
           </q-item-section>
         </q-item>
-        <q-expansion-item label="Artifacts 设置">
+        <q-expansion-item :label="$t('settingsPage.artifactsSettings')">
           <q-item>
             <q-item-section>
               <q-item-label>
-                启用 Artifacts 功能
+                {{ $t('settingsPage.enableArtifacts') }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -202,10 +204,10 @@
           <q-item>
             <q-item-section>
               <q-item-label>
-                自动提取 Artifact
+                {{ $t('settingsPage.autoExtractArtifact') }}
               </q-item-label>
               <q-item-label caption>
-                自动提取助手回答中的 Artifact
+                {{ $t('settingsPage.autoExtractArtifactCaption') }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -214,7 +216,7 @@
           </q-item>
           <q-item>
             <q-item-section>
-              提取时保留原文
+              {{ $t('settingsPage.reserveOriginalArtifact') }}
             </q-item-section>
             <q-item-section side>
               <q-toggle v-model="perfs.artifactsReserveOriginal" />
@@ -222,7 +224,7 @@
           </q-item>
           <q-item>
             <q-item-section>
-              默认自动命名 Artifact
+              {{ $t('settingsPage.autoNameArtifact') }}
             </q-item-section>
             <q-item-section side>
               <q-toggle v-model="perfs.artifactsAutoName" />
@@ -234,10 +236,10 @@
           header
           id="operation"
         >
-          操作
+          {{ $t('settingsPage.operationHeader') }}
         </q-item-label>
         <q-item>
-          <q-item-section>发送消息快捷键</q-item-section>
+          <q-item-section>{{ $t('settingsPage.sendKeyShortcut') }}</q-item-section>
           <q-item-section side>
             <q-select
               class="w-150px"
@@ -255,7 +257,7 @@
           v-ripple
           to="/shortcut-keys"
         >
-          <q-item-section>键盘快捷键</q-item-section>
+          <q-item-section>{{ $t('settingsPage.keyboardShortcuts') }}</q-item-section>
           <q-item-section side>
             <q-icon name="sym_o_chevron_right" />
           </q-item-section>
@@ -265,13 +267,13 @@
           header
           id="ui"
         >
-          界面
+          {{ $t('settingsPage.uiHeader') }}
         </q-item-label>
         <q-item>
           <q-item-section avatar>
             <q-icon name="sym_o_dark_mode" />
           </q-item-section>
-          <q-item-section>外观</q-item-section>
+          <q-item-section>{{ $t('settingsPage.appearance') }}</q-item-section>
           <q-item-section side>
             <q-select
               class="min-w-120px"
@@ -292,7 +294,7 @@
           <q-item-section avatar>
             <q-icon name="sym_o_palette" />
           </q-item-section>
-          <q-item-section>主题色</q-item-section>
+          <q-item-section>{{ $t('settingsPage.themeColor') }}</q-item-section>
           <q-item-section side>
             <hct-preview-circle
               :hue="perfs.themeHue"
@@ -308,7 +310,7 @@
           <q-item-section avatar>
             <q-icon name="sym_o_account_circle" />
           </q-item-section>
-          <q-item-section>用户头像</q-item-section>
+          <q-item-section>{{ $t('settingsPage.userAvatar') }}</q-item-section>
           <q-item-section
             side
             text-on-sur
@@ -325,16 +327,16 @@
           </q-item-section>
           <q-item-section>
             <q-item-label>
-              常用模型
+              {{ $t('settingsPage.commonModels') }}
             </q-item-label>
             <q-item-label caption>
-              用于在对话中快速切换模型。<a
+              {{ $t('settingsPage.commonModelsCaption') }}<a
                 v-if="provider?.type === 'openai'"
                 pri-link
                 href="javascript:void(0)"
                 @click="getModelList"
               >
-                获取模型列表
+                {{ $t('settingsPage.getModelList') }}
               </a>
             </q-item-label>
           </q-item-section>
@@ -369,25 +371,42 @@
           </q-item-section>
           <q-item-section>
             <q-item-label>
-              显示警告
+              {{ $t('settingsPage.showWarnings') }}
             </q-item-label>
             <q-item-label caption>
-              显示响应中的警告信息
+              {{ $t('settingsPage.showWarningsCaption') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-toggle v-model="perfs.showWarnings" />
           </q-item-section>
         </q-item>
+        <q-item>
+          <q-item-section avatar>
+            <q-icon name="sym_o_language" />
+          </q-item-section>
+          <q-item-section>{{ $t('settingsPage.language') }}</q-item-section>
+          <q-item-section side>
+            <q-select
+              filled
+              dense
+              :options="langOptions"
+              v-model="perfs.language"
+              emit-value
+              map-options
+              class="w-120px"
+            />
+          </q-item-section>
+        </q-item>
         <q-expansion-item
-          label="Markdown 渲染"
+          :label="$t('settingsPage.markdownRendering')"
           icon="sym_o_markdown"
           :content-inset-level="1"
         >
           <q-item>
             <q-item-section>
               <q-item-label>
-                主题
+                {{ $t('settingsPage.theme') }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -401,7 +420,7 @@
           </q-item>
           <q-item>
             <q-item-section>
-              代码主题
+              {{ $t('settingsPage.codeTheme') }}
             </q-item-section>
             <q-item-section side>
               <q-select
@@ -414,7 +433,7 @@
           </q-item>
           <q-item>
             <q-item-section>
-              禁用 Mermaid
+              {{ $t('settingsPage.disableMermaid') }}
             </q-item-section>
             <q-item-section side>
               <q-toggle v-model="perfs.mdNoMermaid" />
@@ -423,10 +442,10 @@
           <q-item>
             <q-item-section>
               <q-item-label>
-                代码自动折叠阈值
+                {{ $t('settingsPage.codeAutoFoldThreshold') }}
               </q-item-label>
               <q-item-label caption>
-                代码块超过此行数后，自动折叠。默认不折叠
+                {{ $t('settingsPage.codeAutoFoldThresholdCaption') }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -446,14 +465,14 @@
           header
           id="ui"
         >
-          数据
+          {{ $t('settingsPage.dataHeader') }}
         </q-item-label>
         <q-item>
           <q-item-section avatar>
             <q-icon name="sym_o_database" />
           </q-item-section>
           <q-item-section>
-            <q-item-label>用户数据</q-item-label>
+            <q-item-label>{{ $t('settingsPage.userData') }}</q-item-label>
           </q-item-section>
           <q-item-section side>
             <div
@@ -461,14 +480,14 @@
               gap-2
             >
               <q-btn
-                label="导出"
+                :label="$t('settingsPage.export')"
                 @click="exportData"
                 unelevated
                 bg-sec-c
                 text-on-sec-c
               />
               <q-btn
-                label="导入"
+                :label="$t('settingsPage.import')"
                 unelevated
                 bg-sec-c
                 text-on-sec-c
@@ -485,7 +504,7 @@
           <q-item-section avatar>
             <q-icon name="sym_o_restore" />
           </q-item-section>
-          <q-item-section>恢复默认设置</q-item-section>
+          <q-item-section>{{ $t('settingsPage.restoreDefaultSettings') }}</q-item-section>
           <q-item-section side>
             <q-icon name="sym_o_chevron_right" />
           </q-item-section>
@@ -519,13 +538,16 @@ import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
 import { useModel } from 'src/composables/model'
 import { exportDB } from 'dexie-export-import'
 import ImportDataDialog from 'src/components/ImportDataDialog.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const uiStateStore = useUiStateStore()
 const { perfs, restore } = useUserPerfsStore()
 const darkModeOptions = computed(() => [
-  { label: '跟随系统', value: 'auto' },
-  { label: '浅色', value: false },
-  { label: '深色', value: true }
+  { label: t('settingsPage.followSystem'), value: 'auto' },
+  { label: t('settingsPage.light'), value: false },
+  { label: t('settingsPage.dark'), value: true }
 ])
 
 const $q = useQuasar()
@@ -543,8 +565,8 @@ function pickUserAvatar() {
 }
 function restoreSettings() {
   $q.dialog({
-    title: '恢复默认设置',
-    message: '确定将所有设置恢复默认？',
+    title: t('settingsPage.restoreDefaultSettings'),
+    message: t('settingsPage.restoreSettingsConfirmation'),
     cancel: true,
     ...dialogOptions
   }).onOk(() => { restore() })
@@ -565,7 +587,7 @@ function getModelList() {
   }).then(res => res.json()).then(({ data }) => {
     const models = data.map(m => m.id).sort()
     $q.dialog({
-      title: '选择常用模型',
+      title: t('settingsPage.selectCommonModels'),
       options: {
         type: 'checkbox',
         model: models.filter(m => perfs.commonModelOptions.includes(m)),
@@ -579,7 +601,7 @@ function getModelList() {
   }).catch(err => {
     console.error(err)
     $q.notify({
-      message: '获取模型列表失败',
+      message: t('settingsPage.getModelListFailed'),
       color: 'negative'
     })
   })
@@ -591,7 +613,7 @@ function exportData() {
   }).catch(err => {
     console.error(err)
     $q.notify({
-      message: '导出失败',
+      message: t('settingsPage.exportFailed'),
       color: 'negative'
     })
   })
@@ -601,6 +623,12 @@ function importData() {
     component: ImportDataDialog
   })
 }
+const langOptions = computed(() => [
+  { label: t('settingsPage.auto'), value: null },
+  { label: 'English', value: 'en-US' },
+  { label: '简体中文', value: 'zh-CN' },
+  { label: '繁體中文', value: 'zh-TW' }
+])
 
 useLocateId(ref(true))
 </script>

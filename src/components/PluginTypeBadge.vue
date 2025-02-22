@@ -13,21 +13,24 @@
 <script setup lang="ts">
 import { Plugin } from 'src/utils/types'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   type: Plugin['type']
 }>()
 
+const { t } = useI18n()
+
 const label = computed(() => {
   switch (props.type) {
     case 'builtin':
-      return '内置'
+      return t('pluginTypeBadge.builtin')
     case 'lobechat':
-      return 'Lobe'
+      return t('pluginTypeBadge.lobechat')
     case 'gradio':
-      return 'Gradio'
+      return t('pluginTypeBadge.gradio')
     case 'mcp':
-      return 'MCP'
+      return t('pluginTypeBadge.mcp')
     default:
       return ''
   }

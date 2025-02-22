@@ -8,22 +8,22 @@
     >
       <q-input
         v-model="model.name"
-        label="变量名"
+        :label="$t('promptVarItem.variableName')"
         filled
         dense
         class="prompt-var-input-item"
       />
       <q-input
         v-model="model.label"
-        label="标签"
+        :label="$t('promptVarItem.label')"
         filled
         dense
         class="prompt-var-input-item"
       />
       <q-select
         v-model="model.type"
-        label="类型"
-        :options
+        :label="$t('promptVarItem.type')"
+        :options="options"
         map-options
         emit-value
         filled
@@ -33,7 +33,7 @@
       <q-select
         v-if="['select', 'multi-select'].includes(model.type)"
         v-model="model.options"
-        label="选项"
+        :label="$t('promptVarItem.options')"
         use-input
         use-chips
         multiple
@@ -45,7 +45,7 @@
         class="prompt-var-input-item"
       />
       <prompt-var-input
-        :prompt-var="{ ...model, label: '默认值' }"
+        :prompt-var="{ ...model, label: $t('promptVarItem.defaultValue') }"
         v-model="model.default"
         :input-props="{
           dense: true,
@@ -69,18 +69,20 @@
 <script setup lang="ts">
 import { PromptVar } from 'src/utils/types'
 import PromptVarInput from './PromptVarInput.vue'
+import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 
 const model = defineModel<PromptVar>()
 
 defineEmits(['remove'])
-
-const options = [
-  { label: '文本', value: 'text' },
-  { label: '数字', value: 'number' },
-  { label: '开关', value: 'toggle' },
-  { label: '选择', value: 'select' },
-  { label: '多选', value: 'multi-select' }
-]
+const { t } = useI18n()
+const options = computed(() => [
+  { label: t('promptVarItem.text'), value: 'text' },
+  { label: t('promptVarItem.number'), value: 'number' },
+  { label: t('promptVarItem.toggle'), value: 'toggle' },
+  { label: t('promptVarItem.select'), value: 'select' },
+  { label: t('promptVarItem.multiSelect'), value: 'multi-select' }
+])
 </script>
 <style lang="scss">
 .prompt-var-input-item {

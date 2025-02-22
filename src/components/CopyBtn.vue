@@ -2,12 +2,15 @@
   <q-btn
     :icon="icon"
     @click="copy"
-    title="复制"
+    :title="$t('copyBtn.title')"
   />
 </template>
 <script setup>
 import { copyToClipboard, Notify } from 'quasar'
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
   value: {
@@ -26,7 +29,7 @@ function copy() {
     }, 2000)
   }).catch(() => {
     Notify.create({
-      message: '复制失败',
+      message: t('copyBtn.copyFailed'),
       color: 'negative'
     })
   })

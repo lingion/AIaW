@@ -3,9 +3,12 @@ import { genId } from 'src/utils/functions'
 import { Dialog, Workspace } from 'src/utils/types'
 import { Ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 export function useCreateDialog(workspace: Ref<Workspace>) {
   const router = useRouter()
+  const { t } = useI18n()
+
   async function createDialog(props: Partial<Dialog> = {}) {
     const id = genId()
     const messageId = genId()
@@ -13,7 +16,7 @@ export function useCreateDialog(workspace: Ref<Workspace>) {
       db.dialogs.add({
         id,
         workspaceId: workspace.value.id,
-        name: '新对话',
+        name: t('createDialog.newDialog'),
         msgTree: { $root: [messageId], [messageId]: [] },
         msgRoute: [],
         assistantId: workspace.value.defaultAssistantId,

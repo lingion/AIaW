@@ -5,6 +5,7 @@ import { useUserDataStore } from 'src/stores/user-data'
 import { DexieDBURL } from 'src/utils/config'
 import { db } from 'src/utils/db'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 export function useSubscriptionNotify() {
   if (!DexieDBURL) return
@@ -13,6 +14,7 @@ export function useSubscriptionNotify() {
   const $q = useQuasar()
   const store = useUserDataStore()
   const { data } = store
+  const { t } = useI18n()
   function subscribe() {
     router.push('/account')
   }
@@ -22,10 +24,10 @@ export function useSubscriptionNotify() {
       if (user.value.license.evalDaysLeft <= 0) {
         if (data.evalExpiredNotified) return
         $q.notify({
-          message: '云同步试用已过期，可选择订阅',
+          message: t('subscriptionNotify.evalExpired'),
           color: 'negative',
           actions: [{
-            label: '订阅',
+            label: t('firstVisit.ok'),
             handler: subscribe,
             textColor: 'on-err'
           }]
@@ -33,11 +35,11 @@ export function useSubscriptionNotify() {
         data.evalExpiredNotified = true
       } else if (user.value.license.evalDaysLeft <= 1) {
         $q.notify({
-          message: '云同步试用即将过期，可选择订阅',
+          message: t('subscriptionNotify.evalExpiring'),
           color: 'inv-sur',
           textColor: 'inv-on-sur',
           actions: [{
-            label: '订阅',
+            label: t('firstVisit.subscribe'),
             handler: subscribe,
             textColor: 'inv-pri'
           }]
@@ -48,10 +50,10 @@ export function useSubscriptionNotify() {
       if (validUntil < new Date()) {
         if (data.prodExpiredNotifiedTimestamp === validUntil.getTime()) return
         $q.notify({
-          message: '您的云同步订阅已过期',
+          message: t('subscriptionNotify.prodExpired'),
           color: 'negative',
           actions: [{
-            label: '续订',
+            label: t('firstVisit.renewal'),
             handler: subscribe,
             textColor: 'on-err'
           }]
@@ -59,11 +61,11 @@ export function useSubscriptionNotify() {
         data.prodExpiredNotifiedTimestamp = validUntil.getTime()
       } else if (validUntil.getTime() - Date.now() <= 1000 * 60 * 60 * 24 * 2) {
         $q.notify({
-          message: '您的云同步订阅即将过期',
+          message: t('subscriptionNotify.prodExpiring'),
           color: 'inv-sur',
           textColor: 'inv-on-sur',
           actions: [{
-            label: '续订',
+            label: t('firstVisit.renewal'),
             handler: subscribe,
             textColor: 'inv-pri'
           }]

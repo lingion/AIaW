@@ -1,6 +1,6 @@
 <template>
   <q-btn
-    :label="store.availableIds.includes(id) ? '已安装' : '安装'"
+    :label="store.availableIds.includes(id) ? $t('installPluginBtn.installed') : $t('installPluginBtn.install')"
     :disable="store.availableIds.includes(id)"
     :loading
     @click="installIt"
@@ -13,6 +13,9 @@ import { useInstallPlugin } from 'src/composables/install-plugin'
 import { usePluginsStore } from 'src/stores/plugins'
 import { PluginManifest } from 'src/utils/types'
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   id: string
@@ -28,7 +31,7 @@ function installIt() {
   install(props.manifest).catch(err => {
     console.error(err)
     $q.notify({
-      message: `安装失败：${err.message}`,
+      message: `${t('installPluginBtn.installFailed')}${err.message}`,
       color: 'negative'
     })
   }).finally(() => {

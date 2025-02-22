@@ -9,7 +9,7 @@
     v-model="drawerOpen"
   >
     <q-expansion-item
-      label="已安装插件"
+      :label="$t('pluginsPage.installedPlugins')"
       header-class="text-lg"
       default-opened
     >

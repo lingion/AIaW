@@ -6,7 +6,7 @@
     <q-card min-w="320px">
       <q-card-section>
         <div class="text-h6">
-          模型服务充值
+          {{ $t('topupDialog.title') }}
         </div>
       </q-card-section>
       <q-card-section p-0>
@@ -14,10 +14,10 @@
           <q-item>
             <q-item-section>
               <q-item-label>
-                充值额度（元）
+                {{ $t('topupDialog.amount') }}
               </q-item-label>
               <q-item-label caption>
-                请输入 1 到 999 之间的整数
+                {{ $t('topupDialog.amountCaption') }}
               </q-item-label>
             </q-item-section>
             <q-item-section side>
@@ -30,7 +30,7 @@
           </q-item>
           <q-item>
             <q-item-section>
-              应付金额
+              {{ $t('topupDialog.payableAmount') }}
             </q-item-section>
             <q-item-section side>
               ￥{{ valid ? amount : '-' }}
@@ -38,10 +38,10 @@
           </q-item>
           <q-item>
             <q-item-section>
-              支付方式
+              {{ $t('topupDialog.paymentMethod') }}
             </q-item-section>
             <q-item-section side>
-              目前仅支持支付宝
+              {{ $t('topupDialog.alipayOnly') }}
             </q-item-section>
           </q-item>
         </q-list>
@@ -50,13 +50,13 @@
         <q-btn
           flat
           color="primary"
-          label="取消"
+          :label="$t('topupDialog.cancel')"
           @click="onDialogCancel"
         />
         <q-btn
           flat
           color="primary"
-          label="下单"
+          :label="$t('topupDialog.order')"
           :loading
           :disable="!valid"
           @click="order({ type: 'api-budget', amount })"

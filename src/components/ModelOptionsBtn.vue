@@ -1,7 +1,7 @@
 <template>
   <q-btn
     icon="sym_o_page_info"
-    title="模型选项"
+    :title="$t('modelOptionsBtn.modelOptions')"
     v-if="schema"
   >
     <q-menu
@@ -25,6 +25,9 @@
 import { Boolean as TBoolean, Object as TObject, Optional, Unsafe } from '@sinclair/typebox'
 import { computed, watch } from 'vue'
 import JsonInput from './JsonInput.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   providerType: string
@@ -37,7 +40,7 @@ const rules = [{
   },
   options: {
     reasoningEffort: Optional(Unsafe({
-      title: '推理力度',
+      title: t('modelOptionsBtn.reasoningEffort'),
       type: 'string',
       enum: ['low', 'medium', 'high']
     }))
@@ -47,7 +50,7 @@ const rules = [{
     return provider === 'google' && /^gemini-2\.0-(flash|pro)(-(exp|latest|00\d))?$/.test(model)
   },
   options: {
-    useSearchGrounding: Optional(TBoolean({ title: '使用搜索' }))
+    useSearchGrounding: Optional(TBoolean({ title: t('modelOptionsBtn.useSearchGrounding') }))
   }
 }]
 

@@ -45,7 +45,7 @@
         >
           <md-preview
             v-if="content.type === 'assistant-message' && content.reasoning"
-            :model-value="`\`\`\`思考内容\n${content.reasoning}\n\`\`\``"
+            :model-value="`\`\`\`${$t('messageItem.reasoningContent')}\n${content.reasoning}\n\`\`\``"
             v-bind="mdPreviewProps"
             @on-html-changed="onHtmlChanged(false)"
             class="content-reasoning"
@@ -82,7 +82,7 @@
               >
                 <q-btn
                   icon="sym_o_format_quote"
-                  label="引用"
+                  :label="$t('messageItem.quote')"
                   @click="quote(selected.text)"
                   no-caps
                   sm-icon
@@ -91,9 +91,9 @@
                   <q-separator vertical />
                   <q-btn
                     icon="sym_o_content_copy"
-                    label="Markdown"
+                    :label="$t('messageItem.copyMarkdown')"
                     @click="copyToClipboard(selected.text)"
-                    title="复制原 Markdown 文本"
+                    :title="$t('messageItem.copyMarkdown')"
                     no-caps
                     sm-icon
                   />
@@ -101,8 +101,8 @@
                     <q-separator vertical />
                     <q-btn
                       icon="sym_o_convert_to_text"
-                      label="Artifact"
-                      title="转换为 Artifact"
+                      :label="$t('messageItem.convertToArtifact')"
+                      :title="$t('messageItem.convertToArtifactTitle')"
                       @click="selectedConvertArtifact"
                       no-caps
                       sm-icon
@@ -204,7 +204,7 @@
           flat
           dense
           ml-1
-          title="重新生成"
+          :title="$t('messageItem.regenerate')"
           @click="$emit('regenerate')"
         />
         <q-btn
@@ -214,7 +214,7 @@
           flat
           dense
           ml-1
-          title="修改"
+          :title="$t('messageItem.edit')"
           @click="$emit('edit')"
         />
         <q-btn
@@ -223,29 +223,29 @@
           flat
           dense
           ml-1
-          title="更多"
+          :title="$t('messageItem.more')"
         >
           <q-menu>
             <q-list>
               <menu-item
                 icon="sym_o_code"
-                label="显示源代码"
+                :label="$t('messageItem.showSourceCode')"
                 @click="sourceCodeMode = !sourceCodeMode"
                 :class="{ 'route-active': sourceCodeMode }"
               />
               <menu-item
                 icon="sym_o_edit"
-                label="直接编辑"
+                :label="$t('messageItem.directEdit')"
                 @click="edit"
               />
               <menu-item
                 icon="sym_o_format_quote"
-                label="引用"
+                :label="$t('messageItem.quote')"
                 @click="quote(textContent.text)"
               />
               <menu-item
                 icon="sym_o_info"
-                label="更多信息"
+                :label="$t('messageItem.moreInfo')"
                 @click="moreInfo"
               />
             </q-list>
@@ -302,6 +302,7 @@ import MessageInfoDialog from './MessageInfoDialog.vue'
 import TextareaDialog from './TextareaDialog.vue'
 import { useMdPreviewProps } from 'src/composables/md-preview-props'
 import ConvertArtifactDialog from './ConvertArtifactDialog.vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   message: Message,
@@ -442,7 +443,7 @@ if (perfs.messageSelectionBtn) {
   onUnmounted(() => document.removeEventListener('selectionchange', listener))
 }
 function quote(text: string) {
-  const name = props.message.type === 'assistant' ? '助手消息引用' : '用户消息引用'
+  const name = props.message.type === 'assistant' ? t('messageItem.assistantMessageQuote') : t('messageItem.userMessageQuote')
   emit('quote', {
     type: 'quote',
     name: `${name}：${textBeginning(text, 10)}`,
@@ -453,7 +454,7 @@ function edit() {
   $q.dialog({
     component: TextareaDialog,
     componentProps: {
-      title: '编辑消息',
+      title: t('messageItem.editMessage'),
       model: textContent.value.text
     }
   }).onOk(text => {
@@ -511,13 +512,14 @@ function injectConvertArtifact() {
       const pattern = new RegExp(`\`{3,}.*\\n${escapeRegex(text)}\\s*\`{3,}`, 'g')
       convertArtifact(text, pattern, lang)
     })
-    btn.title = '转换为 Artifact'
+    btn.title = t('messageItem.convertToArtifactBtn')
     code.querySelector('.md-editor-code-action').insertBefore(btn, anchor)
-    code.querySelector<HTMLElement>('.md-editor-copy-button').title = '复制代码'
-    code.querySelector<HTMLElement>('.md-editor-collapse-tips').title = '折叠'
+    code.querySelector<HTMLElement>('.md-editor-copy-button').title = t('messageItem.copyCode')
+    code.querySelector<HTMLElement>('.md-editor-collapse-tips').title = t('messageItem.fold')
   })
 }
 const mdPreviewProps = useMdPreviewProps()
+const { t } = useI18n()
 </script>
 
 <style lang="scss">

@@ -6,14 +6,14 @@
     <q-card style="width: min(90vw, 400px)">
       <q-card-section>
         <div class="text-h6">
-          选取颜色
+          {{ $t('hueSliderDialog.title') }}
         </div>
       </q-card-section>
       <q-card-section py-0>
         <div flex>
           <q-input
             type="number"
-            label="Hue"
+            :label="$t('hueSliderDialog.hue')"
             v-model.number="model"
             class="grow"
             @keyup.enter="onDialogOK(model)"
@@ -32,13 +32,13 @@
         <q-btn
           flat
           color="primary"
-          label="取消"
+          :label="$t('hueSliderDialog.cancel')"
           @click="onDialogCancel"
         />
         <q-btn
           flat
           color="primary"
-          label="确定"
+          :label="$t('hueSliderDialog.ok')"
           @click="onDialogOK(model)"
         />
       </q-card-actions>

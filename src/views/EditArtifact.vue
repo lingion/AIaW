@@ -46,7 +46,7 @@
       <q-input
         :model-value="artifact.language"
         @update:model-value="update({ language: $event as string })"
-        label="语言"
+        :label="$t('editArtifact.language')"
         outlined
         dense
         class="w-120px"
@@ -55,7 +55,7 @@
     <q-btn
       v-if="mode === 'view'"
       icon="sym_o_edit"
-      title="编辑"
+      :title="$t('editArtifact.edit')"
       @click="mode = 'edit'"
       flat
       dense
@@ -64,7 +64,7 @@
     <q-btn
       v-if="viewable && mode === 'edit'"
       icon="sym_o_preview"
-      title="预览"
+      :title="$t('editArtifact.preview')"
       @click="mode = 'view'"
       flat
       dense
@@ -73,7 +73,7 @@
     <div>
       <q-checkbox
         ml-2
-        label="可读"
+        :label="$t('editArtifact.readable')"
         :model-value="artifact.readable"
         @update:model-value="update({ readable: $event })"
         dense
@@ -82,7 +82,7 @@
       <q-checkbox
         mt-2
         ml-2
-        label="可写"
+        :label="$t('editArtifact.writable')"
         :model-value="artifact.writable"
         @update:model-value="update({ writable: $event })"
         dense

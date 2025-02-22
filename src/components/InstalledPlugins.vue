@@ -33,7 +33,7 @@
           dense
           round
           icon="sym_o_delete"
-          title="卸载"
+          :title="t('installedPlugins.uninstall')"
           v-if="plugin.type !== 'builtin'"
           @click.prevent.stop="deleteItem(plugin)"
         />
@@ -47,6 +47,9 @@ import { useQuasar } from 'quasar'
 import AAvatar from './AAvatar.vue'
 import { usePluginsStore } from 'src/stores/plugins'
 import PluginTypeBadge from 'src/components/PluginTypeBadge.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const pluginsStore = usePluginsStore()
 const { data } = pluginsStore
@@ -55,11 +58,11 @@ const $q = useQuasar()
 
 function deleteItem(plugin) {
   $q.dialog({
-    title: '卸载插件',
-    message: `确定要卸载插件「${plugin.title}」吗？`,
+    title: t('installedPlugins.uninstallPlugin'),
+    message: t('installedPlugins.uninstallConfirm', { title: plugin.title }),
     cancel: true,
     ok: {
-      label: '卸载',
+      label: t('installedPlugins.uninstall'),
       color: 'err',
       flat: true
     }

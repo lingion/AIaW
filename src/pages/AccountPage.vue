@@ -12,7 +12,7 @@
         @click="uiStateStore.mainDrawerOpen = !uiStateStore.mainDrawerOpen"
       />
       <q-toolbar-title>
-        账号
+        {{ $t('accountPage.accountTitle') }}
       </q-toolbar-title>
     </q-toolbar>
   </q-header>
@@ -25,11 +25,11 @@
         mx-a
       >
         <q-item-label header>
-          信息
+          {{ $t('accountPage.infoHeader') }}
         </q-item-label>
         <q-item>
           <q-item-section>
-            电子邮箱
+            {{ $t('accountPage.emailLabel') }}
           </q-item-section>
           <q-item-section side>
             {{ user.email }}
@@ -37,19 +37,19 @@
         </q-item>
         <q-separator spaced />
         <q-item-label header>
-          云同步
+          {{ $t('accountPage.cloudSyncHeader') }}
         </q-item-label>
         <q-item>
           <q-item-section>
             <q-item-label caption>
-              跨设备实时云同步服务，能够同步工作区、对话、助手、设置、插件等所有数据。<span v-if="SyncServicePrice">价格为{{ SyncServicePrice }}元/月</span>
+              {{ $t('accountPage.cloudSyncDescription') }}<span v-if="SyncServicePrice">{{ $t('accountPage.cloudSyncPrice', { price: SyncServicePrice }) }}</span>
             </q-item-label>
           </q-item-section>
         </q-item>
         <q-item>
           <q-item-section>
             <q-item-label>
-              状态
+              {{ $t('accountPage.statusLabel') }}
             </q-item-label>
             <q-item-label caption>
               {{ licenseStatus }}
@@ -59,17 +59,17 @@
         <q-item v-if="user.license.type === 'eval'">
           <q-item-section>
             <q-item-label>
-              试用中
+              {{ $t('accountPage.evalLabel') }}
             </q-item-label>
             <q-item-label caption>
-              剩余试用天数：{{ user.license.evalDaysLeft }}
+              {{ $t('accountPage.evalDaysLeft', { days: user.license.evalDaysLeft }) }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
             <q-btn
               v-if="BudgetBaseURL"
               unelevated
-              label="订阅"
+              :label="$t('accountPage.subscribeButton')"
               bg-pri-c
               text-on-pri-c
               @click="subscribeDialog"
@@ -79,10 +79,10 @@
         <q-item v-else-if="user.license.type === 'prod'">
           <q-item-section>
             <q-item-label>
-              已订阅
+              {{ $t('accountPage.subscribedLabel') }}
             </q-item-label>
             <q-item-label caption>
-              有效期至 {{ user.license.validUntil.toLocaleString() }}
+              {{ $t('accountPage.validUntil', { date: user.license.validUntil.toLocaleString() }) }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -90,7 +90,7 @@
               unelevated
               bg-pri-c
               text-on-pri-c
-              label="续订"
+              :label="$t('accountPage.renewButton')"
               @click="subscribeDialog"
             />
           </q-item-section>
@@ -98,7 +98,7 @@
         <template v-if="LitellmBaseURL">
           <q-separator spaced />
           <q-item-label header>
-            模型服务
+            {{ $t('accountPage.modelServicesHeader') }}
           </q-item-label>
           <q-item>
             <q-item-section>
@@ -106,11 +106,12 @@
                 caption
                 important:lh="1.5em"
               >
-                一站式地使用不同服务商的各种先进模型，包括 gpt-4o、claude-3-5-sonnet、o1-mini 等，无需配置。额度随用随充，永久有效。按照官方API原价扣费（按USD/CNY=7计算）。<router-link
+                {{ $t('accountPage.modelServicesDescription') }}
+                <router-link
                   to="/model-pricing"
                   pri-link
                 >
-                  模型价格
+                  {{ $t('accountPage.modelPricingLink') }}
                 </router-link>
               </q-item-label>
             </q-item-section>
@@ -118,17 +119,17 @@
           <q-item>
             <q-item-section>
               <q-item-label>
-                状态
+                {{ $t('accountPage.statusLabel') }}
               </q-item-label>
               <q-item-label caption>
-                {{ !perfs.provider && user.isLoggedIn ? '正在使用（作为全局默认服务商）' : '未使用（已配置全局自定义服务商）' }}
+                {{ !perfs.provider && user.isLoggedIn ? $t('accountPage.usingDefaultService') : $t('accountPage.customService') }}
               </q-item-label>
             </q-item-section>
           </q-item>
           <q-item>
             <q-item-section>
               <q-item-label>
-                剩余额度
+                {{ $t('accountPage.remainingBudget') }}
               </q-item-label>
               <q-item-label caption>
                 <span v-if="llmBalance">￥{{ llmBalance }}</span>
@@ -141,7 +142,7 @@
                 unelevated
                 bg-pri-c
                 text-on-pri-c
-                label="充值"
+                :label="$t('accountPage.topupButton')"
                 @click="topupDialog"
               />
             </q-item-section>
@@ -150,7 +151,7 @@
         <template v-if="user.data.orderHistory?.length">
           <q-separator spaced />
           <q-item-label header>
-            历史订单
+            {{ $t('accountPage.orderHistoryHeader') }}
           </q-item-label>
           <q-table
             flat
@@ -168,7 +169,7 @@
           p="x-4 y-2"
           v-if="BudgetBaseURL"
         >
-          若订单遇到异常，请联系开发者，Email：<a
+          {{ $t('accountPage.contactDeveloper') }}<a
             href="mailto:i@krytro.com"
             pri-link
           >
@@ -185,7 +186,7 @@
             <q-icon name="sym_o_logout" />
           </q-item-section>
           <q-item-section>
-            退出登录
+            {{ $t('accountPage.logoutButton') }}
           </q-item-section>
         </q-item>
       </q-list>
@@ -206,6 +207,9 @@ import { useRouter } from 'vue-router'
 import PayDialog from 'src/components/PayDialog.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { pageFhStyle } from 'src/utils/functions'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const user = useObservable(db.cloud.currentUser)
 const router = useRouter()
@@ -219,10 +223,10 @@ db.on('ready', () => {
 })
 const licenseStatus = computed(() => {
   switch (user.value.license.status) {
-    case 'ok': return '已启用'
-    case 'expired': return '已过期'
-    case 'deactivated': return '已停用'
-    default: return '未知'
+    case 'ok': return t('accountPage.licenseOk')
+    case 'expired': return t('accountPage.licenseExpired')
+    case 'deactivated': return t('accountPage.licenseDeactivated')
+    default: return t('accountPage.licenseUnknown')
   }
 })
 const uiStateStore = useUiStateStore()
@@ -276,14 +280,14 @@ async function refreshLlmBalance() {
 }
 
 const itemTypes = {
-  'sync-service': '云同步服务',
-  'api-budget': '模型额度'
+  'sync-service': t('accountPage.syncServiceType'),
+  'api-budget': t('accountPage.apiBudgetType')
 }
 const orderHistoryColumns = [
-  { name: 'orderId', label: '订单号', field: 'orderId', align: 'left' as const },
-  { name: 'createdAt', label: '支付时间', field: 'timestamp', format: (val: string) => new Date(val).toLocaleString() },
-  { name: 'type', label: '类型', field: row => row.item.type, format: val => itemTypes[val] },
-  { name: 'amount', label: '数量', field: row => row.item.amount }
+  { name: 'orderId', label: t('accountPage.orderId'), field: 'orderId', align: 'left' as const },
+  { name: 'createdAt', label: t('accountPage.paymentTime'), field: 'timestamp', format: (val: string) => new Date(val).toLocaleString() },
+  { name: 'type', label: t('accountPage.orderType'), field: row => row.item.type, format: val => itemTypes[val] },
+  { name: 'amount', label: t('accountPage.amount'), field: row => row.item.amount }
 ]
 
 const { perfs } = useUserPerfsStore()
