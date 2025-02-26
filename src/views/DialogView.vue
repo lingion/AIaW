@@ -276,6 +276,7 @@
             :class="{ 'text-ter': showVars }"
           />
           <model-options-btn
+            v-if="provider"
             :provider-type="provider.type"
             :model-name="model.name"
             v-model="modelOptions"

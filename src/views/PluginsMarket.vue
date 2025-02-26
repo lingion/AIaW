@@ -118,24 +118,30 @@ import AddMcpPluginDialog from 'src/components/AddMcpPluginDialog.vue'
 import { useInstallPlugin } from 'src/composables/install-plugin'
 import InstallPluginBtn from 'src/components/InstallPluginBtn.vue'
 import { useI18n } from 'vue-i18n'
+import { clipboardReadText, IsTauri } from 'src/utils/platform-api'
 
 defineEmits(['toggle-drawer'])
 
 const query = ref('')
 const list = reactive([])
 
-const filterList = computed(() =>
-  query.value
-    ? list.filter(item => caselessIncludes(item.title, query.value) || caselessIncludes(item.description, query.value))
-    : list
-)
+const filterList = computed(() => {
+  let res = list
+  if (query.value) {
+    res = res.filter(
+      item => caselessIncludes(item.title, query.value) || caselessIncludes(item.description, query.value)
+    )
+  }
+  if (!IsTauri) res = res.filter(item => item.type !== 'mcp')
+  return res
+})
 
 const $q = useQuasar()
 const loading = ref(false)
-const { t } = useI18n()
+const { t, locale } = useI18n()
 function load() {
   loading.value = true
-  fetch('/plugins.json')
+  fetch(`/plugins/index.${locale.value}.json`)
     .then(res => res.json())
     .then(data => {
       list.push(...data)
@@ -165,7 +171,7 @@ async function onFileInput() {
   await install(await file.text())
 }
 async function clipboardImport() {
-  await install(await navigator.clipboard.readText())
+  await install(await clipboardReadText())
 }
 
 function addMcpPlugin() {

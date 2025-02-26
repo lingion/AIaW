@@ -5,10 +5,9 @@
       @update:model-value="goTo($event)"
       accept="workspace"
     />
-    <div>
+    <div mt-2>
       <q-btn
         ml-2
-        mt-1
         color="secondary"
         :label="$t('workspaceNav.workspace')"
         icon="sym_o_add"
@@ -17,8 +16,7 @@
         @click="addWorkspace()"
       />
       <q-btn
-        ml-2
-        mt-1
+        ml-1
         color="secondary"
         :label="$t('workspaceNav.folder')"
         icon="sym_o_create_new_folder"

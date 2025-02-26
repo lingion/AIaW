@@ -1,0 +1,76 @@
+name: Build Android
+run-name: Creating Production Ready Android App 🚀
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    name: Build APK
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "21"
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.14.0'
+
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 10
+          run_install: false
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build frontend
+        run: pnpm build
+
+      - name: Add android folder if not present
+        run: if [ ! -d "./android" ]; then npx cap add android; fi
+
+      - name: Capacitor sync
+        run: npx cap sync
+
+      - name: Extract Android signing key from env
+        run: |
+          echo "${{ secrets.RELEASE_KEYSTORE }}" > android/release.jks.base64
+          base64 -d android/release.jks.base64 > android/release.decrypted.jks
+
+      - name: Build app bundle
+        run: npx cap build android --keystorepath android/release.decrypted.jks --keystorepass "${{ secrets.KEYSTORE_PASSWORD }}" --keystorealias "${{ secrets.KEYSTORE_ALIAS }}" --keystorealiaspass "${{ secrets.KEYSTORE_ALIAS_PASSWORD }}"
+
+      - name: Check folder content of android output
+        run: ls ./android/app/build/outputs/bundle/release
+
+      # - name: Upload an Asset in GitHub Release
+      #   uses: "actions/github-script@v6"
+      #   with:
+      #     github-token: "${{ secrets.GITHUB_TOKEN }}"
+      #     script: |
+      #       const fs = require('fs').promises;
+      #       await github.rest.repos.uploadReleaseAsset({
+      #         name: 'AIaW_v${{ github.ref_name }}.apk',
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         release_id: ${{ env.RELEASE_ID }},
+      #         data: await fs.readFile('./android/app/build/outputs/bundle/release/app-release.apk')
+      #       });

@@ -4,14 +4,15 @@ import { db } from 'src/utils/db'
 import { genId } from 'src/utils/functions'
 import { Folder, Workspace } from 'src/utils/types'
 import { DefaultWsIndexContent } from 'src/utils/templates'
+import { useI18n } from 'vue-i18n'
 
 export const useWorkspacesStore = defineStore('workspaces', () => {
   const workspaces = useLiveQuery(() => db.workspaces.toArray(), { initialValue: [] as Workspace[] })
-
+  const { t } = useI18n()
   async function addWorkspace(props: Partial<Workspace>) {
     return await db.workspaces.add({
       id: genId(),
-      name: '新工作区',
+      name: t('stores.workspaces.newWorkspace'),
       avatar: { type: 'icon', icon: 'sym_o_deployed_code' },
       type: 'workspace',
       parentId: '$root',
@@ -30,7 +31,7 @@ export const useWorkspacesStore = defineStore('workspaces', () => {
   async function addFolder(props: Partial<Folder>) {
     return await db.workspaces.add({
       id: genId(),
-      name: '新文件夹',
+      name: t('stores.workspaces.newFolder'),
       avatar: { type: 'icon', icon: 'sym_o_folder' },
       type: 'folder',
       parentId: '$root',

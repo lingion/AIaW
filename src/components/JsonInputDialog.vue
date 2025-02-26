@@ -21,13 +21,13 @@
         <q-btn
           flat
           color="primary"
-          label="取消"
+          :label="$t('jsonInputDialog.cancel')"
           @click="onDialogCancel"
         />
         <q-btn
           flat
           color="primary"
-          label="确定"
+          :label="$t('jsonInputDialog.ok')"
           :disable="!valid"
           @click="onDialogOK(value)"
         />

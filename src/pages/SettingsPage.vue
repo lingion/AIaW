@@ -391,7 +391,7 @@
               filled
               dense
               :options="langOptions"
-              v-model="perfs.language"
+              v-model="localData.language"
               emit-value
               map-options
               class="w-120px"
@@ -539,16 +539,18 @@ import { useModel } from 'src/composables/model'
 import { exportDB } from 'dexie-export-import'
 import ImportDataDialog from 'src/components/ImportDataDialog.vue'
 import { useI18n } from 'vue-i18n'
+import { localData } from 'src/utils/local-data'
+import { fetch, PublicOrigin } from 'src/utils/platform-api'
 
 const { t } = useI18n()
 
 const uiStateStore = useUiStateStore()
 const { perfs, restore } = useUserPerfsStore()
-const darkModeOptions = computed(() => [
+const darkModeOptions = [
   { label: t('settingsPage.followSystem'), value: 'auto' },
   { label: t('settingsPage.light'), value: false },
   { label: t('settingsPage.dark'), value: true }
-])
+]
 
 const $q = useQuasar()
 function pickThemeHue() {
@@ -573,7 +575,7 @@ function restoreSettings() {
 }
 const providerLink = computed(() => {
   const provider = encodeURIComponent(JSON.stringify(perfs.provider))
-  return `${location.origin}/set-provider?provider=${provider}`
+  return `${PublicOrigin}/set-provider?provider=${provider}`
 })
 const user = DexieDBURL ? useObservable(db.cloud.currentUser) : null
 const { filteredOptions, filterFn } = useFilterOptions(modelOptions)
@@ -623,12 +625,12 @@ function importData() {
     component: ImportDataDialog
   })
 }
-const langOptions = computed(() => [
+const langOptions = [
   { label: t('settingsPage.auto'), value: null },
   { label: 'English', value: 'en-US' },
   { label: '简体中文', value: 'zh-CN' },
   { label: '繁體中文', value: 'zh-TW' }
-])
+]
 
 useLocateId(ref(true))
 </script>

@@ -8,6 +8,8 @@ import { buildLobePlugin, timePlugin, defaultData, whisperPlugin, videoTranscrip
 import { computed } from 'vue'
 import { genId } from 'src/utils/functions'
 import artifacts from 'src/utils/artifacts-plugin'
+import { IsTauri } from 'src/utils/platform-api'
+import { useI18n } from 'vue-i18n'
 
 export const usePluginsStore = defineStore('plugins', () => {
   const installed = useLiveQuery(() => db.installedPluginsV2.toArray(), {
@@ -68,17 +70,23 @@ export const usePluginsStore = defineStore('plugins', () => {
     await installGradioPlugin(huggingToGradio(manifest))
   }
 
+  const { t } = useI18n()
   async function installMcpPlugin(manifest: McpPluginManifest) {
+    if (manifest.transport.type === 'stdio' && !IsTauri) throw new Error(t('stores.plugins.stdioRequireDesktop'))
     const dump = await dumpMcpPlugin(manifest)
-    console.log(dump)
     await db.transaction('rw', db.installedPluginsV2, db.reactives, async () => {
-      await db.installedPluginsV2.put({
-        id: manifest.id,
-        key: genId(),
-        type: 'mcp',
-        available: true,
-        manifest: dump
-      })
+      const plugin = await db.installedPluginsV2.where('id').equals(manifest.id).first()
+      if (plugin) {
+        await db.installedPluginsV2.update(plugin.key, { type: 'mcp', available: true, manifest: dump })
+      } else {
+        await db.installedPluginsV2.add({
+          id: manifest.id,
+          key: genId(),
+          type: 'mcp',
+          available: true,
+          manifest: dump
+        })
+      }
       await db.reactives.update('#plugins-data', {
         [`value.${manifest.id}`]: mcpDefaultData(manifest)
       })

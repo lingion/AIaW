@@ -60,6 +60,7 @@
           "url": "https://*"
         }
       ]
-    }
+    },
+    "clipboard-manager:allow-read-text"
   ]
 }

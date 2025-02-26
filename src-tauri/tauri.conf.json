@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "AI as Workspace",
-  "version": "0.1.0",
+  "version": "1.4.0",
   "identifier": "app.aiaw",
   "build": {
     "frontendDist": "../dist/spa",
@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "AI as Workspace",
-        "width": 1200,
-        "height": 800,
+        "width": 1150,
+        "height": 750,
         "resizable": true,
         "fullscreen": false,
         "maximized": true
@@ -39,8 +39,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQzMjBDOEQzQTI3MkRCQzQKUldURTIzS2kwOGdnMDBmK21MaU1vcTVDalhvTFlPamxveE0wbG1UdFNiM3NYdGtyaUtVSGR6TmkK",
       "endpoints": [
-        "https://releases.myapp.com/{{target}}/{{arch}}/{{current_version}}",
-        "https://github.com/user/repo/releases/latest/download/latest.json"
+        "https://github.com/NitroRCr/AIaW/releases/latest/download/latest.json"
       ]
     }
   }

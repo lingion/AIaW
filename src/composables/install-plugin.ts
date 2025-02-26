@@ -4,6 +4,7 @@ import { Validator } from '@cfworker/json-schema'
 import { toRaw } from 'vue'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
+import { fetch } from 'src/utils/platform-api'
 
 export function useInstallPlugin() {
   const store = usePluginsStore()
@@ -18,7 +19,7 @@ export function useInstallPlugin() {
         } catch (err) {
           console.error(err)
           $q.notify({
-            message: t('plugin.fetchFailed', { message: err.message }),
+            message: t('installPlugin.fetchFailed', { message: err.message }),
             color: 'negative'
           })
           return
@@ -28,7 +29,7 @@ export function useInstallPlugin() {
           manifest = JSON.parse(source)
         } catch (err) {
           $q.notify({
-            message: t('plugin.formatError'),
+            message: t('installPlugin.formatError'),
             color: 'negative'
           })
           return
@@ -47,7 +48,7 @@ export function useInstallPlugin() {
       await store.installMcpPlugin(manifest)
     } else {
       $q.notify({
-        message: t('plugin.unsupportedFormat'),
+        message: t('installPlugin.unsupportedFormat'),
         color: 'negative'
       })
     }

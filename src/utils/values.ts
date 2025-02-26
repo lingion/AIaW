@@ -11,9 +11,12 @@ import { createCohere } from '@ai-sdk/cohere'
 import { createGroq } from '@ai-sdk/groq'
 import { createOllama } from 'ollama-ai-provider'
 import { createDeepSeek } from '@ai-sdk/deepseek'
+import { i18n } from 'src/boot/i18n'
+
+const { t } = i18n.global
 
 const commonSettings = {
-  baseURL: String({ title: 'API 地址', description: '默认为该服务商官方地址' }),
+  baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultServiceAddress') }),
   apiKey: String({ title: 'API Key', format: 'password' })
 }
 const ProviderTypes: ProviderType[] = [
@@ -23,9 +26,9 @@ const ProviderTypes: ProviderType[] = [
     avatar: { type: 'svg', name: 'openai' },
     settings: Object({
       ...commonSettings,
-      baseURL: String({ title: 'API 地址', description: '默认为 OpenAI 官方地址', default: 'https://api.openai.com/v1' }),
-      organization: String({ title: '组织', description: 'OpenAI 组织；可选' }),
-      project: String({ title: '项目', description: 'OpenAI 项目；可选' })
+      baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultOpenAIAddress'), default: 'https://api.openai.com/v1' }),
+      organization: String({ title: t('values.organization'), description: t('values.optional') }),
+      project: String({ title: t('values.project'), description: t('values.optional') })
     }),
     initialSettings: { compatibility: 'strict' },
     constructor: createOpenAI
@@ -36,8 +39,8 @@ const ProviderTypes: ProviderType[] = [
     avatar: { type: 'svg', name: 'microsoft-c' },
     settings: Object({
       ...commonSettings,
-      resourceName: String({ title: '资源名称' }),
-      apiVersion: String({ title: 'API 版本' })
+      resourceName: String({ title: t('values.resourceName') }),
+      apiVersion: String({ title: t('values.apiVersion') })
     }),
     initialSettings: {},
     constructor: createAzure
@@ -48,7 +51,7 @@ const ProviderTypes: ProviderType[] = [
     avatar: { type: 'svg', name: 'anthropic' },
     settings: Object({
       ...commonSettings,
-      baseURL: String({ title: 'API 地址', description: '默认为 Anthropic 官方地址', default: 'https://api.anthropic.com/v1' })
+      baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultAnthropicAddress'), default: 'https://api.anthropic.com/v1' })
     }),
     initialSettings: {},
     constructor: createAnthropic
@@ -59,7 +62,7 @@ const ProviderTypes: ProviderType[] = [
     avatar: { type: 'svg', name: 'google-c' },
     settings: Object({
       ...commonSettings,
-      baseURL: String({ title: 'API 地址', description: '默认为 Google 官方地址', default: 'https://generativelanguage.googleapis.com/v1beta' })
+      baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultGoogleAddress'), default: 'https://generativelanguage.googleapis.com/v1beta' })
     }),
     initialSettings: {},
     constructor: createGoogleGenerativeAI
@@ -117,7 +120,7 @@ const ProviderTypes: ProviderType[] = [
     label: 'Ollama',
     avatar: { type: 'svg', name: 'ollama' },
     settings: Object({
-      baseURL: String({ title: 'API 地址', default: 'http://localhost:11434/api' })
+      baseURL: String({ title: t('values.apiAddress'), default: 'http://localhost:11434/api' })
     }),
     initialSettings: {},
     constructor: createOllama

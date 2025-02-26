@@ -209,6 +209,10 @@ export default {
     dontSave: '不保存',
     save: '保存'
   },
+  jsonInputDialog: {
+    cancel: '取消',
+    ok: '确定'
+  },
   providerInputItems: {
     provider: '服务商'
   },

@@ -2,9 +2,9 @@ import { boot } from 'quasar/wrappers'
 import { createI18n } from 'vue-i18n'
 
 import messages from 'src/i18n'
-import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { Quasar } from 'quasar'
-import { watchEffect } from 'vue'
+import { nextTick, watch } from 'vue'
+import { localData } from 'src/utils/local-data'
 
 export type MessageLanguages = keyof typeof messages;
 // Type-define 'en-US' as the master schema for the resource
@@ -28,43 +28,47 @@ const langList = import.meta.glob('../../node_modules/quasar/lang/(en-US|zh-CN|z
 
 type SupportedLang = 'en-US' | 'zh-CN' | 'zh-TW'
 
-export default boot(({ app, store }) => {
-  const languages = Object.keys(messages)
-  const { perfs } = useUserPerfsStore(store)
-  function getLanguage(): SupportedLang {
-    if (perfs.language) {
-      return perfs.language
-    }
-    if (languages.includes(navigator.language)) {
-      return navigator.language as SupportedLang
-    } else if (navigator.language === 'zh-HK') {
-      return 'zh-TW'
-    } else {
-      return 'en-US'
-    }
+const languages = Object.keys(messages)
+function getLanguage(): SupportedLang {
+  if (localData.language) return localData.language
+
+  if (languages.includes(navigator.language)) {
+    return navigator.language as SupportedLang
+  } else if (navigator.language === 'zh-HK') {
+    return 'zh-TW'
+  } else {
+    return 'en-US'
   }
-  const i18n = createI18n({
-    locale: getLanguage(),
-    legacy: false,
-    fallbackLocale: 'en-US',
-    messages
-  })
-  watchEffect(() => {
-    const language = getLanguage()
-    i18n.global.locale.value = language
-    setQuasarLang(language)
-  })
-  function setQuasarLang(language) {
-    try {
-      langList[`../../node_modules/quasar/lang/${language}.js`]().then((lang: any) => {
-        Quasar.lang.set(lang.default)
-      })
-    } catch (err) {
-      // Requested Quasar Language Pack does not exist,
-      // let's not break the app, so catching error
-      console.error('Request Quasar Language Page failed')
-    }
+}
+
+const language = getLanguage()
+const i18n = createI18n({
+  locale: language,
+  legacy: false,
+  fallbackLocale: 'en-US',
+  messages
+})
+
+function setQuasarLang(language) {
+  try {
+    langList[`../../node_modules/quasar/lang/${language}.js`]().then((lang: any) => {
+      Quasar.lang.set(lang.default)
+    })
+  } catch (err) {
+    // Requested Quasar Language Pack does not exist,
+    // let's not break the app, so catching error
+    console.error('Request Quasar Language Page failed')
   }
+}
+setQuasarLang(language)
+
+export { i18n }
+
+export default boot(({ app }) => {
+  watch(() => localData.language, async () => {
+    await nextTick()
+    location.reload()
+  })
 
   // Set i18n instance on app
   app.use(i18n)

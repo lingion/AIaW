@@ -10,6 +10,7 @@
           dense
           active-color="primary"
           indicator-color="primary"
+          v-if="IsTauri"
         >
           <q-tab
             name="stdio"
@@ -163,12 +164,13 @@ import { computed, reactive, ref, toRaw } from 'vue'
 import VarsInput from 'src/components/VarsInput.vue'
 import { useInstallPlugin } from 'src/composables/install-plugin'
 import { McpPluginManifest } from 'src/utils/types'
-import { genId } from 'src/utils/functions'
+import { hash53 } from 'src/utils/functions'
 import { useI18n } from 'vue-i18n'
+import { IsTauri } from 'src/utils/platform-api'
 
 const { t } = useI18n()
 
-const type = ref<'stdio' | 'sse'>('stdio')
+const type = ref<'stdio' | 'sse'>(IsTauri ? 'stdio' : 'sse')
 const title = ref('')
 const stdioOptions = reactive({
   command: '',
@@ -192,7 +194,7 @@ function add() {
   loading.value = true
   if (!stdioOptions.cwd) delete stdioOptions.cwd
   const manifest: McpPluginManifest = {
-    id: genId(),
+    id: hash53(type.value === 'stdio' ? stdioOptions.command : sseOptions.url),
     title: title.value,
     transport: type.value === 'stdio'
       ? { type: 'stdio', ...toRaw(stdioOptions) }

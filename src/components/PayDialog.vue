@@ -48,6 +48,7 @@ import { computed, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { hexFromArgb } from '@material/material-color-utilities'
+import { fetch } from 'src/utils/platform-api'
 
 const { t } = useI18n()
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()

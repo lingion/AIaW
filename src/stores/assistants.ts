@@ -4,13 +4,14 @@ import { db, defaultModelSettings } from 'src/utils/db'
 import { defaultAvatar, genId } from 'src/utils/functions'
 import { Assistant } from 'src/utils/types'
 import { AssistantDefaultPrompt } from 'src/utils/templates'
+import { useI18n } from 'vue-i18n'
 
 export const useAssistantsStore = defineStore('assistants', () => {
   const assistants = useLiveQuery(() => db.assistants.toArray(), { initialValue: [] as Assistant[] })
-
+  const { t } = useI18n()
   async function add(props: Partial<Assistant> = {}) {
     return await db.assistants.add({
-      name: '新助手',
+      name: t('stores.assistants.newAssistant'),
       id: genId(),
       avatar: defaultAvatar('AI'),
       workspaceId: '$root',

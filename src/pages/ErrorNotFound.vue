@@ -21,7 +21,7 @@
         />
         <hint-card
           img-url="/emotions/nachoneko/19.webp"
-          message="$t('errorNotFound.message')"
+          :message="$t('errorNotFound.message')"
         />
       </q-page>
     </q-page-container>

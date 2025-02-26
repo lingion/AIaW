@@ -12,6 +12,9 @@ import artifacts from './artifacts-plugin'
 import { CallToolResult, GetPromptResult, ReadResourceResult } from '@modelcontextprotocol/sdk/types.js'
 import { fetch, IsTauri } from './platform-api'
 import { getClient } from './mcp-client'
+import { i18n } from 'src/boot/i18n'
+
+const { t } = i18n.global
 
 const timePlugin: Plugin = {
   id: 'aiaw-time',
@@ -21,8 +24,8 @@ const timePlugin: Plugin = {
     {
       type: 'tool',
       name: 'getTime',
-      description: '获取当前的时间和日期',
-      prompt: '获取当前的时间和日期',
+      description: t('plugins.time.description'),
+      prompt: t('plugins.time.prompt'),
       parameters: TObject({}),
       async execute() {
         return [{
@@ -34,8 +37,8 @@ const timePlugin: Plugin = {
   ],
   fileparsers: [],
   settings: TObject({}),
-  title: '时间和日期',
-  description: '让 AI 获取当前的时间和日期（没什么用。可用于测试工具调用是否正常）'
+  title: t('plugins.time.title'),
+  description: t('plugins.time.description')
 }
 
 const calculatorPrompt =
@@ -154,7 +157,7 @@ const calculatorPlugin: Plugin = {
   apis: [{
     type: 'tool',
     name: 'evaluate',
-    description: '计算一个数学表达式',
+    description: t('plugins.calculator.description'),
     prompt: calculatorPrompt,
     parameters: TObject({
       expression: TString({ description: calculatorExpressionPrompt }),
@@ -169,8 +172,8 @@ const calculatorPlugin: Plugin = {
   }],
   fileparsers: [],
   settings: TObject({}),
-  title: '计算器',
-  description: '提供一个计算器，让 AI 能够完成更加复杂的计算'
+  title: t('plugins.calculator.title'),
+  description: t('plugins.calculator.description')
 }
 
 function buildLobePlugin(manifest: LobeChatPluginManifest, available: boolean): Plugin {
@@ -439,8 +442,8 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
   if (transport.type === 'stdio') {
     const env: Record<string, any> = {}
     settings = {
-      command: TString({ title: '运行命令' }),
-      cwd: TOptional(TString({ title: '工作目录' }))
+      command: TString({ title: t('plugins.mcp.runCommand') }),
+      cwd: TOptional(TString({ title: t('plugins.mcp.cwd') }))
     }
     if (transport.env) {
       for (const key in transport.env) {
@@ -474,7 +477,6 @@ async function dumpMcpPlugin(manifest: McpPluginManifest): Promise<McpPluginDump
   const { tools } = capabilities.tools ? await client.listTools() : { tools: [] }
   const { resources } = capabilities.resources ? await client.listResources() : { resources: [] }
   const res = capabilities.prompts ? await client.listPrompts() : { prompts: [] }
-  console.log('res', res)
   return {
     ...manifest,
     tools,
@@ -595,14 +597,14 @@ function huggingToGradio(manifest: HuggingPluginManifest): GradioPluginManifest 
 
 const whisperPluginManifest: GradioPluginManifest = {
   id: 'aiaw-whisper',
-  title: '语音识别：Whisper',
-  description: '上传音频文件，通过 Whisper 模型将语音转换为文字',
+  title: t('plugins.whisper.title'),
+  description: t('plugins.whisper.description'),
   baseUrl: 'https://mrfakename-fast-whisper-turbo.hf.space',
   avatar: { type: 'icon', icon: 'sym_o_mic', hue: 100 },
   endpoints: [{
     type: 'fileparser',
     name: 'transcribe',
-    description: '将语音转换为文字',
+    description: t('plugins.whisper.transcribe.description'),
     path: '/transcribe',
     inputs: [{
       name: 'audio',
@@ -610,7 +612,7 @@ const whisperPluginManifest: GradioPluginManifest = {
       paramType: 'file'
     }, {
       name: 'task',
-      description: '任务类型',
+      description: t('plugins.whisper.taskType'),
       type: 'str',
       paramType: 'fixed',
       value: 'transcribe'
@@ -628,21 +630,21 @@ const videoTranscriptPlugin: Plugin = {
   apis: [],
   fileparsers: [{
     name: 'transcribe',
-    description: '将视频转换为文字',
+    description: t('plugins.videoTranscript.transcribe.description'),
     async execute({ file, range }, settings) {
-      if (!AudioEncoderSupported) throw new Error('当前浏览器不支持音频编码。建议使用最新版的 Chrome/Edge 浏览器。')
+      if (!AudioEncoderSupported) throw new Error(t('plugins.videoTranscript.audioEncoderError'))
       const rg = range ? range.split('-').map(parseSeconds) : undefined
       const audioBlob = await extractAudioBlob(file, rg as [number, number])
       return await whisperPlugin.fileparsers[0].execute({ file: audioBlob }, settings)
     },
     rangeInput: {
-      label: '时间范围',
+      label: t('plugins.videoTranscript.rangeInput.label'),
       hint: 'XX:XX-XX:XX'
     }
   }],
   settings: TObject({}),
-  title: '视频转文字',
-  description: '提取视频中的音频，再将其转换为文字。以向 AI 提问视频内容'
+  title: t('plugins.videoTranscript.title'),
+  description: t('plugins.videoTranscript.description')
 }
 
 const fluxPluginManifest: GradioPluginManifest = {
@@ -700,8 +702,8 @@ const fluxPluginManifest: GradioPluginManifest = {
     icon: 'camera'
   }),
   noRoundtrip: true,
-  title: '图像生成: FLUX',
-  description: '让 AI 调用 FLUX 模型生成图像。通过 🤗 Spaces 调用，因此是免费的'
+  title: t('plugins.flux.title'),
+  description: t('plugins.flux.description')
 }
 
 const fluxPlugin: Plugin = buildGradioPlugin(fluxPluginManifest, true)
@@ -758,14 +760,14 @@ const emotionsPlugin: Plugin = {
   apis: [],
   fileparsers: [],
   settings: TObject({}),
-  title: '表情包',
-  description: '让 AI 在回答中使用表情包，使回答更生动',
+  title: t('plugins.emotions.title'),
+  description: t('plugins.emotions.description'),
   prompt: emotionsPrompt,
   promptVars: [
     {
       id: 'displayWidth',
       name: 'displayWidth',
-      label: '显示大小',
+      label: t('plugins.emotions.displayWidth.label'),
       type: 'number',
       default: 100
     }
@@ -779,9 +781,9 @@ const mermaidPlugin: Plugin = {
   apis: [],
   fileparsers: [],
   settings: TObject({}),
-  title: 'Mermaid 图表',
-  description: '让 AI 在回答中使用 Mermaid 语法创建图表',
-  prompt: '在回答中，如果需要绘制图表，你可以直接使用 mermaid 语法创建图表，它们能够被正常渲染。'
+  title: t('plugins.mermaid.title'),
+  description: t('plugins.mermaid.description'),
+  prompt: t('plugins.mermaid.prompt')
 }
 
 const docParsePlugin: Plugin = {
@@ -791,7 +793,7 @@ const docParsePlugin: Plugin = {
   apis: [],
   fileparsers: [{
     name: 'parse',
-    description: '解析文档内容',
+    description: t('plugins.docParse.parse.description'),
     async execute({ file, range }, settings) {
       const docs = await parseDoc(file, {
         language: settings.ocrLanguage,
@@ -803,15 +805,15 @@ const docParsePlugin: Plugin = {
       }]
     },
     rangeInput: {
-      label: '页码范围',
-      hint: '例：1-3,5'
+      label: t('plugins.docParse.rangeInput.label'),
+      hint: t('plugins.docParse.rangeInput.hint')
     }
   }],
   settings: TObject({
-    ocrLanguage: TString({ title: 'OCR 语言' })
+    ocrLanguage: TString({ title: t('plugins.docParse.ocrLanguage') })
   }),
-  title: '文档解析',
-  description: '解析文档（PDF、Word、Excel、PPT 等）内容，并转换为 Markdown 文本'
+  title: t('plugins.docParse.title'),
+  description: t('plugins.docParse.description')
 }
 
 const defaultData: PluginsData = {

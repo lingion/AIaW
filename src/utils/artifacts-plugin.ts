@@ -3,13 +3,16 @@ import { Artifact, Plugin, PluginApi, PluginData } from './types'
 import { engine } from './template-engine'
 import { db } from './db'
 import { saveArtifactChanges } from './functions'
+import { i18n } from 'src/boot/i18n'
 
 const pluginId = 'aiaw-artifacts'
+
+const { t } = i18n.global
 
 const api: PluginApi = {
   type: 'tool',
   name: 'edit',
-  description: '修改 Artifact',
+  description: t('artifactsPlugin.description'),
   prompt: '修改 Artifact',
   parameters: Object({
     id: String({

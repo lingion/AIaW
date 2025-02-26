@@ -1,5 +1,6 @@
 /* eslint-disable no-useless-escape */
 import { Boolean, Object, Optional, Static, String } from '@sinclair/typebox'
+import { i18n } from 'src/boot/i18n'
 
 const GenDialogTitle =
 `Create a concise, 3-5 word title with an emoji as a title for the chat history, in the given language. Suitable Emojis for the summary can be used to enhance understanding but avoid quotation marks or special formatting. RESPOND ONLY WITH THE TITLE TEXT.
@@ -51,23 +52,9 @@ const AssistantDefaultPrompt =
 {{ _pluginsPrompt }}
 `
 
-const DefaultWsIndexContent =
-`## {{ workspace.name }}
+const { t } = i18n.global
 
-### 使用指引
-
-点击右侧边栏的「**新建对话**」即可开始对话
-
-- 你可以在左侧边栏设置中更改发送消息的快捷键，默认为 Ctrl+Enter
-- 本应用是跨平台的，可以在电脑、手机等不同设备上使用
-- 点击右侧边栏中的助手，进入助手设置，可以设定提示词，以及启用各种插件
-- 在左侧边栏，你可以创建多个工作区，将不同主题的对话分隔开
-- 点击右上角设置图标进入工作区设置，可以切换默认助手、更改此处显示的内容
-
-更多内容详见<a href="https://docs.aiaw.app/usage/" target="_blank">使用指南</a>
-
-GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW</a>
-`
+const DefaultWsIndexContent = t('templates.defaultWsIndexContent')
 
 const ExtractArtifactSchema = Object({
   thinking: String({

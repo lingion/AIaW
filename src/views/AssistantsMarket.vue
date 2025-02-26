@@ -124,6 +124,7 @@ import { useAssistantsStore } from 'src/stores/assistants'
 import { AssistantDefaultPrompt } from 'src/utils/templates'
 import { defaultModelSettings } from 'src/utils/db'
 import SelectWorkspaceDialog from 'src/components/SelectWorkspaceDialog.vue'
+import { clipboardReadText } from 'src/utils/platform-api'
 
 const { t } = useI18n()
 defineEmits(['toggle-drawer'])
@@ -139,9 +140,10 @@ const filterList = computed(() =>
 
 const $q = useQuasar()
 const loading = ref(false)
+const { locale } = useI18n()
 function load() {
   loading.value = true
-  fetch('/assistants.json')
+  fetch(`/assistants/index.${locale.value}.json`)
     .then(res => res.json())
     .then(data => {
       list.push(...data)
@@ -220,7 +222,7 @@ async function onFileInput() {
 
 async function clipboardImport() {
   try {
-    const text = await navigator.clipboard.readText()
+    const text = await clipboardReadText()
     addToGlobal(JSON.parse(text))
   } catch (err) {
     $q.notify({

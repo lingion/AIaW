@@ -13,7 +13,8 @@
     "build": "quasar build",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "sync-version": "node scripts/sync-version.js"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.6",
@@ -28,6 +29,8 @@
     "@ai-sdk/xai": "^1.1.6",
     "@bradenmacdonald/s3-lite-client": "npm:@jsr/bradenmacdonald__s3-lite-client@^0.8.0",
     "@capacitor/android": "^7.0.1",
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/clipboard": "^7.0.0",
     "@capacitor/core": "^7.0.1",
     "@capacitor/ios": "^7.0.1",
     "@cfworker/json-schema": "^2.0.1",
@@ -38,6 +41,7 @@
     "@modelcontextprotocol/sdk": "^1.5.0",
     "@quasar/extras": "^1.16.12",
     "@sinclair/typebox": "^0.33.12",
+    "@tauri-apps/plugin-clipboard-manager": "~2",
     "@tauri-apps/plugin-http": "~2",
     "@tauri-apps/plugin-os": "~2",
     "@tauri-apps/plugin-shell": "~2.2.0",

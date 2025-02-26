@@ -1,4 +1,5 @@
 import { DocParseBaseURL } from './config'
+import { fetch } from './platform-api'
 
 interface ParsedDoc {
   meta: Record<string, any>

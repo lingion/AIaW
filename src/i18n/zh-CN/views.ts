@@ -56,7 +56,8 @@ export default {
     description: '描述',
     homepage: '主页',
     export: '导出',
-    exportTip: '导出助手为 JSON，用于分享或发布助手',
+    exportTip1: '导出助手为 JSON，用于',
+    exportTip2: '分享或发布助手',
     exportToFile: '导出为文件',
     exportToClipboard: '导出到剪贴板'
   },

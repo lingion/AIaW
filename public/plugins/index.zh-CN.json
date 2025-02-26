@@ -1,5 +1,203 @@
 [
   {
+    "id": "mcp-fetch",
+    "title": "Fetch",
+    "description": "获取网页内容",
+    "type": "mcp",
+    "manifest": {
+      "id": "mcp-fetch",
+      "title": "Fetch",
+      "description": "获取网页内容",
+      "transport": {
+        "type": "stdio",
+        "command": "uvx mcp-server-fetch"
+      },
+      "author": "MCP Official",
+      "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/fetch",
+      "avatar": {
+        "type": "icon",
+        "icon": "sym_o_web",
+        "hue": 15
+      }
+    },
+    "avatar": {
+      "type": "icon",
+      "icon": "sym_o_web",
+      "hue": 15
+    }
+  },
+  {
+    "id": "mcp-searxng",
+    "title": "SearXNG",
+    "description": "通过 SearXNG 进行网页搜索",
+    "type": "mcp",
+    "manifest": {
+      "id": "mcp-searxng",
+      "title": "SearXNG",
+      "description": "通过 SearXNG 进行网页搜索",
+      "transport": {
+        "type": "stdio",
+        "command": "uvx mcp-searxng",
+        "env": {
+          "SEARXNG_URL": "http://localhost:8080"
+        }
+      },
+      "author": "MCP Official",
+      "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search",
+      "avatar": {
+        "type": "icon",
+        "icon": "sym_o_search",
+        "hue": 225
+      }
+    },
+    "avatar": {
+      "type": "icon",
+      "icon": "sym_o_search",
+      "hue": 225
+    }
+  },
+  {
+    "id": "mcp-github",
+    "title": "GitHub",
+    "description": "访问 GitHub API，支持文件操作、仓库管理、搜索等。",
+    "type": "mcp",
+    "manifest": {
+      "id": "mcp-github",
+      "title": "GitHub",
+      "description": "访问 GitHub API，支持文件操作、仓库管理、搜索等。",
+      "transport": {
+        "type": "stdio",
+        "command": "npx -y @modelcontextprotocol/server-github",
+        "env": {
+          "GITHUB_PERSONAL_ACCESS_TOKEN": "Put your Access Token here"
+        }
+      },
+      "author": "MCP Official",
+      "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/github",
+      "avatar": {
+        "type": "icon",
+        "icon": "sym_o_folder_data",
+        "hue": 45
+      }
+    },
+    "avatar": {
+      "type": "icon",
+      "icon": "sym_o_folder_data",
+      "hue": 45
+    }
+  },
+  {
+    "id": "mcp-brave-search",
+    "title": "Brave 搜索",
+    "description": "使用 Brave 搜索 API，提供网络和本地搜索功能",
+    "type": "mcp",
+    "manifest": {
+      "id": "mcp-brave-search",
+      "title": "Brave 搜索",
+      "description": "使用 Brave 搜索 API，提供网络和本地搜索功能",
+      "transport": {
+        "type": "stdio",
+        "command": "npx -y @modelcontextprotocol/server-brave-search",
+        "env": {
+          "BRAVE_API_KEY": "Put your API Key here"
+        }
+      },
+      "author": "MCP Official",
+      "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search",
+      "avatar": {
+        "type": "icon",
+        "icon": "sym_o_search",
+        "hue": 75
+      }
+    },
+    "avatar": {
+      "type": "icon",
+      "icon": "sym_o_search",
+      "hue": 75
+    }
+  },
+  {
+    "id": "mcp-puppeteer",
+    "title": "Puppeteer",
+    "description": "提供一个浏览器环境，用于网页截图、爬虫等",
+    "type": "mcp",
+    "manifest": {
+      "id": "mcp-puppeteer",
+      "title": "Puppeteer",
+      "description": "提供一个浏览器环境，用于网页截图、爬虫等",
+      "transport": {
+        "type": "stdio",
+        "command": "npx -y @modelcontextprotocol/server-puppeteer"
+      },
+      "author": "MCP Official",
+      "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/puppeteer",
+      "avatar": {
+        "type": "icon",
+        "icon": "sym_o_travel_explore",
+        "hue": 105
+      }
+    },
+    "avatar": {
+      "type": "icon",
+      "icon": "sym_o_travel_explore",
+      "hue": 105
+    }
+  },
+  {
+    "id": "mcp-memory",
+    "title": "记忆",
+    "description": "使用本地知识图结构储存记忆",
+    "type": "mcp",
+    "manifest": {
+      "id": "mcp-puppeteer",
+      "title": "记忆",
+      "description": "使用本地知识图结构储存记忆",
+      "transport": {
+        "type": "stdio",
+        "command": "npx -y @modelcontextprotocol/server-memory"
+      },
+      "author": "MCP Official",
+      "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/memory",
+      "avatar": {
+        "type": "icon",
+        "icon": "sym_o_edit_note",
+        "hue": 135
+      }
+    },
+    "avatar": {
+      "type": "icon",
+      "icon": "sym_o_edit_note",
+      "hue": 135
+    }
+  },
+  {
+    "id": "mcp-commander",
+    "title": "命令行",
+    "description": "提供运行命令和基于 diff 的文件编辑能力",
+    "type": "mcp",
+    "manifest": {
+      "id": "mcp-commander",
+      "title": "命令行",
+      "description": "提供运行命令和基于 diff 的文件编辑能力",
+      "transport": {
+        "type": "stdio",
+        "command": "npx -y @wonderwhy-er/desktop-commander"
+      },
+      "author": "Eduard Ruzga",
+      "homepage": "https://github.com/wonderwhy-er/ClaudeComputerCommander",
+      "avatar": {
+        "type": "icon",
+        "icon": "sym_o_terminal",
+        "hue": 165
+      }
+    },
+    "avatar": {
+      "type": "icon",
+      "icon": "sym_o_terminal",
+      "hue": 165
+    }
+  },
+  {
     "id": "hf-66e2e70c689f9c7f5810a2dd",
     "title": "真实图像生成",
     "description": "使用 FLUX.1-RealismLora 模型生成逼真的图像",

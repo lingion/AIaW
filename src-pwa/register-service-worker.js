@@ -1,5 +1,6 @@
 import { Loading } from 'quasar'
 import { register } from 'register-service-worker'
+import { i18n } from 'src/boot/i18n'
 import { localData } from 'src/utils/local-data'
 import version from 'src/version.json'
 
@@ -8,6 +9,8 @@ import version from 'src/version.json'
 // ServiceWorkerRegistration: https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration
 
 let newVersion = null
+
+const { t } = i18n.global
 
 register(process.env.SERVICE_WORKER_FILE, {
   // The registrationOptions object will be passed as the second argument
@@ -35,7 +38,7 @@ register(process.env.SERVICE_WORKER_FILE, {
       .then(data => {
         newVersion = data
         version.versionCode <= newVersion.forceUpdateFrom && registration.active && Loading.show({
-          message: '更新中...'
+          message: t('registerSW.updating')
         })
       })
   },

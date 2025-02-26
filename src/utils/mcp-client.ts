@@ -7,6 +7,7 @@ import { platform } from '@tauri-apps/plugin-os'
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js'
 import { fetch } from './platform-api'
 import { Notify } from 'quasar'
+import { i18n } from 'src/boot/i18n'
 
 const KeepAliveTimeout = 300e3
 
@@ -15,6 +16,8 @@ const pool = new Map<string, {
   client: Client
   timeoutId: number
 }>()
+
+const { t } = i18n.global
 
 export async function getClient(key: string, transportConf: TransportConf) {
   if (pool.has(key)) {
@@ -40,7 +43,7 @@ export async function getClient(key: string, transportConf: TransportConf) {
     }
   })
   Notify.create({
-    message: '正在连接 MCP 服务器...'
+    message: t('mcpClient.connectingMcpServer')
   })
   if (transportConf.type === 'stdio') {
     const pf = platform()

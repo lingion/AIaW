@@ -73,6 +73,7 @@ export default configure((ctx) => {
       },
       // viteVuePluginOptions: {},
       afterBuild() {
+        // sync version
         if (ctx.mode.pwa) {
           copyFileSync('src/version.json', 'dist/pwa/version.json')
         }

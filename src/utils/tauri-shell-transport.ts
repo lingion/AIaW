@@ -169,7 +169,6 @@ export class TauriShellClientTransport implements Transport {
         if (message === null) {
           break
         }
-        console.log(message)
         this.onmessage?.(message)
       } catch (error) {
         this.onerror?.(error as Error)

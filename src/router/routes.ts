@@ -19,6 +19,9 @@ import AccountPage from 'src/pages/AccountPage.vue'
 import ModelPricing from 'src/pages/ModelPricing.vue'
 import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
 import ShortcutKeys from 'src/pages/ShortcutKeys.vue'
+import { i18n } from 'src/boot/i18n'
+
+const { t } = i18n.global
 
 const routes: RouteRecordRaw[] = [
   {
@@ -41,13 +44,13 @@ const routes: RouteRecordRaw[] = [
           }
         ]
       },
-      { path: '/settings', component: SettingsPage, meta: { title: '设置' } },
-      { path: '/shortcut-keys', component: ShortcutKeys, meta: { title: '键盘快捷键' } },
+      { path: '/settings', component: SettingsPage, meta: { title: t('routes.settings') } },
+      { path: '/shortcut-keys', component: ShortcutKeys, meta: { title: t('routes.shortcutKeys') } },
       {
         path: '/plugins/',
         component: PluginsPage,
         children: [
-          { path: '', component: PluginsMarket, meta: { title: '插件市场' } },
+          { path: '', component: PluginsMarket, meta: { title: t('routes.pluginsMarket') } },
           { path: ':pluginId', component: PluginSettings, props: route => ({ id: route.params.pluginId }) }
         ]
       },
@@ -55,7 +58,7 @@ const routes: RouteRecordRaw[] = [
         path: '/assistants/',
         component: AssistantsPage,
         children: [
-          { path: '', component: AssistantsMarket, meta: { title: '助手市场' } },
+          { path: '', component: AssistantsMarket, meta: { title: t('routes.assistantsMarket') } },
           { path: ':assistantId', component: AssistantView, props: route => ({ id: route.params.assistantId }) },
           {
             path: ':assistantId/plugins/:pluginId',
@@ -66,10 +69,10 @@ const routes: RouteRecordRaw[] = [
       },
       { path: '/set-provider', component: SetProvider },
       ...(DexieDBURL ? [
-        { path: '/account', component: AccountPage, meta: { title: '账号' } }
+        { path: '/account', component: AccountPage, meta: { title: t('routes.account') } }
       ] : []),
       ...(DexieDBURL && LitellmBaseURL ? [
-        { path: '/model-pricing', component: ModelPricing, meta: { title: '模型价格' } }
+        { path: '/model-pricing', component: ModelPricing, meta: { title: t('routes.modelPricing') } }
       ] : []),
       { path: '/', component: EmptyPage },
 

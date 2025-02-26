@@ -3,7 +3,7 @@
     <q-drawer
       v-model="uiStore.mainDrawerOpen"
       show-if-above
-      :width="250"
+      :width="locale.startsWith('zh') ? 250 : 270"
       :breakpoint="1200"
       bg-sur-c
       flex
@@ -180,7 +180,7 @@ async function openLastWorkspace() {
 }
 openLastWorkspace()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const $q = useQuasar()
 function notifyVersion() {
   $q.notify({

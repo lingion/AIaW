@@ -161,7 +161,7 @@ export default {
     auto: '自動',
     language: '語言'
   },
-  errorNotFoundPage: {
+  errorNotFound: {
     message: '這裡什麼都沒有...'
   },
   assistantsPage: {

@@ -450,11 +450,11 @@
           <q-item-section>
             <q-item-label>{{ $t('assistantView.export') }}</q-item-label>
             <q-item-label caption>
-              {{ $t('assistantView.exportTip') }}<a
+              {{ $t('assistantView.exportTip1') }}<a
                 href="https://docs.aiaw.app/usage/assistants.html#分享助手"
                 target="_blank"
                 pri-link
-              >{{ $t('assistantView.exportTip') }}</a>
+              >{{ $t('assistantView.exportTip2') }}</a>
             </q-item-label>
           </q-item-section>
           <q-item-section side>

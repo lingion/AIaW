@@ -25,7 +25,7 @@ export default {
     confirmLogout: '確定要登出嗎？',
     loggedIn: '已登入：{email}'
   },
-  plugin: {
+  installPlugin: {
     fetchFailed: '獲取插件配置失敗：{message}',
     formatError: '格式錯誤',
     unsupportedFormat: '不支援的插件格式'

@@ -25,7 +25,7 @@ export default {
     confirmLogout: '确定要退出登录吗？',
     loggedIn: '已登录：{email}'
   },
-  plugin: {
+  installPlugin: {
     fetchFailed: '获取插件配置失败：{message}',
     formatError: '格式错误',
     unsupportedFormat: '不支持的插件格式'

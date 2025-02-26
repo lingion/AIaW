@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">AI as Workspace</string>
-    <string name="title_activity_main">AI as Workspace</string>
+    <string name="app_name">AIaW</string>
+    <string name="title_activity_main">AIaW</string>
     <string name="package_name">app.aiaw</string>
     <string name="custom_url_scheme">app.aiaw</string>
 </resources>

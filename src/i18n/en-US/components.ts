@@ -3,17 +3,17 @@ export default {
     stdio: 'STDIO',
     sse: 'SSE',
     pluginName: 'Plugin Name',
-    pluginNameCaption: 'Any name is fine',
+    pluginNameCaption: 'Any name will do',
     command: 'Run Command',
-    commandCaption: 'The running command of the MCP server',
-    workDir: 'Work Directory',
+    commandCaption: 'The command to run on the MCP server',
+    workDir: 'Working Directory',
     workDirCaption: 'Optional',
     envVars: 'Environment Variables',
     inputVarsPlaceholder: 'Enter variable value...',
     url: 'URL',
     cancel: 'Cancel',
     install: 'Install',
-    installFailed: 'Install Failed'
+    installFailed: 'Installation failed'
   },
   abortableBtn: {
     stop: 'Stop'
@@ -29,7 +29,7 @@ export default {
     download: 'Download',
     delete: 'Delete',
     deleteConfirmTitle: 'Delete Artifact',
-    deleteConfirmMessage: 'Are you sure you want to delete the Artifact "{name}"?',
+    deleteConfirmMessage: 'Are you sure you want to delete the artifact "{name}"?',
     deleteConfirmOk: 'Delete'
   },
   addInfoBtn: {
@@ -42,7 +42,7 @@ export default {
   },
   copyBtn: {
     title: 'Copy',
-    copyFailed: 'Copy Failed'
+    copyFailed: 'Copy failed'
   },
   convertArtifactDialog: {
     title: 'Convert to Artifact',
@@ -75,11 +75,11 @@ export default {
     fileLabel: 'Data File',
     overwrite: 'Overwrite Existing Data',
     force: 'Force Write',
-    clear: 'Clear Existing Data Before Importing',
+    clear: 'Clear Existing Data Before Import',
     cancel: 'Cancel',
     import: 'Import',
-    importSuccess: 'Import Success',
-    importFailed: 'Import Failed: {message}'
+    importSuccess: 'Import successful',
+    importFailed: 'Import failed: {message}'
   },
   imageInputArea: {
     clickToSelect: 'Click to Select Image',
@@ -87,7 +87,7 @@ export default {
     paste: 'Or Ctrl+V to Paste'
   },
   hueSliderDialog: {
-    title: 'Select Color',
+    title: 'Pick a Color',
     hue: 'Hue',
     cancel: 'Cancel',
     ok: 'OK'
@@ -100,7 +100,7 @@ export default {
   dialogList: {
     newDialog: 'New Dialog',
     searchPlaceholder: 'Search Dialogs...',
-    renameTitle: 'Modify Title',
+    renameTitle: 'Rename Title',
     summarizeDialog: 'Summarize Title',
     title: 'Title',
     moveTo: 'Move To',
@@ -110,8 +110,8 @@ export default {
     deleteConfirmOk: 'Delete'
   },
   darkSwitchBtn: {
-    switchToDark: 'Switch to Dark',
-    switchToLight: 'Switch to Light',
+    switchToDark: 'Switch to Dark Mode',
+    switchToLight: 'Switch to Light Mode',
     switchToAuto: 'Switch to Auto'
   },
   messageInfoDialog: {
@@ -129,7 +129,7 @@ export default {
   installPluginBtn: {
     installed: 'Installed',
     install: 'Install',
-    installFailed: 'Install Failed:'
+    installFailed: 'Installation failed:'
   },
   installedPlugins: {
     uninstallPlugin: 'Uninstall Plugin',
@@ -157,11 +157,11 @@ export default {
   },
   parseFilesDialog: {
     parseFiles: 'Parse Files',
-    noParserAvailable: 'No Parser Available for This Type',
+    noParserAvailable: 'No parser available for this type',
     cancel: 'Cancel',
     parse: 'Parse',
     parser: 'Parser',
-    parseFailed: '"{file}" Parse Failed: {error}'
+    parseFailed: 'Failed to parse "{file}": {error}'
   },
   modelInputItems: {
     model: 'Model',
@@ -187,7 +187,7 @@ export default {
     aiCompanyQuestion: 'AI? & Company?',
     preview: 'Preview',
     showBackground: 'Show Background',
-    backgroundColor: 'Color',
+    backgroundColor: 'Background Color',
     cancel: 'Cancel',
     confirm: 'Confirm',
     textLabel: 'Text',
@@ -195,12 +195,12 @@ export default {
   },
   payDialog: {
     pay: 'Pay',
-    payWithAlipay: 'Use Alipay, scan the code to pay {price} yuan',
+    payWithAlipay: 'Use Alipay to scan the code to pay {price} yuan',
     cancelOrder: 'Cancel Order',
     orderCancelled: 'Order Cancelled',
-    cancelOrderFailed: 'Cancel Order Failed',
-    paymentSuccess: 'Payment Success',
-    checkOrderStatusFailed: 'Check Order Status Failed'
+    cancelOrderFailed: 'Failed to Cancel Order',
+    paymentSuccess: 'Payment Successful',
+    checkOrderStatusFailed: 'Failed to Check Order Status'
   },
   saveDialog: {
     title: 'Save Changes',
@@ -208,6 +208,10 @@ export default {
     cancel: 'Cancel',
     dontSave: 'Don\'t Save',
     save: 'Save'
+  },
+  jsonInputDialog: {
+    cancel: 'Cancel',
+    ok: 'OK'
   },
   providerInputItems: {
     provider: 'Provider'
@@ -231,7 +235,7 @@ export default {
   },
   pluginTypeBadge: {
     builtin: 'Built-in',
-    lobechat: 'Lobe',
+    lobechat: 'LobeChat',
     gradio: 'Gradio',
     mcp: 'MCP'
   },
@@ -244,7 +248,7 @@ export default {
     duration: 'Subscription Duration (Months)',
     amountDue: 'Amount Due',
     paymentMethod: 'Payment Method',
-    alipayOnly: 'Currently Only Supports Alipay',
+    alipayOnly: 'Alipay is currently the only supported method',
     cancel: 'Cancel',
     order: 'Order'
   },
@@ -271,12 +275,12 @@ export default {
     variableName: 'Variable Name'
   },
   topupDialog: {
-    title: 'Model Service Top-Up',
-    amount: 'Top-Up Amount (CNY)',
+    title: 'Recharge Model Service',
+    amount: 'Recharge Amount (Yuan)',
     amountCaption: 'Please enter an integer between 1 and 999',
     payableAmount: 'Payable Amount',
     paymentMethod: 'Payment Method',
-    alipayOnly: 'Currently Only Supports Alipay',
+    alipayOnly: 'Alipay is currently the only supported method',
     cancel: 'Cancel',
     order: 'Order'
   },
