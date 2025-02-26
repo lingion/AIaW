@@ -205,7 +205,7 @@ export default {
   saveDialog: {
     title: '儲存修改',
     message: '是否儲存對「{name}」的修改？',
-cancel: '取消',
+    cancel: '取消',
     dontSave: '不儲存',
     save: '儲存'
   },
