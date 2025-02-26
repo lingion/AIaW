@@ -59,7 +59,7 @@ jobs:
         run: chmod +x ./android/gradlew
 
       - name: Build app bundle
-        run: npx cap build android --keystorepath android/release.decrypted.jks --keystorepass "${{ secrets.KEYSTORE_PASSWORD }}" --keystorealias "${{ secrets.KEYSTORE_ALIAS }}" --keystorealiaspass "${{ secrets.KEYSTORE_ALIAS_PASSWORD }}"
+        run: npx cap build android --keystorepath release.decrypted.jks --keystorepass "${{ secrets.KEYSTORE_PASSWORD }}" --keystorealias "${{ secrets.KEYSTORE_ALIAS }}" --keystorealiaspass "${{ secrets.KEYSTORE_ALIAS_PASSWORD }}"
 
       - name: Check folder content of android output
         run: ls ./android/app/build/outputs/bundle/release
