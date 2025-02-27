@@ -37,7 +37,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEQzMjBDOEQzQTI3MkRCQzQKUldURTIzS2kwOGdnMDBmK21MaU1vcTVDalhvTFlPamxveE0wbG1UdFNiM3NYdGtyaUtVSGR6TmkK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDU4M0M5QTM1MDEwQzVERDEKUldUUlhRd0JOWm84V0hHekl0d09jaG1WRTRTbUgrTDhkWmFnK2RGWnRBY3RoaFJiTElZTDB6djQK",
       "endpoints": [
         "https://github.com/NitroRCr/AIaW/releases/latest/download/latest.json"
       ]
