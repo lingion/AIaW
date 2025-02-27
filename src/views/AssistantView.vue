@@ -3,7 +3,6 @@
     <q-toolbar-title>
       {{ $t('assistantView.header') }}
     </q-toolbar-title>
-    <q-space />
   </view-common-header>
   <q-page-container
     v-if="assistant"

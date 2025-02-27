@@ -13,7 +13,8 @@ export default {
     url: 'URL',
     cancel: 'Cancel',
     install: 'Install',
-    installFailed: 'Installation failed'
+    installFailed: 'Installation failed',
+    stdioPlatformTip: 'Only the desktop version supports STDIO type MCP plugins, and the current platform only supports SSE type'
   },
   abortableBtn: {
     stop: 'Stop'

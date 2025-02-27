@@ -6,7 +6,6 @@
     <q-toolbar-title>
       {{ $t('pluginSettings.title') }}
     </q-toolbar-title>
-    <q-space />
   </view-common-header>
   <q-page-container v-if="plugin">
     <q-page
@@ -24,11 +23,13 @@
           </q-item-section>
         </q-item>
         <q-item>
-          <q-item-section min-w="50px">
+          <q-item-section avatar>
             {{ $t('pluginSettings.description') }}
           </q-item-section>
-          <q-item-section side>
-            {{ plugin.description }}
+          <q-item-section>
+            <q-item-label caption>
+              {{ plugin.description }}
+            </q-item-label>
           </q-item-section>
         </q-item>
         <q-item v-if="plugin.author">

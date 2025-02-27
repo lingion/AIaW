@@ -3,6 +3,8 @@ import { Dark } from 'quasar'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { watchEffect } from 'vue'
+import { IsCapacitor } from 'src/utils/platform-api'
+import { StatusBar } from '@capacitor/status-bar'
 
 export function useSetTheme() {
   const uiStateStore = useUiStateStore()
@@ -89,6 +91,7 @@ export function useSetTheme() {
       document.documentElement.style.setProperty(`--a-${key}`, hexFromArgb(colors[key]))
     })
     document.querySelector('meta[name="theme-color"]').setAttribute('content', hexFromArgb(colors['sur-c']))
+    IsCapacitor && StatusBar.setBackgroundColor({ color: hexFromArgb(colors['sur-c']) })
     uiStateStore.colors = colors
   })
 }

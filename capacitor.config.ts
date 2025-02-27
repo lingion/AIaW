@@ -7,6 +7,9 @@ const config: CapacitorConfig = {
   plugins: {
     CapacitorHttp: {
       enabled: true
+    },
+    StatusBar: {
+      overlaysWebView: false
     }
   }
 }

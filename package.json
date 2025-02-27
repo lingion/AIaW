@@ -33,6 +33,7 @@
     "@capacitor/clipboard": "^7.0.0",
     "@capacitor/core": "^7.0.1",
     "@capacitor/ios": "^7.0.1",
+    "@capacitor/status-bar": "^7.0.0",
     "@cfworker/json-schema": "^2.0.1",
     "@chenfengyuan/vue-qrcode": "^2.0.0",
     "@gradio/client": "^1.7.1",

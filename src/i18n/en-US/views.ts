@@ -1,6 +1,6 @@
 export default {
   pluginsMarket: {
-    title: 'Plugins Market',
+    title: 'Plugins',
     manualInstall: 'Manual Install',
     selectConfig: 'Select Config File',
     importFromClipboard: 'Import from Clipboard',
@@ -62,7 +62,7 @@ export default {
     exportToClipboard: 'Export to Clipboard'
   },
   assistantsMarket: {
-    title: 'Assistants Market',
+    title: 'Assistants',
     import: 'Import',
     selectFile: 'Select File',
     importFromClipboard: 'Import from Clipboard',

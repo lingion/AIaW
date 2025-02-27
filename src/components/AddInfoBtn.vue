@@ -34,8 +34,9 @@
               <q-item-label
                 v-if="api.description"
                 caption
+                lines="2"
               >
-                {{ textBeginning(api.description, 60) }}
+                {{ api.description }}
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -51,7 +52,6 @@ import { useCallApi } from 'src/composables/call-api'
 import { ApiResultItem, AssistantPlugins, Dialog, Plugin, PluginApi, Workspace } from 'src/utils/types'
 import { computed, inject, Ref } from 'vue'
 import JsonInputDialog from './JsonInputDialog.vue'
-import { textBeginning } from 'src/utils/functions'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{

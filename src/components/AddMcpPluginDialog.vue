@@ -4,6 +4,12 @@
     @hide="onDialogHide"
   >
     <q-card style="width: min(90vw, 500px)">
+      <a-tip
+        tip-key="mcp-stdio-platform"
+        v-if="!IsTauri"
+      >
+        {{ $t('addMcpPluginDialog.stdioPlatformTip') }}
+      </a-tip>
       <q-card-section p-0>
         <q-tabs
           v-model="type"
@@ -167,6 +173,7 @@ import { McpPluginManifest } from 'src/utils/types'
 import { hash53 } from 'src/utils/functions'
 import { useI18n } from 'vue-i18n'
 import { IsTauri } from 'src/utils/platform-api'
+import ATip from './ATip.vue'
 
 const { t } = useI18n()
 

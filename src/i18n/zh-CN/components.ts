@@ -13,7 +13,8 @@ export default {
     url: 'URL',
     cancel: '取消',
     install: '安装',
-    installFailed: '安装失败'
+    installFailed: '安装失败',
+    stdioPlatformTip: '仅桌面版支持 STDIO 类型 MCP 插件，当前平台仅支持 SSE 类型'
   },
   abortableBtn: {
     stop: '停止'

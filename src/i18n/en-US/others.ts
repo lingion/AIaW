@@ -2,8 +2,8 @@ export default {
   routes: {
     settings: 'Settings',
     shortcutKeys: 'Shortcut Keys',
-    pluginsMarket: 'Plugins Market',
-    assistantsMarket: 'Assistants Market',
+    pluginsMarket: 'Plugins',
+    assistantsMarket: 'Assistants',
     account: 'Account',
     modelPricing: 'Model Pricing'
   },

@@ -56,6 +56,9 @@ importers:
       '@capacitor/ios':
         specifier: ^7.0.1
         version: 7.0.1(@capacitor/core@7.0.1)
+      '@capacitor/status-bar':
+        specifier: ^7.0.0
+        version: 7.0.0(@capacitor/core@7.0.1)
       '@cfworker/json-schema':
         specifier: ^2.0.1
         version: 2.0.1
@@ -1164,6 +1167,11 @@ packages:
     resolution: {integrity: sha512-RN6S1C1k7ue57DFmJM4EizzsYBrahTTiMhcnlHspFLaojgHbFWZbYq1VriuRKysPU1ka/P+klsdtRFsB5K9jyw==}
     peerDependencies:
       '@capacitor/core': ^7.0.0
+
+  '@capacitor/status-bar@7.0.0':
+    resolution: {integrity: sha512-wsvPkWkoSOXMIgVHu4c6P1sOuDSZ1ClUo5OpLRwj7u8DYzlV4jlmNzztQn2Lvsiqx1z4kfukSaqe40k1Lo4c9g==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
 
   '@cfworker/json-schema@2.0.1':
     resolution: {integrity: sha512-1w7xVrTFjAWBVaOWRH5AMdKpJdltF4iy/d93E7qj8Rox6yY9OzEW1aC7T5eONrDOxXrlnsclPw9v24XW2c0mkg==}
@@ -7714,6 +7722,10 @@ snapshots:
       tslib: 2.7.0
 
   '@capacitor/ios@7.0.1(@capacitor/core@7.0.1)':
+    dependencies:
+      '@capacitor/core': 7.0.1
+
+  '@capacitor/status-bar@7.0.0(@capacitor/core@7.0.1)':
     dependencies:
       '@capacitor/core': 7.0.1
 

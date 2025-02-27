@@ -2,12 +2,12 @@
   {
     "id": "mcp-fetch",
     "title": "Fetch",
-    "description": "获取网页内容",
+    "description": "Fetches the content of a webpage",
     "type": "mcp",
     "manifest": {
       "id": "mcp-fetch",
       "title": "Fetch",
-      "description": "获取网页内容",
+      "description": "Fetches the content of a webpage",
       "transport": {
         "type": "stdio",
         "command": "uvx mcp-server-fetch"
@@ -29,12 +29,12 @@
   {
     "id": "mcp-searxng",
     "title": "SearXNG",
-    "description": "通过 SearXNG 进行网页搜索",
+    "description": "Web search via SearXNG",
     "type": "mcp",
     "manifest": {
       "id": "mcp-searxng",
       "title": "SearXNG",
-      "description": "通过 SearXNG 进行网页搜索",
+      "description": "Web search via SearXNG",
       "transport": {
         "type": "stdio",
         "command": "uvx mcp-searxng",
@@ -42,8 +42,8 @@
           "SEARXNG_URL": "http://localhost:8080"
         }
       },
-      "author": "MCP Official",
-      "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/brave-search",
+      "author": "TerminalMan",
+      "homepage": "https://github.com/SecretiveShell/MCP-searxng",
       "avatar": {
         "type": "icon",
         "icon": "sym_o_search",
@@ -59,12 +59,12 @@
   {
     "id": "mcp-github",
     "title": "GitHub",
-    "description": "访问 GitHub API，支持文件操作、仓库管理、搜索等。",
+    "description": "Repository management, file operations, and GitHub API integration",
     "type": "mcp",
     "manifest": {
       "id": "mcp-github",
       "title": "GitHub",
-      "description": "访问 GitHub API，支持文件操作、仓库管理、搜索等。",
+      "description": "Repository management, file operations, and GitHub API integration",
       "transport": {
         "type": "stdio",
         "command": "npx -y @modelcontextprotocol/server-github",
@@ -88,13 +88,13 @@
   },
   {
     "id": "mcp-brave-search",
-    "title": "Brave 搜索",
-    "description": "使用 Brave 搜索 API，提供网络和本地搜索功能",
+    "title": "Brave Search",
+    "description": "Web and local search using Brave’s Search API",
     "type": "mcp",
     "manifest": {
       "id": "mcp-brave-search",
-      "title": "Brave 搜索",
-      "description": "使用 Brave 搜索 API，提供网络和本地搜索功能",
+      "title": "Brave Search",
+      "description": "Web and local search using Brave’s Search API",
       "transport": {
         "type": "stdio",
         "command": "npx -y @modelcontextprotocol/server-brave-search",
@@ -119,12 +119,12 @@
   {
     "id": "mcp-puppeteer",
     "title": "Puppeteer",
-    "description": "提供一个浏览器环境，用于网页截图、爬虫等",
+    "description": "Browser automation and web scraping capabilities",
     "type": "mcp",
     "manifest": {
       "id": "mcp-puppeteer",
       "title": "Puppeteer",
-      "description": "提供一个浏览器环境，用于网页截图、爬虫等",
+      "description": "Browser automation and web scraping capabilities",
       "transport": {
         "type": "stdio",
         "command": "npx -y @modelcontextprotocol/server-puppeteer"
@@ -145,13 +145,13 @@
   },
   {
     "id": "mcp-memory",
-    "title": "记忆",
-    "description": "使用本地知识图结构储存记忆",
+    "title": "Memory",
+    "description": "Knowledge graph-based persistent memory system",
     "type": "mcp",
     "manifest": {
       "id": "mcp-puppeteer",
-      "title": "记忆",
-      "description": "使用本地知识图结构储存记忆",
+      "title": "Memory",
+      "description": "Knowledge graph-based persistent memory system",
       "transport": {
         "type": "stdio",
         "command": "npx -y @modelcontextprotocol/server-memory"
@@ -172,13 +172,13 @@
   },
   {
     "id": "mcp-commander",
-    "title": "命令行",
-    "description": "提供运行命令和基于 diff 的文件编辑能力",
+    "title": "Commander",
+    "description": "Terminal commands and diff based file editing.",
     "type": "mcp",
     "manifest": {
       "id": "mcp-commander",
-      "title": "命令行",
-      "description": "提供运行命令和基于 diff 的文件编辑能力",
+      "title": "Commander",
+      "description": "Terminal commands and diff based file editing.",
       "transport": {
         "type": "stdio",
         "command": "npx -y @wonderwhy-er/desktop-commander"
@@ -199,8 +199,8 @@
   },
   {
     "id": "hf-66e2e70c689f9c7f5810a2dd",
-    "title": "真实图像生成",
-    "description": "使用 FLUX.1-RealismLora 模型生成逼真的图像",
+    "title": "Realistic Image Generation",
+    "description": "Generates realistic images using the FLUX.1-RealismLora model",
     "type": "gradio",
     "avatar": {
       "type": "icon",
@@ -209,8 +209,8 @@
     },
     "manifest": {
       "id": "hf-66e2e70c689f9c7f5810a2dd",
-      "title": "真实图像生成",
-      "description": "使用 FLUX.1-RealismLora 模型生成逼真的图像",
+      "title": "Realistic Image Generation",
+      "description": "Generates realistic images using the FLUX.1-RealismLora model",
       "baseUrl": "https://damarjati-flux-1-realismlora.hf.space",
       "avatar": {
         "type": "icon",
@@ -288,7 +288,7 @@
   {
     "id": "lobe-search1api",
     "title": "Search1API",
-    "description": "搜索聚合服务，专为LLMs设计",
+    "description": "Search aggregation service designed for LLMs",
     "type": "lobechat",
     "manifest": "https://lobehub.search1api.com/manifest.json",
     "avatar": {
@@ -298,8 +298,8 @@
   },
   {
     "id": "lobe-pollinations-drawing",
-    "title": "授粉绘画",
-    "description": "通过 pollinations.ai 进行图像生成",
+    "title": "Pollinations Drawing",
+    "description": "Image generation via pollinations.ai",
     "type": "lobechat",
     "manifest": "https://pollinations.ai-chat.top/manifest.json",
     "avatar": {
@@ -309,8 +309,8 @@
   },
   {
     "id": "lobe-website-crawler",
-    "title": "网站爬虫",
-    "description": "从网页链接中提取内容",
+    "title": "Website Crawler",
+    "description": "Extracts content from web links",
     "type": "lobechat",
     "manifest": "https://web-crawler.chat-plugin.lobehub.com/manifest.json",
     "avatar": {
@@ -320,8 +320,8 @@
   },
   {
     "id": "hf-66e67519722f7812159283da",
-    "title": "DALL-E 2 图像生成",
-    "description": "使用 DALL-E 2 模型生成图像",
+    "title": "DALL-E 2 Image Generation",
+    "description": "Generates images using the DALL-E 2 model",
     "type": "gradio",
     "avatar": {
       "type": "icon",
@@ -330,8 +330,8 @@
     },
     "manifest": {
       "id": "hf-66e67519722f7812159283da",
-      "title": "DALL-E 2 图像生成",
-      "description": "使用 DALL-E 2 模型生成图像",
+      "title": "DALL-E 2 Image Generation",
+      "description": "Generates images using the DALL-E 2 model",
       "baseUrl": "https://unofficial-hf-plugins-dalle2-image-generation.hf.space",
       "avatar": {
         "type": "icon",
@@ -372,8 +372,8 @@
   },
   {
     "id": "hf-66bb50a6e01e9b8556be872f",
-    "title": "语音合成（TTS）",
-    "description": "让 AI 以指定的嗓音生成指定文本的语音（仅英文）",
+    "title": "Speech Synthesis (TTS)",
+    "description": "Lets AI generate speech from specified text with a specified voice (English only)",
     "type": "gradio",
     "avatar": {
       "type": "icon",
@@ -382,8 +382,8 @@
     },
     "manifest": {
       "id": "hf-66bb50a6e01e9b8556be872f",
-      "title": "语音合成（TTS）",
-      "description": "让 AI 以指定的嗓音生成指定文本的语音（仅英文）",
+      "title": "Speech Synthesis (TTS)",
+      "description": "Lets AI generate speech from specified text with a specified voice (English only)",
       "baseUrl": "https://parler-tts-parler-tts.hf.space",
       "avatar": {
         "type": "icon",
@@ -430,8 +430,8 @@
   },
   {
     "id": "hf-66e99753cb638fb7e2342da5",
-    "title": "网站截屏",
-    "description": "通过 URL 获取网站截图",
+    "title": "Website Screenshot",
+    "description": "Get website screenshots via URL",
     "type": "gradio",
     "avatar": {
       "type": "icon",
@@ -440,8 +440,8 @@
     },
     "manifest": {
       "id": "hf-66e99753cb638fb7e2342da5",
-      "title": "网站截屏",
-      "description": "通过 URL 获取网站截图",
+      "title": "Website Screenshot",
+      "description": "Get website screenshots via URL",
       "baseUrl": "https://kargaranamir-selenium-screenshot-gradio.hf.space",
       "avatar": {
         "type": "icon",
@@ -475,8 +475,8 @@
   },
   {
     "id": "hf-66e629fc4b8b7ebe4898ede9",
-    "title": "音效生成",
-    "description": "通过文本描述生成音效",
+    "title": "Sound Effect Generation",
+    "description": "Generate sound effects from text descriptions",
     "type": "gradio",
     "avatar": {
       "type": "icon",
@@ -485,8 +485,8 @@
     },
     "manifest": {
       "id": "hf-66e629fc4b8b7ebe4898ede9",
-      "title": "音效生成",
-      "description": "通过文本描述生成音效",
+      "title": "Sound Effect Generation",
+      "description": "Generate sound effects from text descriptions",
       "baseUrl": "https://artificialguybr-stable-audio-open-zero.hf.space",
       "avatar": {
         "type": "icon",

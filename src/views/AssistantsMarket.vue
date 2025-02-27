@@ -3,7 +3,6 @@
     <q-toolbar-title>
       {{ $t('assistantsMarket.title') }}
     </q-toolbar-title>
-    <q-space />
     <q-btn
       flat
       dense
@@ -143,7 +142,7 @@ const loading = ref(false)
 const { locale } = useI18n()
 function load() {
   loading.value = true
-  fetch(`/assistants/index.${locale.value}.json`)
+  fetch(`/json/assistants.${locale.value}.json`)
     .then(res => res.json())
     .then(data => {
       list.push(...data)

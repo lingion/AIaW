@@ -181,11 +181,11 @@ db.on('ready', () => {
   }
 })
 const uiStateStore = useUiStateStore()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const unit = reactive({
-  cny: true,
-  mTokens: false
+  cny: locale.value === 'zh-CN',
+  mTokens: true
 })
 
 const usage = reactive({

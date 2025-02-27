@@ -3,7 +3,6 @@
     <q-toolbar-title>
       {{ $t('workspaceSettings.title') }}
     </q-toolbar-title>
-    <q-space />
   </view-common-header>
   <q-page-container>
     <q-page bg-sur>
