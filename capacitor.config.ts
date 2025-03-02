@@ -5,11 +5,9 @@ const config: CapacitorConfig = {
   appName: 'AIaW',
   webDir: 'dist/spa',
   plugins: {
-    CapacitorHttp: {
-      enabled: true
-    },
     StatusBar: {
-      overlaysWebView: false
+      overlaysWebView: false,
+      backgroundColor: '#00000000'
     }
   }
 }

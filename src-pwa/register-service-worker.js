@@ -38,7 +38,7 @@ register(process.env.SERVICE_WORKER_FILE, {
       .then(data => {
         newVersion = data
         version.versionCode <= newVersion.forceUpdateFrom && registration.active && Loading.show({
-          message: t('registerSW.updating')
+          message: t('update.updating')
         })
       })
   },

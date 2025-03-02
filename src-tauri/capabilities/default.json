@@ -53,14 +53,6 @@
       ]
     },
     "os:default",
-    {
-      "identifier": "http:default",
-      "allow": [
-        {
-          "url": "https://*"
-        }
-      ]
-    },
     "clipboard-manager:allow-read-text"
   ]
 }

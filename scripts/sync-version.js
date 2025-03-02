@@ -11,6 +11,11 @@ async function updateVersions() {
     tauriConfig.version = versionData.version.replace('v', '')
     await fs.writeFile(tauriConfigPath, JSON.stringify(tauriConfig, null, 2))
 
+    const packageJsonPath = new URL('../package.json', import.meta.url)
+    const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'))
+    packageJson.version = versionData.version.replace('v', '')
+    await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2))
+
     const gradlePath = new URL('../android/app/build.gradle', import.meta.url)
     let gradleContent = await fs.readFile(gradlePath, 'utf-8')
 
@@ -20,7 +25,7 @@ async function updateVersions() {
     )
     gradleContent = gradleContent.replace(
       /versionName\s+["'][^"']*["']/,
-      `versionName "${versionData.version}"`
+      `versionName "${versionData.capChannel}-${versionData.version}"`
     )
 
     await fs.writeFile(gradlePath, gradleContent)

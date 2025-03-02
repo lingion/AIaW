@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "AI as Workspace",
-  "version": "1.4.0",
+  "version": "1.4.0-beta",
   "identifier": "app.aiaw",
   "build": {
     "frontendDist": "../dist/spa",
@@ -33,7 +33,8 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "createUpdaterArtifacts": true
   },
   "plugins": {
     "updater": {

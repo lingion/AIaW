@@ -105,8 +105,14 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
   artifactsPlugin: {
     description: 'Modify Artifact'
   },
-  registerSW: {
-    updating: 'Updating...'
+  update: {
+    updating: 'Updating...',
+    updateFound: 'Update found: {version}',
+    download: 'Download',
+    ignore: 'Ignore',
+    update: 'Update',
+    installedNewVersion: 'Installed new version: {version}',
+    relaunch: 'Relaunch'
   },
   stores: {
     plugins: {

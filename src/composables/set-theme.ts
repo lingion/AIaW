@@ -92,6 +92,7 @@ export function useSetTheme() {
     })
     document.querySelector('meta[name="theme-color"]').setAttribute('content', hexFromArgb(colors['sur-c']))
     IsCapacitor && StatusBar.setBackgroundColor({ color: hexFromArgb(colors['sur-c']) })
+    IsCapacitor && StatusBar.setOverlaysWebView({ overlay: false })
     uiStateStore.colors = colors
   })
 }

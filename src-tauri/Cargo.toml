@@ -25,8 +25,11 @@ tauri = { version = "2.2.4", features = [] }
 tauri-plugin-log = "2.0.0-rc"
 tauri-plugin-shell = "2"
 tauri-plugin-os = "2"
-tauri-plugin-http = "2"
 tauri-plugin-clipboard-manager = "2"
+tauri-plugin-process = "2"
+futures-util = "0.3.31"
+reqwest = "0.12.12"
+bytes = { version = "1.10.0", features = ["serde"] }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-updater = "2"

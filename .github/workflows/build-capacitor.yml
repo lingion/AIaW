@@ -60,6 +60,11 @@ jobs:
       - name: Build app bundle
         run: npx cap build android --keystorepath release.decrypted.jks --keystorepass "${{ secrets.KEYSTORE_PASSWORD }}" --keystorealias "${{ secrets.KEYSTORE_ALIAS }}" --keystorealiaspass "${{ secrets.KEYSTORE_ALIAS_PASSWORD }}" --androidreleasetype APK
 
+      - name: Zip spa bundle
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r spa.zip dist/spa
+
       - name: Upload an Asset in GitHub Release
         uses: "actions/github-script@v6"
         with:
@@ -72,4 +77,18 @@ jobs:
               repo: context.repo.repo,
               release_id: ${{ env.RELEASE_ID }},
               data: await fs.readFile('./android/app/build/outputs/apk/release/app-release-signed.apk')
+            });
+            await github.rest.repos.uploadReleaseAsset({
+              name: 'spa_bundle_${{ github.ref_name }}.zip',
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ env.RELEASE_ID }},
+              data: await fs.readFile('./spa.zip')
+            });
+            await github.rest.repos.uploadReleaseAsset({
+              name: 'version.json',
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ env.RELEASE_ID }},
+              data: await fs.readFile('./src/version.json')
             });
