@@ -62,7 +62,7 @@ jobs:
         working-directory: ./android
         run: |
           ./gradlew assembleRelease \
-            -Pandroid.injected.signing.store.file=release.decrypted.jks \
+            -Pandroid.injected.signing.store.file=../release.decrypted.jks \
             -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
             -Pandroid.injected.signing.key.alias=${{ secrets.KEYSTORE_ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.KEYSTORE_ALIAS_PASSWORD }}
