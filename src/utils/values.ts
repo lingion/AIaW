@@ -144,6 +144,7 @@ const models: Model[] = [
   { name: 'o3-mini', inputTypes: InputTypes.textOnly },
   { name: 'o3-mini-2025-01-31', inputTypes: InputTypes.textOnly },
   { name: 'gpt-4o', inputTypes: InputTypes.commonVision },
+  { name: 'gpt-4o-2024-11-20', inputTypes: InputTypes.commonVision },
   { name: 'gpt-4o-2024-08-06', inputTypes: InputTypes.commonVision },
   { name: 'gpt-4o-2024-05-13', inputTypes: InputTypes.commonVision },
   { name: 'chatgpt-4o-latest', inputTypes: InputTypes.commonVision },
