@@ -40,6 +40,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Setup .env
+        run: cp .env.app .env.local
+
       - name: Build frontend
         run: pnpm build
 

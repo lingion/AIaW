@@ -53,6 +53,9 @@ jobs:
       - name: install frontend dependencies
         run: pnpm install
 
+      - name: setup .env
+        run: cp .env.app .env.local
+
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
