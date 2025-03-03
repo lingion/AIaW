@@ -44,11 +44,6 @@ jobs:
       - name: Build frontend
         run: pnpm build
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: 'build-tools'
-
       - name: Add android folder if not present
         run: if [ ! -d "./android" ]; then npx cap add android; fi
 
