@@ -7,8 +7,8 @@ android {
         applicationId "app.aiaw"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 10401
-        versionName "Alice-v1.4.1-beta"
+        versionCode 10402
+        versionName "Alice-v1.4.2-beta"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

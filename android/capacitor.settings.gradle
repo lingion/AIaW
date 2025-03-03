@@ -15,4 +15,4 @@ include ':capawesome-capacitor-live-update'
 project(':capawesome-capacitor-live-update').projectDir = new File('../node_modules/.pnpm/@capawesome+capacitor-live-_20a03f2114908b7e52112a3ad72f2fa4/node_modules/@capawesome/capacitor-live-update/android')
 
 include ':capacitor-stream-fetch'
-project(':capacitor-stream-fetch').projectDir = new File('../../../Github/capacitor-stream-fetch/android')
+project(':capacitor-stream-fetch').projectDir = new File('../node_modules/.pnpm/capacitor-stream-fetch@0.0.3_@capacitor+core@7.0.1/node_modules/capacitor-stream-fetch/android')
