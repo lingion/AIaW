@@ -59,17 +59,17 @@ jobs:
         run: chmod +x ./android/gradlew
 
       - name: Build Release APK
+        working-directory: ./android
         run: |
-          ./android/gradlew assembleRelease \
+          ./gradlew assembleRelease \
             -Pandroid.injected.signing.store.file=release.decrypted.jks \
             -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
             -Pandroid.injected.signing.key.alias=${{ secrets.KEYSTORE_ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.KEYSTORE_ALIAS_PASSWORD }}
 
       - name: Zip spa bundle
-        uses: montudor/action-zip@v1
-        with:
-          args: zip -qq -r spa.zip dist/spa
+        working-directory: ./dist/spa
+        run: zip -qq -r ../../spa.zip .
 
       # - name: Upload an Asset in GitHub Release
       #   uses: "actions/github-script@v6"
