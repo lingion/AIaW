@@ -414,7 +414,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
       parameters: TObject(params),
       async execute(args, settings) {
         const client = await getClient(id, { type: transport.type, ...settings })
-        const res: GetPromptResult = await client.getPrompt(args)
+        const res: GetPromptResult = await client.getPrompt({ name, arguments: args })
         return res.messages.map(m => {
           const { content } = m
           if (content.type === 'text') {

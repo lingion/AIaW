@@ -4,6 +4,7 @@ import { Workspace, Folder, Dialog, Message, Assistant, Artifact, StoredReactive
 import { AssistantDefaultPrompt, ExampleWsIndexContent } from './templates'
 import dexieCloud, { DexieCloudTable } from 'dexie-cloud-addon'
 import { DexieDBURL } from './config'
+import { i18n } from 'src/boot/i18n'
 
 type Db = Dexie & {
   workspaces: DexieCloudTable<Workspace | Folder, 'id'>
@@ -49,13 +50,15 @@ const defaultModelSettings = {
   maxRetries: 1
 }
 
+const { t } = i18n.global
+
 db.on.populate.subscribe(() => {
   db.on.ready.subscribe((db: Db) => {
     const initialWorkspaceId = genId()
     const initialAssistantId = genId()
     db.workspaces.add({
       id: initialWorkspaceId,
-      name: '示例工作区',
+      name: t('db.exampleWorkspace'),
       avatar: { type: 'icon', icon: 'sym_o_menu_book' },
       type: 'workspace',
       parentId: '$root',
@@ -71,7 +74,7 @@ db.on.populate.subscribe(() => {
     } as Workspace)
     db.assistants.add({
       id: initialAssistantId,
-      name: '默认助手',
+      name: t('db.defaultAssistant'),
       avatar: defaultAvatar('AI'),
       workspaceId: initialWorkspaceId,
       prompt: '',

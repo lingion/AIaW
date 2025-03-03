@@ -125,5 +125,9 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
       newFolder: '新文件夹',
       newWorkspace: '新工作区'
     }
+  },
+  db: {
+    exampleWorkspace: '示例工作区',
+    defaultAssistant: '默认助手'
   }
 }
