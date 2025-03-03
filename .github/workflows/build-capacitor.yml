@@ -80,7 +80,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               release_id: ${{ github.event.release.id }},
-              data: await fs.readFile('./android/app/build/outputs/apk/release/app-release-signed.apk')
+              data: await fs.readFile('./android/app/build/outputs/apk/release/app-release.apk')
             });
             await github.rest.repos.uploadReleaseAsset({
               name: 'spa_bundle_${{ github.ref_name }}.zip',
