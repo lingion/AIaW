@@ -1,6 +1,6 @@
 {
-  "version": "v1.4.0-beta",
-  "versionCode": 10400,
-  "forceUpdateFrom": 10309,
+  "version": "v1.4.1-beta",
+  "versionCode": 10401,
+  "forceUpdateFrom": 10400,
   "capChannel": "Alice"
 }
