@@ -51,7 +51,7 @@
     "@vueuse/core": "^11.0.3",
     "@vueuse/rxjs": "^11.0.3",
     "ai": "^4.1.34",
-    "capacitor-stream-fetch": "link:/Users/Nitro/Documents/Github/capacitor-stream-fetch",
+    "capacitor-stream-fetch": "^0.0.3",
     "codejar": "^4.2.0",
     "codejar-linenumbers": "^1.0.1",
     "dexie": "^4.0.11",
