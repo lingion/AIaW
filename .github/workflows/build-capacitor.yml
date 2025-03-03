@@ -52,8 +52,8 @@ jobs:
 
       - name: Extract Android signing key from env
         run: |
-          echo "${{ secrets.RELEASE_KEYSTORE }}" > android/release.jks.base64
-          base64 -d android/release.jks.base64 > android/release.decrypted.jks
+          echo "${{ secrets.RELEASE_KEYSTORE }}" > android/app/release.jks.base64
+          base64 -d android/app/release.jks.base64 > android/app/release.decrypted.jks
 
       - name: Set gradlew permissions
         run: chmod +x ./android/gradlew
@@ -62,7 +62,7 @@ jobs:
         working-directory: ./android
         run: |
           ./gradlew assembleRelease \
-            -Pandroid.injected.signing.store.file=../release.decrypted.jks \
+            -Pandroid.injected.signing.store.file=release.decrypted.jks \
             -Pandroid.injected.signing.store.password=${{ secrets.KEYSTORE_PASSWORD }} \
             -Pandroid.injected.signing.key.alias=${{ secrets.KEYSTORE_ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.KEYSTORE_ALIAS_PASSWORD }}
