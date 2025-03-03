@@ -1,7 +1,6 @@
 name: Build Android
 run-name: Creating Production Ready Android App 🚀
 on:
-  workflow_dispatch:
   release:
     types: [published]
 
@@ -70,30 +69,30 @@ jobs:
         working-directory: ./dist/spa
         run: zip -qq -r ../../spa.zip .
 
-      # - name: Upload an Asset in GitHub Release
-      #   uses: "actions/github-script@v6"
-      #   with:
-      #     github-token: "${{ secrets.GITHUB_TOKEN }}"
-      #     script: |
-      #       const fs = require('fs').promises;
-      #       await github.rest.repos.uploadReleaseAsset({
-      #         name: 'AIaW_${{ github.ref_name }}.apk',
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         release_id: ${{ github.event.release.id }},
-      #         data: await fs.readFile('./android/app/build/outputs/apk/release/app-release-signed.apk')
-      #       });
-      #       await github.rest.repos.uploadReleaseAsset({
-      #         name: 'spa_bundle_${{ github.ref_name }}.zip',
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         release_id: ${{ github.event.release.id }},
-      #         data: await fs.readFile('./spa.zip')
-      #       });
-      #       await github.rest.repos.uploadReleaseAsset({
-      #         name: 'version.json',
-      #         owner: context.repo.owner,
-      #         repo: context.repo.repo,
-      #         release_id: ${{ github.event.release.id }},
-      #         data: await fs.readFile('./src/version.json')
-      #       });
+      - name: Upload an Asset in GitHub Release
+        uses: "actions/github-script@v6"
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          script: |
+            const fs = require('fs').promises;
+            await github.rest.repos.uploadReleaseAsset({
+              name: 'AIaW_${{ github.ref_name }}.apk',
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ github.event.release.id }},
+              data: await fs.readFile('./android/app/build/outputs/apk/release/app-release-signed.apk')
+            });
+            await github.rest.repos.uploadReleaseAsset({
+              name: 'spa_bundle_${{ github.ref_name }}.zip',
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ github.event.release.id }},
+              data: await fs.readFile('./spa.zip')
+            });
+            await github.rest.repos.uploadReleaseAsset({
+              name: 'version.json',
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ github.event.release.id }},
+              data: await fs.readFile('./src/version.json')
+            });
