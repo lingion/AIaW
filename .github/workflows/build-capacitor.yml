@@ -58,7 +58,7 @@ jobs:
         run: chmod +x ./android/gradlew
 
       - name: Build app bundle
-        run: npx cap build android --keystorepath release.decrypted.jks --keystorepass "${{ secrets.KEYSTORE_PASSWORD }}" --keystorealias "${{ secrets.KEYSTORE_ALIAS }}" --keystorealiaspass "${{ secrets.KEYSTORE_ALIAS_PASSWORD }}" --androidreleasetype APK
+        run: npx cap build android --keystorepath release.decrypted.jks --keystorepass "${{ secrets.KEYSTORE_PASSWORD }}" --keystorealias "${{ secrets.KEYSTORE_ALIAS }}" --keystorealiaspass "${{ secrets.KEYSTORE_ALIAS_PASSWORD }}" --androidreleasetype APK --signing-type apksigner
 
       - name: Zip spa bundle
         uses: montudor/action-zip@v1
