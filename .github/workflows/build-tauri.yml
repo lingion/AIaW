@@ -66,9 +66,8 @@ jobs:
           releaseId: ${{ github.event.release.id }}
           args: ${{ matrix.args }}
 
-      # 添加新步骤，用于在 Linux 构建后修改 latest.json
       - name: Update latest.json with linux-deb platform
-        if: matrix.platform == 'ubuntu-22.04' # 仅在 Linux 构建中执行
+        if: matrix.platform == 'ubuntu-22.04'
         uses: actions/github-script@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
