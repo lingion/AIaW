@@ -1,4 +1,4 @@
-name: 'Build Tauri'
+name: 'Build Tauri Debug'
 
 on:
   workflow_dispatch:
@@ -69,9 +69,10 @@ jobs:
         with:
           name: tauri-debug-${{ matrix.name }}
           path: |
-            src-tauri/target/*/debug/bundle/*.dmg
-            src-tauri/target/*/debug/bundle/*.exe
-            src-tauri/target/*/debug/bundle/*.rpm
-            src-tauri/target/*/debug/bundle/*.deb
-            src-tauri/target/*/debug/bundle/*.AppImage
-          retention-days: 3
+            src-tauri/target/debug/bundle/*/*.dmg
+            src-tauri/target/debug/bundle/*/*.exe
+            src-tauri/target/debug/bundle/*/*.msi
+            src-tauri/target/debug/bundle/*/*.rpm
+            src-tauri/target/debug/bundle/*/*.deb
+            src-tauri/target/debug/bundle/*/*.AppImage
+          retention-days: 5
