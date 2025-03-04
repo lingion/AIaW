@@ -63,6 +63,71 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
 
         with:
-          tagName: v__VERSION__ # the action automatically replaces \_\_VERSION\_\_ with the app version.
-          releaseName: 'v__VERSION__'
+          releaseId: ${{ github.event.release.id }}
           args: ${{ matrix.args }}
+
+      # 添加新步骤，用于在 Linux 构建后修改 latest.json
+      - name: Update latest.json with linux-deb platform
+        if: matrix.platform == 'ubuntu-22.04' # 仅在 Linux 构建中执行
+        uses: actions/github-script@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const assets = await github.rest.repos.listReleaseAssets({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ github.event.release.id }}
+              per_page: 50,
+            });
+
+            let latestJsonAsset = assets.data.find(asset => asset.name === 'latest.json');
+            if (!latestJsonAsset) {
+              console.log('latest.json not found in release assets');
+              return;
+            }
+
+            console.log('Downloading latest.json...');
+            const latestJsonResponse = await fetch(latestJsonAsset.browser_download_url);
+            const latestJson = await latestJsonResponse.json();
+
+            console.log('Reading Debian package signature...');
+            const debSigPath = 'src-tauri/target/release/bundle/deb/AI as Workspace_' + latestJson.version + '_amd64.deb.sig';
+            const debSignature = fs.readFileSync(debSigPath, 'utf8');
+
+            const linuxAppImageUrl = latestJson.platforms['linux-x86_64']?.url;
+            if (!linuxAppImageUrl) {
+              console.error('Linux AppImage URL not found in latest.json');
+              return;
+            }
+            const linuxDebUrl = linuxAppImageUrl.replace('.AppImage', '.deb');
+
+            console.log('Adding linux-deb platform to latest.json...');
+            latestJson.platforms['linux-deb'] = {
+              signature: debSignature,
+              url: linuxDebUrl
+            };
+
+            const tempLatestJsonPath = path.join('./', 'latest.json');
+            fs.writeFileSync(tempLatestJsonPath, JSON.stringify(latestJson, null, 2));
+
+            console.log('Deleting original latest.json asset...');
+            await github.rest.repos.deleteReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              asset_id: latestJsonAsset.id
+            });
+
+            console.log('Uploading updated latest.json...');
+            await github.rest.repos.uploadReleaseAsset({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              release_id: ${{ github.event.release.id }},
+              name: 'latest.json',
+              data: fs.readFileSync(tempLatestJsonPath)
+            });
+
+            console.log('latest.json updated successfully with linux-deb platform');

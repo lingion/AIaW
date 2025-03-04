@@ -6,6 +6,7 @@ import version from 'src/version.json'
 import { Loading, Notify, QNotifyAction } from 'quasar'
 import { i18n } from 'src/boot/i18n'
 import { localData } from './local-data'
+import { invoke } from '@tauri-apps/api/core'
 
 const BaseURL = 'https://github.com/NitroRCr/AIaW/releases/latest/download'
 type Version = typeof version
@@ -73,7 +74,8 @@ async function capLiveUpdate(latest: Version, force: boolean) {
 }
 
 async function tauriUpdate(latest: Version, force: boolean) {
-  const update = await check()
+  const isDeb = TauriPlatform === 'linux' && await invoke('is_deb_package')
+  const update = await check(isDeb ? { target: 'linux-deb' } : {})
   if (!update) return
   if (TauriPlatform === 'windows') {
     if (force && !isUpdateIgnored(latest.version)) {
