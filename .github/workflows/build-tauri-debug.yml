@@ -13,12 +13,16 @@ jobs:
         include:
           - platform: 'macos-latest' # for Arm based macs (M1 and above).
             args: '--target aarch64-apple-darwin'
+            id: 'macos-arm'
           - platform: 'macos-latest' # for Intel based macs.
             args: '--target x86_64-apple-darwin'
+            id: 'macos-intel'
           - platform: 'ubuntu-22.04' # for Tauri v1 you could replace this with ubuntu-20.04.
             args: ''
+            id: 'ubuntu'
           - platform: 'windows-latest'
             args: ''
+            id: 'windows'
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -67,7 +71,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: tauri-debug-${{ matrix.name }}
+          name: tauri-debug-${{ matrix.id }}
           path: |
             src-tauri/target/debug/bundle/*/*.dmg
             src-tauri/target/debug/bundle/*/*.exe
