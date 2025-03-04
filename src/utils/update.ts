@@ -77,17 +77,18 @@ async function tauriUpdate(latest: Version, force: boolean) {
   if (!update) return
   if (TauriPlatform === 'windows') {
     if (force && !isUpdateIgnored(latest.version)) {
+      await update.download()
       wrapNotify(
-        t('update.updateFound', { version: latest.version }),
+        t('update.downloadedNewVersion', { version: latest.version }),
         [{
           label: t('update.ignore'),
           handler: () => {
             ignoreUpdate(latest.version)
           }
         }, {
-          label: t('update.update'),
+          label: t('update.install'),
           handler: () => {
-            update.downloadAndInstall()
+            update.install()
           }
         }]
       )

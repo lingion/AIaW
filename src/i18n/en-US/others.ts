@@ -110,8 +110,9 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
     updateFound: 'Update found: {version}',
     download: 'Download',
     ignore: 'Ignore',
-    update: 'Update',
-    installedNewVersion: 'Installed new version: {version}',
+    install: 'Install',
+    downloadedNewVersion: 'New version downloaded: {version}',
+    installedNewVersion: 'New version installed: {version}',
     relaunch: 'Relaunch'
   },
   stores: {
@@ -125,5 +126,9 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
       newFolder: 'New Folder',
       newWorkspace: 'New Workspace'
     }
+  },
+  db: {
+    exampleWorkspace: 'Example Workspace',
+    defaultAssistant: 'Default Assistant'
   }
 }

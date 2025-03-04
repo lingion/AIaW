@@ -110,7 +110,8 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
     updateFound: '發現新版本：{version}',
     download: '下載',
     ignore: '忽略',
-    update: '更新',
+    install: '安裝',
+    downloadedNewVersion: '已下載新版本：{version}',
     installedNewVersion: '已安裝新版本：{version}',
     relaunch: '重啟'
   },
@@ -125,5 +126,9 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
       newFolder: '新文件夾',
       newWorkspace: '新工作區'
     }
+  },
+  db: {
+    exampleWorkspace: '示例工作區',
+    defaultAssistant: '預設助手'
   }
 }

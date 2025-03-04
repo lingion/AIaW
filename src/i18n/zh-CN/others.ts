@@ -110,7 +110,8 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
     updateFound: '发现新版本：{version}',
     download: '下载',
     ignore: '忽略',
-    update: '更新',
+    install: '安装',
+    downloadedNewVersion: '已下载新版本：{version}',
     installedNewVersion: '已安装新版本：{version}',
     relaunch: '重启'
   },
