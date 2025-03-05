@@ -77,7 +77,7 @@ async function tauriUpdate(latest: Version, force: boolean) {
   const isDeb = TauriPlatform === 'linux' && await invoke('is_deb_package')
   const update = await check(isDeb ? { target: 'linux-deb' } : {})
   if (!update) return
-  if (TauriPlatform === 'windows') {
+  if (TauriPlatform === 'windows' || isDeb) {
     if (force && !isUpdateIgnored(latest.version)) {
       await update.download()
       wrapNotify(
@@ -89,8 +89,9 @@ async function tauriUpdate(latest: Version, force: boolean) {
           }
         }, {
           label: t('update.install'),
-          handler: () => {
-            update.install()
+          handler: async () => {
+            await update.install()
+            await relaunch()
           }
         }]
       )

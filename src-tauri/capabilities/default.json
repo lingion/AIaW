@@ -54,6 +54,7 @@
     },
     "shell:allow-open",
     "os:default",
-    "clipboard-manager:allow-read-text"
+    "clipboard-manager:allow-read-text",
+    "process:allow-restart"
   ]
 }
