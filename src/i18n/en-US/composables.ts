@@ -27,6 +27,7 @@ export default {
   },
   installPlugin: {
     fetchFailed: 'Failed to get plugin configuration: {message}',
+    installFailed: 'Plugin installation failed: {message}',
     formatError: 'Format error',
     unsupportedFormat: 'Unsupported plugin format'
   },

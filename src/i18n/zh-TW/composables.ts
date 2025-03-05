@@ -27,6 +27,7 @@ export default {
   },
   installPlugin: {
     fetchFailed: '獲取插件配置失敗：{message}',
+    installFailed: '插件安裝失敗：{message}',
     formatError: '格式錯誤',
     unsupportedFormat: '不支援的插件格式'
   },

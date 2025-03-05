@@ -22,6 +22,7 @@ export default defineConfig({
           { text: '多模态', link: '/usage/multimodal' },
           { text: '跨平台', link: '/usage/cross-platform' },
           { text: '插件系统', link: '/usage/plugins' },
+          { text: 'MCP 插件', link: '/usage/mcp' },
           { text: '插件配置与开发', link: '/usage/plugin-dev' },
           { text: '提示词变量', link: '/usage/prompt-vars' },
           { text: '工作区', link: '/usage/workspaces' },

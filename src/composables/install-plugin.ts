@@ -45,7 +45,13 @@ export function useInstallPlugin() {
     } else if (new Validator(LobePluginManifestSchema).validate(manifest).valid) {
       await store.installLobePlugin(manifest)
     } else if (new Validator(McpPluginManifestSchema).validate(manifest).valid) {
-      await store.installMcpPlugin(manifest)
+      await store.installMcpPlugin(manifest).catch(err => {
+        console.error(err)
+        $q.notify({
+          message: t('installPlugin.installFailed', { message: err.message }),
+          color: 'negative'
+        })
+      })
     } else {
       $q.notify({
         message: t('installPlugin.unsupportedFormat'),
