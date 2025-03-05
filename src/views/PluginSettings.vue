@@ -23,10 +23,10 @@
           </q-item-section>
         </q-item>
         <q-item>
-          <q-item-section avatar>
+          <q-item-section min-w="fit">
             {{ $t('pluginSettings.description') }}
           </q-item-section>
-          <q-item-section>
+          <q-item-section side>
             <q-item-label caption>
               {{ plugin.description }}
             </q-item-label>

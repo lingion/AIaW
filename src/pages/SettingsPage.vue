@@ -88,9 +88,9 @@
         <q-separator spaced />
         <q-item-label
           header
-          id="operation"
+          id="feature"
         >
-          {{ $t('settingsPage.operationHeader') }}
+          {{ $t('settingsPage.featureHeader') }}
         </q-item-label>
         <q-item>
           <q-item-section>
