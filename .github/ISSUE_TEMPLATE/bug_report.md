@@ -30,9 +30,9 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Environment**
- - OS: [e.g. Windows, iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 122]
+ - Platform: [e.g. Windows, Android, Web]
+ - Version: [e.g. v1.4.15]
+ - Browser/Webview version: [e.g. Chrome 131]
 
 **Additional context**
 Add any other context about the problem here.

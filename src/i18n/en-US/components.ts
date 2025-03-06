@@ -139,7 +139,7 @@ export default {
   },
   messageItem: {
     quote: 'Quote',
-    copyMarkdown: 'Copy Original Markdown Text',
+    copyMarkdown: 'Markdown',
     convertToArtifact: 'Convert to Artifact',
     regenerate: 'Regenerate',
     edit: 'Edit',
