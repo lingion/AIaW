@@ -67,7 +67,7 @@
       "description": "访问 GitHub API，支持文件操作、仓库管理、搜索等。",
       "transport": {
         "type": "stdio",
-        "command": "npx -y @modelcontextprotocol/server-github",
+        "command": "npx -y --prefer-offline @modelcontextprotocol/server-github",
         "env": {
           "GITHUB_PERSONAL_ACCESS_TOKEN": "Put your Access Token here"
         }
@@ -97,7 +97,7 @@
       "description": "使用 Brave 搜索 API，提供网络和本地搜索功能",
       "transport": {
         "type": "stdio",
-        "command": "npx -y @modelcontextprotocol/server-brave-search",
+        "command": "npx -y --prefer-offline @modelcontextprotocol/server-brave-search",
         "env": {
           "BRAVE_API_KEY": "Put your API Key here"
         }
@@ -127,7 +127,7 @@
       "description": "提供一个浏览器环境，用于网页截图、爬虫等",
       "transport": {
         "type": "stdio",
-        "command": "npx -y @modelcontextprotocol/server-puppeteer"
+        "command": "npx -y --prefer-offline @modelcontextprotocol/server-puppeteer"
       },
       "author": "MCP Official",
       "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/puppeteer",
@@ -154,7 +154,7 @@
       "description": "使用本地知识图结构储存记忆",
       "transport": {
         "type": "stdio",
-        "command": "npx -y @modelcontextprotocol/server-memory"
+        "command": "npx -y --prefer-offline @modelcontextprotocol/server-memory"
       },
       "author": "MCP Official",
       "homepage": "https://github.com/modelcontextprotocol/servers/tree/main/src/memory",
@@ -181,7 +181,7 @@
       "description": "提供运行命令和基于 diff 的文件编辑能力",
       "transport": {
         "type": "stdio",
-        "command": "npx -y @wonderwhy-er/desktop-commander"
+        "command": "npx -y --prefer-offline @wonderwhy-er/desktop-commander"
       },
       "author": "Eduard Ruzga",
       "homepage": "https://github.com/wonderwhy-er/ClaudeComputerCommander",

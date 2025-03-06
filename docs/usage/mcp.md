@@ -78,3 +78,7 @@ interface McpPluginManifest {
 
 部分属性的含义可以参考 [Gradio 插件](plugin-dev#gradio-插件)
 
+## 更新
+
+如果 MCP 服务器有破坏性的更新，那么需要卸载并重新安装对应的 MCP 插件，以避免 API 更改带来的冲突。
+
