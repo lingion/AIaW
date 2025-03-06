@@ -3,7 +3,7 @@ export default {
     title: 'Welcome to AI as Workspace',
     messageWithLogin: 'AIaW is a full-featured, lightweight, and extensible AI client.<br><br>To use the AI model, you need to <b>configure a service provider (API)</b> or <b>log in</b>.<br>After logging in, you can also use cross-device real-time cloud synchronization.',
     messageWithoutLogin: 'AIaW is a full-featured, lightweight, and extensible AI client.<br><br>To use the AI model, you need to <b>configure a service provider (API)</b>.',
-    cancel: 'Configure Service Provider',
+    cancel: 'Configure Provider',
     ok: 'Log In'
   },
   createDialog: {

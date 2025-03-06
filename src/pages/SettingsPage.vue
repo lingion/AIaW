@@ -23,6 +23,13 @@
         max-w="1000px"
         mx-a
       >
+        <a-tip
+          tip-key="configure-multiple-providers"
+          long
+          m-2
+        >
+          {{ $t('settingsPage.multipleProvidersTip') }}
+        </a-tip>
         <q-item-label
           header
           id="custom-provider"
@@ -541,6 +548,7 @@ import ImportDataDialog from 'src/components/ImportDataDialog.vue'
 import { useI18n } from 'vue-i18n'
 import { localData } from 'src/utils/local-data'
 import { fetch, PublicOrigin } from 'src/utils/platform-api'
+import ATip from 'src/components/ATip.vue'
 
 const { t } = useI18n()
 

@@ -8,7 +8,7 @@
       dense
       @click="selected = '$root'"
     >
-      <q-item-section>[$t('components.workspaceListSelect.root')]</q-item-section>
+      <q-item-section>[{{ $t('workspaceListSelect.root') }}]</q-item-section>
     </q-item>
     <workspace-list-item
       v-for="item in rootItems"

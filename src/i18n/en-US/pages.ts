@@ -101,6 +101,7 @@ export default {
   settingsPage: {
     title: 'Settings',
     customProviderHeader: 'Custom Provider',
+    multipleProvidersTip: 'If you want to configure multiple providers at the same time, you can create multiple assistants and configure different providers and models for each assistant',
     shareLinkLabel: 'Share Link',
     shareLinkCaption: 'Used to share your provider settings. Others will automatically apply this setting after opening the link.',
     copyLinkLabel: 'Copy Link',
