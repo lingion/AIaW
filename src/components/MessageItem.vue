@@ -142,7 +142,8 @@
           text-err
           break-word
           px-5
-          py-2
+          mt-2
+          pb-2
           v-if="message.error"
         >
           {{ message.error }}
@@ -152,7 +153,7 @@
             text-warn
             break-word
             px-5
-            py-2
+            my-2
             v-for="(warning, index) in message.warnings"
             :key="index"
           >
