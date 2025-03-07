@@ -5,9 +5,8 @@ const config: CapacitorConfig = {
   appName: 'AIaW',
   webDir: 'dist/spa',
   plugins: {
-    StatusBar: {
-      overlaysWebView: false,
-      backgroundColor: '#00000000'
+    EdgeToEdge: {
+      backgroundColor: '#00ffffff'
     }
   }
 }
