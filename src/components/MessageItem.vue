@@ -1,7 +1,7 @@
 <template>
   <div
     flex
-    :class="{ 'flex-row-reverse': message.type === 'user', 'flex-col px-2': colMode }"
+    :class="{ 'flex-row-reverse': message.type === 'user', 'flex-col': colMode }"
     relative
   >
     <div>
@@ -15,14 +15,14 @@
         <a-avatar
           v-if="avatar"
           :avatar
-          :size="colMode ? '36px' : '48px'"
-          :class="colMode ? 'mx-2' : 'xs:mx-3 sm:mx-4'"
+          :size="colMode ? '36px' : denseMode ? '40px' : '48px'"
+          :class="colMode ? 'mx-3' : 'xs:mx-3 sm:mx-4'"
           @click="onAvatarClick"
           cursor-pointer
         />
         <div
           v-if="name"
-          :class="colMode ? 'mx-2' : 'my-2 text-xs'"
+          :class="colMode ? '' : 'my-2 text-xs'"
           text="center on-sur-var"
         >
           {{ name }}
@@ -141,7 +141,8 @@
         <div
           text-err
           break-word
-          m-2
+          px-5
+          py-2
           v-if="message.error"
         >
           {{ message.error }}
@@ -150,7 +151,8 @@
           <div
             text-warn
             break-word
-            m-2
+            px-5
+            py-2
             v-for="(warning, index) in message.warnings"
             :key="index"
           >
@@ -182,10 +184,12 @@
           <span ml-3>{{ idDateString(message.id) }}</span>
         </div>
       </div>
-      <q-linear-progress
-        v-if="['pending', 'streaming'].includes(message.status)"
-        indeterminate
-      />
+      <div :class="{ 'mx-4': colMode }">
+        <q-linear-progress
+          v-if="['pending', 'streaming'].includes(message.status)"
+          indeterminate
+        />
+      </div>
       <div
         v-if="['default', 'failed'].includes(message.status)"
         text-on-sur-var
@@ -258,12 +262,12 @@
         :max="childNum"
         input
         :boundary-links="false"
-        :class="message.type === 'assistant' ? 'mx-2' : ''"
+        :class="message.type === 'assistant' ? 'mx-3' : ''"
       />
     </div>
     <div
       v-if="!colMode"
-      w="xs:24px sm:22.5%"
+      w="xs:20px sm:22.5%"
       shrink-0
     >
       <md-catalog
@@ -381,7 +385,8 @@ const name = computed(() =>
 )
 
 const showArtifacts = inject<ComputedRef>('showArtifacts')
-const colMode = computed(() => (showArtifacts.value || $q.screen.lt.md) && props.message.type === 'assistant')
+const denseMode = computed(() => showArtifacts.value || $q.screen.lt.md)
+const colMode = computed(() => denseMode.value && props.message.type === 'assistant')
 
 const router = useRouter()
 function onAvatarClick() {

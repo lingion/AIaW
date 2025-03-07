@@ -16,8 +16,13 @@
     of-y-auto
     bg-sur
   >
+    <img
+      v-if="artifact.language === 'svg'"
+      :src="`data:image/svg+xml,${encodeURIComponent(artifact.tmp)}`"
+    >
     <md-preview
-      :model-value="props.artifact.tmp"
+      v-else
+      :model-value="artifact.tmp"
       v-bind="mdPreviewProps"
       bg-sur
     />
@@ -49,7 +54,7 @@
         :label="$t('editArtifact.language')"
         outlined
         dense
-        class="w-120px"
+        class="w-100px"
       />
     </div>
     <q-btn

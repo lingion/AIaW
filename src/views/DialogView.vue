@@ -586,7 +586,10 @@ function onInputFiles({ target }) {
 function onPaste(ev: ClipboardEvent) {
   const { clipboardData } = ev
   if (clipboardData.types.includes('text/plain')) {
-    if (!['TEXTAREA', 'INPUT'].includes(document.activeElement.tagName)) {
+    if (
+      !['TEXTAREA', 'INPUT'].includes(document.activeElement.tagName) &&
+      !['true', 'plaintext-only'].includes((document.activeElement as HTMLElement).contentEditable)
+    ) {
       const text = clipboardData.getData('text/plain')
       addInputItems([{
         type: 'text',

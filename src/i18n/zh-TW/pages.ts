@@ -101,7 +101,6 @@ export default {
   settingsPage: {
     title: '設定',
     customProviderHeader: '自定義服務商',
-    multipleProvidersTip: '如果你想要同時配置多個服務商，可以創建多個助手，為每個助手配置不同的服務商和模型',
     shareLinkLabel: '分享連結',
     shareLinkCaption: '用於分享你的服務商設定。其他人開啟連結後，會自動應用此設定',
     copyLinkLabel: '複製連結',
