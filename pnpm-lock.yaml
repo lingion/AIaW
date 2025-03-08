@@ -90,16 +90,16 @@ importers:
         specifier: ^0.33.12
         version: 0.33.12
       '@tauri-apps/plugin-clipboard-manager':
-        specifier: ~2
+        specifier: ~2.2.1
         version: 2.2.1
       '@tauri-apps/plugin-opener':
-        specifier: ~2
+        specifier: ~2.2.6
         version: 2.2.6
       '@tauri-apps/plugin-os':
         specifier: ~2.2.0
         version: 2.2.0
       '@tauri-apps/plugin-process':
-        specifier: ~2
+        specifier: ~2.2.0
         version: 2.2.0
       '@tauri-apps/plugin-shell':
         specifier: ~2.2.0
@@ -162,8 +162,8 @@ importers:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.5.4)
       vue-i18n:
-        specifier: ^11.1.1
-        version: 11.1.1(vue@3.5.12(typescript@5.5.4))
+        specifier: ^11.1.2
+        version: 11.1.2(vue@3.5.12(typescript@5.5.4))
       vue-router:
         specifier: ^4.4.0
         version: 4.4.0(vue@3.5.12(typescript@5.5.4))
@@ -179,7 +179,7 @@ importers:
         version: 7.0.1
       '@intlify/unplugin-vue-i18n':
         specifier: ^2.0.0
-        version: 2.0.0(rollup@2.79.2)(vue-i18n@11.1.1(vue@3.5.12(typescript@5.5.4)))
+        version: 2.0.0(rollup@2.79.2)(vue-i18n@11.1.2(vue@3.5.12(typescript@5.5.4)))
       '@quasar/app-vite':
         specifier: ^2.1.0
         version: 2.1.0(@types/node@20.16.1)(eslint@8.57.0)(jiti@1.21.7)(pinia@2.2.2(typescript@5.5.4)(vue@3.5.12(typescript@5.5.4)))(quasar@2.16.10)(rollup@2.79.2)(sass@1.77.8)(terser@5.31.6)(tsx@4.18.0)(typescript@5.5.4)(vue-router@4.4.0(vue@3.5.12(typescript@5.5.4)))(vue@3.5.12(typescript@5.5.4))(workbox-build@7.1.1)(yaml@2.5.0)
@@ -230,7 +230,7 @@ importers:
         version: 0.7.2(eslint@8.57.0)(optionator@0.9.4)(typescript@5.5.4)(vite@5.4.11(@types/node@20.16.1)(sass-embedded@1.85.0)(sass@1.77.8)(terser@5.31.6))(vue-tsc@2.0.29(typescript@5.5.4))
       vitepress:
         specifier: ^1.5.0
-        version: 1.5.0(@algolia/client-search@5.15.0)(@types/node@20.16.1)(axios@1.7.7)(postcss@8.5.3)(qrcode@1.5.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass-embedded@1.85.0)(sass@1.77.8)(search-insights@2.17.3)(terser@5.31.6)(typescript@5.5.4)
+        version: 1.5.0(@algolia/client-search@5.15.0)(@types/node@20.16.1)(axios@1.8.2)(postcss@8.5.3)(qrcode@1.5.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass-embedded@1.85.0)(sass@1.77.8)(search-insights@2.17.3)(terser@5.31.6)(typescript@5.5.4)
       vue-tsc:
         specifier: ^2.0.29
         version: 2.0.29(typescript@5.5.4)
@@ -1846,20 +1846,20 @@ packages:
       vue-i18n:
         optional: true
 
-  '@intlify/core-base@11.1.1':
-    resolution: {integrity: sha512-bb8gZvoeKExCI2r/NVCK9E4YyOkvYGaSCPxVZe8T0jz8aX+dHEOZWxK06Z/Y9mWRkJfBiCH4aOhDF1yr1t5J8Q==}
+  '@intlify/core-base@11.1.2':
+    resolution: {integrity: sha512-nmG512G8QOABsserleechwHGZxzKSAlggGf9hQX0nltvSwyKNVuB/4o6iFeG2OnjXK253r8p8eSDOZf8PgFdWw==}
     engines: {node: '>= 16'}
 
-  '@intlify/message-compiler@11.1.1':
-    resolution: {integrity: sha512-4iEsUZ3aF7jXY19CJFN5VP+pPyLITD9FVsjB13z9TU1UxaZLlFsmNhvRxlPDSOfHAP5RpNF2QKKdZ3DHVf4Yzw==}
+  '@intlify/message-compiler@11.1.2':
+    resolution: {integrity: sha512-T/xbNDzi+Yv0Qn2Dfz2CWCAJiwNgU5d95EhhAEf4YmOgjCKktpfpiUSmLcBvK1CtLpPQ85AMMQk/2NCcXnNj1g==}
     engines: {node: '>= 16'}
 
   '@intlify/message-compiler@9.14.0':
     resolution: {integrity: sha512-sXNsoMI0YsipSXW8SR75drmVK56tnJHoYbPXUv2Cf9lz6FzvwsosFm6JtC1oQZI/kU+n7qx0qRrEWkeYFTgETA==}
     engines: {node: '>= 16'}
 
-  '@intlify/shared@11.1.1':
-    resolution: {integrity: sha512-2kGiWoXaeV8HZlhU/Nml12oTbhv7j2ufsJ5vQaa0VTjzUmZVdd/nmKFRAOJ/FtjO90Qba5AnZDwsrY7ZND5udA==}
+  '@intlify/shared@11.1.2':
+    resolution: {integrity: sha512-dF2iMMy8P9uKVHV/20LA1ulFLL+MKSbfMiixSmn6fpwqzvix38OIc7ebgnFbBqElvghZCW9ACtzKTGKsTGTWGA==}
     engines: {node: '>= 16'}
 
   '@intlify/shared@9.14.0':
@@ -3104,8 +3104,8 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
-  axios@1.7.7:
-    resolution: {integrity: sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==}
+  axios@1.8.2:
+    resolution: {integrity: sha512-ls4GYBm5aig9vWx8AWDSGLpnpDQRtWAfrjU+EuytuODrFBkqesN2RkOQCBzrA1RQNHw1SmRMSDDDSwzNAYQ6Rg==}
 
   b4a@1.6.6:
     resolution: {integrity: sha512-5Tk1HLk6b6ctmjIkAcU/Ujv/1WqiDl0F0JdRCR80VsOcUlHcu7pWeWRlOqQLHfDEsVx9YH/aif5AG4ehoCtTmg==}
@@ -6337,8 +6337,8 @@ packages:
     peerDependencies:
       eslint: '>=6.0.0'
 
-  vue-i18n@11.1.1:
-    resolution: {integrity: sha512-0P6DkKy96R4Wh2sIZJEHw8ivnlD1pnB6Ib/eldoF1SUpQutfKZv6aMqZwICS1gW0rwq24ZSXw7y3jW+PRVYqWA==}
+  vue-i18n@11.1.2:
+    resolution: {integrity: sha512-MfdkdKGUHN+jkkaMT5Zbl4FpRmN7kfelJIwKoUpJ32ONIxdFhzxZiLTVaAXkAwvH3y9GmWpoiwjDqbPIkPIMFA==}
     engines: {node: '>= 16'}
     peerDependencies:
       vue: ^3.0.0
@@ -8404,7 +8404,7 @@ snapshots:
     dependencies:
       '@types/node': 20.16.1
 
-  '@intlify/bundle-utils@7.5.1(vue-i18n@11.1.1(vue@3.5.12(typescript@5.5.4)))':
+  '@intlify/bundle-utils@7.5.1(vue-i18n@11.1.2(vue@3.5.12(typescript@5.5.4)))':
     dependencies:
       '@intlify/message-compiler': 9.14.0
       '@intlify/shared': 9.14.0
@@ -8417,16 +8417,16 @@ snapshots:
       source-map-js: 1.2.0
       yaml-eslint-parser: 1.2.3
     optionalDependencies:
-      vue-i18n: 11.1.1(vue@3.5.12(typescript@5.5.4))
+      vue-i18n: 11.1.2(vue@3.5.12(typescript@5.5.4))
 
-  '@intlify/core-base@11.1.1':
+  '@intlify/core-base@11.1.2':
     dependencies:
-      '@intlify/message-compiler': 11.1.1
-      '@intlify/shared': 11.1.1
+      '@intlify/message-compiler': 11.1.2
+      '@intlify/shared': 11.1.2
 
-  '@intlify/message-compiler@11.1.1':
+  '@intlify/message-compiler@11.1.2':
     dependencies:
-      '@intlify/shared': 11.1.1
+      '@intlify/shared': 11.1.2
       source-map-js: 1.2.1
 
   '@intlify/message-compiler@9.14.0':
@@ -8434,13 +8434,13 @@ snapshots:
       '@intlify/shared': 9.14.0
       source-map-js: 1.2.0
 
-  '@intlify/shared@11.1.1': {}
+  '@intlify/shared@11.1.2': {}
 
   '@intlify/shared@9.14.0': {}
 
-  '@intlify/unplugin-vue-i18n@2.0.0(rollup@2.79.2)(vue-i18n@11.1.1(vue@3.5.12(typescript@5.5.4)))':
+  '@intlify/unplugin-vue-i18n@2.0.0(rollup@2.79.2)(vue-i18n@11.1.2(vue@3.5.12(typescript@5.5.4)))':
     dependencies:
-      '@intlify/bundle-utils': 7.5.1(vue-i18n@11.1.1(vue@3.5.12(typescript@5.5.4)))
+      '@intlify/bundle-utils': 7.5.1(vue-i18n@11.1.2(vue@3.5.12(typescript@5.5.4)))
       '@intlify/shared': 9.14.0
       '@rollup/pluginutils': 5.1.0(rollup@2.79.2)
       '@vue/compiler-sfc': 3.4.38
@@ -8453,7 +8453,7 @@ snapshots:
       source-map-js: 1.2.0
       unplugin: 1.12.2
     optionalDependencies:
-      vue-i18n: 11.1.1(vue@3.5.12(typescript@5.5.4))
+      vue-i18n: 11.1.2(vue@3.5.12(typescript@5.5.4))
     transitivePeerDependencies:
       - rollup
       - supports-color
@@ -9306,7 +9306,7 @@ snapshots:
       '@babel/runtime-corejs3': 7.25.6
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@types/ramda': 0.30.2
-      axios: 1.7.7
+      axios: 1.8.2
       minimatch: 7.4.6
       process: 0.11.10
       ramda: 0.30.1
@@ -9943,13 +9943,13 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
-  '@vueuse/integrations@11.3.0(axios@1.7.7)(focus-trap@7.6.2)(qrcode@1.5.4)(vue@3.5.12(typescript@5.5.4))':
+  '@vueuse/integrations@11.3.0(axios@1.8.2)(focus-trap@7.6.2)(qrcode@1.5.4)(vue@3.5.12(typescript@5.5.4))':
     dependencies:
       '@vueuse/core': 11.3.0(vue@3.5.12(typescript@5.5.4))
       '@vueuse/shared': 11.3.0(vue@3.5.12(typescript@5.5.4))
       vue-demi: 0.14.10(vue@3.5.12(typescript@5.5.4))
     optionalDependencies:
-      axios: 1.7.7
+      axios: 1.8.2
       focus-trap: 7.6.2
       qrcode: 1.5.4
     transitivePeerDependencies:
@@ -10171,7 +10171,7 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.0.0
 
-  axios@1.7.7:
+  axios@1.8.2:
     dependencies:
       follow-redirects: 1.15.9
       form-data: 4.0.0
@@ -13546,7 +13546,7 @@ snapshots:
       tsx: 4.18.0
       yaml: 2.5.0
 
-  vitepress@1.5.0(@algolia/client-search@5.15.0)(@types/node@20.16.1)(axios@1.7.7)(postcss@8.5.3)(qrcode@1.5.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass-embedded@1.85.0)(sass@1.77.8)(search-insights@2.17.3)(terser@5.31.6)(typescript@5.5.4):
+  vitepress@1.5.0(@algolia/client-search@5.15.0)(@types/node@20.16.1)(axios@1.8.2)(postcss@8.5.3)(qrcode@1.5.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(sass-embedded@1.85.0)(sass@1.77.8)(search-insights@2.17.3)(terser@5.31.6)(typescript@5.5.4):
     dependencies:
       '@docsearch/css': 3.8.0
       '@docsearch/js': 3.8.0(@algolia/client-search@5.15.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(search-insights@2.17.3)
@@ -13559,7 +13559,7 @@ snapshots:
       '@vue/devtools-api': 7.6.7
       '@vue/shared': 3.5.12
       '@vueuse/core': 11.3.0(vue@3.5.12(typescript@5.5.4))
-      '@vueuse/integrations': 11.3.0(axios@1.7.7)(focus-trap@7.6.2)(qrcode@1.5.4)(vue@3.5.12(typescript@5.5.4))
+      '@vueuse/integrations': 11.3.0(axios@1.8.2)(focus-trap@7.6.2)(qrcode@1.5.4)(vue@3.5.12(typescript@5.5.4))
       focus-trap: 7.6.2
       mark.js: 8.11.1
       minisearch: 7.1.1
@@ -13636,10 +13636,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vue-i18n@11.1.1(vue@3.5.12(typescript@5.5.4)):
+  vue-i18n@11.1.2(vue@3.5.12(typescript@5.5.4)):
     dependencies:
-      '@intlify/core-base': 11.1.1
-      '@intlify/shared': 11.1.1
+      '@intlify/core-base': 11.1.2
+      '@intlify/shared': 11.1.2
       '@vue/devtools-api': 6.6.3
       vue: 3.5.12(typescript@5.5.4)
 
