@@ -1,7 +1,6 @@
 import { useQuasar } from 'quasar'
 import { BudgetBaseURL } from 'src/utils/config'
 import { db } from 'src/utils/db'
-import { fetch } from 'src/utils/platform-api'
 import { OrderItem } from 'src/utils/types'
 import { Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
