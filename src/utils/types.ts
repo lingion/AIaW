@@ -60,8 +60,7 @@ type Avatar = SvgAvatar | TextAvatar | ImageAvatar | UrlAvatar | IconAvatar
 
 const ProviderSchema = Object({
   type: String(),
-  settings: Object(undefined),
-  options: Optional(Object(undefined))
+  settings: Object(undefined)
 })
 type Provider = Static<typeof ProviderSchema>
 interface ProviderType {
@@ -512,6 +511,19 @@ interface ConvertArtifactOptions {
   name?: string
   lang?: string
   reserveOriginal: boolean
+}
+
+interface SubProvider {
+  type: string
+  settings: PluginSchema
+  models: string[]
+}
+
+interface CustomProvider {
+  id: string
+  name: string
+  avatar: Avatar
+  subProviders: SubProvider[]
 }
 
 export {

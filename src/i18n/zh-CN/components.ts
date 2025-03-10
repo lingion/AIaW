@@ -139,7 +139,7 @@ export default {
   },
   messageItem: {
     quote: '引用',
-    copyMarkdown: '复制原 Markdown 文本',
+    copyMarkdown: 'Markdown',
     convertToArtifact: '转换为 Artifact',
     regenerate: '重新生成',
     edit: '修改',
