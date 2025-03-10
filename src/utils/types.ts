@@ -513,19 +513,6 @@ interface ConvertArtifactOptions {
   reserveOriginal: boolean
 }
 
-interface SubProvider {
-  type: string
-  settings: PluginSchema
-  models: string[]
-}
-
-interface CustomProvider {
-  id: string
-  name: string
-  avatar: Avatar
-  subProviders: SubProvider[]
-}
-
 export {
   ApiCallError,
   HuggingPluginManifestSchema,
