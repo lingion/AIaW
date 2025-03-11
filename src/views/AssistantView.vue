@@ -83,7 +83,8 @@
           p="x-4 y-2"
           text-on-sur-var
         >
-          {{ $t('assistantView.promptVarsGuide1') }}<a
+          {{ $t('assistantView.promptVarsGuide1') }}
+          <a
             href="https://docs.aiaw.app/usage/prompt-vars.html"
             target="_blank"
             pri-link
