@@ -56,6 +56,9 @@ importers:
       '@capacitor/ios':
         specifier: ^7.0.1
         version: 7.0.1(@capacitor/core@7.0.1)
+      '@capacitor/keyboard':
+        specifier: ^7.0.0
+        version: 7.0.0(@capacitor/core@7.0.1)
       '@capacitor/status-bar':
         specifier: ^7.0.0
         version: 7.0.0(@capacitor/core@7.0.1)
@@ -107,6 +110,9 @@ importers:
       '@tauri-apps/plugin-updater':
         specifier: ~2.5.0
         version: 2.5.0
+      '@tauri-apps/plugin-window-state':
+        specifier: ~2
+        version: 2.2.1
       '@vueuse/core':
         specifier: ^11.0.3
         version: 11.0.3(vue@3.5.12(typescript@5.5.4))
@@ -1198,6 +1204,11 @@ packages:
     resolution: {integrity: sha512-RN6S1C1k7ue57DFmJM4EizzsYBrahTTiMhcnlHspFLaojgHbFWZbYq1VriuRKysPU1ka/P+klsdtRFsB5K9jyw==}
     peerDependencies:
       '@capacitor/core': ^7.0.0
+
+  '@capacitor/keyboard@7.0.0':
+    resolution: {integrity: sha512-Tqwy8wG+sx4UqiFCX4Q+bFw6uKgG7BiHKAPpeefoIgoEB8H8Jf3xZNZoVPnJIMuPsCdSvuyHXZbJXH9IEEirGA==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
 
   '@capacitor/status-bar@7.0.0':
     resolution: {integrity: sha512-wsvPkWkoSOXMIgVHu4c6P1sOuDSZ1ClUo5OpLRwj7u8DYzlV4jlmNzztQn2Lvsiqx1z4kfukSaqe40k1Lo4c9g==}
@@ -2524,6 +2535,9 @@ packages:
 
   '@tauri-apps/plugin-updater@2.5.0':
     resolution: {integrity: sha512-CWpwrkgpMESDPgJ0EuXgQTI/U9zeZQ9NLUvMyuWVrsuRez7tJ/3c7y73LAkvkI6+ekUxVaRJrxYrSfd8W+DRvQ==}
+
+  '@tauri-apps/plugin-window-state@2.2.1':
+    resolution: {integrity: sha512-L7FhG/ocQNt8t+TMBkvl8eLhCU6I19t848unKMUgNHuvwHPaurzZr4knulNyKzqz7zVYSz9AdvgWy4915eq+AA==}
 
   '@types/body-parser@1.19.5':
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
@@ -7798,6 +7812,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 7.0.1
 
+  '@capacitor/keyboard@7.0.0(@capacitor/core@7.0.1)':
+    dependencies:
+      '@capacitor/core': 7.0.1
+
   '@capacitor/status-bar@7.0.0(@capacitor/core@7.0.1)':
     dependencies:
       '@capacitor/core': 7.0.1
@@ -9402,6 +9420,10 @@ snapshots:
       '@tauri-apps/api': 2.2.0
 
   '@tauri-apps/plugin-updater@2.5.0':
+    dependencies:
+      '@tauri-apps/api': 2.2.0
+
+  '@tauri-apps/plugin-window-state@2.2.1':
     dependencies:
       '@tauri-apps/api': 2.2.0
 

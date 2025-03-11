@@ -149,7 +149,7 @@
     "description": "使用本地知识图结构储存记忆",
     "type": "mcp",
     "manifest": {
-      "id": "mcp-puppeteer",
+      "id": "mcp-memory",
       "title": "记忆",
       "description": "使用本地知识图结构储存记忆",
       "transport": {
