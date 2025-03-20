@@ -51,7 +51,7 @@
     "@tauri-apps/plugin-process": "~2.2.0",
     "@tauri-apps/plugin-shell": "~2.2.0",
     "@tauri-apps/plugin-updater": "~2.5.0",
-    "@tauri-apps/plugin-window-state": "~2",
+    "@tauri-apps/plugin-window-state": "~2.2.1",
     "@vueuse/core": "^11.0.3",
     "@vueuse/rxjs": "^11.0.3",
     "ai": "^4.1.50",

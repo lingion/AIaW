@@ -111,7 +111,7 @@ importers:
         specifier: ~2.5.0
         version: 2.5.0
       '@tauri-apps/plugin-window-state':
-        specifier: ~2
+        specifier: ~2.2.1
         version: 2.2.1
       '@vueuse/core':
         specifier: ^11.0.3
@@ -1132,8 +1132,8 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
-  '@babel/runtime-corejs3@7.25.6':
-    resolution: {integrity: sha512-Gz0Nrobx8szge6kQQ5Z5MX9L3ObqNwCQY1PSwSNzreFL7aHGxv8Fp2j3ETV6/wWdbiV+mW6OSm8oQhg3Tcsniw==}
+  '@babel/runtime-corejs3@7.26.10':
+    resolution: {integrity: sha512-uITFQYO68pMEYR46AHgQoyBg7KPPJDAbGn4jUTIRgCFJIp88MIBUianVOplhZDEec07bp9zIyr4Kp0FCyQzmWg==}
     engines: {node: '>=6.9.0'}
 
   '@babel/runtime@7.25.6':
@@ -7696,7 +7696,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@babel/runtime-corejs3@7.25.6':
+  '@babel/runtime-corejs3@7.26.10':
     dependencies:
       core-js-pure: 3.38.1
       regenerator-runtime: 0.14.1
@@ -9027,7 +9027,7 @@ snapshots:
 
   '@swagger-api/apidom-ast@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-error': 1.0.0-alpha.9
       '@types/ramda': 0.30.2
       ramda: 0.30.1
@@ -9036,7 +9036,7 @@ snapshots:
 
   '@swagger-api/apidom-core@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-ast': 1.0.0-alpha.9
       '@swagger-api/apidom-error': 1.0.0-alpha.9
       '@types/ramda': 0.30.2
@@ -9048,11 +9048,11 @@ snapshots:
 
   '@swagger-api/apidom-error@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
 
   '@swagger-api/apidom-json-pointer@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-error': 1.0.0-alpha.9
       '@types/ramda': 0.30.2
@@ -9061,7 +9061,7 @@ snapshots:
 
   '@swagger-api/apidom-ns-api-design-systems@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-error': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-openapi-3-1': 1.0.0-alpha.9
@@ -9073,7 +9073,7 @@ snapshots:
 
   '@swagger-api/apidom-ns-asyncapi-2@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-json-schema-draft-7': 1.0.0-alpha.9
       '@types/ramda': 0.30.2
@@ -9084,7 +9084,7 @@ snapshots:
 
   '@swagger-api/apidom-ns-json-schema-draft-4@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-ast': 1.0.0-alpha.9
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@types/ramda': 0.30.2
@@ -9094,7 +9094,7 @@ snapshots:
 
   '@swagger-api/apidom-ns-json-schema-draft-6@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-error': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-json-schema-draft-4': 1.0.0-alpha.9
@@ -9106,7 +9106,7 @@ snapshots:
 
   '@swagger-api/apidom-ns-json-schema-draft-7@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-error': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-json-schema-draft-6': 1.0.0-alpha.9
@@ -9118,7 +9118,7 @@ snapshots:
 
   '@swagger-api/apidom-ns-openapi-2@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-error': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-json-schema-draft-4': 1.0.0-alpha.9
@@ -9130,7 +9130,7 @@ snapshots:
 
   '@swagger-api/apidom-ns-openapi-3-0@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-error': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-json-schema-draft-4': 1.0.0-alpha.9
@@ -9141,7 +9141,7 @@ snapshots:
 
   '@swagger-api/apidom-ns-openapi-3-1@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-ast': 1.0.0-alpha.9
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-json-pointer': 1.0.0-alpha.9
@@ -9153,7 +9153,7 @@ snapshots:
 
   '@swagger-api/apidom-ns-workflows-1@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-openapi-3-1': 1.0.0-alpha.9
       '@types/ramda': 0.30.2
@@ -9164,7 +9164,7 @@ snapshots:
 
   '@swagger-api/apidom-parser-adapter-api-design-systems-json@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-api-design-systems': 1.0.0-alpha.9
       '@swagger-api/apidom-parser-adapter-json': 1.0.0-alpha.9
@@ -9175,7 +9175,7 @@ snapshots:
 
   '@swagger-api/apidom-parser-adapter-api-design-systems-yaml@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-api-design-systems': 1.0.0-alpha.9
       '@swagger-api/apidom-parser-adapter-yaml-1-2': 1.0.0-alpha.9
@@ -9186,7 +9186,7 @@ snapshots:
 
   '@swagger-api/apidom-parser-adapter-asyncapi-json-2@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-asyncapi-2': 1.0.0-alpha.9
       '@swagger-api/apidom-parser-adapter-json': 1.0.0-alpha.9
@@ -9197,7 +9197,7 @@ snapshots:
 
   '@swagger-api/apidom-parser-adapter-asyncapi-yaml-2@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-asyncapi-2': 1.0.0-alpha.9
       '@swagger-api/apidom-parser-adapter-yaml-1-2': 1.0.0-alpha.9
@@ -9208,7 +9208,7 @@ snapshots:
 
   '@swagger-api/apidom-parser-adapter-json@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-ast': 1.0.0-alpha.9
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-error': 1.0.0-alpha.9
@@ -9222,7 +9222,7 @@ snapshots:
 
   '@swagger-api/apidom-parser-adapter-openapi-json-2@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-openapi-2': 1.0.0-alpha.9
       '@swagger-api/apidom-parser-adapter-json': 1.0.0-alpha.9
@@ -9233,7 +9233,7 @@ snapshots:
 
   '@swagger-api/apidom-parser-adapter-openapi-json-3-0@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-openapi-3-0': 1.0.0-alpha.9
       '@swagger-api/apidom-parser-adapter-json': 1.0.0-alpha.9
@@ -9244,7 +9244,7 @@ snapshots:
 
   '@swagger-api/apidom-parser-adapter-openapi-json-3-1@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-openapi-3-1': 1.0.0-alpha.9
       '@swagger-api/apidom-parser-adapter-json': 1.0.0-alpha.9
@@ -9255,7 +9255,7 @@ snapshots:
 
   '@swagger-api/apidom-parser-adapter-openapi-yaml-2@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-openapi-2': 1.0.0-alpha.9
       '@swagger-api/apidom-parser-adapter-yaml-1-2': 1.0.0-alpha.9
@@ -9266,7 +9266,7 @@ snapshots:
 
   '@swagger-api/apidom-parser-adapter-openapi-yaml-3-0@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-openapi-3-0': 1.0.0-alpha.9
       '@swagger-api/apidom-parser-adapter-yaml-1-2': 1.0.0-alpha.9
@@ -9277,7 +9277,7 @@ snapshots:
 
   '@swagger-api/apidom-parser-adapter-openapi-yaml-3-1@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-openapi-3-1': 1.0.0-alpha.9
       '@swagger-api/apidom-parser-adapter-yaml-1-2': 1.0.0-alpha.9
@@ -9288,7 +9288,7 @@ snapshots:
 
   '@swagger-api/apidom-parser-adapter-workflows-json-1@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-workflows-1': 1.0.0-alpha.9
       '@swagger-api/apidom-parser-adapter-json': 1.0.0-alpha.9
@@ -9299,7 +9299,7 @@ snapshots:
 
   '@swagger-api/apidom-parser-adapter-workflows-yaml-1@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-ns-workflows-1': 1.0.0-alpha.9
       '@swagger-api/apidom-parser-adapter-yaml-1-2': 1.0.0-alpha.9
@@ -9310,7 +9310,7 @@ snapshots:
 
   '@swagger-api/apidom-parser-adapter-yaml-1-2@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-ast': 1.0.0-alpha.9
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-error': 1.0.0-alpha.9
@@ -9324,7 +9324,7 @@ snapshots:
 
   '@swagger-api/apidom-reference@1.0.0-alpha.9':
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@types/ramda': 0.30.2
       axios: 1.8.2
@@ -13124,7 +13124,7 @@ snapshots:
 
   swagger-client@3.29.3:
     dependencies:
-      '@babel/runtime-corejs3': 7.25.6
+      '@babel/runtime-corejs3': 7.26.10
       '@swagger-api/apidom-core': 1.0.0-alpha.9
       '@swagger-api/apidom-error': 1.0.0-alpha.9
       '@swagger-api/apidom-json-pointer': 1.0.0-alpha.9
