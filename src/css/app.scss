@@ -287,8 +287,8 @@ body {
   }
 }
 
-body #md-editor-v-2-preview-wrapper {
-  --at-apply: 'xs:px-4 sm:px-5';
+body .md-editor-preview-wrapper {
+  --at-apply: 'px-5';
 }
 
 .md-editor-dark .md-editor-preview {

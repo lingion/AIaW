@@ -15,6 +15,18 @@
       :style-fn="pageFhStyle"
     >
       <q-list>
+        <a-tip
+          tip-key="assistant-effect-scope"
+          rd-0
+        >
+          {{ $t('assistantView.effectScopeTip') }}
+          <router-link
+            to="/settings"
+            pri-link
+          >
+            {{ $t('assistantView.settingsPage') }}
+          </router-link>
+        </a-tip>
         <q-item-label
           header
           id="assistant"
@@ -508,6 +520,7 @@ import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
 import ModelInputItems from 'src/components/ModelInputItems.vue'
 import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
 import PluginTypeBadge from 'src/components/PluginTypeBadge.vue'
+import ATip from 'src/components/ATip.vue'
 import { useLocateId } from 'src/composables/locate-id'
 import { blobToBase64, pageFhStyle } from 'src/utils/functions'
 import { useSetTitle } from 'src/composables/set-title'

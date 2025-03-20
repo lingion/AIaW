@@ -67,6 +67,13 @@ export default {
     deleteConfirmMessage: '确定要删除助手「{name}」吗？',
     newAssistant: '新建助手'
   },
+  customProviders: {
+    delete: '删除',
+    deleteProvider: '删除服务商',
+    deleteConfirm: '确定要删除服务商「{name}」吗？',
+    createProvider: '新建服务商',
+    setAsDefault: '设为默认'
+  },
   assistantItem: {
     unselected: '未选择',
     global: '全局'
@@ -105,6 +112,7 @@ export default {
     summarizeDialog: '总结标题',
     title: '标题',
     moveTo: '移动至',
+    copyContent: '复制内容',
     delete: '删除',
     deleteConfirmTitle: '删除对话',
     deleteConfirmMessage: '确定要删除对话「{name}」吗？',
@@ -310,5 +318,13 @@ export default {
     modelOptions: '模型选项',
     reasoningEffort: '推理力度',
     useSearchGrounding: '使用搜索'
+  },
+  subproviderInput: {
+    modelList: '模型列表'
+  },
+  getModelList: {
+    getModelList: '获取模型列表',
+    selectModels: '选择模型',
+    getModelListFailed: '获取模型列表失败'
   }
 }

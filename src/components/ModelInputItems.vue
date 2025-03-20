@@ -6,7 +6,7 @@
         class="w-250px"
         :model-value="model?.name"
         @update:model-value="setModel"
-        :options="modelOptions"
+        :options="providersStore.modelOptions"
         filled
         dense
       >
@@ -71,14 +71,17 @@
 </template>
 
 <script setup lang="ts">
-import { InputTypes, modelOptions, models } from 'src/utils/values'
+import { InputTypes, models } from 'src/utils/values'
 import AutocompleteInput from './AutocompleteInput.vue'
 import ModelItem from './ModelItem.vue'
 import ListInput from './ListInput.vue'
 import { Model } from 'src/utils/types'
+import { useProvidersStore } from 'src/stores/providers'
 
 const model = defineModel<Model>()
 function setModel(name: string) {
   model.value = name ? models.find(m => m.name === name) || { name, inputTypes: InputTypes.default } : null
 }
+
+const providersStore = useProvidersStore()
 </script>

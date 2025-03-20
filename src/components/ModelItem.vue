@@ -40,7 +40,7 @@ const avatar = computed<Avatar>(() => {
   if (m.startsWith('gemma')) return { type: 'svg', name: 'gemma-c' }
   if (m.startsWith('llama')) return { type: 'svg', name: 'meta-c' }
   if (m.startsWith('mistral')) return { type: 'svg', name: 'mistral-c' }
-  if (m.startsWith('qwen')) return { type: 'svg', name: 'qwen-c' }
+  if (m.startsWith('qwen') || m.startsWith('qwq')) return { type: 'svg', name: 'qwen-c' }
   if (m.startsWith('deepseek')) return { type: 'svg', name: 'deepseek-c' }
   if (m.startsWith('grok')) return { type: 'svg', name: 'grok' }
   return defaultAvatar(m[0].toUpperCase())

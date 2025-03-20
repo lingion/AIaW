@@ -90,7 +90,7 @@
             rd-0
           >
             {{ $t('dialogView.modelsConfigGuide1') }}<router-link
-              to="/settings#ui"
+              to="/settings"
               pri-link
             >
               {{ $t('dialogView.settings') }}
@@ -276,9 +276,9 @@
             :class="{ 'text-ter': showVars }"
           />
           <model-options-btn
-            v-if="provider"
-            :provider-type="provider.type"
-            :model-name="model.name"
+            v-if="sdkModel"
+            :provider-name="sdkModel.provider"
+            :model-id="sdkModel.modelId"
             v-model="modelOptions"
             flat
             round
@@ -394,7 +394,7 @@ import { useModel } from 'src/composables/model'
 import { throttle, useQuasar } from 'quasar'
 import AssistantItem from 'src/components/AssistantItem.vue'
 import { useSystemModel } from 'src/composables/system-model'
-import { ExtractArtifactPrompt, ExtractArtifactResult, GenDialogTitle, NameArtifactPrompt, PluginsPrompt } from 'src/utils/templates'
+import { DialogContent, ExtractArtifactPrompt, ExtractArtifactResult, GenDialogTitle, NameArtifactPrompt, PluginsPrompt } from 'src/utils/templates'
 import sessions from 'src/utils/sessions'
 import PromptVarInput from 'src/components/PromptVarInput.vue'
 import { MessageContent, PluginApi, ApiCallError, Plugin, Dialog, Message, Workspace, UserMessageContent, StoredItem, ModelSettings, ApiResultItem, Artifact, ConvertArtifactOptions, AssistantMessageContent } from 'src/utils/types'
@@ -426,7 +426,7 @@ import ModelOptionsBtn from 'src/components/ModelOptionsBtn.vue'
 import AddInfoBtn from 'src/components/AddInfoBtn.vue'
 import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const props = defineProps<{
   id: string
@@ -797,7 +797,7 @@ const pluginsStore = usePluginsStore()
 const { callApi } = useCallApi({ workspace, dialog })
 
 const modelOptions = ref({})
-const { sdkModel, provider, model } = useModel(computed(() => assistant.value?.provider), computed(() => dialog.value?.modelOverride || assistant.value?.model), modelOptions)
+const { sdkModel, model } = useModel(computed(() => assistant.value?.provider), computed(() => dialog.value?.modelOverride || assistant.value?.model), modelOptions)
 const $q = useQuasar()
 const { data } = useUserDataStore()
 async function send() {
@@ -1053,20 +1053,30 @@ const activePlugins = computed<Plugin[]>(() => pluginsStore.plugins.filter(p => 
 const usage = computed(() => messageMap.value[chain.value.at(-2)]?.usage)
 
 const systemModel = useSystemModel()
+function getDialogContents() {
+  return chain.value.slice(1, -1).map(id => messageMap.value[id].contents).flat()
+}
 async function genTitle() {
   try {
+    const dialogId = props.id
     const { text } = await generateText({
       model: systemModel.sdkModel.value,
-      prompt: engine.parseAndRenderSync(GenDialogTitle, {
-        contents: chain.value.slice(1, -1).map(id => messageMap.value[id].contents).flat(),
-        lang: 'zh-CN'
+      prompt: await engine.parseAndRender(GenDialogTitle, {
+        contents: getDialogContents(),
+        lang: locale.value
       })
     })
-    await db.dialogs.update(props.id, { name: text })
+    await db.dialogs.update(dialogId, { name: text })
   } catch (e) {
     console.error(e)
     $q.notify({ message: t('dialogView.summarizeFailed'), color: 'negative' })
   }
+}
+async function copyContent() {
+  await navigator.clipboard.writeText(await engine.parseAndRender(DialogContent, {
+    contents: getDialogContents(),
+    title: dialog.value.name
+  }))
 }
 const route = useRoute()
 const router = useRouter()
@@ -1077,6 +1087,9 @@ watch(route, to => {
     focusInput()
     if (to.hash === '#genTitle') {
       genTitle()
+      router.replace({ hash: '' })
+    } else if (to.hash === '#copyContent') {
+      copyContent()
       router.replace({ hash: '' })
     }
   })

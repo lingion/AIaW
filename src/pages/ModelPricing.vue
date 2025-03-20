@@ -35,11 +35,12 @@
           lh-1.8em
         >
           <p>
-            {{ $t('modelPricing.modelPerformanceDescription1') }}<br>
-            {{ $t('modelPricing.modelPerformanceDescription2') }}<br>
-          </p>
-          <p>
-            {{ $t('modelPricing.modelPerformanceDescription3') }}
+            {{ $t('modelPricing.modelPerformanceDescription') }}
+            <a
+              pri-link
+              href="https://livebench.ai/#/"
+              target="_blank"
+            >LiveBench</a>
           </p>
           <p>
             {{ $t('modelPricing.freeModelDisclaimer') }}

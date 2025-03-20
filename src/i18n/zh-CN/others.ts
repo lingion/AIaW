@@ -125,6 +125,9 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
     workspaces: {
       newFolder: '新文件夹',
       newWorkspace: '新工作区'
+    },
+    providers: {
+      newProvider: '新服务商'
     }
   },
   db: {

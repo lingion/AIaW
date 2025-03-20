@@ -125,6 +125,9 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
     workspaces: {
       newFolder: 'New Folder',
       newWorkspace: 'New Workspace'
+    },
+    providers: {
+      newProvider: 'New Provider'
     }
   },
   db: {

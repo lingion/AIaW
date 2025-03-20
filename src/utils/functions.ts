@@ -214,6 +214,10 @@ function hash53(str: string, seed = 0) {
   return cyrb53(str, seed).toString(16)
 }
 
+function removeDuplicates(arr: any[]) {
+  return Array.from(new Set(arr))
+}
+
 export {
   randomHash,
   escapeRegex,
@@ -243,5 +247,6 @@ export {
   artifactUnsaved,
   removeUndefinedProps,
   cyrb53,
-  hash53
+  hash53,
+  removeDuplicates
 }

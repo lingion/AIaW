@@ -12,9 +12,16 @@ import { createGroq } from '@ai-sdk/groq'
 import { createOllama } from 'ollama-ai-provider'
 import { createDeepSeek } from '@ai-sdk/deepseek'
 import { i18n } from 'src/boot/i18n'
+import { fetch } from './platform-api'
 
 const { t } = i18n.global
 
+const OfficialBaseURLs = {
+  openai: 'https://api.openai.com/v1',
+  anthropic: 'https://api.anthropic.com/v1',
+  google: 'https://generativelanguage.googleapis.com/v1beta',
+  ollama: 'http://localhost:11434/api'
+}
 const commonSettings = {
   baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultServiceAddress') }),
   apiKey: String({ title: 'API Key', format: 'password' })
@@ -26,12 +33,22 @@ const ProviderTypes: ProviderType[] = [
     avatar: { type: 'svg', name: 'openai' },
     settings: Object({
       ...commonSettings,
-      baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultOpenAIAddress'), default: 'https://api.openai.com/v1' }),
+      baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultOpenAIAddress'), default: OfficialBaseURLs.openai }),
       organization: String({ title: t('values.organization'), description: t('values.optional') }),
       project: String({ title: t('values.project'), description: t('values.optional') })
     }),
     initialSettings: { compatibility: 'strict' },
-    constructor: createOpenAI
+    constructor: createOpenAI,
+    getModelList: async (settings) => {
+      const baseURL = settings.baseURL || OfficialBaseURLs.openai
+      const resp = await fetch(`${baseURL}/models`, {
+        headers: {
+          Authorization: `Bearer ${settings.apiKey}`
+        }
+      })
+      const { data } = await resp.json()
+      return data.map(m => m.id)
+    }
   },
   {
     name: 'azure',
@@ -51,10 +68,21 @@ const ProviderTypes: ProviderType[] = [
     avatar: { type: 'svg', name: 'anthropic' },
     settings: Object({
       ...commonSettings,
-      baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultAnthropicAddress'), default: 'https://api.anthropic.com/v1' })
+      baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultAnthropicAddress'), default: OfficialBaseURLs.anthropic })
     }),
     initialSettings: {},
-    constructor: createAnthropic
+    constructor: createAnthropic,
+    getModelList: async (settings) => {
+      const baseURL = settings.baseURL || OfficialBaseURLs.anthropic
+      const resp = await fetch(`${baseURL}/models`, {
+        headers: {
+          'x-api-key': settings.apiKey,
+          'anthropic-version': '2023-06-01'
+        }
+      })
+      const { data } = await resp.json()
+      return data.map(m => m.id)
+    }
   },
   {
     name: 'google',
@@ -62,7 +90,7 @@ const ProviderTypes: ProviderType[] = [
     avatar: { type: 'svg', name: 'google-c' },
     settings: Object({
       ...commonSettings,
-      baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultGoogleAddress'), default: 'https://generativelanguage.googleapis.com/v1beta' })
+      baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultGoogleAddress'), default: OfficialBaseURLs.google })
     }),
     initialSettings: {},
     constructor: createGoogleGenerativeAI
@@ -120,7 +148,7 @@ const ProviderTypes: ProviderType[] = [
     label: 'Ollama',
     avatar: { type: 'svg', name: 'ollama' },
     settings: Object({
-      baseURL: String({ title: t('values.apiAddress'), default: 'http://localhost:11434/api' })
+      baseURL: String({ title: t('values.apiAddress'), default: OfficialBaseURLs.ollama })
     }),
     initialSettings: {},
     constructor: createOllama
@@ -168,7 +196,8 @@ const models: Model[] = [
   { name: 'gemini-2.0-flash-exp', inputTypes: InputTypes.gemini2 },
   { name: 'gemini-2.0-flash-thinking-exp', inputTypes: InputTypes.commonVision },
   { name: 'deepseek-chat', inputTypes: InputTypes.textOnly },
-  { name: 'deepseek-reasoner', inputTypes: InputTypes.textOnly }
+  { name: 'deepseek-reasoner', inputTypes: InputTypes.textOnly },
+  { name: 'qwq-32b', inputTypes: InputTypes.textOnly }
 ]
 const modelOptions = models.map(m => m.name)
 const dialogOptions = {

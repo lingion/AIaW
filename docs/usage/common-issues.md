@@ -9,7 +9,7 @@
 - 确保配置了 DeepSeek 服务商，且将服务商类型设置为 DeepSeek 而不是 OpenAI。因为 OpenAI 原版格式是没有推理内容的。
 - 确保你使用的服务商会返回推理内容。DeepSeek 官方和硅基流动支持，部分第三方服务商不会返回推理内容。
 
-### 自定义服务商用不了/回复为空
+### 配置的服务商用不了/回复为空
 
 - 确保服务商类型、API 地址、API Key 填写正确。
 - API 地址末尾记得加 v1。比如 `https://api.xxxai.com/v1` 而不是 `https://api.xxxai.com`。

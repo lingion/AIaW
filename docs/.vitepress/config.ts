@@ -29,6 +29,7 @@ export default defineConfig({
           { text: '助手', link: '/usage/assistants' },
           { text: '个性化设置', link: '/usage/personalization' },
           { text: '数据与同步', link: '/usage/data-sync' },
+          { text: '自定义服务商', link: '/usage/custom-provider' },
           { text: '模型服务', link: '/usage/model-service' },
           { text: '中转站对接', link: '/usage/share-link' },
           { text: '常见问题', link: '/usage/common-issues' }

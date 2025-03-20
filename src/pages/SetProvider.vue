@@ -6,14 +6,16 @@ import { until } from '@vueuse/core'
 import { useQuasar } from 'quasar'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { ProviderSchema } from 'src/utils/types'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useOpenLastWorkspace } from 'src/composables/open-last-workspace'
 
-const router = useRouter()
 const route = useRoute()
 const userPerfsStore = useUserPerfsStore()
 const $q = useQuasar()
 const { t } = useI18n()
+
+const { openLastWorkspace } = useOpenLastWorkspace()
 
 until(() => userPerfsStore.ready).toBeTruthy().then(() => {
   try {
@@ -42,7 +44,7 @@ until(() => userPerfsStore.ready).toBeTruthy().then(() => {
       color: 'negative'
     })
   } finally {
-    router.replace('/settings')
+    openLastWorkspace()
   }
 })
 </script>

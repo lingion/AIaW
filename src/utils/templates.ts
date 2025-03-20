@@ -28,6 +28,20 @@ Artificial Intelligence in Healthcare
 </chat_history>
 `
 
+const DialogContent =
+`# {{ title }}
+{%- for content in contents %}
+{%- if content.type == 'user-message' %}
+
+**User:**
+{{ content.text }}
+{%- elsif content.type == 'assistant-message' %}
+
+**Assistant:**
+{{ content.text }}
+{%- endif %}
+{%- endfor %}`
+
 const PluginsPrompt =
 `<plugins>
 {%- for plugin in plugins %}
@@ -124,6 +138,7 @@ const ExampleWsIndexContent = DefaultWsIndexContent
 
 export {
   GenDialogTitle,
+  DialogContent,
   PluginsPrompt,
   AssistantDefaultPrompt,
   DefaultWsIndexContent,

@@ -5,8 +5,8 @@
     v-if="schema"
   >
     <q-menu
-      anchor="top middle"
-      self="bottom middle"
+      anchor="top left"
+      self="bottom left"
     >
       <json-input
         :schema
@@ -30,13 +30,13 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const props = defineProps<{
-  providerType: string
-  modelName: string
+  providerName: string
+  modelId: string
 }>()
 
 const rules = [{
   match: (provider: string, model: string) => {
-    return provider === 'openai' && ['o1', 'o3-mini', 'o3-mini-2025-01-31'].includes(model)
+    return provider === 'openai.chat' && ['o1', 'o3-mini', 'o3-mini-2025-01-31'].includes(model)
   },
   options: {
     reasoningEffort: Optional(Unsafe({
@@ -47,7 +47,7 @@ const rules = [{
   }
 }, {
   match: (provider: string, model: string) => {
-    return provider === 'google' && /^gemini-2\.0-(flash|pro)(-(exp|latest|00\d))?$/.test(model)
+    return provider === 'google.generative-ai' && /^gemini-2\.0-(flash|pro)(-(exp|latest|00\d))?$/.test(model)
   },
   options: {
     useSearchGrounding: Optional(TBoolean({ title: t('modelOptionsBtn.useSearchGrounding') }))
@@ -58,7 +58,7 @@ const options = defineModel<Record<string, any>>()
 
 const schema = computed(() => {
   let options = {}
-  const matched = rules.filter((rule) => rule.match(props.providerType, props.modelName))
+  const matched = rules.filter((rule) => rule.match(props.providerName, props.modelId))
   if (!matched.length) return null
   matched.forEach((rule) => {
     options = {

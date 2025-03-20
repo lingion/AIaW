@@ -52,6 +52,11 @@
             @click="$router.push(`/workspaces/${workspace.id}/dialogs/${dialog.id}#genTitle`)"
           />
           <menu-item
+            icon="sym_o_content_copy"
+            :label="$t('dialogList.copyContent')"
+            @click="$router.push(`/workspaces/${workspace.id}/dialogs/${dialog.id}#copyContent`)"
+          />
+          <menu-item
             icon="sym_o_move_item"
             :label="$t('dialogList.moveTo')"
             @click="moveItem(dialog)"

@@ -56,6 +56,20 @@
       :style-fn="pageFhStyle"
     >
       <a-tip
+        v-if="IsTauri"
+        tip-key="mcp-plugin-usage"
+        mb-2
+      >
+        {{ $t('pluginsMarket.mcpPluginTip') }}
+        <a
+          href="https://docs.aiaw.app/usage/mcp.html"
+          target="_blank"
+          pri-link
+        >
+          {{ $t('pluginsMarket.mcpPluginGuide') }}
+        </a>
+      </a-tip>
+      <a-tip
         v-if="$q.screen.xs"
         tip-key="plugins-market-right-drawer"
         mb-2

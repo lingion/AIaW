@@ -2,7 +2,7 @@
   <div flex>
     <div
       flex
-      items-center
+      grow
       flex-wrap
       gap-2
     >
@@ -61,6 +61,7 @@
       icon="sym_o_close"
       round
       dense
+      self-center
       @click="$emit('remove')"
     />
   </div>

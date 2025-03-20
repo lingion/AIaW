@@ -67,6 +67,13 @@ export default {
     deleteConfirmMessage: 'Are you sure you want to delete the assistant "{name}"?',
     newAssistant: 'New Assistant'
   },
+  customProviders: {
+    delete: 'Delete',
+    deleteProvider: 'Delete Provider',
+    deleteConfirm: 'Are you sure you want to delete the provider "{name}"?',
+    createProvider: 'Create Provider',
+    setAsDefault: 'Set as Default'
+  },
   assistantItem: {
     unselected: 'Unselected',
     global: 'Global'
@@ -105,6 +112,7 @@ export default {
     summarizeDialog: 'Summarize Title',
     title: 'Title',
     moveTo: 'Move To',
+    copyContent: 'Copy Content',
     delete: 'Delete',
     deleteConfirmTitle: 'Delete Dialog',
     deleteConfirmMessage: 'Are you sure you want to delete the dialog "{name}"?',
@@ -310,5 +318,13 @@ export default {
     modelOptions: 'Model Options',
     reasoningEffort: 'Reasoning Effort',
     useSearchGrounding: 'Use Search'
+  },
+  subproviderInput: {
+    modelList: 'Model List'
+  },
+  getModelList: {
+    getModelList: 'Get Model List',
+    selectModels: 'Select Models',
+    getModelListFailed: 'Failed to Get Model List'
   }
 }

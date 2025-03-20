@@ -26,9 +26,17 @@ export function useFirstVisit() {
         title: t('firstVisit.title'),
         message,
         html: true,
-        cancel: t('firstVisit.cancel'),
+        cancel: {
+          label: t('firstVisit.cancel'),
+          noCaps: true,
+          flat: true
+        },
         persistent: true,
-        ok: serviceAvailable ? t('firstVisit.ok') : false,
+        ok: serviceAvailable ? {
+          label: t('firstVisit.ok'),
+          noCaps: true,
+          flat: true
+        } : false,
         ...dialogOptions
       }).onCancel(() => {
         router.push('/settings')

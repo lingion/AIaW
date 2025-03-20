@@ -1,6 +1,6 @@
 import Dexie from 'dexie'
 import { defaultAvatar, genId } from './functions'
-import { Workspace, Folder, Dialog, Message, Assistant, Artifact, StoredReactive, InstalledPlugin, AvatarImage, StoredItem } from './types'
+import { Workspace, Folder, Dialog, Message, Assistant, Artifact, StoredReactive, InstalledPlugin, AvatarImage, StoredItem, CustomProvider } from './types'
 import { AssistantDefaultPrompt, ExampleWsIndexContent } from './templates'
 import dexieCloud, { DexieCloudTable } from 'dexie-cloud-addon'
 import { DexieDBURL } from './config'
@@ -16,6 +16,7 @@ type Db = Dexie & {
   reactives: DexieCloudTable<StoredReactive, 'key'>
   avatarImages: DexieCloudTable<AvatarImage, 'id'>
   items: DexieCloudTable<StoredItem, 'id'>
+  providers: DexieCloudTable<CustomProvider, 'id'>
 }
 
 const db = new Dexie('data', { addons: DexieDBURL ? [dexieCloud] : [] }) as Db
@@ -28,7 +29,7 @@ if (DexieDBURL) {
     nameSuffix: false
   })
 }
-db.version(5).stores({
+db.version(6).stores({
   workspaces: 'id, type, parentId',
   dialogs: 'id, workspaceId',
   messages: 'id, type, dialogId',
@@ -38,7 +39,8 @@ db.version(5).stores({
   installedPluginsV2: 'key, id',
   reactives: 'key',
   avatarImages: 'id',
-  items: 'id, type, dialogId'
+  items: 'id, type, dialogId',
+  providers: 'id'
 })
 
 const defaultModelSettings = {

@@ -27,7 +27,7 @@ export function useSubscriptionNotify() {
           message: t('subscriptionNotify.evalExpired'),
           color: 'negative',
           actions: [{
-            label: t('firstVisit.ok'),
+            label: t('subscriptionNotify.ok'),
             handler: subscribe,
             textColor: 'on-err'
           }]
@@ -39,7 +39,7 @@ export function useSubscriptionNotify() {
           color: 'inv-sur',
           textColor: 'inv-on-sur',
           actions: [{
-            label: t('firstVisit.subscribe'),
+            label: t('subscriptionNotify.subscribe'),
             handler: subscribe,
             textColor: 'inv-pri'
           }]
@@ -53,7 +53,7 @@ export function useSubscriptionNotify() {
           message: t('subscriptionNotify.prodExpired'),
           color: 'negative',
           actions: [{
-            label: t('firstVisit.renewal'),
+            label: t('subscriptionNotify.renewal'),
             handler: subscribe,
             textColor: 'on-err'
           }]
@@ -65,7 +65,7 @@ export function useSubscriptionNotify() {
           color: 'inv-sur',
           textColor: 'inv-on-sur',
           actions: [{
-            label: t('firstVisit.renewal'),
+            label: t('subscriptionNotify.renewal'),
             handler: subscribe,
             textColor: 'inv-pri'
           }]

@@ -70,6 +70,7 @@ interface ProviderType {
   settings: PluginSchema
   initialSettings
   constructor: (settings) => any
+  getModelList?: (settings) => Promise<string[]>
 }
 
 interface AvatarImage {
@@ -513,6 +514,20 @@ interface ConvertArtifactOptions {
   reserveOriginal: boolean
 }
 
+interface Subprovider {
+  id: string
+  provider?: Provider
+  modelMap: Record<string, string>
+}
+
+interface CustomProvider {
+  id: string
+  name: string
+  avatar: Avatar
+  subproviders: Subprovider[]
+  fallbackProvider?: Provider
+}
+
 export {
   ApiCallError,
   HuggingPluginManifestSchema,
@@ -582,5 +597,7 @@ export type {
   ConvertArtifactOptions,
   McpPluginDump,
   McpPluginManifest,
-  TransportConf
+  TransportConf,
+  Subprovider,
+  CustomProvider
 }

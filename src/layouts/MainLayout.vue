@@ -145,12 +145,9 @@
 </template>
 
 <script setup>
-import { until } from '@vueuse/core'
 import WorkspaceNav from 'src/components/WorkspaceNav.vue'
-import { useUserDataStore } from 'src/stores/user-data'
 import { useUiStateStore } from 'src/stores/ui-state'
-import { useWorkspacesStore } from 'src/stores/workspaces'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import AccountBtn from 'src/components/AccountBtn.vue'
 import DarkSwitchBtn from 'src/components/DarkSwitchBtn.vue'
 import MenuItem from 'src/components/MenuItem.vue'
@@ -158,27 +155,17 @@ import { DexieDBURL } from 'src/utils/config'
 import { useQuasar } from 'quasar'
 import version from 'src/version.json'
 import { useI18n } from 'vue-i18n'
+import { useOpenLastWorkspace } from 'src/composables/open-last-workspace'
 
 defineOptions({
   name: 'MainLayout'
 })
 
 const uiStore = useUiStateStore()
-const workspacesStore = useWorkspacesStore()
-const userDataStore = useUserDataStore()
 const route = useRoute()
-const router = useRouter()
 
-async function openLastWorkspace() {
-  if (route.path !== '/') return
-  await until(() => userDataStore.ready).toBeTruthy()
-  const wsId = userDataStore.data.lastWorkspaceId
-  if (!wsId) return
-  await until(() => workspacesStore.workspaces.length).toBeTruthy()
-  const dialogId = workspacesStore.workspaces.find(item => item.id === wsId)?.lastDialogId
-  router.push(dialogId ? `/workspaces/${wsId}/dialogs/${dialogId}` : `/workspaces/${wsId}`)
-}
-openLastWorkspace()
+const { openLastWorkspace } = useOpenLastWorkspace()
+route.path === '/' && openLastWorkspace()
 
 const { t, locale } = useI18n()
 const $q = useQuasar()

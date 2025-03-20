@@ -18,8 +18,10 @@ import AssistantsMarket from 'src/views/AssistantsMarket.vue'
 import AccountPage from 'src/pages/AccountPage.vue'
 import ModelPricing from 'src/pages/ModelPricing.vue'
 import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
-import ShortcutKeys from 'src/pages/ShortcutKeys.vue'
+import ShortcutKeys from 'src/views/ShortcutKeys.vue'
 import { i18n } from 'src/boot/i18n'
+import SettingsView from 'src/views/SettingsView.vue'
+import CustomProvider from 'src/views/CustomProvider.vue'
 
 const { t } = i18n.global
 
@@ -44,8 +46,15 @@ const routes: RouteRecordRaw[] = [
           }
         ]
       },
-      { path: '/settings', component: SettingsPage, meta: { title: t('routes.settings') } },
-      { path: '/shortcut-keys', component: ShortcutKeys, meta: { title: t('routes.shortcutKeys') } },
+      {
+        path: '/settings/',
+        component: SettingsPage,
+        children: [
+          { path: '', component: SettingsView, meta: { title: t('routes.settings') } },
+          { path: 'shortcut-keys', component: ShortcutKeys, meta: { title: t('routes.shortcutKeys') } },
+          { path: 'providers/:id', component: CustomProvider, props: true }
+        ]
+      },
       {
         path: '/plugins/',
         component: PluginsPage,

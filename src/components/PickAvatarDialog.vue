@@ -92,7 +92,7 @@
       <q-separator :vertical="!$q.screen.lt.sm" />
       <div flex="~ col">
         <q-list
-          min-w="225px"
+          min-w="220px"
           mt-2
         >
           <q-item>
