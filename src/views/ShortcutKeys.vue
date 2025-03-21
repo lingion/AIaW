@@ -1,21 +1,12 @@
 <template>
-  <q-header
-    bg-sur-c-low
-    text-on-sur
+  <view-common-header
+    @toggle-drawer="$emit('toggle-drawer')"
+    back-to="."
   >
-    <q-toolbar>
-      <q-btn
-        flat
-        dense
-        round
-        icon="sym_o_arrow_back"
-        @click="back"
-      />
-      <q-toolbar-title>
-        {{ $t('shortcutKeysPage.keyboardShortcuts') }}
-      </q-toolbar-title>
-    </q-toolbar>
-  </q-header>
+    <q-toolbar-title>
+      {{ $t('shortcutKeysPage.keyboardShortcuts') }}
+    </q-toolbar-title>
+  </view-common-header>
   <q-page-container>
     <q-page :style-fn="pageFhStyle">
       <q-list
@@ -225,13 +216,13 @@
 <script setup lang="ts">
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { pageFhStyle } from 'src/utils/functions'
-import { useBack } from 'src/composables/back'
 import ShortcutKeyInput from 'src/components/ShortcutKeyInput.vue'
 import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
+import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 
 const { perfs } = useUserPerfsStore()
 
-const back = useBack('/settings')
+defineEmits(['toggle-drawer'])
 
 const inputProps = {
   dense: true,

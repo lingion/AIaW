@@ -115,7 +115,7 @@ export default {
     nonTextFile: 'Non-text file: {name}'
   },
   mainLayout: {
-    workspace: 'Workspace',
+    workspace: 'Workspace | Workspaces',
     assistants: 'Assistants',
     plugins: 'Plugins',
     settings: 'Settings',

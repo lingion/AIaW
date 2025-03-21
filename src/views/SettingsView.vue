@@ -282,7 +282,7 @@
         <q-item
           clickable
           v-ripple
-          to="shortcut-keys"
+          to="/settings/shortcut-keys"
         >
           <q-item-section>{{ $t('settingsView.keyboardShortcuts') }}</q-item-section>
           <q-item-section side>

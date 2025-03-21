@@ -1,4 +1,4 @@
-import { config, MdPreviewProps } from 'md-editor-v3'
+import { config, MdPreviewProps, XSSPlugin } from 'md-editor-v3'
 import { useQuasar } from 'quasar'
 import router from 'src/router'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
@@ -16,6 +16,16 @@ config({
         }
       }
     }
+  },
+  markdownItPlugins(plugins) {
+    return [
+      ...plugins,
+      {
+        type: 'xss',
+        plugin: XSSPlugin,
+        options: {}
+      }
+    ]
   }
 })
 
