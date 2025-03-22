@@ -135,7 +135,7 @@
           <tool-content
             v-if="content.type === 'assistant-tool'"
             :content
-            my-2
+            m-2
           />
         </div>
         <div

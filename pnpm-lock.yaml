@@ -153,8 +153,8 @@ importers:
         specifier: ^10.16.7
         version: 10.16.7
       md-editor-v3:
-        specifier: ^5.4.2
-        version: 5.4.2(@codemirror/view@6.33.0)(@lezer/common@1.2.1)(vue@3.5.12(typescript@5.5.4))
+        specifier: ^5.4.4
+        version: 5.4.4(@codemirror/view@6.33.0)(@lezer/common@1.2.1)(vue@3.5.12(typescript@5.5.4))
       ollama-ai-provider:
         specifier: ^1.2.0
         version: 1.2.0(zod@3.24.1)
@@ -4699,8 +4699,8 @@ packages:
     resolution: {integrity: sha512-4MqMiKP90ybymYvsut0CH2g4XWbfLtmlCkXmtmdcDCxNB+mQcu1w/1+L/VD7vi/PSv7X2JYV7SCcR+jiPXnQtA==}
     engines: {node: '>= 0.4'}
 
-  md-editor-v3@5.4.2:
-    resolution: {integrity: sha512-fQ1Ax4Y1AuPFGnXqflLQmD31nCf8TgZTmX5yhJxAr0XDTTq2KHXVGK+BVPLHn4Yqs4BonUFW1yNVxFvZYdnddA==}
+  md-editor-v3@5.4.4:
+    resolution: {integrity: sha512-AU901GSSrugrA2EFTTIIlxlHa97ibznjdtv4eC6PcAhLfdOSe5oBNfVdrtnbTeS7FPCki18czTtGZ+/CRtdOmg==}
     peerDependencies:
       vue: ^3.5.3
 
@@ -11896,7 +11896,7 @@ snapshots:
 
   math-intrinsics@1.0.0: {}
 
-  md-editor-v3@5.4.2(@codemirror/view@6.33.0)(@lezer/common@1.2.1)(vue@3.5.12(typescript@5.5.4)):
+  md-editor-v3@5.4.4(@codemirror/view@6.33.0)(@lezer/common@1.2.1)(vue@3.5.12(typescript@5.5.4)):
     dependencies:
       '@codemirror/lang-markdown': 6.3.1
       '@codemirror/language-data': 6.5.1(@codemirror/view@6.33.0)
