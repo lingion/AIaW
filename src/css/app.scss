@@ -221,6 +221,10 @@ body {
   div.md-editor-preview {
     word-break: normal;
 
+    &.md-editor-preview :last-child {
+      margin-bottom: 1em;
+    }
+
     --md-theme-quote-border: 4px solid var(--a-pri) !important;
     --md-theme-link-color: var(--a-pri) !important;
     --md-theme-link-hover-color: var(--a-pri-dim) !important;
