@@ -74,11 +74,10 @@ jobs:
         with:
           name: tauri-debug-${{ matrix.id }}
           path: |
-            src-tauri/target/debug/bundle/*/*.dmg
             src-tauri/target/debug/bundle/*/*.exe
             src-tauri/target/debug/bundle/*/*.msi
             src-tauri/target/debug/bundle/*/*.rpm
             src-tauri/target/debug/bundle/*/*.deb
             src-tauri/target/debug/bundle/*/*.AppImage
-            src-tauri/target/x86_64-apple-darwin/debug/bundle/dmg/*.dmg
+            src-tauri/target/*/debug/bundle/dmg/*.dmg
           retention-days: 5
