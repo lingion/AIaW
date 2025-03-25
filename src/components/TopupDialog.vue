@@ -41,7 +41,7 @@
               {{ $t('topupDialog.paymentMethod') }}
             </q-item-section>
             <q-item-section side>
-              {{ $t('topupDialog.alipayOnly') }}
+              {{ $t('topupDialog.wxpayOnly') }}
             </q-item-section>
           </q-item>
         </q-list>
@@ -50,12 +50,14 @@
         <q-btn
           flat
           color="primary"
+          no-caps
           :label="$t('topupDialog.cancel')"
           @click="onDialogCancel"
         />
         <q-btn
           flat
           color="primary"
+          no-caps
           :label="$t('topupDialog.order')"
           :loading
           :disable="!valid"

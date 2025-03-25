@@ -204,12 +204,9 @@ export default {
   },
   payDialog: {
     pay: '支付',
-    payWithAlipay: '使用支付寶，掃碼支付{price}元',
-    cancelOrder: '取消訂單',
-    orderCancelled: '訂單已取消',
-    cancelOrderFailed: '取消訂單失敗',
-    paymentSuccess: '支付成功',
-    checkOrderStatusFailed: '檢查訂單狀態失敗'
+    refreshAfterPay: '支付完成後，點擊「已完成支付」以刷新資料',
+    cancel: '取消',
+    completePayment: '已完成支付'
   },
   saveDialog: {
     title: '儲存修改',
@@ -257,7 +254,7 @@ export default {
     duration: '訂閱時長（月）',
     amountDue: '應付金額',
     paymentMethod: '支付方式',
-    alipayOnly: '目前僅支援支付寶',
+    wxpayOnly: '目前僅支援微信支付',
     cancel: '取消',
     order: '下單'
   },
@@ -289,7 +286,7 @@ export default {
     amountCaption: '請輸入 1 到 999 之間的整數',
     payableAmount: '應付金額',
     paymentMethod: '支付方式',
-    alipayOnly: '目前僅支援支付寶',
+    wxpayOnly: '目前僅支援微信支付',
     cancel: '取消',
     order: '下單'
   },

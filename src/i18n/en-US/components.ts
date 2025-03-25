@@ -204,12 +204,9 @@ export default {
   },
   payDialog: {
     pay: 'Pay',
-    payWithAlipay: 'Use Alipay to scan the code to pay {price} yuan',
-    cancelOrder: 'Cancel Order',
-    orderCancelled: 'Order Cancelled',
-    cancelOrderFailed: 'Failed to Cancel Order',
-    paymentSuccess: 'Payment Successful',
-    checkOrderStatusFailed: 'Failed to Check Order Status'
+    refreshAfterPay: 'After payment, click "Completed Payment" to refresh the data',
+    cancel: 'Cancel',
+    completePayment: 'Completed Payment'
   },
   saveDialog: {
     title: 'Save Changes',
@@ -257,7 +254,7 @@ export default {
     duration: 'Subscription Duration (Months)',
     amountDue: 'Amount Due',
     paymentMethod: 'Payment Method',
-    alipayOnly: 'Alipay is currently the only supported method',
+    wxpayOnly: 'Currently only supports WeChat payment',
     cancel: 'Cancel',
     order: 'Order'
   },
@@ -289,7 +286,7 @@ export default {
     amountCaption: 'Please enter an integer between 1 and 999',
     payableAmount: 'Payable Amount',
     paymentMethod: 'Payment Method',
-    alipayOnly: 'Alipay is currently the only supported method',
+    wxpayOnly: 'Currently only supports WeChat payment',
     cancel: 'Cancel',
     order: 'Order'
   },

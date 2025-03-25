@@ -236,9 +236,9 @@ function subscribeDialog() {
   $q.dialog({
     component: SubscribeDialog
   }).onOk(res => {
+    window.open(res.payUrl, '_blank')
     $q.dialog({
-      component: PayDialog,
-      componentProps: res
+      component: PayDialog
     }).onOk(() => {
       db.cloud.sync()
     })
@@ -248,9 +248,9 @@ function topupDialog() {
   $q.dialog({
     component: TopupDialog
   }).onOk(res => {
+    window.open(res.payUrl, '_blank')
     $q.dialog({
-      component: PayDialog,
-      componentProps: res
+      component: PayDialog
     }).onOk(() => {
       refreshLlmBalance()
     })

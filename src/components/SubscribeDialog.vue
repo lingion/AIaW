@@ -36,7 +36,7 @@
               {{ $t('subscribeDialog.paymentMethod') }}
             </q-item-section>
             <q-item-section side>
-              {{ $t('subscribeDialog.alipayOnly') }}
+              {{ $t('subscribeDialog.wxpayOnly') }}
             </q-item-section>
           </q-item>
         </q-list>

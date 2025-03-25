@@ -11,7 +11,7 @@ export function useOrder(loading: Ref<boolean>, onDialogOK: (res) => void) {
   async function order(item: OrderItem) {
     try {
       loading.value = true
-      const res = await fetch(`${BudgetBaseURL}/order`, {
+      const res = await fetch(`${BudgetBaseURL}/wxpay-order`, {
         method: 'POST',
         body: JSON.stringify({
           item
@@ -25,8 +25,7 @@ export function useOrder(loading: Ref<boolean>, onDialogOK: (res) => void) {
       const body = await res.json()
       onDialogOK({
         orderId: body.order_id,
-        qrCode: body.qr_code,
-        price: body.price
+        payUrl: body.pay_url
       })
     } catch (error) {
       console.error(error)
