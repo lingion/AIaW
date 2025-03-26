@@ -112,62 +112,20 @@
             :title="$t('workspacePage.workspaceSettings')"
           />
         </div>
-        <q-expansion-item
-          :label="$t('workspacePage.assistants')"
-          header-class="text-lg"
+        <assistants-expansion
           :model-value="workspace.listOpen.assistants"
           @update:model-value="setListOpen('assistants', $event)"
-        >
-          <assistant-list
-            my-2
-            :workspace-id="workspace.id"
-          />
-        </q-expansion-item>
+          :workspace-id="workspace.id"
+          dense
+        />
         <template v-if="isPlatformEnabled(perfs.artifactsEnabled)">
           <q-separator />
-          <q-expansion-item
-            label="Artifacts"
+          <artifacts-expansion
             :model-value="workspace.listOpen.artifacts"
             @update:model-value="setListOpen('artifacts', $event)"
-            header-class="text-lg"
             max-h="40vh"
             of-y-auto
-          >
-            <a-tip
-              tip-key="artifacts-usage"
-              rd-0
-            >
-              {{ $t('workspacePage.artifactsGuide') }} <a
-                href="https://docs.aiaw.app/usage/artifacts.html"
-                target="_blank"
-                pri-link
-              >
-                {{ $t('workspacePage.artifactsGuideLink') }}
-              </a>
-            </a-tip>
-            <artifacts-list
-              mt-2
-              :workspace-id="workspace.id"
-            />
-          </q-expansion-item>
-          <div py-2>
-            <q-btn
-              ml-2
-              flat
-              icon="sym_o_add"
-              :label="$t('workspacePage.create')"
-              text-sec
-              @click="createEmptyArtifact"
-            />
-            <select-file-btn
-              ml-2
-              flat
-              icon="sym_o_file_open"
-              :label="$t('workspacePage.selectFile')"
-              text-sec
-              @input="artifactFromFiles"
-            />
-          </div>
+          />
         </template>
         <q-separator />
         <q-expansion-item
@@ -191,10 +149,9 @@
 
 <script setup lang="ts">
 import { computed, provide, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import AssistantList from 'src/components/AssistantList.vue'
+import AssistantsExpansion from 'src/components/AssistantsExpansion.vue'
 import DialogList from 'src/components/DialogList.vue'
-import ArtifactsList from 'src/components/ArtifactsList.vue'
+import ArtifactsExpansion from 'src/components/ArtifactsExpansion.vue'
 import { useWorkspacesStore } from 'src/stores/workspaces'
 import { useLiveQueryWithDeps } from 'src/composables/live-query'
 import { db } from 'src/utils/db'
@@ -202,10 +159,7 @@ import { Workspace, Dialog, Artifact } from 'src/utils/types'
 import { useUserDataStore } from 'src/stores/user-data'
 import { useQuasar } from 'quasar'
 import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
-import { useCreateArtifact } from 'src/composables/create-artifact'
-import { dialogOptions } from 'src/utils/values'
-import SelectFileBtn from 'src/components/SelectFileBtn.vue'
-import { artifactUnsaved, getFileExt, isPlatformEnabled, isTextFile } from 'src/utils/functions'
+import { artifactUnsaved, isPlatformEnabled } from 'src/utils/functions'
 import { useRoute, useRouter } from 'vue-router'
 import EditArtifact from 'src/views/EditArtifact.vue'
 import { useCloseArtifact } from 'src/composables/close-artifact'
@@ -213,9 +167,6 @@ import ArtifactItemMenu from 'src/components/ArtifactItemMenu.vue'
 import DragableSeparator from 'src/components/DragableSeparator.vue'
 import ArtifactItemIcon from 'src/components/ArtifactItemIcon.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
-import ATip from 'src/components/ATip.vue'
-
-const { t } = useI18n()
 
 const props = defineProps<{
   id: string
@@ -232,43 +183,6 @@ provide('dialogs', dialogs)
 provide('artifacts', artifacts)
 
 const $q = useQuasar()
-const { createArtifact } = useCreateArtifact(workspace)
-function createEmptyArtifact() {
-  $q.dialog({
-    title: t('workspacePage.createArtifact'),
-    prompt: {
-      model: '',
-      type: 'text',
-      label: t('workspacePage.name'),
-      isValid: v => !!v.trim()
-    },
-    cancel: true,
-    ok: t('workspacePage.create'),
-    ...dialogOptions
-  }).onOk(name => {
-    const language = getFileExt(name)
-    createArtifact({ name, language })
-  })
-}
-async function artifactFromFiles(files: File[]) {
-  for (const file of files) {
-    if (!await isTextFile(file)) {
-      $q.notify({
-        message: t('workspacePage.nonTextFile', { name: file.name }),
-        color: 'negative'
-      })
-      continue
-    }
-    const text = await file.text()
-    await createArtifact({
-      name: file.name,
-      language: getFileExt(file.name),
-      versions: [{ date: new Date(file.lastModified), text }],
-      currIndex: 0,
-      tmp: text
-    })
-  }
-}
 
 const drawerBreakpoint = 960
 const openedArtifacts = computed(() => artifacts.value.filter(a => a.open))

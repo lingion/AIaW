@@ -19,9 +19,16 @@ export default {
   abortableBtn: {
     stop: 'Stop'
   },
-  artifactsList: {
+  artifactsExpansion: {
     searchPlaceholder: 'Search Artifacts...',
-    close: 'Close'
+    close: 'Close',
+    artifactsGuide: 'Refer to',
+    artifactsGuideLink: 'Artifacts User Guide',
+    create: 'Create',
+    selectFile: 'Select File',
+    createArtifact: 'Create Artifact',
+    name: 'Name',
+    nonTextFile: 'Non-text file: {name}'
   },
   artifactItemMenu: {
     save: 'Save',
@@ -58,14 +65,15 @@ export default {
     tip: 'TIP',
     dismiss: 'Dismiss'
   },
-  assistantList: {
-    newDialog: 'New Dialog',
+  assistantsExpansion: {
+    createDialog: 'Create Dialog',
     moveToGlobal: 'Move to Global',
     moveToWorkspace: 'Move to Workspace',
     delete: 'Delete',
     deleteConfirmTitle: 'Delete Assistant',
     deleteConfirmMessage: 'Are you sure you want to delete the assistant "{name}"?',
-    newAssistant: 'New Assistant'
+    createAssistant: 'Create Assistant',
+    assistants: 'Assistants'
   },
   customProviders: {
     delete: 'Delete',
@@ -100,13 +108,8 @@ export default {
     cancel: 'Cancel',
     ok: 'OK'
   },
-  filesInputDialog: {
-    clickToSelect: 'Click to Select Image',
-    dragHere: 'Drag Here',
-    paste: 'Or Ctrl+V to Paste'
-  },
   dialogList: {
-    newDialog: 'New Dialog',
+    createDialog: 'Create Dialog',
     searchPlaceholder: 'Search Dialogs...',
     renameTitle: 'Rename Title',
     summarizeDialog: 'Summarize Title',
@@ -265,7 +268,7 @@ export default {
     confirm: 'Confirm'
   },
   selectFileBtn: {
-    clickToSelect: 'Click to Select Image',
+    clickToSelect: 'Click to Select File',
     dragHere: 'Drag Here',
     paste: 'Or Ctrl+V to Paste'
   },

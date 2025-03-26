@@ -19,9 +19,16 @@ export default {
   abortableBtn: {
     stop: '停止'
   },
-  artifactsList: {
+  artifactsExpansion: {
     searchPlaceholder: '搜尋 Artifacts...',
-    close: '關閉'
+    close: '關閉',
+    artifactsGuide: '可參考',
+    artifactsGuideLink: 'Artifacts 使用指南',
+    create: '建立',
+    selectFile: '選擇檔案',
+    createArtifact: '建立 Artifact',
+    name: '名稱',
+    nonTextFile: '非文本檔案：{name}'
   },
   artifactItemMenu: {
     save: '儲存',
@@ -58,14 +65,15 @@ export default {
     tip: 'TIP',
     dismiss: '不再提示'
   },
-  assistantList: {
-    newDialog: '新建對話',
+  assistantsExpansion: {
+    createDialog: '新建對話',
     moveToGlobal: '移至全域',
     moveToWorkspace: '移至工作區',
     delete: '刪除',
     deleteConfirmTitle: '刪除助手',
     deleteConfirmMessage: '確定要刪除助手「{name}」嗎？',
-    newAssistant: '新建助手'
+    createAssistant: '新建助手',
+    assistants: '助手'
   },
   customProviders: {
     delete: '刪除',
@@ -100,13 +108,8 @@ export default {
     cancel: '取消',
     ok: '確定'
   },
-  filesInputDialog: {
-    clickToSelect: '點擊選擇圖片',
-    dragHere: '拖曳到此處',
-    paste: '或者 Ctrl+V 貼上'
-  },
   dialogList: {
-    newDialog: '新建對話',
+    createDialog: '新建對話',
     searchPlaceholder: '搜尋對話...',
     renameTitle: '修改標題',
     summarizeDialog: '總結標題',
@@ -265,7 +268,7 @@ export default {
     confirm: '確定'
   },
   selectFileBtn: {
-    clickToSelect: '點擊選擇圖片',
+    clickToSelect: '點擊選擇檔案',
     dragHere: '拖曳到此處',
     paste: '或者 Ctrl+V 貼上'
   },

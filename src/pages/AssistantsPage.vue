@@ -8,20 +8,19 @@
     side="right"
     v-model="drawerOpen"
   >
-    <q-expansion-item
+    <assistants-expansion
       :label="$t('assistantsPage.globalAssistant')"
       header-class="text-lg"
       default-opened
-    >
-      <assistant-list workspace-id="$root" />
-    </q-expansion-item>
+      workspace-id="$root"
+    />
   </q-drawer>
 </template>
 
 <script setup lang="ts">
 import { computed, provide, ref } from 'vue'
 import { useQuasar } from 'quasar'
-import AssistantList from 'src/components/AssistantList.vue'
+import AssistantsExpansion from 'src/components/AssistantsExpansion.vue'
 
 const drawerOpen = ref(false)
 const drawerBreakpoint = 960

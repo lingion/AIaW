@@ -84,7 +84,7 @@ export default {
     editUserMessage: '编辑用户消息',
     focusInputBox: '聚焦输入框',
     dialogList: '对话列表',
-    newDialog: '新建对话',
+    createDialog: '新建对话',
     editArtifacts: '编辑 Artifacts',
     saveArtifact: '保存 Artifact'
   },
@@ -104,15 +104,7 @@ export default {
     closeAllArtifacts: '关闭全部 Artifacts',
     workspaceHome: '工作区主页',
     workspaceSettings: '工作区设置',
-    assistants: '助手',
-    artifactsGuide: '可参考',
-    artifactsGuideLink: 'Artifacts 使用指南',
-    create: '创建',
-    selectFile: '选择文件',
-    dialogs: '对话',
-    createArtifact: '创建 Artifact',
-    name: '名称',
-    nonTextFile: '非文本文件：{name}'
+    dialogs: '对话'
   },
   mainLayout: {
     workspace: '工作区',

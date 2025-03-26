@@ -36,7 +36,7 @@ const props = defineProps<{
 
 const rules = [{
   match: (provider: string, model: string) => {
-    return provider === 'openai.chat' && ['o1', 'o3-mini', 'o3-mini-2025-01-31'].includes(model)
+    return provider.startsWith('openai.') && ['o1', 'o3-mini', 'o3-mini-2025-01-31'].includes(model)
   },
   options: {
     reasoningEffort: Optional(Unsafe({
@@ -47,7 +47,7 @@ const rules = [{
   }
 }, {
   match: (provider: string, model: string) => {
-    return provider === 'google.generative-ai' && /^gemini-2\.0-(flash|pro)(-(exp|latest|00\d))?$/.test(model)
+    return provider.startsWith('google.') && /^gemini-2\.0-(flash|pro)(-(exp|latest|00\d))?$/.test(model)
   },
   options: {
     useSearchGrounding: Optional(TBoolean({ title: t('modelOptionsBtn.useSearchGrounding') }))

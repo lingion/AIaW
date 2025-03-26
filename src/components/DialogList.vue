@@ -13,7 +13,7 @@
         <q-icon name="sym_o_add_comment" />
       </q-item-section>
       <q-item-section>
-        {{ $t('dialogList.newDialog') }}
+        {{ $t('dialogList.createDialog') }}
       </q-item-section>
     </q-item>
     <div p="x-4 y-2">

@@ -181,7 +181,7 @@
         <q-item>
           <q-item-section>
             <q-item-label>
-              {{ $t('shortcutKeysPage.newDialog') }}
+              {{ $t('shortcutKeysPage.createDialog') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>

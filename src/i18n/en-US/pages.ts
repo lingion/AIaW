@@ -84,7 +84,7 @@ export default {
     editUserMessage: 'Edit User Message',
     focusInputBox: 'Focus Input Box',
     dialogList: 'Dialog List',
-    newDialog: 'New Dialog',
+    createDialog: 'Create Dialog',
     editArtifacts: 'Edit Artifacts',
     saveArtifact: 'Save Artifact'
   },
@@ -104,15 +104,7 @@ export default {
     closeAllArtifacts: 'Close All Artifacts',
     workspaceHome: 'Workspace Home',
     workspaceSettings: 'Workspace Settings',
-    assistants: 'Assistants',
-    artifactsGuide: 'Refer to',
-    artifactsGuideLink: 'Artifacts User Guide',
-    create: 'Create',
-    selectFile: 'File',
-    dialogs: 'Dialogs',
-    createArtifact: 'Create Artifact',
-    name: 'Name',
-    nonTextFile: 'Non-text file: {name}'
+    dialogs: 'Dialogs'
   },
   mainLayout: {
     workspace: 'Workspace | Workspaces',

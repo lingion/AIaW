@@ -24,7 +24,7 @@ export default {
 
 ### Usage Guide
 
-Click "**New Dialog**" in the right sidebar to start a conversation.
+Click "**Create Dialog**" in the right sidebar to start a conversation.
 
 - You can change the shortcut keys for sending messages in the settings on the left sidebar. The default is Ctrl+Enter.
 - This application is cross-platform and can be used on different devices such as computers and mobile phones.

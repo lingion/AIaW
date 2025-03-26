@@ -1,5 +1,5 @@
 <template>
-  <q-btn @click="onClick">
+  <q-btn @click.prevent.stop="onClick">
     <q-dialog v-model="show">
       <q-card>
         <q-card-section>

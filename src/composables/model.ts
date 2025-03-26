@@ -5,7 +5,7 @@ import { useObservable } from '@vueuse/rxjs'
 import { db } from 'src/utils/db'
 import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
 import { wrapLanguageModel } from 'ai'
-import { FormattingReenabled } from 'src/utils/middlewares'
+import { AuthropicCors, FormattingReenabled } from 'src/utils/middlewares'
 import { fetch } from 'src/utils/platform-api'
 import { useProvidersStore } from 'src/stores/providers'
 
@@ -39,10 +39,13 @@ export function useModel(provider: Ref<Provider>, model: Ref<Model>, options?: R
     setMiddleware()
   }
   function setMiddleware() {
-    if (FormattingModels.includes(_model.value.name)) {
+    const middleware = []
+    FormattingModels.includes(_model.value.name) && middleware.push(FormattingReenabled)
+    sdkModel.value.provider.startsWith('anthropic.') && middleware.push(AuthropicCors)
+    if (middleware.length) {
       sdkModel.value = wrapLanguageModel({
         model: sdkModel.value,
-        middleware: FormattingReenabled
+        middleware
       })
     }
   }

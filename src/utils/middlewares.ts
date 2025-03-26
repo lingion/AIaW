@@ -14,6 +14,18 @@ const FormattingReenabled: LanguageModelV1Middleware = {
   }
 }
 
+const AuthropicCors: LanguageModelV1Middleware = {
+  async transformParams({ params }) {
+    return {
+      ...params,
+      headers: {
+        ...params.headers,
+        'anthropic-dangerous-direct-browser-access': 'true'
+      }
+    }
+  }
+}
 export {
-  FormattingReenabled
+  FormattingReenabled,
+  AuthropicCors
 }
