@@ -495,7 +495,7 @@ interface StoredReactive {
 }
 
 interface OrderItem {
-  type: 'sync-service' | 'api-budget'
+  type: 'sync-service' | 'api-budget' | 'api-budget-usd'
   amount: number
 }
 

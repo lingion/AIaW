@@ -42,7 +42,8 @@
         <q-item>
           <q-item-section>
             <q-item-label caption>
-              {{ $t('accountPage.cloudSyncDescription') }}<span v-if="SyncServicePrice">{{ $t('accountPage.cloudSyncPrice', { price: SyncServicePrice }) }}</span>
+              {{ $t('accountPage.cloudSyncDescription') }}
+              <span v-if="SyncServicePrice">{{ $t('accountPage.cloudSyncPrice', { priceCNY: SyncServicePrice, priceUSD: SyncServicePriceUSD }) }}</span>
             </q-item-label>
           </q-item-section>
         </q-item>
@@ -132,7 +133,7 @@
                 {{ $t('accountPage.remainingBudget') }}
               </q-item-label>
               <q-item-label caption>
-                <span v-if="llmBalance">￥{{ llmBalance }}</span>
+                <span v-if="llmBalance != null">{{ localePrice(llmBalance, 4) }}</span>
                 <span v-else>-</span>
               </q-item-label>
             </q-item-section>
@@ -201,12 +202,12 @@ import { useObservable } from '@vueuse/rxjs'
 import { db } from 'src/utils/db'
 import { useQuasar } from 'quasar'
 import SubscribeDialog from 'src/components/SubscribeDialog.vue'
-import { BudgetBaseURL, LitellmBaseURL, SyncServicePrice, UsdToCnyRate } from 'src/utils/config'
+import { BudgetBaseURL, LitellmBaseURL, SyncServicePrice, SyncServicePriceUSD } from 'src/utils/config'
 import TopupDialog from 'src/components/TopupDialog.vue'
 import { useRouter } from 'vue-router'
 import PayDialog from 'src/components/PayDialog.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
-import { pageFhStyle } from 'src/utils/functions'
+import { localePrice, pageFhStyle } from 'src/utils/functions'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -253,6 +254,7 @@ function topupDialog() {
       component: PayDialog
     }).onOk(() => {
       refreshLlmBalance()
+      db.cloud.sync()
     })
   })
 }
@@ -273,15 +275,16 @@ async function refreshLlmBalance() {
   })
   const { info, error } = await resp.json()
   if (resp.status === 400 && error.type === 'budget_exceeded') {
-    llmBalance.value = '0'
+    llmBalance.value = 0
     return
   }
-  llmBalance.value = ((info.max_budget - info.spend) * UsdToCnyRate).toFixed(4)
+  llmBalance.value = info.max_budget - info.spend
 }
 
 const itemTypes = {
   'sync-service': t('accountPage.syncServiceType'),
-  'api-budget': t('accountPage.apiBudgetType')
+  'api-budget': t('accountPage.apiBudgetType'),
+  'api-budget-usd': t('accountPage.apiBudgetUsdType')
 }
 const orderHistoryColumns = [
   { name: 'orderId', label: t('accountPage.orderId'), field: 'orderId', align: 'left' as const },

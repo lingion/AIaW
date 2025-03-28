@@ -10,10 +10,7 @@
           {{ $t('payDialog.pay') }}
         </div>
       </q-card-section>
-      <q-card-section
-        p-0
-        flex="~ col items-center"
-      >
+      <q-card-section>
         <div>{{ $t('payDialog.refreshAfterPay') }}</div>
       </q-card-section>
       <q-card-actions align="right">

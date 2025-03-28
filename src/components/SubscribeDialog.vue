@@ -13,7 +13,21 @@
         <q-list>
           <q-item>
             <q-item-section>
-              {{ $t('subscribeDialog.duration') }}
+              <q-item-label>
+                {{ $t('subscribeDialog.duration') }}
+              </q-item-label>
+              <q-item-label
+                caption
+                v-if="payMethod === 'wxpay'"
+              >
+                {{ $t('subscribeDialog.priceCNY', { price: SyncServicePrice }) }}
+              </q-item-label>
+              <q-item-label
+                caption
+                v-else
+              >
+                {{ $t('subscribeDialog.priceUSD', { price: SyncServicePriceUSD }) }}
+              </q-item-label>
             </q-item-section>
             <q-item-section side>
               <q-input
@@ -23,22 +37,23 @@
               />
             </q-item-section>
           </q-item>
+          <q-item v-if="payMethod === 'stripe'">
+            <q-item-section>
+              {{ $t('topupDialog.transactionFee') }}
+            </q-item-section>
+            <q-item-section side>
+              {{ `$ ${StripeFee}` }}
+            </q-item-section>
+          </q-item>
           <q-item>
             <q-item-section>
               {{ $t('subscribeDialog.amountDue') }}
             </q-item-section>
             <q-item-section side>
-              {{ valid ? `￥${(amount * SyncServicePrice).toFixed(2)}` : '-' }}
+              {{ payAmount }}
             </q-item-section>
           </q-item>
-          <q-item>
-            <q-item-section>
-              {{ $t('subscribeDialog.paymentMethod') }}
-            </q-item-section>
-            <q-item-section side>
-              {{ $t('subscribeDialog.wxpayOnly') }}
-            </q-item-section>
-          </q-item>
+          <pay-method-item v-model="payMethod" />
         </q-list>
       </q-card-section>
       <q-card-actions align="right">
@@ -54,7 +69,7 @@
           :label="$t('subscribeDialog.order')"
           :loading
           :disable="!valid"
-          @click="order({ type: 'sync-service', amount })"
+          @click="order({ type: 'sync-service', amount }, payMethod)"
         />
       </q-card-actions>
     </q-card>
@@ -64,14 +79,27 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from 'quasar'
 import { useOrder } from 'src/composables/order'
-import { SyncServicePrice } from 'src/utils/config'
+import { StripeFee, SyncServicePrice, SyncServicePriceUSD } from 'src/utils/config'
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import PayMethodItem from './PayMethodItem.vue'
 
 defineEmits([
   ...useDialogPluginComponent.emits
 ])
 
-const amount = ref<number>(1)
+const { locale } = useI18n()
+const payMethod = ref<'wxpay' | 'stripe'>(locale.value === 'zh-CN' ? 'wxpay' : 'stripe')
+
+const amount = ref<number>(locale.value === 'zh-CN' ? 1 : 3)
+const payAmount = computed(() => {
+  if (!valid.value) return '-'
+  if (payMethod.value === 'wxpay') {
+    return '￥' + (amount.value * SyncServicePrice).toFixed(2)
+  } else {
+    return '$ ' + (amount.value * SyncServicePriceUSD + StripeFee).toFixed(2)
+  }
+})
 
 const valid = computed(() => amount.value > 0 && amount.value < 100 && amount.value % 1 === 0)
 const loading = ref(false)

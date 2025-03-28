@@ -53,7 +53,7 @@
           * {{ $t('modelPricing.performanceNote') }}
         </div>
       </div>
-      <div>
+      <div v-if="locale.startsWith('zh')">
         <div
           text-lg
           mt-4

@@ -255,9 +255,10 @@ export default {
   subscribeDialog: {
     title: 'Subscribe to Cloud Sync Service',
     duration: 'Subscription Duration (Months)',
+    priceCNY: 'Price: ￥{price} / month',
+    priceUSD: 'Price: $ {price} / month',
     amountDue: 'Amount Due',
     paymentMethod: 'Payment Method',
-    wxpayOnly: 'Currently only supports WeChat payment',
     cancel: 'Cancel',
     order: 'Order'
   },
@@ -285,13 +286,18 @@ export default {
   },
   topupDialog: {
     title: 'Recharge Model Service',
-    amount: 'Recharge Amount (Yuan)',
+    amountCNY: 'Recharge Amount (Yuan)',
+    amountUSD: 'Recharge Amount (USD)',
     amountCaption: 'Please enter an integer between 1 and 999',
+    transactionFee: 'Transaction Fee',
     payableAmount: 'Payable Amount',
-    paymentMethod: 'Payment Method',
-    wxpayOnly: 'Currently only supports WeChat payment',
     cancel: 'Cancel',
     order: 'Order'
+  },
+  payMethodItem: {
+    paymentMethod: 'Payment Method',
+    wxpay: 'WeChat Pay',
+    stripe: 'Bank Card'
   },
   toolContent: {
     toolCall: 'Tool Call',

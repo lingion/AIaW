@@ -8,10 +8,11 @@ import { useI18n } from 'vue-i18n'
 export function useOrder(loading: Ref<boolean>, onDialogOK: (res) => void) {
   const $q = useQuasar()
   const { t } = useI18n()
-  async function order(item: OrderItem) {
+  async function order(item: OrderItem, payMethod) {
     try {
       loading.value = true
-      const res = await fetch(`${BudgetBaseURL}/wxpay-order`, {
+      const path = payMethod === 'wxpay' ? '/wxpay-order' : '/stripe-checkout'
+      const res = await fetch(`${BudgetBaseURL}${path}`, {
         method: 'POST',
         body: JSON.stringify({
           item

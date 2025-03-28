@@ -6,7 +6,7 @@ export default {
     cloudSyncHeader: 'Cloud Sync',
     cloudSyncDescription:
       'Real-time cloud synchronization service across devices, which can synchronize all data such as workspaces, conversations, assistants, settings, and plugins.',
-    cloudSyncPrice: 'Price is {price} yuan/month',
+    cloudSyncPrice: 'Price is USD $ {priceUSD} /month',
     statusLabel: 'Status',
     evalLabel: 'Trial',
     evalDaysLeft: 'Remaining trial days: {days}',
@@ -16,7 +16,7 @@ export default {
     renewButton: 'Renew',
     modelServicesHeader: 'Model Services',
     modelServicesDescription:
-      'Use various advanced models from different service providers in one stop, including deepseek-reasoner, claude-3-5-sonnet, o3-mini, etc., without configuration. The quota is charged as you go and is permanently valid. Charges are deducted according to the official API original price (calculated at USD/CNY=7).',
+      'Use various advanced models from different service providers in one stop, including deepseek-reasoner, claude-3-5-sonnet, o3-mini, etc., without configuration. The quota is charged as you go and is permanently valid. Charges are deducted according to the official API original price.',
     modelPricingLink: 'Model Pricing',
     usingDefaultService: 'Using (as global default provider)',
     customService: 'Not used (global custom provider configured)',
@@ -34,7 +34,8 @@ export default {
     paymentTime: 'Payment Time',
     orderType: 'Type',
     syncServiceType: 'Cloud Sync Service',
-    apiBudgetType: 'Model Quota',
+    apiBudgetType: 'Model Quota (CNY)',
+    apiBudgetUsdType: 'Model Quota (USD)',
     amount: 'Amount'
   },
   modelPricing: {
@@ -52,7 +53,7 @@ export default {
     getModelPriceFailed: 'Failed to get model price',
     inputPrice: 'Input Price',
     outputPrice: 'Output Price',
-    usageDescription: 'All models are charged according to the official API price of each service provider, calculated at an exchange rate of USD/CNY=7.',
+    usageDescription: 'All models are charged according to the official API price of each service provider.',
     tokenOutputNote: 'Calculated as 1.4 Chinese characters per Token output (new GPT model) or 1 Chinese character (other models) or 1.8 Chinese characters (domestic models). The actual ratio fluctuates and is slightly larger on average, but input costs also need to be considered.',
     currencyCNY: '￥',
     currencyUSD: '$',

@@ -6,7 +6,7 @@ export default {
     cloudSyncHeader: '云同步',
     cloudSyncDescription:
       '跨设备实时云同步服务，能够同步工作区、对话、助手、设置、插件等所有数据。',
-    cloudSyncPrice: '价格为{price}元/月',
+    cloudSyncPrice: '价格为 {priceCNY}元/月',
     statusLabel: '状态',
     evalLabel: '试用中',
     evalDaysLeft: '剩余试用天数：{days}',
@@ -35,6 +35,7 @@ export default {
     orderType: '类型',
     syncServiceType: '云同步服务',
     apiBudgetType: '模型额度',
+    apiBudgetUsdType: '模型额度(USD)',
     amount: '数量'
   },
   modelPricing: {

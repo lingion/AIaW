@@ -14,7 +14,7 @@
           <q-item>
             <q-item-section>
               <q-item-label>
-                {{ $t('topupDialog.amount') }}
+                {{ $t(payMethod === 'wxpay' ? 'topupDialog.amountCNY' : 'topupDialog.amountUSD') }}
               </q-item-label>
               <q-item-label caption>
                 {{ $t('topupDialog.amountCaption') }}
@@ -28,22 +28,23 @@
               />
             </q-item-section>
           </q-item>
+          <q-item v-if="payMethod === 'stripe'">
+            <q-item-section>
+              {{ $t('topupDialog.transactionFee') }}
+            </q-item-section>
+            <q-item-section side>
+              {{ `$ ${StripeFee}` }}
+            </q-item-section>
+          </q-item>
           <q-item>
             <q-item-section>
               {{ $t('topupDialog.payableAmount') }}
             </q-item-section>
             <q-item-section side>
-              ￥{{ valid ? amount : '-' }}
+              {{ payAmount }}
             </q-item-section>
           </q-item>
-          <q-item>
-            <q-item-section>
-              {{ $t('topupDialog.paymentMethod') }}
-            </q-item-section>
-            <q-item-section side>
-              {{ $t('topupDialog.wxpayOnly') }}
-            </q-item-section>
-          </q-item>
+          <pay-method-item v-model="payMethod" />
         </q-list>
       </q-card-section>
       <q-card-actions align="right">
@@ -61,7 +62,7 @@
           :label="$t('topupDialog.order')"
           :loading
           :disable="!valid"
-          @click="order({ type: 'api-budget', amount })"
+          @click="order({ type: payMethod === 'wxpay' ? 'api-budget' : 'api-budget-usd', amount }, payMethod)"
         />
       </q-card-actions>
     </q-card>
@@ -71,9 +72,24 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from 'quasar'
 import { useOrder } from 'src/composables/order'
+import { StripeFee } from 'src/utils/config'
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import PayMethodItem from './PayMethodItem.vue'
 
+const { locale } = useI18n()
+
+const payMethod = ref<'wxpay' | 'stripe'>(locale.value === 'zh-CN' ? 'wxpay' : 'stripe')
 const amount = ref<number>(5)
+
+const payAmount = computed(() => {
+  if (!valid.value) return '-'
+  if (payMethod.value === 'wxpay') {
+    return '￥' + amount.value
+  } else {
+    return '$ ' + (amount.value + StripeFee)
+  }
+})
 
 defineEmits([
   ...useDialogPluginComponent.emits

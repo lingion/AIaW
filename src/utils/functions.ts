@@ -1,6 +1,8 @@
 import { Hct, hexFromArgb } from '@material/material-color-utilities'
 import { Artifact, Avatar, PlatformEnabled } from './types'
 import { Platform } from 'quasar'
+import { i18n } from 'src/boot/i18n'
+import { UsdToCnyRate } from './config'
 
 function randomHash(digits = 64) {
   const array = new Uint8Array(digits / 8)
@@ -218,6 +220,10 @@ function removeDuplicates(arr: any[]) {
   return Array.from(new Set(arr))
 }
 
+function localePrice(usd: number, fixed = 2) {
+  return i18n.global.locale.value === 'zh-CN' ? `￥${(usd * UsdToCnyRate).toFixed(fixed)}` : `$ ${usd.toFixed(fixed)}`
+}
+
 export {
   randomHash,
   escapeRegex,
@@ -248,5 +254,6 @@ export {
   removeUndefinedProps,
   cyrb53,
   hash53,
-  removeDuplicates
+  removeDuplicates,
+  localePrice
 }

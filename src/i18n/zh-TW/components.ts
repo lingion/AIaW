@@ -255,9 +255,10 @@ export default {
   subscribeDialog: {
     title: '訂閱雲同步服務',
     duration: '訂閱時長（月）',
+    priceCNY: '價格：￥{price} / 月',
+    priceUSD: '價格：$ {price} / 月',
+    transactionFee: '手續費',
     amountDue: '應付金額',
-    paymentMethod: '支付方式',
-    wxpayOnly: '目前僅支援微信支付',
     cancel: '取消',
     order: '下單'
   },
@@ -285,13 +286,18 @@ export default {
   },
   topupDialog: {
     title: '模型服務儲值',
-    amount: '儲值額度（元）',
+    amountCNY: '儲值額度（元）',
+    amountUSD: '儲值額度（美元）',
     amountCaption: '請輸入 1 到 999 之間的整數',
+    transactionFee: '手續費',
     payableAmount: '應付金額',
-    paymentMethod: '支付方式',
-    wxpayOnly: '目前僅支援微信支付',
     cancel: '取消',
     order: '下單'
+  },
+  payMethodItem: {
+    paymentMethod: '支付方式',
+    wxpay: '微信支付',
+    stripe: '銀行卡'
   },
   toolContent: {
     toolCall: '工具呼叫',
