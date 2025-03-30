@@ -33,7 +33,7 @@
 
 ## Extended Use
 
-- [Multi-Workspace](workspaces): In the left sidebar, you can create multiple workspaces to separate conversations with different themes and different types of assistants; you can also create folders to put multiple workspaces into them; supports nesting.
+- Multi-Workspace: In the left sidebar, you can create multiple workspaces to separate conversations with different themes and different types of assistants; you can also create folders to put multiple workspaces into them; supports nesting.
 <img src="./res/workspace-list.png" width="378">
 
 - [Artifacts](artifacts): Any part of the assistant's response can be converted into Artifacts, which will be displayed in a separate window for easy modification and reuse.
