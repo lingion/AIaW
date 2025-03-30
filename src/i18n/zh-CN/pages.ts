@@ -114,6 +114,8 @@ export default {
     settings: '设置',
     usageGuide: '使用指南',
     currentVersion: '当前版本',
-    changeLog: '更新日志'
+    changeLog: '更新日志',
+    webVersion: '网页版',
+    localClient: '本地客户端'
   }
 }

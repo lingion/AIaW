@@ -6,43 +6,7 @@ export default defineConfig({
   description: "新一代 LLM 客户端",
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
-    nav: [
-      { text: '使用文档', link: '/usage/' },
-      { text: '自部署指南', link: '/self-host/' },
-      { text: '开始使用', link: 'https://aiaw.app' }
-    ],
 
-    sidebar: [
-      {
-        text: '使用文档',
-        items: [
-          { text: '功能概览', link: '/usage/' },
-          { text: 'Artifacts', link: '/usage/artifacts' },
-          { text: '文件解析', link: '/usage/file-parse' },
-          { text: '多模态', link: '/usage/multimodal' },
-          { text: '跨平台', link: '/usage/cross-platform' },
-          { text: '插件系统', link: '/usage/plugins' },
-          { text: 'MCP 插件', link: '/usage/mcp' },
-          { text: '插件配置与开发', link: '/usage/plugin-dev' },
-          { text: '提示词变量', link: '/usage/prompt-vars' },
-          { text: '工作区', link: '/usage/workspaces' },
-          { text: '助手', link: '/usage/assistants' },
-          { text: '个性化设置', link: '/usage/personalization' },
-          { text: '数据与同步', link: '/usage/data-sync' },
-          { text: '自定义服务商', link: '/usage/custom-provider' },
-          { text: '模型服务', link: '/usage/model-service' },
-          { text: '中转站对接', link: '/usage/share-link' },
-          { text: '常见问题', link: '/usage/common-issues' }
-        ]
-      },
-      {
-        text: '自部署指南',
-        items: [
-          { text: 'Docker 快速部署', link: '/self-host/' },
-          { text: '进阶部署', link: '/self-host/advanced' }
-        ]
-      }
-    ],
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/NitroRCr/AIaW' }
@@ -77,5 +41,85 @@ export default defineConfig({
   },
   head: [
     ['link', { rel: 'icon', href: '/icon-256x256.png' }]
-  ]
+  ],
+  locales: {
+    root: {
+      label: 'English',
+      lang: 'en',
+      themeConfig: {
+        nav: [
+          { text: 'Usage', link: '/usage/' },
+          { text: 'Self-Hosting Guide', link: '/self-host/' },
+          { text: 'Web Version', link: 'https://aiaw.app' },
+          { text: 'Client Download', link: 'https://github.com/NitroRCr/AIaW/releases/latest' }
+        ],
+        sidebar: [
+          {
+            text: 'Usage',
+            items: [
+              { text: 'Features Overview', link: '/usage/' },
+              { text: 'Artifacts', link: '/usage/artifacts' },
+              { text: 'File Parsing', link: '/usage/file-parse' },
+              { text: 'Cross-Platform', link: '/usage/cross-platform' },
+              { text: 'Plugins', link: '/usage/plugins' },
+              { text: 'MCP Plugin', link: '/usage/mcp' },
+              { text: 'Plugin Configuration & Development', link: '/usage/plugin-dev' },
+              { text: 'Prompt Variables', link: '/usage/prompt-vars' },
+              { text: 'Assistants', link: '/usage/assistants' },
+              { text: 'Data & Sync', link: '/usage/data-sync' },
+              { text: 'Custom Provider', link: '/usage/custom-provider' },
+              { text: 'Share Link', link: '/usage/share-link' },
+              { text: 'Common Issues', link: '/usage/common-issues' }
+            ]
+          },
+          {
+            text: 'Self-Hosting Guide',
+            items: [
+              { text: 'Quick Docker Deployment', link: '/self-host/' },
+              { text: 'Advanced Deployment', link: '/self-host/advanced' }
+            ]
+          }
+        ]
+      }
+    },
+    zh: {
+      label: '中文',
+      lang: 'zh',
+      themeConfig: {
+        nav: [
+          { text: '使用文档', link: '/zh/usage/' },
+          { text: '自部署指南', link: '/zh/self-host/' },
+          { text: '网页版', link: 'https://aiaw.app' },
+          { text: '客户端下载', link: 'https://github.com/NitroRCr/AIaW/releases/latest' }
+        ],
+        sidebar: [
+          {
+            text: '使用文档',
+            items: [
+              { text: '功能概览', link: '/zh/usage/' },
+              { text: 'Artifacts', link: '/zh/usage/artifacts' },
+              { text: '文件解析', link: '/zh/usage/file-parse' },
+              { text: '跨平台', link: '/zh/usage/cross-platform' },
+              { text: '插件系统', link: '/zh/usage/plugins' },
+              { text: 'MCP 插件', link: '/zh/usage/mcp' },
+              { text: '插件配置与开发', link: '/zh/usage/plugin-dev' },
+              { text: '提示词变量', link: '/zh/usage/prompt-vars' },
+              { text: '助手', link: '/zh/usage/assistants' },
+              { text: '数据与同步', link: '/zh/usage/data-sync' },
+              { text: '自定义服务商', link: '/zh/usage/custom-provider' },
+              { text: '中转站对接', link: '/zh/usage/share-link' },
+              { text: '常见问题', link: '/zh/usage/common-issues' }
+            ]
+          },
+          {
+            text: '自部署指南',
+            items: [
+              { text: 'Docker 快速部署', link: '/zh/self-host/' },
+              { text: '进阶部署', link: '/zh/self-host/advanced' }
+            ]
+          }
+        ]
+      }
+    }
+  }
 })

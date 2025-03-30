@@ -1,12 +1,12 @@
-# 自部署
+# Self-Hosting
 
-## Docker 快速部署
+## Quick Docker Deployment
 
 ```bash
 docker run -d -p 9010:9010 --name aiaw krytro/aiaw:latest
 ```
 
-如果要使用内置的文档解析插件，则需要登录 [LlamaCloud](https://cloud.llamaindex.ai/) 并创建 API Key，传入 `LLAMA_CLOUD_API_KEY` 环境变量：
+To use the built-in document parsing plugin, you need to log in to [LlamaCloud](https://cloud.llamaindex.ai/) and create an API Key, then pass it as the `LLAMA_CLOUD_API_KEY` environment variable:
 
 ```bash
 docker run -d -p 9010:9010 -e LLAMA_CLOUD_API_KEY=xxxxxxx --name aiaw krytro/aiaw:latest
@@ -14,7 +14,7 @@ docker run -d -p 9010:9010 -e LLAMA_CLOUD_API_KEY=xxxxxxx --name aiaw krytro/aia
 
 ### Docker Compose
 
-也可以使用 Docker Compose。参考下面的 `docker-compose.yaml`：
+You can also use Docker Compose. Refer to the following `docker-compose.yaml`:
 
 ```yaml
 services:
@@ -25,25 +25,25 @@ services:
     ports:
       - '9010:9010'
     environment:
-      # 如果要使用内置的文档解析插件
+      # If you want to use the built-in document parsing plugin
       LLAMA_CLOUD_API_KEY: xxxxxxx
 ```
 
-## 更多功能
+## More Features
 
-如果需要云同步功能，由于涉及前端构建环境变量的更改，需要自行构建，详见[进阶部署](advanced)。
+If you need cloud synchronization, you need to build it yourself due to changes in the front-end build environment variables. See [Advanced Deployment](advanced).
 
-此外，开箱即用的模型服务是我们的部署（[aiaw.app](https://aiaw.app)）独有的，相关后端暂未开源，不过并不复杂，你可以基于 LiteLLM 自行实现。
+In addition, the out-of-the-box model service is unique to our deployment ([aiaw.app](https://aiaw.app)). The relevant backend is not yet open source, but it is not complicated. You can implement it yourself based on LiteLLM.
 
-下面是不同部署方式的功能对照表：
+Below is a feature comparison table for different deployment methods:
 
-| 功能 \ 部署方式 | [静态部署](advanced#静态部署)（仅前端） | Docker 快速部署 | 进阶部署（自行构建） | aiaw.app |
+| Feature \ Deployment Method | [Static Deployment](advanced#static-deployment) (Frontend Only) | Quick Docker Deployment | Advanced Deployment (Self-Built) | aiaw.app |
 | --- | --- | --- | --- | --- |
-| 基本功能 | √ | √ | √ | √ |
-| 插件市场/助手市场/Gradio插件 | √ | √ | √ | √ |
-| LobeChat插件 | × | √ | √ | √ |
-| 文档解析插件 | × | 需要 `LLAMA_CLOUD_API_KEY` | 需要 `LLAMA_CLOUD_API_KEY` | √ |
-| 云同步 | 需配置 DexieCloud | × | 需配置 DexieCloud | √ |
-| 开箱即用的模型服务 | × | × | × | √ |
+| Basic Features | √ | √ | √ | √ |
+| Plugin Market / Assistant Market / Gradio Plugins | √ | √ | √ | √ |
+| LobeChat Plugins | × | √ | √ | √ |
+| Document Parsing Plugin | × | Requires `LLAMA_CLOUD_API_KEY` | Requires `LLAMA_CLOUD_API_KEY` | √ |
+| Cloud Synchronization | Requires DexieCloud Configuration | × | Requires DexieCloud Configuration | √ |
+| Out-of-the-Box Model Service | × | × | × | √ |
 
-我们也使用 Docker 快速部署的方式，部署了一个版本：[lite.aiaw.app](https://lite.aiaw.app)，支持 LobeChat 插件和文档解析，没有云同步和开箱即用的模型服务。
+We also use the Quick Docker Deployment method to deploy a version: [lite.aiaw.app](https://lite.aiaw.app), which supports LobeChat plugins and document parsing, but does not have cloud synchronization and out-of-the-box model services.

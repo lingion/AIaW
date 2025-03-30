@@ -1,48 +1,42 @@
-# 常见问题
+# Common Issues
 
-## 功能异常
+## Function Abnormalities
 
-### 使用 deepseek-reasoner 时不显示推理内容（思维链）
+### Reasoning content (chain of thought) is not displayed when using deepseek-reasoner
 
-**可能的原因**：
+**Possible reasons**:
 
-- 确保配置了 DeepSeek 服务商，且将服务商类型设置为 DeepSeek 而不是 OpenAI。因为 OpenAI 原版格式是没有推理内容的。
-- 确保你使用的服务商会返回推理内容。DeepSeek 官方和硅基流动支持，部分第三方服务商不会返回推理内容。
+- Make sure that the DeepSeek service provider is configured, and the service provider type is set to DeepSeek instead of OpenAI. Because the original OpenAI format does not have reasoning content.
+- Make sure that the service provider you are using will return reasoning content. DeepSeek official and Silicon Flow support it, but some third-party service providers will not return reasoning content.
 
-### 配置的服务商用不了/回复为空
+### The configured service provider is not working/the reply is empty
 
-- 确保服务商类型、API 地址、API Key 填写正确。
-- API 地址末尾记得加 v1。比如 `https://api.xxxai.com/v1` 而不是 `https://api.xxxai.com`。
+- Make sure that the service provider type, API address, and API Key are filled in correctly.
+- Remember to add v1 to the end of the API address. For example, `https://api.xxxai.com/v1` instead of `https://api.xxxai.com`.
 
-## 回复报错
+## Reply Error
 
 ### deepseek-reasoner does not support Function Calling
 
-- 适用模型：DeepSeek
-- 错误原因：deepseek-r1 模型不支持函数调用，但是却启用了带有工具调用的插件
-- 解决办法：关闭带有工具调用的插件
+- Applicable model: DeepSeek
+- Reason for error: The deepseek-r1 model does not support function calls, but a plugin with tool calls is enabled
+- Solution: Turn off plugins with tool calls
 
 ### messages.1: all messages must have non-empty content except for the optional final assistant message
 
-- 适用模型：Claude
-- 错误原因：上下文中某条消息内容为空，但 Claude 不接受空消息
-- 解决办法：使用 Claude 时，应避免出现空消息的情况。若因为异常情况出现空消息，应重新生成或者编辑消息
+- Applicable model: Claude
+- Reason for error: A message in the context is empty, but Claude does not accept empty messages
+- Solution: When using Claude, empty messages should be avoided. If an empty message occurs due to abnormal circumstances, it should be regenerated or edited
 
 ### GenerateContentRequest.tools[0].function_declarations[0].parameters.properties[variables].properties: should be non-empty for OBJECT type
 
-- 适用模型：Gemini
-- 错误原因：Gemini 不兼容部分工具调用的参数类型
-- 解决办法：关闭不兼容的插件或者更换其他模型
+- Applicable model: Gemini
+- Reason for error: Gemini is not compatible with some tool call parameter types
+- Solution: Turn off incompatible plugins or replace other models
 
 ### Type validation failed: Value: {"id":"chatcmpl-…
 
-往往出现在使用插件/上传图片时
+Often appears when using plugins/uploading images
 
-- 错误原因：响应格式与官方 API 格式不符，校验未通过；往往出现于逆向 API
-- 解决办法：建议使用官方 API 或者 官转 API
-
-## 使用技巧
-
-### 如何同时配置多个不同的服务商？
-
-建议创建多个助手，每个助手配置不同的服务商和模型。若需要在多个工作区使用，可在「助手」页面创建全局助手。
+- Reason for error: The response format does not match the official API format, and the verification fails; often occurs in reverse API
+- Solution: It is recommended to use the official API or the official transfer API

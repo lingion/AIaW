@@ -1,47 +1,47 @@
-# 插件配置与开发
+# Plugin Configuration and Development
 
-确保你已经了解[插件系统](plugins)的内容。
+Make sure you understand the content of the [Plugin System](plugins).
 
-如果你想要添加一个自定义的新插件，就需要编写插件配置文件，这个文件是 JSON 格式的，一般称其为 `manifest`。
+If you want to add a custom new plugin, you need to write a plugin configuration file, which is in JSON format and is generally called `manifest`.
 
-AIaW 支持几种不同类型的插件，它们的配置文件写法也不同。先从支持最为完善的 Gradio 类型插件讲起。
+AIaW supports several different types of plugins, and their configuration files are also written differently. Let's start with the Gradio type plugin, which has the most complete support.
 
-## Gradio 插件
+## Gradio Plugins
 
-[Gradio](https://www.gradio.app/) 是一个基于 python 的应用程序开发框架。使用它可以快速地开发简单的应用，HuggingFace 上的各种 [Spaces](https://huggingface.co/spaces) 就是最常见的例子。
+[Gradio](https://www.gradio.app/) is an application development framework based on python. It can be used to quickly develop simple applications. The various [Spaces](https://huggingface.co/spaces) on HuggingFace are the most common examples.
 
-Gradio 应用在提供简单的界面的同时，也提供了 API。AIaW 的 Gradio 类型插件就是通过 API 调用 Gradio 应用来实现各种功能的。
+Gradio applications provide simple interfaces and APIs. AIaW's Gradio type plugins use APIs to call Gradio applications to implement various functions.
 
-使用 Gradio 开发插件有以下的好处：
+Using Gradio to develop plugins has the following benefits:
 
-- 插件本身就是一个 Gradio 应用，可以单独使用，也方便测试
-- python 简单易学，生态丰富，同时与 AI 联系紧密
-- Gradio 插件支持多模态的调用结果
-- Gradio 应用易于调用其他 AI 模型
-- Gradio 应用可以免费托管在 HF Spaces
-- Gradio 应用生态丰富，如果 HF Spaces 有现成的满足功能的应用，可以直接将其配置为插件而无需开发
+- The plugin itself is a Gradio application, which can be used separately and is convenient for testing
+- python is simple and easy to learn, has a rich ecosystem, and is closely related to AI
+- Gradio plugins support multimodal call results
+- Gradio applications are easy to call other AI models
+- Gradio applications can be hosted for free on HF Spaces
+- Gradio applications have a rich ecosystem. If HF Spaces has a ready-made application that meets the function, you can directly configure it as a plugin without development
 
-关于 Gradio 应用的开发，请参考 [Gradio](https://www.gradio.app/) 的文档。这里只讲插件的配置。
+For the development of Gradio applications, please refer to the documentation of [Gradio](https://www.gradio.app/). Here, we only talk about the configuration of plugins.
 
-下面以内置的「图像生成: FLUX」插件为例，介绍 Gradio 插件的配置文件格式：
+The following uses the built-in "Image Generation: FLUX" plugin as an example to introduce the configuration file format of Gradio plugins:
 
 ::: code-group
-```json [配置文件]
+```json [Configuration File]
 {
   "id": "hf-000000000000000000000001",
-  "title": "图像生成: FLUX",
-  "description": "让 AI 调用 FLUX 模型生成图像。通过 🤗 Spaces 调用，因此是免费的",
+  "title": "Image Generation: FLUX",
+  "description": "Let AI call the FLUX model to generate images. It is called through 🤗 Spaces, so it is free",
   "baseUrl": "https://black-forest-labs-flux-1-schnell.hf.space",
   "avatar": {
     "type": "icon",
     "icon": "sym_o_palette",
     "hue": 80
   },
-  "endpoints": [/* 省略，稍后具体介绍 */],
+  "endpoints": [/* Omitted, will be introduced later */],
   "noRoundtrip": true
 }
 ```
-```typescript [TS 类型定义]
+```typescript [TS Type Definition]
 interface GradioPluginManifest {
   id: string
   title: string
@@ -58,47 +58,47 @@ interface GradioPluginManifest {
 ```
 :::
 
-- `id`: 插件的 ID；每个插件的 ID 必须不同
-- `title`: 插件的显示名称
-- `description`: 对用户展示的插件描述；此描述不会输入给 AI
-- `prompt`: 可选；[插件的提示词](plugins#提示词)。在提示词中可以使用[提示词变量](#promptvars)
-- `promptVars`: 可选；提示词变量；[具体说明](#promptvars)
-- `avatar`: 插件的图标；[具体说明](#avatar)
-- `endpoints`: 插件的接口定义；工具调用/文件解析器/信息获取 都定义在此处；[具体说明](#endpoints)
-- `baseURL`: Gradio 应用的地址。对于托管在 HF Spaces 的 Gradio 应用，有两种写法：
-  - 路径：如 `black-forest-labs/FLUX.1-schnell`
-  - 链接：如 `https://black-forest-labs-flux-1-schnell.hf.space`
+- `id`: The ID of the plugin; the ID of each plugin must be different
+- `title`: The display name of the plugin
+- `description`: The plugin description displayed to the user; this description will not be input to AI
+- `prompt`: Optional; [Plugin prompt](plugins#prompt). [Prompt variables](#promptvars) can be used in the prompt
+- `promptVars`: Optional; prompt variables; [Specific instructions](#promptvars)
+- `avatar`: The icon of the plugin; [Specific instructions](#avatar)
+- `endpoints`: The interface definition of the plugin; tool calls/file parsers/information acquisition are all defined here; [Specific instructions](#endpoints)
+- `baseURL`: The address of the Gradio application. For Gradio applications hosted on HF Spaces, there are two ways to write it:
+  - Path: such as `black-forest-labs/FLUX.1-schnell`
+  - Link: such as `https://black-forest-labs-flux-1-schnell.hf.space`
 
-  这两种格式都可以。不过，由于中国大陆屏蔽了 HuggingFace 主站，但没有屏蔽 `*.hf.space`，我们建议**始终使用后一种写法**（即使用链接），以避免中国大陆的用户无法调用插件。通过观察两种格式不难发现，由路径简单改写即可得到对应的链接。
-- `noRoundtrip`: 可选；默认情况下，调用工具之后，会携带调用结果再次调用LLM，以根据调用结果生成回答。不过由于这是图像生成插件，生成图像后无需助手继续回答，故将其设置为 `true` 以禁用此行为。
-- `author`: 可选；插件的作者
-- `homepage`: 可选；插件/作者的主页
+  Both formats are acceptable. However, since mainland China blocks the HuggingFace main site but does not block `*.hf.space`, we recommend **always using the latter method** (that is, using a link) to avoid users in mainland China from being unable to call the plugin. By observing the two formats, it is not difficult to find that the corresponding link can be obtained by simply rewriting the path.
+- `noRoundtrip`: Optional; by default, after calling the tool, the LLM will be called again with the call result to generate an answer based on the call result. However, since this is an image generation plugin, there is no need for the assistant to continue answering after the image is generated, so set it to `true` to disable this behavior.
+- `author`: Optional; the author of the plugin
+- `homepage`: Optional; the homepage of the plugin/author
 
 ### avatar
 
-`avatar` 属性指定了插件的默认图标；支持不同类型的图标
+The `avatar` attribute specifies the default icon of the plugin; it supports different types of icons
 
 ::: code-group
-```json [示例：图标]
+```json [Example: Icon]
 {
   "type": "icon",
   "icon": "sym_o_palette",
   "hue": 80
 }
 ```
-```json [示例：文字]
+```json [Example: Text]
 {
   "type": "text",
   "text": "🍉"
 }
 ```
-```json [示例：图片链接]
+```json [Example: Image Link]
 {
   "type": "url",
   "url": "https://url.to.my/image.avif"
 }
 ```
-```typescript [TS 类型定义]
+```typescript [TS Type Definition]
 interface TextAvatar {
   type: 'text'
   text: string
@@ -118,28 +118,28 @@ type Avatar = TextAvatar | UrlAvatar | IconAvatar
 ```
 :::
 
-对于 `icon` 类型的图标，可在 [Material Symbols](https://fonts.google.com/icons) 选取图标，将图标名称写为下划线格式，并添加 `sym_o_` 前缀。如名称为 `Photo Camera` 的图标，`icon` 属性值为 `sym_o_photo_camera`。
+For `icon` type icons, you can select an icon from [Material Symbols](https://fonts.google.com/icons), write the icon name in underscore format, and add the `sym_o_` prefix. For example, for an icon named `Photo Camera`, the `icon` attribute value is `sym_o_photo_camera`.
 
-::: info 图标前缀
-图标前缀表示所使用的图标集，AIaW 使用的是 Material Symbols Outlined，于是前缀是 `sym_o_`
+::: info Icon Prefix
+The icon prefix indicates the icon set used. AIaW uses Material Symbols Outlined, so the prefix is `sym_o_`
 :::
 
-可添加 `hue` 属性显示背景色；可在[设置页面](https://aiaw.app/settings#ui)的主题色对话框选取颜色，得到 hue 值；不填则没有背景
+You can add the `hue` attribute to display the background color; you can select a color in the theme color dialog on the [Settings page](https://aiaw.app/settings#ui) to get the hue value; if you don’t fill it in, there will be no background
 
 ### endpoints
 
-`endpoints` 定义了插件可调用的接口。Gradio 类型插件调用的是 Gradio 应用的接口。在 HF Space 页面的下方点击「通过 API 使用」，即可看到该应用的接口和参数。
+`endpoints` defines the interfaces that the plugin can call. Gradio type plugins call the interfaces of Gradio applications. Click "Use via API" at the bottom of the HF Space page to see the interface and parameters of the application.
 
-`endpoint` 可定义为以下三种类型：
-- `tool`: 工具调用
-- `fileparser`: 文件解析器
-- `info`: 信息获取
+`endpoint` can be defined as the following three types:
+- `tool`: Tool call
+- `fileparser`: File parser
+- `info`: Information acquisition
 
-「图像生成: FLUX」插件只定义了一个工具调用接口：
+The "Image Generation: FLUX" plugin only defines one tool call interface:
 
 ::: code-group
 
-```json [示例值]
+```json [Example Value]
 [
   {
     "type": "tool",
@@ -196,7 +196,7 @@ type Avatar = TextAvatar | UrlAvatar | IconAvatar
   }
 ]
 ```
-```typescript [TS 类型定义]
+```typescript [TS Type Definition]
 interface GradioManifestFileparser {
   type: 'fileparser'
   name: string
@@ -227,35 +227,34 @@ type GradioManifestEndpoint = GradioManifestFileparser | GradioManifestTool | Gr
 ```
 :::
 
-#### 工具调用
+#### Tool Call
 
-对于工具（`tool`）类型的 `endpoint`，有以下属性：
+For `endpoint` of type tool, there are the following attributes:
 
-- `type`: 值为 `tool`，标明是工具类型
-- `name`: 名称
-- `description`: 向用户展示的工具的描述
-- `prompt`: 向 AI 展示的工具的描述/提示词
-- `path`: 接口的路径，对应 Gradio 应用的接口的 `api_name`；常见值为 `/predict`、`/infer` 等
-- `inputs`: 定义接口的输入参数；[具体说明](#inputs)
-- `outputIdxs`: 选取 Gradio 接口返回值的索引数组；如，值为 `[0]`，则仅选取返回值中索引为 `0` 的一项（即第一项）作为工具调用结果数组的唯一一项。它是一个数组，意味着如果接口有多个返回值的话，你可以选取多项作为调用结果。
-- `showComponents`: 可选；定义调用结果的每一项展示给用户所用的组件。可用的组件有：
-  - `textbox`: 用于展示文本；
-  - `markdown`: 用于展示 markdown 格式文本
-  - `image`: 用于展示图片
-  - `audio`: 用于播放音频
-  - `json`: 用于展示 json
-  - `code`: 用于展示代码
-  - `$none`: 不展示
+- `type`: The value is `tool`, indicating the tool type
+- `name`: Name
+- `description`: The description of the tool displayed to the user
+- `prompt`: The description/prompt of the tool displayed to AI
+- `path`: The path of the interface, corresponding to the `api_name` of the Gradio application interface; common values are `/predict`, `/infer`, etc.
+- `inputs`: Defines the input parameters of the interface; [Specific instructions](#inputs)
+- `outputIdxs`: Select the index array of the return value of the Gradio interface; for example, if the value is `[0]`, only the item with index `0` (that is, the first item) in the return value is selected as the only item in the tool call result array. It is an array, which means that if the interface has multiple return values, you can select multiple items as the call result.
+- `showComponents`: Optional; defines the components used to display each item of the call result to the user. Available components are:
+  - `textbox`: Used to display text;
+  - `markdown`: Used to display markdown formatted text
+  - `image`: Used to display images
+  - `audio`: Used to play audio
+  - `json`: Used to display json
+  - `code`: Used to display code
+  - `$none`: Do not display
 
-  上方示例的值为 `["image"]`，因为调用结果只有一个图片，使用 `image` 组件将其展示给用户。如果不填 `showComponents`，则不会展示调用结果
-
+  The value of the above example is `["image"]` because the call result is only one image, and the `image` component is used to display it to the user. If `showComponents` is not filled in, the call result will not be displayed
 
 ##### inputs
 
-`inputs` 定义了接口的输入参数
+`inputs` defines the input parameters of the interface
 
 ::: code-group
-```json [示例值]
+```json [Example Value]
 [
   {
     "name": "prompt",
@@ -297,7 +296,7 @@ type GradioManifestEndpoint = GradioManifestFileparser | GradioManifestTool | Gr
   }
 ]
 ```
-```typescript [TS 类型定义]
+```typescript [TS Type Definition]
 interface GradioFixedInput {
   name: string
   paramType: 'fixed'
@@ -322,24 +321,24 @@ type GradioApiInput = GradioFixedInput | GradioOptionalInput | GradioRequiredInp
 ```
 :::
 
-- `name`: Gradio 应用接口中该参数的名称
-- `paramType`: 参数类型；有以下类型：
-  - `required`: 要求模型调用时必须给出此参数的值
-  - `fixed`: 将参数的值固定为 `value` 属性的值，模型无法改变，但用户可在插件设置中更改此固定值
-  - `optional`: 定义为可选值，若模型不提供参数值，则默认为 `default` 属性的值；用户同样可以修改 `default` 的值
-- `description`: 参数的描述；对于 `required`、`optional` 类型，会提供给模型；对于 `fixed`、`optional` 类型，用户在插件设置页面能看到
-- `type`: 参数的数据类型。支持的类型有：`str`, `float`, `int`, `bool`
+- `name`: The name of the parameter in the Gradio application interface
+- `paramType`: Parameter type; there are the following types:
+  - `required`: The model must provide the value of this parameter when calling
+  - `fixed`: Fix the value of the parameter to the value of the `value` attribute. The model cannot change it, but the user can change this fixed value in the plugin settings
+  - `optional`: Defined as an optional value. If the model does not provide a parameter value, the default value is the value of the `default` attribute; the user can also modify the value of `default`
+- `description`: The description of the parameter; for `required` and `optional` types, it will be provided to the model; for `fixed` and `optional` types, the user can see it on the plugin settings page
+- `type`: The data type of the parameter. Supported types are: `str`, `float`, `int`, `bool`
 
-#### 文件解析器
+#### File Parser
 
-`endpoints` 的元素也可以是文件解析器（`fileparser`）；以「语音识别：Whisper」插件的文件解析器为例：
+The element of `endpoints` can also be a file parser (`fileparser`); take the file parser of the "Speech Recognition: Whisper" plugin as an example:
 
 ::: code-group
-```json [示例值]
+```json [Example Value]
 {
   "type": "fileparser",
   "name": "transcribe",
-  "description": "将语音转换为文字",
+  "description": "Convert speech to text",
   "path": "/transcribe",
   "inputs": [
     {
@@ -352,7 +351,7 @@ type GradioApiInput = GradioFixedInput | GradioOptionalInput | GradioRequiredInp
     },
     {
       "name": "task",
-      "description": "任务类型",
+      "description": "Task type",
       "type": "str",
       "paramType": "fixed",
       "value": "transcribe"
@@ -363,7 +362,7 @@ type GradioApiInput = GradioFixedInput | GradioOptionalInput | GradioRequiredInp
   ]
 }
 ```
-```typescript [TS 类型定义]
+```typescript [TS Type Definition]
 interface GradioFileInput {
   name: string
   paramType: 'file'
@@ -395,44 +394,44 @@ interface GradioManifestFileparser {
 ```
 :::
 
-它有以下属性：
+It has the following attributes:
 
-- `type`: 值为 `fileparser`，标明是文件解析器
-- `name`: 名称
-- `description`: 向用户展示的文件解析器的描述
-- `path`: 接口的路径，对应 Gradio 应用的接口的 `api_name`；常见值为 `/predict`、`/infer` 等
-- `inputs`: 定义接口的输入参数；具体说明详见下方
-- `outputIdxs`: 选取 Gradio 接口返回值的索引数组；如，值为 `[0]`，则仅选取返回值中索引为 `0` 的一项（即第一项）作为文件解析结果数组的唯一一项。它是一个数组，意味着如果接口有多个返回值的话，你可以选取多项作为解析结果。
+- `type`: The value is `fileparser`, indicating that it is a file parser
+- `name`: Name
+- `description`: The description of the file parser displayed to the user
+- `path`: The path of the interface, corresponding to the `api_name` of the Gradio application interface; common values are `/predict`, `/infer`, etc.
+- `inputs`: Defines the input parameters of the interface; see below for details
+- `outputIdxs`: Select the index array of the return value of the Gradio interface; for example, if the value is `[0]`, only the item with index `0` (that is, the first item) in the return value is selected as the only item in the file parsing result array. It is an array, which means that if the interface has multiple return values, you can select multiple items as the parsing result.
 
-文件解析器的 `inputs` 的类型有：`file`、`range` 和 `fixed`。
+The types of `inputs` for file parsers are: `file`, `range` and `fixed`.
 
-文件解析器必须有且只能有一个 `file` 类型的输入，它是要解析的文件。
+A file parser must have one and only one input of type `file`, which is the file to be parsed.
 
-它有以下属性：
+It has the following attributes:
 
-- `name`: Gradio 应用接口中该参数的名称
-- `paramType`: 值为 `file`
-- `mimeTypes`: 默认接受文件的类型；值为 MIME Type 的数组，只要有一项与待解析文件的 MIME Type 匹配，就会将此解析器作为解析选项之一。
+- `name`: The name of the parameter in the Gradio application interface
+- `paramType`: The value is `file`
+- `mimeTypes`: The default accepted file type; the value is an array of MIME Types. As long as one item matches the MIME Type of the file to be parsed, this parser will be used as one of the parsing options.
 
-文件解析器也可以有 `fixed` 类型的输入，与工具调用的 `fixed` 输入一样。
+File parsers can also have `fixed` type inputs, which are the same as the `fixed` inputs for tool calls.
 
-此外，还可以添加一个 `range` 类型的参数，使得用户在解析文件时可以填写此额外参数。可将此参数用作让用户指定解析范围（如：页码范围、时长范围等）。此参数最多有一个且为字符串类型。有以下属性：
+In addition, you can add a `range` type parameter so that the user can fill in this additional parameter when parsing the file. This parameter can be used to allow the user to specify the parsing range (such as: page number range, duration range, etc.). There can be at most one parameter of this type and it must be a string type. It has the following attributes:
 
-- `name`: Gradio 应用接口中该参数的名称
-- `paramType`: 值为 `range`
-- `label`: 可选；输入框的标签
-- `hint`: 可选；输入框的提示（placeholder）
-- `mask`: 可选；用于固定格式的输入，规则详见 Quasar 文档：[Mask](https://quasar.dev/vue-components/input#mask)
+- `name`: The name of the parameter in the Gradio application interface
+- `paramType`: The value is `range`
+- `label`: Optional; the label of the input box
+- `hint`: Optional; the prompt (placeholder) of the input box
+- `mask`: Optional; used for fixed-format input, see the Quasar documentation for rules: [Mask](https://quasar.dev/vue-components/input#mask)
 
-#### 信息获取
+#### Information Acquisition
 
-信息获取（`info`）接口用于向模型提供信息。它和工具调用的不同之处在于，调用时的输入参数值是预定义好的而不是模型提供的。
+The information acquisition (`info`) interface is used to provide information to the model. The difference between it and tool calls is that the input parameter values ​​are predefined instead of being provided by the model.
 
-信息获取需要结合 `prompt` 使用。它的调用结果将作为一个提示词变量的值，然后在插件的 `prompt` 中可以使用这个变量，由此通过提示词向模型提供信息。
+Information acquisition needs to be used in conjunction with `prompt`. Its call result will be used as the value of a prompt variable, and then this variable can be used in the plugin's `prompt` to provide information to the model through the prompt.
 
-它是在每次生成前调用的，调用结果不会缓存。
+It is called before each generation, and the call result is not cached.
 
-```typescript [TS 类型定义]
+```typescript [TS Type Definition]
 interface GradioManifestInfo {
   type: 'info'
   name: string
@@ -443,13 +442,13 @@ interface GradioManifestInfo {
 }
 ```
 
-- `type`: 值为 `info`
-- `name`: 名称；在 `prompt` 中使用 `infos.{name}` 来访问变量
-- `description`: 在插件功能页面展示给用户的描述
-- `inputs`: 输入参数，和 `tool` 参数的格式一样，只是变成了由用户在插件功能页面输入参数值而不是模型提供；用户仍然可以在插件设置页面被更改 `fixed` 参数的值和 `optional` 参数的默认值。
-- `outputIdxs`: 选取调用结果的索引数组；
+- `type`: The value is `info`
+- `name`: Name; use `infos.{name}` in `prompt` to access the variable
+- `description`: The description displayed to the user on the plugin function page
+- `inputs`: Input parameters, the format is the same as the `tool` parameter, except that the parameter values ​​are entered by the user on the plugin function page instead of being provided by the model; the user can still change the values ​​of `fixed` parameters and the default values ​​of `optional` parameters on the plugin settings page.
+- `outputIdxs`: Select the index array of the call result;
 
-`info` 的调用结果也是一个数组，数组元素的格式为：
+The call result of `info` is also an array, and the format of the array element is:
 
 ```typescript
 interface ApiResultItem {
@@ -461,25 +460,25 @@ interface ApiResultItem {
 }
 ```
 
-在 `prompt` 中可以使用 `infos.info_a[0].contentText` 类似格式访问调用结果。
+You can use `infos.info_a[0].contentText` and similar formats in `prompt` to access the call result.
 
 ### promptVars
 
-通过 `promptVars` 可定义插件的变量，变量可在插件的 `prompt` 中使用；变量的值可在插件功能页面更改。使用变量可以允许用户对插件的提示词进行微调。
+You can define the variables of the plugin through `promptVars`. The variables can be used in the `prompt` of the plugin; the values ​​of the variables can be changed on the plugin function page. Using variables allows users to fine-tune the prompts of the plugin.
 
 ::: code-group
-```json [示例值]
+```json [Example Value]
 [
   {
     "id": "displayWidth",
     "name": "displayWidth",
-    "label": "显示大小",
+    "label": "Display Size",
     "type": "number",
     "default": 100
   }
 ]
 ```
-```typescript [TS 类型定义]
+```typescript [TS Type Definition]
 type PromptVarValue = string | number | boolean | string[]
 interface PromptVar {
   id: string
@@ -492,43 +491,43 @@ interface PromptVar {
 ```
 :::
 
-此外，还有几个「通用提示词变量」，可以在插件的 `prompt` 中使用：
+In addition, there are several "general prompt variables" that can be used in the `prompt` of the plugin:
 
-| 变量名 | 内容 | 示例值 |
+| Variable Name | Content | Example Value |
 | ----- | ---- | ---- |
-| _currentTime | 当前时间 | "Tue Dec 10 2024 17:22:11 GMT+0800 (中国标准时间)" |
-| _userLanguage | 用户语言 `navigator.language` | "zh-CN" |
-| _workspaceId | 工作区 ID | "1ielm0e6n464itr2ps" |
-| _workspaceName | 工作区名称 | "示例工作区" |
-| _assistantId | 助手 ID | "1ielm0e6n464itssd3" |
-| _assistantName | 助手名称 | "默认助手" |
-| _dialogId | 对话 ID | "1ielm5fg6464ittksm" |
-| _modelId | 模型 ID | "gpt-4o" |
-| _isDarkMode | 当前是否为深色模式 | false |
-| _platform | 根据用户使用的平台信息 | quasar 的 Platform 对象。详见[这里](https://quasar.dev/options/platform-detection#properties) |
+| _currentTime | Current time | "Tue Dec 10 2024 17:22:11 GMT+0800 (China Standard Time)" |
+| _userLanguage | User language `navigator.language` | "zh-CN" |
+| _workspaceId | Workspace ID | "1ielm0e6n464itr2ps" |
+| _workspaceName | Workspace name | "Example Workspace" |
+| _assistantId | Assistant ID | "1ielm0e6n464itssd3" |
+| _assistantName | Assistant name | "Default Assistant" |
+| _dialogId | Dialogue ID | "1ielm5fg6464ittksm" |
+| _modelId | Model ID | "gpt-4o" |
+| _isDarkMode | Whether the current mode is dark mode | false |
+| _platform | Platform information based on the user's platform | Quasar's Platform object. See [here](https://quasar.dev/options/platform-detection#properties) for details |
 
-### 仅提示词插件
+### Prompt-Only Plugins
 
-Gradio 类型插件不一定都要调用 Gradio 接口，仅包含提示词的 Gradio 类型插件也是可以的。
+Gradio type plugins do not necessarily have to call Gradio interfaces. Gradio type plugins that only contain prompts are also possible.
 
-具体来说，`endpoints` 可以为空数组，然后设置 `prompt`，也可以添加 `promptVars`。
+Specifically, `endpoints` can be an empty array, and then set `prompt`, or you can add `promptVars`.
 
-## LobeChat 插件
+## LobeChat Plugins
 
-AIaW 兼容部分 LobeChat 插件，具体来说：
+AIaW is compatible with some LobeChat plugins, specifically:
 
-- 支持 `default` 和 `markdown` 类型插件，不支持 `standalone` 类型。
-- 不支持 openapi 插件
-- 不支持 `ui` 属性
+- Supports `default` and `markdown` type plugins, but does not support `standalone` type.
+- Does not support openapi plugins
+- Does not support the `ui` attribute
 
-对于支持的插件，你可以直接在插件市场添加其 Manifest。
+For supported plugins, you can directly add their Manifest in the plugin market.
 
-LobeChat 插件的开发指南，请参考 [LobeChat 的文档](https://lobehub.com/zh/docs/usage/plugins/development)。
+For the development guide of LobeChat plugins, please refer to [LobeChat's documentation](https://lobehub.com/zh/docs/usage/plugins/development).
 
-## 发布插件
+## Publish Plugins
 
-在插件市场手动添加 Manifest 就可以使用自定义插件。你也可以将插件发布，这样其他人也可以直接在插件市场安装。
+You can use custom plugins by manually adding Manifest in the plugin market. You can also publish the plugin so that others can install it directly in the plugin market.
 
-要发布插件，请将插件信息和 Manifest 添加到源码的 `/public/plugins.json` 中，然后提交 PR。
+To publish a plugin, add the plugin information and Manifest to `/public/plugins.json` in the source code, and then submit a PR.
 
-建议直接将 manifest 写在文件中，因为使用链接的话，manifest 是可变的。我们更有可能怀疑其安全性而拒绝 PR。
+It is recommended to write the manifest directly in the file, because if you use a link, the manifest is variable. We are more likely to suspect its security and reject the PR.

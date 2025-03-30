@@ -66,7 +66,7 @@ export default configure((ctx) => {
         return {
           server: {
             watch: {
-              ignored: ['**/src-tauri/**', '**/.venv/**']
+              ignored: ['**/src-tauri/**', '**/.venv/**', '/android/**']
             }
           }
         }

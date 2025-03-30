@@ -1,41 +1,41 @@
-# MCP 插件
+# MCP Plugin
 
-[MCP](https://modelcontextprotocol.io/introduction) (Model Context Protocol, 模型上下文协议) 是由 Anthropic 提出的，用于向 LLM 提供上下文的标准化的协议。
+[MCP](https://modelcontextprotocol.io/introduction) (Model Context Protocol) is a standardized protocol proposed by Anthropic for providing context to LLMs.
 
-客户端可以通过 MCP 协议调用工具，获取 Prompts 和 Resources 等。MCP 协议已经获得了广泛的支持，现在有各种功能的 MCP 服务器：文件系统、网络搜索、数据库、Docker、命令行等等。只要是支持 MCP 协议的客户端都可以调用它们！
+Clients can use the MCP protocol to call tools and obtain Prompts and Resources. The MCP protocol has gained wide support, and there are now MCP servers with various functions: file systems, web searches, databases, Docker, command lines, etc. Any client that supports the MCP protocol can call them!
 
-AIaW 在 v1.4 版本添加了对 MCP 协议的支持，支持以下 MCP 特性：Tools, Prompts 和 Resources.
+AIaW added support for the MCP protocol in version v1.4, supporting the following MCP features: Tools, Prompts, and Resources.
 
-## 前提条件
+## Prerequisites
 
-目前绝大多数 MCP 服务器是 STDIO 类型的，在本地通过 `npx` 或者 `uvx` 命令调用。因此需要：
+Currently, most MCP servers are STDIO type, which are called locally via `npx` or `uvx` commands. Therefore, you need:
 
-- 使用 AIaW 桌面版（Windows, Linux, MacOS 本地客户端）
-- 已安装 [NodeJS](https://nodejs.org/)
-- 已安装 [Python](https://www.python.org/) 和 [uv](https://github.com/astral-sh/uv)
+- AIaW desktop version (Windows, Linux, MacOS local client)
+- Installed [NodeJS](https://nodejs.org/)
+- Installed [Python](https://www.python.org/) and [uv](https://github.com/astral-sh/uv)
 
-如果是 SSE 类型的 MCP 服务器，则无上述要求，在任何平台都可用。
+If it is an SSE type MCP server, the above requirements are not required and it can be used on any platform.
 
-## 安装 MCP 插件
+## Install MCP Plugin
 
-在 AIaW 中，MCP 服务器是通过 MCP 类型的插件调用的。你可以在「插件」页面安装 MCP 类型的插件。
+In AIaW, MCP servers are called through MCP type plugins. You can install MCP type plugins on the "Plugins" page.
 
-除了插件市场已有的插件，你也可以点击右上角的加号，手动添加 MCP 插件。
+In addition to the plugins already in the plugin market, you can also click the plus sign in the upper right corner to manually add MCP plugins.
 
-你可以在 [MCP 官网](https://modelcontextprotocol.io/examples)、[Smithery](https://smithery.ai/)、[Glama](https://glama.ai/mcp/servers) 等网站发现更多的 MCP 服务器。不过要切记**仅添加可信来源的 MCP 服务器**，因为 STDIO 类型的 MCP 服务器是在你的本地运行的第三方程序，拥有较高的权限。
+You can find more MCP servers on websites such as [MCP Official Website](https://modelcontextprotocol.io/examples), [Smithery](https://smithery.ai/), [Glama](https://glama.ai/mcp/servers), etc. But remember to **only add MCP servers from trusted sources**, because STDIO type MCP servers are third-party programs running locally on your machine and have high privileges.
 
-安装之后，可在助手设置中启用该插件，随后便可在对话中使用。
+After installation, you can enable the plugin in the assistant settings, and then use it in the conversation.
 
-## 配置文件
+## Configuration File
 
-手动添加 MCP 插件时，并不能修改插件的所有属性。若需要更改更多的属性，或者分享给他人，可以编写插件配置文件，然后通过配置文件添加插件。
+When manually adding MCP plugins, you cannot modify all the properties of the plugin. If you need to change more properties or share them with others, you can write a plugin configuration file and then add the plugin through the configuration file.
 
 ::: code-group
-```json [示例值]
+```json [Example Value]
 {
   "id": "mcp-searxng",
   "title": "SearXNG",
-  "description": "通过 SearXNG 进行网页搜索",
+  "description": "Web search via SearXNG",
   "transport": {
     "type": "stdio",
     "command": "uvx mcp-searxng",
@@ -52,7 +52,7 @@ AIaW 在 v1.4 版本添加了对 MCP 协议的支持，支持以下 MCP 特性�
   }
 }
 ```
-```typescript [TS 类型定义]
+```typescript [TS Type Definition]
 interface McpPluginManifest {
   id: string
   title: string
@@ -76,9 +76,8 @@ interface McpPluginManifest {
 ```
 :::
 
-部分属性的含义可以参考 [Gradio 插件](plugin-dev#gradio-插件)
+For the meaning of some attributes, you can refer to [Gradio Plugin](plugin-dev#gradio-plugin)
 
-## 更新
+## Update
 
-如果 MCP 服务器有破坏性的更新，那么需要卸载并重新安装对应的 MCP 插件，以避免 API 更改带来的冲突。
-
+If the MCP server has breaking updates, you need to uninstall and reinstall the corresponding MCP plugin to avoid conflicts caused by API changes.

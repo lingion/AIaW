@@ -134,6 +134,20 @@
                   </q-item-section>
                   <q-item-section>GitHub</q-item-section>
                 </q-item>
+                <menu-item
+                  v-if="IsWeb"
+                  icon="sym_o_download"
+                  :label="t('mainLayout.localClient')"
+                  href="https://github.com/NitroRCr/AIaW/releases/latest"
+                  target="_blank"
+                />
+                <menu-item
+                  v-else
+                  icon="sym_o_web"
+                  :label="t('mainLayout.webVersion')"
+                  href="https://aiaw.app"
+                  target="_blank"
+                />
               </q-list>
             </q-menu>
           </q-btn>
@@ -156,6 +170,7 @@ import { useQuasar } from 'quasar'
 import version from 'src/version.json'
 import { useI18n } from 'vue-i18n'
 import { useOpenLastWorkspace } from 'src/composables/open-last-workspace'
+import { IsWeb } from 'src/utils/platform-api'
 
 defineOptions({
   name: 'MainLayout'

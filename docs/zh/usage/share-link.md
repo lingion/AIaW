@@ -1,16 +1,16 @@
-# Share Link
+# 中转站对接
 
-You can automatically set the service provider via a link. Here's an example link for OpenAI:
+可通过链接自动设置服务商，openai 示例链接：
 
 ```
 https://aiaw.app/set-provider?provider={"type":"openai","settings":{"apiKey":"{key}","baseURL":"{address}/v1","compatibility":"strict"}}
 ```
 
-For other service providers, you can refer to the sharing link format in the settings.
+对于其他服务商，也可以参考设置中的分享链接格式设置。
 
-## [New API](https://github.com/Calcium-Ion/new-api) Configuration Example
+## [New API](https://github.com/Calcium-Ion/new-api) 设置示例
 
-Add an entry in Operation Settings > Chat Configuration:
+在 运营设置 > 聊天配置 中添加一项：
 
 ```json
 {

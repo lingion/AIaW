@@ -1,45 +1,45 @@
-# 插件系统
+# Plugin System
 
 ::: tip
-现在也支持 MCP 类型的插件了，详见 [MCP 插件](mcp)
+MCP type plugins are now also supported, see [MCP Plugins](mcp) for details
 :::
 
-## 插件安装
+## Plugin Installation
 
-AIaW 有几个内置的插件。此外，你可以在[插件市场](https://aiaw.app/plugins)安装更多的插件；你也可以通过点击插件市场页面右上角加号，手动添加插件配置文件。
+AIaW has several built-in plugins. In addition, you can install more plugins from the [Plugin Market](https://aiaw.app/plugins); you can also manually add plugin configuration files by clicking the plus sign in the upper right corner of the plugin market page.
 
-## 插件设置
+## Plugin Settings
 
-通过插件市场右侧边栏的「已安装插件」列表，你可以进入每个插件的设置页面。在这里可以设置每个插件的图表、禁用/启用文件解析器、调整调用参数等（如果有的话）。这是插件的全局设置。
+Through the "Installed Plugins" list in the right sidebar of the plugin market, you can enter the settings page of each plugin. Here you can set the icon of each plugin, disable/enable file parsers, adjust call parameters, etc. (if any). This is the global setting of the plugin.
 
-此外，在助手页面启用插件后，可以进入插件功能页面。在那里可以禁用/启用插件的某个工具、修改变量值（如果有的话）。此设置仅对当前助手有效。
+In addition, after enabling the plugin on the assistant page, you can enter the plugin function page. There you can disable/enable a tool of the plugin, modify variable values (if any). This setting is only valid for the current assistant.
 
-## 插件功能
+## Plugin Features
 
-在 AIaW，「工具」只是「插件」的一部分，一个插件可以有多个工具，除此之外还可以有文件解析器、提示词和信息获取。仅有文件解析器/提示词而没有工具的插件也是可以的。
+In AIaW, "Tools" are only a part of "Plugins". A plugin can have multiple tools, as well as file parsers, prompts, and information acquisition. Plugins with only file parsers/prompts and no tools are also possible.
 
-### 工具调用
+### Tool Call
 
-插件最常见的作用就是，为 AI 提供工具调用，以拓展其能力。
+The most common function of plugins is to provide AI with tool calls to expand its capabilities.
 
-比如，提供一个计算器，让 AI 可以调用它进行计算，这样 AI 就能够完成更复杂的计算，同时也保证了计算的准确性。AIaW 内置了一个「计算器」插件，你可以直接在助手设置中启用它。
+For example, providing a calculator allows AI to call it for calculations, so that AI can complete more complex calculations while ensuring the accuracy of the calculations. AIaW has a built-in "Calculator" plugin, which you can enable directly in the assistant settings.
 
-再比如，提供调用图像生成模型的能力，这样就可以直接告诉 AI 你想要画什么，AI 就会自己编写提示词，生成图像。内置的「图像生成: FLUX」就是这样一个插件，并且它通过 HuggingFace Spaces 调用，因此无需配置且免费。
+For another example, providing the ability to call an image generation model allows you to directly tell AI what you want to draw, and AI will write prompts and generate images by itself. The built-in "Image Generation: FLUX" is such a plugin, and it is called through HuggingFace Spaces, so no configuration is required and it is free.
 
-### 文件解析器
+### File Parser
 
-除了工具调用外，AIaW 的插件还提供文件解析器。详见[文件解析](file-parse)页面
+In addition to tool calls, AIaW's plugins also provide file parsers. See the [File Parsing](file-parse) page for details.
 
-### 提示词
+### Prompt
 
-此外，插件本身还可以包含提示词。这里的「提示词」有别于工具的提示词，工具的提示词一般作为工具函数的 `description` 传递给模型。而插件的提示词是独立于工具的，它将作为提示词模板中 `_pluginsPrompt` 的一部分，放入系统提示词中。
+In addition, the plugin itself can also contain prompts. The "prompt" here is different from the prompt of the tool. The prompt of the tool is generally passed to the model as the `description` of the tool function. The prompt of the plugin is independent of the tool. It will be put into the system prompt as part of `_pluginsPrompt` in the prompt template.
 
-因此，插件也可以仅包含提示词而没有文件解析器和工具。内置的「表情包」插件和「Mermaid 图表」插件就是这样的。
+Therefore, plugins can also contain only prompts without file parsers and tools. The built-in "Emoji" plugin and "Mermaid Chart" plugin are like this.
 
-表情包插件的原理为，AIaW 内置了一些表情包图片，因此只需要告诉 AI 每个表情包的链接，提示 AI 在回答中使用 img 标签引入图片就行了。而 Mermaid 图表也是 AIaW 的 Markdown 渲染组件本来就支持的，只需要提示 AI 在回答中使用即可。当然，把提示写在角色设定或者用户消息里也是一样的，把它封装为插件只是为了使用起来更方便些。
+The principle of the emoji plugin is that AIaW has built-in some emoji pictures, so you only need to tell AI the link of each emoji and prompt AI to use the img tag to introduce the picture in the answer. The Mermaid chart is also supported by AIaW's Markdown rendering component, so you only need to prompt AI to use it in the answer. Of course, it is the same to write the prompt in the role setting or user message. Encapsulating it as a plugin is just for more convenient use.
 
-插件提示词也支持提示词变量。比如表情包插件就有一个「显示大小」变量，它可以插件功能页面调整；提示词中使用了它，告诉了 AI 设定 img 标签的宽度，从而影响表情包的显示大小。
+Plugin prompts also support prompt variables. For example, the emoji plugin has a "Display Size" variable, which can be adjusted on the plugin function page; it is used in the prompt to tell AI to set the width of the img tag, thereby affecting the display size of the emoji.
 
-## 插件配置与开发
+## Plugin Configuration and Development
 
-参考[插件配置与开发](plugin-dev)
+Refer to [Plugin Configuration and Development](plugin-dev)

@@ -1,63 +1,63 @@
-# 功能概览
+# Features Overview
 
-## 基本功能
+## Basic Features
 
-- 流式传输、上传图片、latex公式…… 这些基本的功能自然都有，无需多提
+- Streaming, image uploading, LaTeX formulas... These basic features are naturally available, no need to mention them.
 
-- [跨平台](cross-platform)：响应式界面设计，适配手机、电脑等不同大小和比例的屏幕
+- [Cross-platform](cross-platform): Responsive interface design, adapted to screens of different sizes and proportions such as mobile phones and computers.
 
-- 多服务商支持：支持 OpenAI、Anthropic、Google 等不同服务商
+- Multi-provider support: Supports different providers such as OpenAI, Anthropic, and Google.
 
-- 修改提问、重新生成 以分叉的形式实现，像 Chatgpt 官网那样（整个对话呈现“树”的结构）
-<img src="/usage/res/message-edit.png" width="420">
+- Modify question, regenerate implemented in a forked form, like the official ChatGPT website (the entire conversation presents a "tree" structure)
+<img src="./res/message-edit.png" width="420">
 
-- [文件解析](file-parse)：支持上传 Word、PDF、PPT、Excel等格式文档，自动解析为文本输入
+- [File Parsing](file-parse): Supports uploading documents in formats such as Word, PDF, PPT, Excel, etc., and automatically parses them into text input.
 
-- 视频解析：支持选择视频文件并指定时长范围（默认为整个视频），将自动转稿为文本输入，以此实现对视频内容的提问
-<img src="/usage/res/video-parse.png" width="440">
+- Video Parsing: Supports selecting video files and specifying a duration range (default is the entire video), which will be automatically transcribed into text input, thereby realizing the ability to ask questions about video content.
+<img src="./res/video-parse.png" width="440">
 
-- [插件系统](plugins)：内置了计算器、图像生成等插件。此外可在插件商店安装更多插件
-<img src="/usage/res/gen-image.webp" title="图像生成插件">
+- [Plugin System](plugins): Built-in plugins such as calculator and image generation. In addition, more plugins can be installed in the plugin store.
+<img src="./res/gen-image.webp" title="Image Generation Plugin">
 
-- 助手市场：获取各种各样定制提示词的助手（提示词来自[lobe-chat-agents](https://github.com/lobehub/lobe-chat-agents)）
+- Assistant Market: Get various customized prompt assistants (prompts from [lobe-chat-agents](https://github.com/lobehub/lobe-chat-agents))
 
-- 本地优先+实时云同步：所有数据储存在本地，因此无需加载且离线可浏览。登录即可启用跨设备实时云同步（30天试用，随后￥1.8/月）
+- Local Priority + Real-time Cloud Synchronization: All data is stored locally, so there is no need to load and can be browsed offline. Log in to enable real-time cloud synchronization across devices (30-day trial, then $0.4/month).
 
-- 模型服务：除了配置自定义API外，也可以登录后使用我们提供的模型服务，无需配置，支持 gpt-4o、claude-3.5-sonnet、o1-mini 等众多先进模型。额度随用随充，永久有效。按照官方API原价扣费
+- Model Service: In addition to configuring custom APIs, you can also log in to use our provided model service without configuration, supporting many advanced models such as gpt-4o, claude-3.5-sonnet, o1-mini, etc. Credit is charged at the original official API price as you use it and is permanently valid.
 
-- 开源：本应用是开源的，除了上方两项标明付费的服务外，所有功能都免费。你也可以自部署本应用
+- Open Source: This application is open source, and all features are free except for the two services marked as paid above. You can also self-deploy this application.
 
-- 性能优秀：启动速度快，切换对话十分流畅
+- Excellent Performance: Fast startup speed, very smooth conversation switching.
 
-- 界面主题：Material 3 设计风格；支持深色/浅色模式；支持自定义主题色
+- Interface Theme: Material 3 design style; supports dark/light mode; supports custom theme colors.
 
-## 拓展使用
+## Extended Use
 
-- [多工作区](workspaces)：在左侧边栏，你可以创建多个工作区，将不同主题的对话、不同类型的助手分隔开；还可以创建文件夹，将多个工作区放入其中；支持嵌套
-<img src="/usage/res/workspace-list.png" width="378">
+- [Multi-Workspace](workspaces): In the left sidebar, you can create multiple workspaces to separate conversations with different themes and different types of assistants; you can also create folders to put multiple workspaces into them; supports nesting.
+<img src="./res/workspace-list.png" width="378">
 
-- [Artifacts](artifacts)：可将助手回答的任意部分转为 Artifacts，将显示在独立的窗口中，方便修改和复用
+- [Artifacts](artifacts): Any part of the assistant's response can be converted into Artifacts, which will be displayed in a separate window for easy modification and reuse.
 <img src="https://fs.krytro.com/aiaw/convert-artifact.webp" width="600">
 
-- [提示词变量](prompt-vars)：除了在助手的“角色设定”中设置普通的静态提示词外，你可以通过创建提示词变量、编辑提示词模板，来构建动态且可复用的提示词
-<img src="/usage/res/assistant-prompt-vars.png">
+- [Prompt Variables](prompt-vars): In addition to setting ordinary static prompts in the assistant's "Role Setting", you can construct dynamic and reusable prompts by creating prompt variables and editing prompt templates.
+<img src="./res/assistant-prompt-vars.png">
 
-- 插件拓展性：支持将任意 Gradio 应用配置为插件，同时兼容部分 LobeChat 插件；插件不仅仅提供工具调用，文件解析功能也可以通过插件拓展；工具调用支持多模态的结果
+- Plugin Extensibility: Supports configuring any Gradio application as a plugin, and is also compatible with some LobeChat plugins; plugins not only provide tool calls, but also file parsing functions can be extended through plugins; tool calls support multimodal results.
 
-## 细节设计
+## Detail Design
 
-- 用户输入预览：提供正在输入的内容的实时预览；借鉴自NextChat
+- User Input Preview: Provides a real-time preview of the content being entered; inspired by NextChat.
 
-- 代码粘贴优化：在输入框粘贴从 VSCode 复制的代码时，自动用 markdown 代码块包裹，并标明语言
+- Code Paste Optimization: When pasting code copied from VSCode into the input box, it is automatically wrapped in a markdown code block and the language is indicated.
 
-- 文本文件支持：支持直接添加文本类型文件（代码、csv等）到用户输入中，文件内容和文件名将作为用户输入的一部分。相比于手动将文件内容粘贴到输入框，此方法更快捷且文件内容不会占据显示空间
-<img src="/usage/res/text-file.png" width="355">
+- Text File Support: Supports directly adding text-type files (code, CSV, etc.) to the user input, and the file content and file name will be part of the user input. Compared to manually pasting the file content into the input box, this method is faster and the file content does not take up display space.
+<img src="./res/text-file.png" width="355">
 
-- 粘贴：通过 Ctrl + V 粘贴，你可以粘贴文本、图片、文件；此外，在输入框之外粘贴文本时，将作为独立的文本块，像文本文件那样
+- Paste: Through Ctrl + V paste, you can paste text, images, and files; in addition, when pasting text outside the input box, it will be used as an independent text block, like a text file.
 
-- 引用：用鼠标拖选对话消息内容后，点击“引用”，即可在用户输入中引用该内容。此功能相当于手动复制消息内容并粘贴到输入框中的快捷方式，方便对助手回答的部分内容针对性地追问
-<img src="/usage/res/quote.png" width="354">
+- Quote: After dragging and selecting the content of the conversation message with the mouse, click "Quote" to quote the content in the user input. This function is equivalent to a shortcut to manually copy the message content and paste it into the input box, which is convenient for asking targeted follow-up questions about part of the assistant's answer.
+<img src="./res/quote.png" width="354">
 
-- 快速滚动：对话右下角有快速滚动按钮，除了一般的滚动到顶部/底部，中间两个按钮是对齐到消息开头/末尾或者上一条/下一条消息的滚动，在消息较长时很方便
+- Quick Scroll: There is a quick scroll button in the lower right corner of the conversation. In addition to general scrolling to the top/bottom, the middle two buttons are for scrolling aligned to the beginning/end of the message or the previous/next message, which is very convenient when the message is long.
 
-- 键盘控制：键盘控制：支持设置键盘快捷键触发上述的滚动操作，以及用键盘快捷键切换消息链、重新生成、新建对话
+- Keyboard Control: Keyboard control: Supports setting keyboard shortcuts to trigger the above scrolling operations, as well as using keyboard shortcuts to switch message chains, regenerate, and create new conversations.

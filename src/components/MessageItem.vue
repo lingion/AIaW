@@ -34,7 +34,7 @@
     >
       <div
         position-relative
-        :class="message.type === 'user' ? 'min-h-48px' : 'min-h-24px min-w-80px'"
+        :class="message.type === 'user' ? 'min-h-48px' : 'min-h-24px min-w-100px'"
         class="group"
       >
         <div
@@ -135,7 +135,8 @@
           <tool-content
             v-if="content.type === 'assistant-tool'"
             :content
-            m-2
+            my-2
+            :class="colMode ? 'mx-4' : 'mx-2'"
           />
         </div>
         <div
@@ -185,7 +186,7 @@
           <span ml-3>{{ idDateString(message.id) }}</span>
         </div>
       </div>
-      <div :class="{ 'mx-4': colMode }">
+      <div :class="colMode ? 'mx-4' : 'mx-2'">
         <q-linear-progress
           v-if="['pending', 'streaming'].includes(message.status)"
           indeterminate

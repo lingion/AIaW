@@ -51,14 +51,12 @@
         <q-btn
           flat
           color="primary"
-          no-caps
           :label="$t('topupDialog.cancel')"
           @click="onDialogCancel"
         />
         <q-btn
           flat
           color="primary"
-          no-caps
           :label="$t('topupDialog.order')"
           :loading
           :disable="!valid"

@@ -1,21 +1,21 @@
-# 文件解析
+# File Parsing
 
-一般来说，模型只能接收它所原生支持的输入类型。比如，gpt-3.5 只支持文本输入；许多较新的模型也支持图像输入；最新的模型中也有支持音频输入的。但如果是模型不支持的文件类型，该如何输入呢？这时候就需要**文件解析器**。
+Generally speaking, models can only receive input types that they natively support. For example, gpt-3.5 only supports text input; many newer models also support image input; and the latest models also support audio input. But what if the file type is not supported by the model? This requires a **file parser**.
 
-文件解析器的作用，就是将模型不支持类型的文件（如文档、视频）转化为模型支持的类型（一般是文本）。
+The role of the file parser is to convert files of types not supported by the model (such as documents and videos) into types supported by the model (usually text).
 
-文件解析器也是由插件提供的，我们内置了几个解析文件的插件，你可以在[插件页面](https://aiaw.app/plugins)看到它们：
+File parsers are also provided by plugins. We have built-in several plugins for parsing files, which you can see on the [Plugins page](https://aiaw.app/plugins):
 
-- 语音识别 Whisper：通过 Whisper 模型，识别语音中的文字，实现将音频转为文本
+- Speech Recognition Whisper: Through the Whisper model, recognize the text in the voice, and realize the conversion of audio to text.
 
-- 视频转文字：提取视频中的音频，然后和上面一样，通过 Whisper 模型转为文本
+- Video to Text: Extract the audio from the video, and then, like the above, convert it to text through the Whisper model.
 
-- 文档解析：解析文档（PDF、Word、Excel、PPT 等）内容，并转换为 Markdown 文本
+- Document Parsing: Parse the content of documents (PDF, Word, Excel, PPT, etc.) and convert it to Markdown text.
 
-前两个插件通过 Huggingface🤗 Spaces 调用 Whisper 模型，因此是免费的。文档解析后端调用的是 LlamaParse，目前我们也免费提供。
+The first two plugins call the Whisper model through Huggingface🤗 Spaces, so they are free. The document parsing backend calls LlamaParse, which we also provide for free.
 
-## 类型匹配流程
+## Type Matching Process
 
-当添加一个文件时，AIaW 首先会检测文件是否为模型直接支持的类型（详见[多模态](multimodal)）。如果是，就直接添加；否则就弹出文件解析对话框。
+When adding a file, AIaW first detects whether the file is a type directly supported by the model. If it is, it is added directly; otherwise, the file parsing dialog box pops up.
 
-这时会检查所有文件解析器支持的类型，当一个文件解析器设定的 MIME 类型与文件的 MIME 类型匹配时，这个文件解析器就会作为解析选项之一。文件解析器的 MIME 类型可在插件设置中修改。
+At this time, it will check the types supported by all file parsers. When the MIME type set by a file parser matches the MIME type of the file, this file parser will be one of the parsing options. The MIME type of the file parser can be modified in the plugin settings.

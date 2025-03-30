@@ -1,18 +1,18 @@
-# 助手
+# Assistants
 
-在一个工作区中，你可以创建多个助手，并为每个助手设置不同的提示词、模型、插件等，以适应不同的任务。
+In a workspace, you can create multiple assistants and set different prompts, models, plugins, etc. for each assistant to adapt to different tasks.
 
-普通的助手只在当前工作区可用，但你也可以在「助手」页面的右侧边栏创建全局助手，这些助手任意工作区都可用。
+Ordinary assistants are only available in the current workspace, but you can also create global assistants in the right sidebar of the "Assistants" page. These assistants are available in any workspace.
 
-创建工作区时也会创建一个助手，作为该工作区的默认助手。你可以在工作区设置中更改默认助手。
+When creating a workspace, an assistant will also be created as the default assistant for that workspace. You can change the default assistant in the workspace settings.
 
-可以将助手从一个工作区移至另一个工作区，或是移至全局，反之亦然。
+Assistants can be moved from one workspace to another, or to global, and vice versa.
 
-## 分享助手
+## Share Assistants
 
-通过助手设置页面底部的「导出」按钮，可以将助手导出到剪贴板或是导出为文件。其他人则可以点击插件市场右上角加号，通过文件或者剪贴板导入助手。
+Through the "Export" button at the bottom of the assistant settings page, you can export the assistant to the clipboard or export it as a file. Others can click the plus sign in the upper right corner of the plugin market to import assistants through files or the clipboard.
 
-你也可以将助手发布到助手市场，使得其他用户可以直接在市场中看到并添加。发布方法为：
+You can also publish assistants to the assistant market so that other users can directly see and add them in the market. The publishing method is:
 
-- 补全助手的描述、作者等信息，然后导出
-- 将导出的 JSON 添加到源码的 `/public/assistants.json`，并提交 PR
+- Complete the assistant's description, author and other information, and then export
+- Add the exported JSON to `/public/assistants.json` of the source code and submit a PR
