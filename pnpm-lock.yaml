@@ -162,14 +162,17 @@ importers:
         specifier: ^2.2.2
         version: 2.2.2(typescript@5.5.4)(vue@3.5.12(typescript@5.5.4))
       quasar:
-        specifier: ^2.16.10
-        version: 2.16.10
+        specifier: ^2.18.1
+        version: 2.18.1
       register-service-worker:
         specifier: ^1.7.2
         version: 1.7.2
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.5.4)
+      vue-draggable-plus:
+        specifier: ^0.6.0
+        version: 0.6.0(@types/sortablejs@1.15.8)
       vue-i18n:
         specifier: ^11.1.2
         version: 11.1.2(vue@3.5.12(typescript@5.5.4))
@@ -191,7 +194,7 @@ importers:
         version: 2.0.0(rollup@2.79.2)(vue-i18n@11.1.2(vue@3.5.12(typescript@5.5.4)))
       '@quasar/app-vite':
         specifier: ^2.1.0
-        version: 2.1.0(@types/node@20.16.1)(eslint@8.57.0)(jiti@1.21.7)(pinia@2.2.2(typescript@5.5.4)(vue@3.5.12(typescript@5.5.4)))(quasar@2.16.10)(rollup@2.79.2)(sass@1.77.8)(terser@5.31.6)(tsx@4.18.0)(typescript@5.5.4)(vue-router@4.4.0(vue@3.5.12(typescript@5.5.4)))(vue@3.5.12(typescript@5.5.4))(workbox-build@7.1.1)(yaml@2.5.0)
+        version: 2.1.0(@types/node@20.16.1)(eslint@8.57.0)(jiti@1.21.7)(pinia@2.2.2(typescript@5.5.4)(vue@3.5.12(typescript@5.5.4)))(quasar@2.18.1)(rollup@2.79.2)(sass@1.77.8)(terser@5.31.6)(tsx@4.18.0)(typescript@5.5.4)(vue-router@4.4.0(vue@3.5.12(typescript@5.5.4)))(vue@3.5.12(typescript@5.5.4))(workbox-build@7.1.1)(yaml@2.5.0)
       '@tauri-apps/cli':
         specifier: ^2.2.7
         version: 2.2.7
@@ -2649,6 +2652,9 @@ packages:
 
   '@types/slice-ansi@4.0.0':
     resolution: {integrity: sha512-+OpjSaq85gvlZAYINyzKpLeiFkSC4EsC6IIiT6v6TLSU5k5U83fHGj9Lel8oKEXM0HqgrMVCjXPDPVICtxF7EQ==}
+
+  '@types/sortablejs@1.15.8':
+    resolution: {integrity: sha512-b79830lW+RZfwaztgs1aVPgbasJ8e7AXtZYHTELNXZPsERt4ymJdjV4OccDbHQAvHrCcFpbF78jkm0R6h/pZVg==}
 
   '@types/statuses@2.0.5':
     resolution: {integrity: sha512-jmIUGWrAiwu3dZpxntxieC+1n/5c3mjrImkmOSQ2NC5uP6cYO4aAZDdSmRcI5C1oiTmqlZGHC+/NmJrKogbP5A==}
@@ -5253,8 +5259,8 @@ packages:
     resolution: {integrity: sha512-+38qI9SOr8tfZ4QmJNplMUxqjbe7LKvvZgWdExBOmd+egZTtjLB67Gu0HRX3u/XOq7UU2Nx6nsjvS16Z9uwfpg==}
     engines: {node: '>=0.6'}
 
-  quasar@2.16.10:
-    resolution: {integrity: sha512-n4fPFabxtgUO2gsYXpg6WYkx0eTDi+CGyTmbI+HqiYQlGqAIa8qjuOIuKzX/wrkg5vKx4PvnCthTImOYHGT8Hg==}
+  quasar@2.18.1:
+    resolution: {integrity: sha512-db/P64Mzpt1uXJ0MapaG+IYJQ9hHDb5KtTCoszwC78DR7sA+Uoj7nBW2EytwYykIExEmqavOvKrdasTvqhkgEg==}
     engines: {node: '>= 10.18.1', npm: '>= 6.13.4', yarn: '>= 1.21.1'}
 
   querystringify@2.2.0:
@@ -6344,6 +6350,15 @@ packages:
     peerDependencies:
       '@vue/composition-api': ^1.0.0-rc.1
       vue: ^3.0.0-0 || ^2.6.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+
+  vue-draggable-plus@0.6.0:
+    resolution: {integrity: sha512-G5TSfHrt9tX9EjdG49InoFJbt2NYk0h3kgjgKxkFWr3ulIUays0oFObr5KZ8qzD4+QnhtALiRwIqY6qul4egqw==}
+    peerDependencies:
+      '@types/sortablejs': ^1.15.0
+      '@vue/composition-api': '*'
     peerDependenciesMeta:
       '@vue/composition-api':
         optional: true
@@ -8744,11 +8759,11 @@ snapshots:
 
   '@polka/url@1.0.0-next.25': {}
 
-  '@quasar/app-vite@2.1.0(@types/node@20.16.1)(eslint@8.57.0)(jiti@1.21.7)(pinia@2.2.2(typescript@5.5.4)(vue@3.5.12(typescript@5.5.4)))(quasar@2.16.10)(rollup@2.79.2)(sass@1.77.8)(terser@5.31.6)(tsx@4.18.0)(typescript@5.5.4)(vue-router@4.4.0(vue@3.5.12(typescript@5.5.4)))(vue@3.5.12(typescript@5.5.4))(workbox-build@7.1.1)(yaml@2.5.0)':
+  '@quasar/app-vite@2.1.0(@types/node@20.16.1)(eslint@8.57.0)(jiti@1.21.7)(pinia@2.2.2(typescript@5.5.4)(vue@3.5.12(typescript@5.5.4)))(quasar@2.18.1)(rollup@2.79.2)(sass@1.77.8)(terser@5.31.6)(tsx@4.18.0)(typescript@5.5.4)(vue-router@4.4.0(vue@3.5.12(typescript@5.5.4)))(vue@3.5.12(typescript@5.5.4))(workbox-build@7.1.1)(yaml@2.5.0)':
     dependencies:
       '@quasar/render-ssr-error': 1.0.3
       '@quasar/ssl-certificate': 1.0.0
-      '@quasar/vite-plugin': 1.9.0(@vitejs/plugin-vue@5.2.1(vite@6.1.1(@types/node@20.16.1)(jiti@1.21.7)(sass-embedded@1.85.0)(sass@1.77.8)(terser@5.31.6)(tsx@4.18.0)(yaml@2.5.0))(vue@3.5.12(typescript@5.5.4)))(quasar@2.16.10)(vite@6.1.1(@types/node@20.16.1)(jiti@1.21.7)(sass-embedded@1.85.0)(sass@1.77.8)(terser@5.31.6)(tsx@4.18.0)(yaml@2.5.0))(vue@3.5.12(typescript@5.5.4))
+      '@quasar/vite-plugin': 1.9.0(@vitejs/plugin-vue@5.2.1(vite@6.1.1(@types/node@20.16.1)(jiti@1.21.7)(sass-embedded@1.85.0)(sass@1.77.8)(terser@5.31.6)(tsx@4.18.0)(yaml@2.5.0))(vue@3.5.12(typescript@5.5.4)))(quasar@2.18.1)(vite@6.1.1(@types/node@20.16.1)(jiti@1.21.7)(sass-embedded@1.85.0)(sass@1.77.8)(terser@5.31.6)(tsx@4.18.0)(yaml@2.5.0))(vue@3.5.12(typescript@5.5.4))
       '@types/chrome': 0.0.262
       '@types/compression': 1.7.5
       '@types/cordova': 11.0.3
@@ -8774,7 +8789,7 @@ snapshots:
       lodash: 4.17.21
       minimist: 1.2.8
       open: 10.1.0
-      quasar: 2.16.10
+      quasar: 2.18.1
       rollup-plugin-visualizer: 5.14.0(rollup@2.79.2)
       sass-embedded: 1.85.0
       semver: 7.6.3
@@ -8816,10 +8831,10 @@ snapshots:
       fs-extra: 11.2.0
       selfsigned: 2.4.1
 
-  '@quasar/vite-plugin@1.9.0(@vitejs/plugin-vue@5.2.1(vite@6.1.1(@types/node@20.16.1)(jiti@1.21.7)(sass-embedded@1.85.0)(sass@1.77.8)(terser@5.31.6)(tsx@4.18.0)(yaml@2.5.0))(vue@3.5.12(typescript@5.5.4)))(quasar@2.16.10)(vite@6.1.1(@types/node@20.16.1)(jiti@1.21.7)(sass-embedded@1.85.0)(sass@1.77.8)(terser@5.31.6)(tsx@4.18.0)(yaml@2.5.0))(vue@3.5.12(typescript@5.5.4))':
+  '@quasar/vite-plugin@1.9.0(@vitejs/plugin-vue@5.2.1(vite@6.1.1(@types/node@20.16.1)(jiti@1.21.7)(sass-embedded@1.85.0)(sass@1.77.8)(terser@5.31.6)(tsx@4.18.0)(yaml@2.5.0))(vue@3.5.12(typescript@5.5.4)))(quasar@2.18.1)(vite@6.1.1(@types/node@20.16.1)(jiti@1.21.7)(sass-embedded@1.85.0)(sass@1.77.8)(terser@5.31.6)(tsx@4.18.0)(yaml@2.5.0))(vue@3.5.12(typescript@5.5.4))':
     dependencies:
       '@vitejs/plugin-vue': 5.2.1(vite@5.4.11(@types/node@20.16.1)(sass-embedded@1.85.0)(sass@1.77.8)(terser@5.31.6))(vue@3.5.12(typescript@5.5.4))
-      quasar: 2.16.10
+      quasar: 2.18.1
       vite: 6.1.1(@types/node@20.16.1)(jiti@1.21.7)(sass-embedded@1.85.0)(sass@1.77.8)(terser@5.31.6)(tsx@4.18.0)(yaml@2.5.0)
       vue: 3.5.12(typescript@5.5.4)
 
@@ -9545,6 +9560,8 @@ snapshots:
       '@types/send': 0.17.4
 
   '@types/slice-ansi@4.0.0': {}
+
+  '@types/sortablejs@1.15.8': {}
 
   '@types/statuses@2.0.5': {}
 
@@ -12456,7 +12473,7 @@ snapshots:
     dependencies:
       side-channel: 1.1.0
 
-  quasar@2.16.10: {}
+  quasar@2.18.1: {}
 
   querystringify@2.2.0: {}
 
@@ -13645,6 +13662,10 @@ snapshots:
   vue-demi@0.14.10(vue@3.5.12(typescript@5.5.4)):
     dependencies:
       vue: 3.5.12(typescript@5.5.4)
+
+  vue-draggable-plus@0.6.0(@types/sortablejs@1.15.8):
+    dependencies:
+      '@types/sortablejs': 1.15.8
 
   vue-eslint-parser@9.4.3(eslint@8.57.0):
     dependencies:

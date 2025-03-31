@@ -153,6 +153,7 @@
           </q-btn>
         </div>
       </q-list>
+      <vue-draggable />
     </q-drawer>
     <router-view />
   </q-layout>
@@ -171,6 +172,7 @@ import version from 'src/version.json'
 import { useI18n } from 'vue-i18n'
 import { useOpenLastWorkspace } from 'src/composables/open-last-workspace'
 import { IsWeb } from 'src/utils/platform-api'
+import { VueDraggable } from 'vue-draggable-plus'
 
 defineOptions({
   name: 'MainLayout'

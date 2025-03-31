@@ -332,5 +332,11 @@ export default {
     getModelList: '获取模型列表',
     selectModels: '选择模型',
     getModelListFailed: '获取模型列表失败'
+  },
+  modelDragSortDialog: {
+    title: '拖动排序',
+    sortByName: '按名称排序',
+    cancel: '取消',
+    confirm: '确定'
   }
 }

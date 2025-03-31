@@ -332,5 +332,11 @@ export default {
     getModelList: 'Get Model List',
     selectModels: 'Select Models',
     getModelListFailed: 'Failed to Get Model List'
+  },
+  modelDragSortDialog: {
+    title: 'Drag to Sort',
+    sortByName: 'Sort by Name',
+    cancel: 'Cancel',
+    confirm: 'Confirm'
   }
 }

@@ -205,6 +205,7 @@ export default {
     userAvatar: '用户头像',
     commonModels: '常用模型',
     commonModelsCaption: '用于在对话中快速切换模型。',
+    sort: '排序',
     showWarnings: '显示警告',
     showWarningsCaption: '显示响应中的警告信息',
     markdownRendering: 'Markdown 渲染',

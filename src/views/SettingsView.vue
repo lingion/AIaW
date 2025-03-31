@@ -80,11 +80,18 @@
               {{ $t('settingsView.commonModels') }}
             </q-item-label>
             <q-item-label caption>
-              {{ $t('settingsView.commonModelsCaption') }}
+              {{ $t('settingsView.commonModelsCaption') }}<br>
               <get-model-list
                 :provider
                 v-model="perfs.commonModelOptions"
-              />
+              /> -
+              <a
+                href="javascript:void(0)"
+                @click="sortModels"
+                pri-link
+              >
+                {{ $t('settingsView.sort') }}
+              </a>
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -521,6 +528,7 @@ import { PublicOrigin } from 'src/utils/platform-api'
 import ModelsInput from 'src/components/ModelsInput.vue'
 import GetModelList from 'src/components/GetModelList.vue'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
+import ModelDragSortDialog from 'src/components/ModelDragSortDialog.vue'
 
 defineEmits(['toggle-drawer'])
 
@@ -584,6 +592,18 @@ const langOptions = [
   { label: '简体中文', value: 'zh-CN' },
   { label: '繁體中文', value: 'zh-TW' }
 ]
+
+function sortModels() {
+  const models = perfs.commonModelOptions
+  $q.dialog({
+    component: ModelDragSortDialog,
+    componentProps: { models },
+    persistent: true,
+    ...dialogOptions
+  }).onOk(sortedModels => {
+    perfs.commonModelOptions = sortedModels
+  })
+}
 
 useLocateId(ref(true))
 </script>

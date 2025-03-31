@@ -205,6 +205,7 @@ export default {
     userAvatar: 'User Avatar',
     commonModels: 'Common Models',
     commonModelsCaption: 'Used to quickly switch models in conversations.',
+    sort: 'Sort',
     showWarnings: 'Show Warnings',
     showWarningsCaption: 'Show warning messages in the response',
     markdownRendering: 'Markdown Rendering',

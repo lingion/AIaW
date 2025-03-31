@@ -6,6 +6,8 @@ export default {
     importFromClipboard: '從剪貼簿導入',
     addMcpPlugin: '添加 MCP 插件',
     rightDrawerTip: '已安裝的插件在右側邊欄',
+    mcpPluginTip: '可參考 MCP 插件的',
+    mcpPluginGuide: '使用指南',
     search: '搜尋',
     loadError: '載入插件列表失敗',
     retry: '重試'
@@ -203,6 +205,7 @@ export default {
     userAvatar: '使用者頭像',
     commonModels: '常用模型',
     commonModelsCaption: '用於在對話中快速切換模型。',
+    sort: '排序',
     showWarnings: '顯示警告',
     showWarningsCaption: '顯示響應中的警告訊息',
     markdownRendering: 'Markdown 渲染',
