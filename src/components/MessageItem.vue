@@ -186,9 +186,11 @@
           <span ml-3>{{ idDateString(message.id) }}</span>
         </div>
       </div>
-      <div :class="colMode ? 'mx-4' : 'mx-2'">
+      <div
+        :class="colMode ? 'mx-4' : 'mx-2'"
+        v-if="['pending', 'streaming'].includes(message.status)"
+      >
         <q-linear-progress
-          v-if="['pending', 'streaming'].includes(message.status)"
           indeterminate
         />
       </div>
