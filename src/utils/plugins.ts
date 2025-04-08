@@ -461,7 +461,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
     type: 'mcp',
     title,
     description,
-    available: available && IsTauri,
+    available: available && (IsTauri || transport.type === 'sse'),
     settings: TObject(settings),
     apis: [...tools, ...resources, ...prompts],
     fileparsers: [],

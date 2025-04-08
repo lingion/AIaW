@@ -363,7 +363,7 @@
             component="input"
           />
         </div>
-        <q-input
+        <a-input
           ref="messageInput"
           class="mt-2"
           max-h-50vh
@@ -373,6 +373,7 @@
           outlined
           autogrow
           clearable
+          :debounce="25"
           :placeholder="$t('dialogView.chatPlaceholder')"
           @keydown.enter="onEnter"
           @paste="onTextPaste"
@@ -425,6 +426,7 @@ import artifactsPlugin from 'src/utils/artifacts-plugin'
 import ModelOptionsBtn from 'src/components/ModelOptionsBtn.vue'
 import AddInfoBtn from 'src/components/AddInfoBtn.vue'
 import { useI18n } from 'vue-i18n'
+import AInput from 'src/components/AInput.vue'
 
 const { t, locale } = useI18n()
 

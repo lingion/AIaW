@@ -4,10 +4,10 @@ import { JSONEqual } from './functions'
 import { version } from 'src/version.json'
 import { TauriShellClientTransport } from './tauri-shell-transport'
 import { platform } from '@tauri-apps/plugin-os'
-import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js'
 import { fetch } from './platform-api'
 import { Notify } from 'quasar'
 import { i18n } from 'src/boot/i18n'
+import { SSEClientTransport } from './mcp-sse-transport'
 
 const KeepAliveTimeout = 300e3
 
@@ -54,7 +54,7 @@ export async function getClient(key: string, transportConf: TransportConf) {
       cwd: transportConf.cwd
     }))
   } else {
-    await client.connect(new SSEClientTransport(new URL(transportConf.url), { eventSourceInit: { fetch } }))
+    await client.connect(new SSEClientTransport(new URL(transportConf.url), { fetch }))
   }
   const timeoutId = window.setTimeout(() => {
     client.close()
