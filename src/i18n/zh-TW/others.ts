@@ -17,7 +17,9 @@ export default {
     resourceName: '資源名稱',
     apiVersion: 'API 版本',
     defaultAnthropicAddress: '預設為 Anthropic 官方地址',
-    defaultGoogleAddress: '預設為 Google 官方地址'
+    defaultGoogleAddress: '預設為 Google 官方地址',
+    openaiCompatible: 'OpenAI 相容',
+    required: '必填'
   },
   templates: {
     defaultWsIndexContent: `## {'{{ workspace.name }}'}

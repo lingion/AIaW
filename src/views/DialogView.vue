@@ -373,7 +373,7 @@
           outlined
           autogrow
           clearable
-          :debounce="25"
+          :debounce="30"
           :placeholder="$t('dialogView.chatPlaceholder')"
           @keydown.enter="onEnter"
           @paste="onTextPaste"

@@ -13,7 +13,7 @@
     </q-item-section>
     <q-item-section side>
       <q-select
-        class="w-150px"
+        class="w-200px"
         :model-value="provider?.type"
         @update:model-value="switchProvider"
         :options="providerOptions"

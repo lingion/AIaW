@@ -17,7 +17,9 @@ export default {
     resourceName: 'Resource Name',
     apiVersion: 'API Version',
     defaultAnthropicAddress: 'Default to Anthropic official address',
-    defaultGoogleAddress: 'Default to Google official address'
+    defaultGoogleAddress: 'Default to Google official address',
+    openaiCompatible: 'OpenAI Compatible',
+    required: 'Required'
   },
   templates: {
     defaultWsIndexContent: `## {'{{ workspace.name }}'}

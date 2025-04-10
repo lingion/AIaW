@@ -2,6 +2,7 @@ import { createOpenAI } from '@ai-sdk/openai'
 import { Model, ProviderType } from './types'
 import { Object, String } from '@sinclair/typebox'
 import { createAnthropic } from '@ai-sdk/anthropic'
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createAzure } from '@ai-sdk/azure'
 import { createMistral } from '@ai-sdk/mistral'
@@ -94,6 +95,27 @@ const ProviderTypes: ProviderType[] = [
     }),
     initialSettings: {},
     constructor: createGoogleGenerativeAI
+  },
+  {
+    name: 'openai-compatible',
+    label: t('values.openaiCompatible'),
+    avatar: { type: 'svg', name: 'openai' },
+    settings: Object({
+      ...commonSettings,
+      baseURL: String({ title: t('values.apiAddress'), description: t('values.required') })
+    }),
+    initialSettings: {},
+    constructor: createOpenAICompatible,
+    getModelList: async (settings) => {
+      const baseURL = settings.baseURL
+      const resp = await fetch(`${baseURL}/models`, {
+        headers: settings.apiKey ? {
+          Authorization: `Bearer ${settings.apiKey}`
+        } : {}
+      })
+      const { data } = await resp.json()
+      return data.map(m => m.id)
+    }
   },
   {
     name: 'deepseek',
