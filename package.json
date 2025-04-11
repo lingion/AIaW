@@ -44,6 +44,7 @@
     "@lobehub/chat-plugin-sdk": "^1.32.4",
     "@material/material-color-utilities": "^0.3.0",
     "@modelcontextprotocol/sdk": "^1.8.0",
+    "@openrouter/ai-sdk-provider": "^0.4.5",
     "@quasar/extras": "^1.16.12",
     "@sinclair/typebox": "^0.33.12",
     "@tauri-apps/plugin-clipboard-manager": "~2.2.1",
