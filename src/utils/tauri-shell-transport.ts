@@ -155,6 +155,7 @@ export class TauriShellClientTransport implements Transport {
     if (this._child) {
       await this._child.kill()
       this._child = undefined
+      this.onclose?.()
     }
     this._readBuffer.clear()
   }

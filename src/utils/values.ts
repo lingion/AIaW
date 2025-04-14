@@ -1067,7 +1067,6 @@ const codeExtensions = [
   'toc',
   'tea',
   't',
-  'txt',
   'fr',
   'nb',
   'ncl',

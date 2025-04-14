@@ -58,7 +58,7 @@ export async function getClient(key: string, transportConf: TransportConf) {
   }
   const timeoutId = window.setTimeout(() => {
     client.close()
-  }, 300e3)
+  }, KeepAliveTimeout)
   pool.set(key, { conf: transportConf, client, timeoutId })
   client.onclose = () => {
     window.clearTimeout(pool.get(key).timeoutId)
