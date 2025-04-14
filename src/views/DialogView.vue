@@ -142,6 +142,7 @@
             @update:model-value="switchChain(index - 1, $event - 1)"
             @edit="edit(index)"
             @regenerate="regenerate(index)"
+            @delete="deleteBranch(index)"
             @quote="quote"
             @extract-artifact="extractArtifact(messageMap[i], ...$event)"
             @rendered="messageMap[i].generatingSession && lockBottom()"
@@ -508,6 +509,32 @@ async function regenerate(index) {
   switchChain(index - 1, dialog.value.msgTree[target].length)
   await stream(target, false)
 }
+async function deleteBranch(index) {
+  const parent = chain.value[index - 1]
+  const branch = dialog.value.msgRoute[index - 1]
+  const anchor = chain.value[index]
+  branch === dialog.value.msgTree[parent].length - 1 && switchChain(index - 1, branch - 1)
+  const ids = expandMessageTree(anchor)
+  const itemIds = ids.flatMap(id => messageMap.value[id].contents).flatMap(c => {
+    if (c.type === 'user-message') return c.items
+    else if (c.type === 'assistant-tool') return c.result || []
+    else return []
+  })
+  await db.transaction('rw', db.dialogs, db.messages, db.items, () => {
+    db.messages.bulkDelete(ids)
+    itemIds.forEach(id => {
+      let { references } = itemMap.value[id]
+      references--
+      references === 0 ? db.items.delete(id) : db.items.update(id, { references })
+    })
+    const msgTree = { ...toRaw(dialog.value.msgTree) }
+    msgTree[parent] = msgTree[parent].filter(id => id !== anchor)
+    ids.forEach(id => {
+      delete msgTree[id]
+    })
+    db.dialogs.update(props.id, { msgTree })
+  })
+}
 
 async function appendMessage(target, info: Partial<Message>, insert = false) {
   const id = genId()
@@ -532,6 +559,9 @@ async function appendMessage(target, info: Partial<Message>, insert = false) {
     })
   })
   return id
+}
+function expandMessageTree(root): string[] {
+  return [root, ...dialog.value.msgTree[root].flatMap(id => expandMessageTree(id))]
 }
 
 async function updateInputText(text) {
@@ -605,9 +635,9 @@ function onPaste(ev: ClipboardEvent) {
 }
 addEventListener('paste', onPaste)
 onUnmounted(() => removeEventListener('paste', onPaste))
-async function removeItem(item: StoredItem) {
+async function removeItem({ id, references }: StoredItem) {
   const items = [...inputMessageContent.value.items]
-  items.splice(items.indexOf(item.id), 1)
+  items.splice(items.indexOf(id), 1)
   await db.transaction('rw', db.messages, db.items, () => {
     db.messages.update(chain.value.at(-1), {
       contents: [{
@@ -615,8 +645,8 @@ async function removeItem(item: StoredItem) {
         items
       }]
     })
-    item.references--
-    item.references === 0 ? db.items.delete(item.id) : db.items.update(item.id, { references: item.references })
+    references--
+    references === 0 ? db.items.delete(id) : db.items.update(id, { references })
   })
 }
 async function parseFiles(files: File[]) {

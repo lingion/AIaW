@@ -260,14 +260,29 @@
           </q-menu>
         </q-btn>
       </div>
-      <q-pagination
+      <div
         v-if="childNum > 1"
-        v-model="model"
-        :max="childNum"
-        input
-        :boundary-links="false"
         :class="message.type === 'assistant' ? 'mx-3' : ''"
-      />
+        flex
+        items-center
+      >
+        <q-pagination
+          v-model="model"
+          :max="childNum"
+          input
+          :boundary-links="false"
+        />
+        <q-btn
+          icon="sym_o_delete"
+          ml-1
+          flat
+          dense
+          text="sec xs"
+          un-size="30px"
+          :title="$t('messageItem.delete')"
+          @click="$emit('delete')"
+        />
+      </div>
     </div>
     <div
       v-if="!colMode"
@@ -348,6 +363,7 @@ const emit = defineEmits<{
   quote: [ApiResultItem]
   'extract-artifact': [[string, RegExp | string, ConvertArtifactOptions]],
   rendered: []
+  delete: []
 }>()
 
 watchEffect(async () => {
