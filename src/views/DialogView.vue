@@ -127,6 +127,7 @@
         ref="scrollContainer"
         pos-relative
         :class="{ 'rd-r-lg': rightDrawerAbove }"
+        @scroll="onScroll"
       >
         <template
           v-for="(i, index) in chain"
@@ -511,8 +512,8 @@ async function regenerate(index) {
 }
 async function deleteBranch(index) {
   const parent = chain.value[index - 1]
-  const branch = dialog.value.msgRoute[index - 1]
   const anchor = chain.value[index]
+  const branch = dialog.value.msgRoute[index - 1]
   branch === dialog.value.msgTree[parent].length - 1 && switchChain(index - 1, branch - 1)
   const ids = expandMessageTree(anchor)
   const itemIds = ids.flatMap(id => messageMap.value[id].contents).flatMap(c => {
@@ -603,7 +604,7 @@ function onTextPaste(ev: ClipboardEvent) {
     const lang = JSON.parse(data).mode ?? ''
     if (lang === 'markdown') return
     const wrappedCode = wrapCode(code, lang)
-    document.execCommand('insertText', false, '\n' + wrappedCode)
+    document.execCommand('insertText', false, wrappedCode)
     ev.preventDefault()
   }
 }
@@ -1325,6 +1326,17 @@ async function autoExtractArtifact() {
     reserveOriginal: perfs.artifactsReserveOriginal
   })
 }
+
+const scrollTops: Record<string, number> = {}
+function onScroll(ev) {
+  scrollTops[props.id] = ev.target.scrollTop
+}
+watch(() => liveData.value.dialog?.id, id => {
+  if (!id) return
+  nextTick(() => {
+    scrollContainer.value?.scrollTo({ top: scrollTops[id] ?? 0 })
+  })
+})
 
 defineEmits(['toggle-drawer'])
 
