@@ -207,12 +207,18 @@ const InputTypes = {
   gemini2: { user: ['image/*', 'audio/*'], assistant: [], tool: [] }
 }
 const models: Model[] = [
+  { name: 'o3-mini', inputTypes: InputTypes.textOnly },
+  { name: 'o3-mini-2025-01-31', inputTypes: InputTypes.textOnly },
   { name: 'o1-mini', inputTypes: InputTypes.textOnly },
   { name: 'o1-mini-2024-09-12', inputTypes: InputTypes.textOnly },
   { name: 'o1-preview', inputTypes: InputTypes.textOnly },
   { name: 'o1-preview-2024-09-12', inputTypes: InputTypes.textOnly },
-  { name: 'o3-mini', inputTypes: InputTypes.textOnly },
-  { name: 'o3-mini-2025-01-31', inputTypes: InputTypes.textOnly },
+  { name: 'gpt-4.1', inputTypes: InputTypes.commonVision },
+  { name: 'gpt-4.1-2025-04-14', inputTypes: InputTypes.commonVision },
+  { name: 'gpt-4.1-mini', inputTypes: InputTypes.commonVision },
+  { name: 'gpt-4.1-mini-2025-04-14', inputTypes: InputTypes.commonVision },
+  { name: 'gpt-4.1-nano', inputTypes: InputTypes.commonVision },
+  { name: 'gpt-4.1-nano-2025-04-14', inputTypes: InputTypes.commonVision },
   { name: 'gpt-4o', inputTypes: InputTypes.commonVision },
   { name: 'gpt-4o-2024-11-20', inputTypes: InputTypes.commonVision },
   { name: 'gpt-4o-2024-08-06', inputTypes: InputTypes.commonVision },
