@@ -149,7 +149,7 @@
     "description": "Knowledge graph-based persistent memory system",
     "type": "mcp",
     "manifest": {
-      "id": "mcp-puppeteer",
+      "id": "mcp-memory",
       "title": "Memory",
       "description": "Knowledge graph-based persistent memory system",
       "transport": {
