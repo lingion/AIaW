@@ -53,17 +53,17 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     darkMode: 'auto',
     themeHue: 300,
     provider: null,
-    model: models.find(m => m.name === 'gpt-4o'),
+    model: models.find(m => m.name === 'gpt-4.1'),
     systemProvider: null,
-    systemModel: models.find(m => m.name === 'gpt-4o-mini'),
+    systemModel: models.find(m => m.name === 'gpt-4.1-nano'),
     userAvatar: {
       type: 'text',
       text: 'U',
       hue: 300
     },
     commonModelOptions: [
-      'gpt-4o',
-      'gpt-4o-mini',
+      'gpt-4.1',
+      'gpt-4.1-mini',
       'o3-mini',
       'claude-3-7-sonnet-20250219',
       'claude-3-5-sonnet-20241022',
