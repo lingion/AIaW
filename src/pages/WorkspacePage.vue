@@ -128,16 +128,13 @@
           />
         </template>
         <q-separator />
-        <q-expansion-item
-          :label="$t('workspacePage.dialogs')"
-          header-class="text-lg"
+        <dialogs-expansion
+          :workspace-id="workspace.id"
           :model-value="workspace.listOpen.dialogs"
           @update:model-value="setListOpen('dialogs', $event)"
           flex-1
           of-y-auto
-        >
-          <dialog-list />
-        </q-expansion-item>
+        />
       </div>
     </q-drawer>
   </template>
@@ -150,7 +147,6 @@
 <script setup lang="ts">
 import { computed, provide, ref, watch } from 'vue'
 import AssistantsExpansion from 'src/components/AssistantsExpansion.vue'
-import DialogList from 'src/components/DialogList.vue'
 import ArtifactsExpansion from 'src/components/ArtifactsExpansion.vue'
 import { useWorkspacesStore } from 'src/stores/workspaces'
 import { useLiveQueryWithDeps } from 'src/composables/live-query'
@@ -167,6 +163,7 @@ import ArtifactItemMenu from 'src/components/ArtifactItemMenu.vue'
 import DragableSeparator from 'src/components/DragableSeparator.vue'
 import ArtifactItemIcon from 'src/components/ArtifactItemIcon.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
+import DialogsExpansion from 'src/components/DialogsExpansion.vue'
 
 const props = defineProps<{
   id: string

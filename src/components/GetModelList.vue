@@ -32,13 +32,12 @@ const providerType = computed(() => providersStore.providerTypes.find(pt => pt.n
 
 function getModelList() {
   providerType.value.getModelList(props.provider.settings).then(modelList => {
-    modelList.sort()
     $q.dialog({
       title: t('getModelList.selectModels'),
       options: {
         type: 'checkbox',
-        model: modelList.filter(m => models.value.includes(m)),
-        items: modelList.map(m => ({ label: m, value: m }))
+        model: models.value.filter(m => modelList.includes(m)),
+        items: modelList.sort().map(m => ({ label: m, value: m }))
       },
       cancel: true,
       ...dialogOptions

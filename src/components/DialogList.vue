@@ -16,17 +16,8 @@
         {{ $t('dialogList.createDialog') }}
       </q-item-section>
     </q-item>
-    <div p="x-4 y-2">
-      <q-input
-        dense
-        outlined
-        v-model="filter"
-        clearable
-        :placeholder="$t('dialogList.searchPlaceholder')"
-      />
-    </div>
     <q-item
-      v-for="dialog in filteredDialogs"
+      v-for="dialog in [...dialogs].reverse()"
       :key="dialog.id"
       clickable
       :to="{ path: `/workspaces/${workspace.id}/dialogs/${dialog.id}`, query: $route.query }"
@@ -76,10 +67,10 @@
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
 import { db } from 'src/utils/db'
-import { caselessIncludes, isPlatformEnabled } from 'src/utils/functions'
+import { isPlatformEnabled } from 'src/utils/functions'
 import { Dialog, Workspace } from 'src/utils/types'
 import { dialogOptions } from 'src/utils/values'
-import { computed, inject, ref, Ref, toRef } from 'vue'
+import { inject, Ref, toRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
 import { useCreateDialog } from 'src/composables/create-dialog'
@@ -90,10 +81,6 @@ import { useListenKey } from 'src/composables/listen-key'
 const { t } = useI18n()
 const workspace: Ref<Workspace> = inject('workspace')
 const dialogs: Ref<Dialog[]> = inject('dialogs')
-const filter = ref(null)
-const filteredDialogs = computed(() => {
-  return dialogs.value.filter(d => !filter.value || caselessIncludes(d.name, filter.value)).reverse()
-})
 
 const $q = useQuasar()
 

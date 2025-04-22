@@ -195,93 +195,99 @@
         />
       </div>
       <div
-        v-if="['default', 'failed'].includes(message.status)"
         text-on-sur-var
-        :class="message.type === 'assistant' ? 'ml-4' : 'mt-1 ml-1'"
-      >
-        <copy-btn
-          round
-          flat
-          dense
-          :value="textContent.text"
-        />
-        <q-btn
-          v-if="message.type === 'assistant'"
-          icon="sym_o_refresh"
-          round
-          flat
-          dense
-          ml-1
-          :title="$t('messageItem.regenerate')"
-          @click="$emit('regenerate')"
-        />
-        <q-btn
-          v-if="message.type === 'user'"
-          icon="sym_o_edit"
-          round
-          flat
-          dense
-          ml-1
-          :title="$t('messageItem.edit')"
-          @click="$emit('edit')"
-        />
-        <q-btn
-          icon="sym_o_more_vert"
-          round
-          flat
-          dense
-          ml-1
-          :title="$t('messageItem.more')"
-        >
-          <q-menu>
-            <q-list>
-              <menu-item
-                icon="sym_o_code"
-                :label="$t('messageItem.showSourceCode')"
-                @click="sourceCodeMode = !sourceCodeMode"
-                :class="{ 'route-active': sourceCodeMode }"
-              />
-              <menu-item
-                icon="sym_o_edit"
-                :label="$t('messageItem.directEdit')"
-                @click="edit"
-              />
-              <menu-item
-                icon="sym_o_format_quote"
-                :label="$t('messageItem.quote')"
-                @click="quote(textContent.text)"
-              />
-              <menu-item
-                icon="sym_o_info"
-                :label="$t('messageItem.moreInfo')"
-                @click="moreInfo"
-              />
-            </q-list>
-          </q-menu>
-        </q-btn>
-      </div>
-      <div
-        v-if="childNum > 1"
-        :class="message.type === 'assistant' ? 'mx-3' : ''"
+        :class="message.type === 'assistant' ? (colMode ? 'mx-4' : 'mx-2') : 'mt-1'"
         flex
         items-center
       >
-        <q-pagination
-          v-model="model"
-          :max="childNum"
-          input
-          :boundary-links="false"
-        />
-        <q-btn
-          icon="sym_o_delete"
-          ml-1
-          flat
-          dense
-          text="sec xs"
-          un-size="30px"
-          :title="$t('messageItem.delete')"
-          @click="$emit('delete')"
-        />
+        <template v-if="childNum > 1">
+          <q-pagination
+            v-model="model"
+            :max="childNum"
+            input
+            :boundary-links="false"
+          />
+          <q-btn
+            icon="sym_o_delete"
+            v-if="!['pending', 'streaming'].includes(message.status)"
+            flat
+            dense
+            round
+            text="sec xs hover:err"
+            un-size="32px"
+            :title="$t('messageItem.deleteBranch')"
+            @click="deleteBranch"
+          />
+        </template>
+        <template
+          v-if="['default', 'failed'].includes(message.status)"
+        >
+          <copy-btn
+            round
+            flat
+            dense
+            text="sec xs"
+            un-size="32px"
+            :value="textContent.text"
+          />
+          <q-btn
+            v-if="message.type === 'assistant'"
+            icon="sym_o_refresh"
+            round
+            flat
+            dense
+            text="sec xs"
+            un-size="32px"
+            :title="$t('messageItem.regenerate')"
+            @click="$emit('regenerate')"
+          />
+          <q-btn
+            v-if="message.type === 'user'"
+            icon="sym_o_edit"
+            round
+            flat
+            dense
+            text="sec xs"
+            un-size="32px"
+            :title="$t('messageItem.edit')"
+            @click="$emit('edit')"
+          />
+          <q-btn
+            icon="sym_o_more_vert"
+            round
+            flat
+            dense
+            text="sec xs"
+            un-size="32px"
+            :title="$t('messageItem.more')"
+          >
+            <q-menu>
+              <q-list>
+                <menu-item
+                  icon="sym_o_code"
+                  :label="$t('messageItem.showSourceCode')"
+                  @click="sourceCodeMode = !sourceCodeMode"
+                  :class="{ 'route-active': sourceCodeMode }"
+                />
+                <menu-item
+                  icon="sym_o_edit"
+                  :label="$t('messageItem.directEdit')"
+                  @click="edit"
+                />
+                <menu-item
+                  icon="sym_o_format_quote"
+                  :label="$t('messageItem.quote')"
+                  @click="quote(textContent.text)"
+                />
+                <menu-item
+                  icon="sym_o_info"
+                  :label="$t('messageItem.moreInfo')"
+                  @click="moreInfo"
+                />
+              </q-list>
+            </q-menu>
+          </q-btn>
+        </template>
       </div>
     </div>
     <div
@@ -326,6 +332,7 @@ import TextareaDialog from './TextareaDialog.vue'
 import { useMdPreviewProps } from 'src/composables/md-preview-props'
 import ConvertArtifactDialog from './ConvertArtifactDialog.vue'
 import { useI18n } from 'vue-i18n'
+import { dialogOptions } from 'src/utils/values'
 
 const props = defineProps<{
   message: Message,
@@ -486,6 +493,21 @@ function edit() {
     db.messages.update(props.message.id, {
       [`contents.${textIndex.value}.text`]: text
     })
+  })
+}
+function deleteBranch() {
+  $q.dialog({
+    title: t('messageItem.deleteBranch'),
+    message: t('messageItem.deleteBranchMessage'),
+    cancel: true,
+    ok: {
+      label: t('messageItem.delete'),
+      color: 'err',
+      flat: true
+    },
+    ...dialogOptions
+  }).onOk(() => {
+    emit('delete')
   })
 }
 

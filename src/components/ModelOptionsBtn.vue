@@ -36,7 +36,7 @@ const props = defineProps<{
 
 const rules = [{
   match: (provider: string, model: string) => {
-    return provider.startsWith('openai.') && ['o1', 'o3-mini', 'o3-mini-2025-01-31'].includes(model)
+    return provider.startsWith('openai.') && (model.startsWith('o3') || model.startsWith('o4') || model === 'o1')
   },
   options: {
     reasoningEffort: Optional(Unsafe({

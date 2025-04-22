@@ -3,29 +3,56 @@ import { Boolean, Object, Optional, Static, String } from '@sinclair/typebox'
 import { i18n } from 'src/boot/i18n'
 
 const GenDialogTitle =
-`Create a concise, 3-5 word title with an emoji as a title for the chat history, in the given language. Suitable Emojis for the summary can be used to enhance understanding but avoid quotation marks or special formatting. RESPOND ONLY WITH THE TITLE TEXT.
+`
+<instructions>
+  Your task is to analyze the provided chat history between a user and an assistant and generate a concise, relevant title summarizing the conversation.
+  Follow these rules strictly:
 
-Examples of titles:
-📉 Stock Market Trends
-🍪 Perfect Chocolate Chip Recipe
-Evolution of Music Streaming
-Remote Work Productivity Tips
-Artificial Intelligence in Healthcare
-🎮 Video Game Development Insights
+  1.  **Language:** The title's language must match the predominant language used in the chat history.
+  2.  **Length:**
+      - If the language is English, the title text should be approximately 3-5 words long.
+      - If the language is not English (e.g., Chinese), aim for an equivalent length (e.g., approximately 6-10 characters).
+  3.  **Format:** The title must start with a single relevant emoji, followed by a single space, and then the title text.
+      - Format: \`[emoji] [Title Text]\`
+  4.  **Content:** The title should accurately capture the main topic, question, or goal of the conversation.
+  5.  **Output:** Generate *only* the title in the specified format. Do not include any explanations or surrounding text.
 
-<chat_history>
-{%- for content in contents %}
-{%- if content.type == 'user-message' %}
-<user_message>
-{{ content.text }}
-</user_message>
-{%- elsif content.type == 'assistant-message' %}
-<assistant_message>
-{{ content.text }}
-</assistant_message>
-{%- endif %}
-{%- endfor %}
-</chat_history>
+</instructions>
+
+<input>
+  <description>Chat history between user and assistant:</description>
+  <chat_history>
+    {%- for content in contents %}
+    {%- if content.type == 'user-message' %}
+    <user_message>
+      {{ content.text }}
+    </user_message>
+    {%- elsif content.type == 'assistant-message' %}
+    <assistant_message>
+      {{ content.text }}
+    </assistant_message>
+    {%- endif %}
+    {%- endfor %}
+  </chat_history>
+</input>
+
+<output_specifications>
+  <format_description>A single line containing one emoji, one space, and the title text.</format_description>
+  <language_rule>Must match the language of the chat_history.</language_rule>
+  <length_rule_english>3-5 words</length_rule_english>
+  <length_rule_other>Equivalent length (e.g., 6-10 Chinese characters)</length_rule_other>
+</output_specifications>
+
+<examples>
+  <example name="English Example 1">📉 Stock Market Trends</example>
+  <example name="English Example 2">🔧 Tauri Command Usage</example>
+  <example name="Chinese Example 1">📜 OpenAPI 的作用</example>
+  <example name="Chinese Example 2">📡 WebRTC 连接建立过程</example>
+</examples>
+
+<final_instruction>
+  Based *only* on the chat history provided in the \`<input>\` section, generate the title according to all the rules and examples specified above. Output *only* the formatted title.
+</final_instruction>
 `
 
 const DialogContent =

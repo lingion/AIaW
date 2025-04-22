@@ -34,6 +34,7 @@ interface Perfs {
   createDialogKey?: ShortcutKey
   focusDialogInputKey?: ShortcutKey
   saveArtifactKey?: ShortcutKey
+  searchDialogKey?: ShortcutKey
   autoFocusDialogInput: PlatformEnabled
   artifactsEnabled: PlatformEnabled
   artifactsAutoExtract: boolean
@@ -55,7 +56,7 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     provider: null,
     model: models.find(m => m.name === 'gpt-4.1'),
     systemProvider: null,
-    systemModel: models.find(m => m.name === 'gpt-4.1-nano'),
+    systemModel: models.find(m => m.name === 'gpt-4o-mini'),
     userAvatar: {
       type: 'text',
       text: 'U',
@@ -64,7 +65,7 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     commonModelOptions: [
       'gpt-4.1',
       'gpt-4.1-mini',
-      'o3-mini',
+      'o4-mini',
       'claude-3-7-sonnet-20250219',
       'claude-3-5-sonnet-20241022',
       'gemini-1.5-pro',
@@ -91,6 +92,7 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     createDialogKey: null,
     focusDialogInputKey: null,
     saveArtifactKey: { key: 'KeyS', withCtrl: true },
+    searchDialogKey: null,
     autoFocusDialogInput: 'desktop-only',
     artifactsEnabled: 'desktop-only',
     artifactsAutoExtract: false,

@@ -191,7 +191,7 @@ const unit = reactive({
 
 const usage = reactive({
   budget: 1,
-  model: 'gpt-4o',
+  model: 'gpt-4.1',
   output: null
 })
 function calc(accord: 'budget' | 'output') {

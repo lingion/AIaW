@@ -28,6 +28,7 @@
         round
         icon="sym_o_segment"
         @click="$emit('toggle-drawer')"
+        @contextmenu.prevent="$emit('contextmenu')"
       />
     </q-toolbar>
   </q-header>
@@ -41,7 +42,7 @@ import { inject } from 'vue'
 const uiStore = useUiStateStore()
 const rightDrawerAbove = inject('rightDrawerAbove')
 
-defineEmits(['toggle-drawer'])
+defineEmits(['toggle-drawer', 'contextmenu'])
 
 const props = defineProps<{
   backTo?: string

@@ -1,5 +1,8 @@
 <template>
-  <view-common-header @toggle-drawer="$emit('toggle-drawer')">
+  <view-common-header
+    @toggle-drawer="$emit('toggle-drawer')"
+    @contextmenu="createDialog"
+  >
     <div>
       <assistant-item
         clickable
@@ -390,7 +393,7 @@
 import { computed, inject, onUnmounted, provide, ref, Ref, toRaw, toRef, watch, nextTick } from 'vue'
 import { db } from 'src/utils/db'
 import { useLiveQueryWithDeps } from 'src/composables/live-query'
-import { almostEqual, displayLength, genId, isPlatformEnabled, isTextFile, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode, wrapQuote } from 'src/utils/functions'
+import { almostEqual, displayLength, genId, isPlatformEnabled, isTextFile, JSONEqual, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode, wrapQuote } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { streamText, CoreMessage, generateText, tool, jsonSchema, StreamTextResult, GenerateTextResult } from 'ai'
 import { useModel } from 'src/composables/model'
@@ -429,7 +432,8 @@ import ModelOptionsBtn from 'src/components/ModelOptionsBtn.vue'
 import AddInfoBtn from 'src/components/AddInfoBtn.vue'
 import { useI18n } from 'vue-i18n'
 import AInput from 'src/components/AInput.vue'
-
+import Mark from 'mark.js'
+import { useCreateDialog } from 'src/composables/create-dialog'
 const { t, locale } = useI18n()
 
 const props = defineProps<{
@@ -460,7 +464,7 @@ const assistants = computed(() => assistantsStore.assistants.filter(
 const assistant = computed(() => assistantsStore.assistants.find(a => a.id === dialog.value?.assistantId))
 provide('dialog', dialog)
 
-const chain = computed(() => liveData.value.dialog ? getChain('$root', liveData.value.dialog.msgRoute)[0] : [])
+const chain = computed<string[]>(() => liveData.value.dialog ? getChain('$root', liveData.value.dialog.msgRoute)[0] : [])
 const historyChain = ref<string[]>([])
 function switchChain(index, value) {
   const route = [...dialog.value.msgRoute.slice(0, index), value]
@@ -613,7 +617,7 @@ const imageInput = ref()
 const fileInput = ref()
 function onInputFiles({ target }) {
   const files = target.files
-  parseFiles(files)
+  parseFiles(Array.from(files))
   target.value = ''
 }
 function onPaste(ev: ClipboardEvent) {
@@ -696,7 +700,9 @@ function quote(item: ApiResultItem) {
     addInputItems([item])
   } else {
     const { text } = inputMessageContent.value
-    updateInputText(text ? text + '\n' + wrapQuote(item.contentText) : wrapQuote(item.contentText))
+    const content = wrapQuote(item.contentText) + '\n\n'
+    updateInputText(text ? text + '\n' + content : content)
+    focusInput()
   }
 }
 async function addInputItems(items: ApiResultItem[]) {
@@ -1116,7 +1122,7 @@ const router = useRouter()
 watch(route, to => {
   db.workspaces.update(workspace.value.id, { lastDialogId: props.id } as Partial<Workspace>)
 
-  until(dialog).toMatch(val => val?.id === props.id).then(() => {
+  until(dialog).toMatch(val => val?.id === props.id).then(async () => {
     focusInput()
     if (to.hash === '#genTitle') {
       genTitle()
@@ -1124,6 +1130,22 @@ watch(route, to => {
     } else if (to.hash === '#copyContent') {
       copyContent()
       router.replace({ hash: '' })
+    }
+    if (to.query.goto) {
+      const { route, highlight } = JSON.parse(to.query.goto as string)
+      if (!JSONEqual(route, dialog.value.msgRoute.slice(0, route.length))) {
+        updateChain(route)
+        await until(chain).changed()
+      }
+      await nextTick()
+      const { items } = getEls()
+      const item = items[route.length - 1]
+      if (highlight) {
+        const mark = new Mark(item)
+        mark.unmark()
+        mark.mark(highlight)
+      }
+      item.querySelector('mark[data-markjs]')?.scrollIntoView()
     }
   })
 }, { immediate: true })
@@ -1337,6 +1359,8 @@ watch(() => liveData.value.dialog?.id, id => {
     scrollContainer.value?.scrollTo({ top: scrollTops[id] ?? 0 })
   })
 })
+
+const { createDialog } = useCreateDialog(workspace)
 
 defineEmits(['toggle-drawer'])
 

@@ -207,10 +207,15 @@ const InputTypes = {
   gemini2: { user: ['image/*', 'audio/*'], assistant: [], tool: [] }
 }
 const models: Model[] = [
+  { name: 'o4-mini', inputTypes: InputTypes.commonVision },
+  { name: 'o4-mini-2025-04-16', inputTypes: InputTypes.commonVision },
+  { name: 'o3', inputTypes: InputTypes.commonVision },
+  { name: 'o3-2025-04-16', inputTypes: InputTypes.commonVision },
   { name: 'o3-mini', inputTypes: InputTypes.textOnly },
   { name: 'o3-mini-2025-01-31', inputTypes: InputTypes.textOnly },
   { name: 'o1-mini', inputTypes: InputTypes.textOnly },
   { name: 'o1-mini-2024-09-12', inputTypes: InputTypes.textOnly },
+  { name: 'o1', inputTypes: InputTypes.commonVision },
   { name: 'o1-preview', inputTypes: InputTypes.textOnly },
   { name: 'o1-preview-2024-09-12', inputTypes: InputTypes.textOnly },
   { name: 'gpt-4.1', inputTypes: InputTypes.commonVision },
@@ -245,7 +250,15 @@ const models: Model[] = [
   { name: 'gemini-2.0-flash-thinking-exp', inputTypes: InputTypes.commonVision },
   { name: 'deepseek-chat', inputTypes: InputTypes.textOnly },
   { name: 'deepseek-reasoner', inputTypes: InputTypes.textOnly },
-  { name: 'qwq-32b', inputTypes: InputTypes.textOnly }
+  { name: 'qwq-32b', inputTypes: InputTypes.textOnly },
+  { name: 'grok-3', inputTypes: InputTypes.textOnly },
+  { name: 'grok-3-beta', inputTypes: InputTypes.textOnly },
+  { name: 'grok-3-fast', inputTypes: InputTypes.textOnly },
+  { name: 'grok-3-fast-beta', inputTypes: InputTypes.textOnly },
+  { name: 'grok-3-mini', inputTypes: InputTypes.textOnly },
+  { name: 'grok-3-mini-beta', inputTypes: InputTypes.textOnly },
+  { name: 'grok-3-mini-fast', inputTypes: InputTypes.textOnly },
+  { name: 'grok-3-mini-fast-beta', inputTypes: InputTypes.textOnly }
 ]
 const modelOptions = models.map(m => m.name)
 const dialogOptions = {
