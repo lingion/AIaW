@@ -8,3 +8,4 @@ export const StripeFee = process.env.STRIPE_FEE && parseFloat(process.env.STRIPE
 export const DexieDBURL = process.env.DEXIE_DB_URL
 export const LitellmBaseURL = process.env.LITELLM_BASE_URL
 export const BudgetBaseURL = process.env.BUDGET_BASE_URL
+export const SearxngBaseURL = process.env.SEARXNG_BASE_URL

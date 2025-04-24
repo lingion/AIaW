@@ -12,7 +12,7 @@ git checkout -f $(git describe --tags $(git rev-list --tags --max-count=1))
 
 在 `.env.docker` 中设定用于 Docker 构建前端的环境变量。
 
-其中，`DOC_PARSE_BASE_URL` 和 `CORS_FETCH_BASE_URL` 默认为后端提供的接口，无需修改。
+其中，`DOC_PARSE_BASE_URL`, `CORS_FETCH_BASE_URL` 和 `SEARXNG_BASE_URL` 默认为后端提供的接口，无需修改。
 
 ### 配置云同步
 
@@ -62,7 +62,7 @@ docker build -t my-aiaw .
 docker run -d -p 9010:9010 --name my-aiaw my-aiaw
 ```
 
-同样，可以传入 `LLAMA_CLOUD_API_KEY` 以启用文档解析，或是使用 Docker Compose：
+同样，可以传入 `LLAMA_CLOUD_API_KEY` 以启用文档解析，传入 `SEARXNG_URL` 以启用联网搜索，或是使用 Docker Compose：
 
 ```yaml
 services:
@@ -74,6 +74,7 @@ services:
       - '9010:9010'
     environment:
       LLAMA_CLOUD_API_KEY: xxxxxxx
+      SEARXNG_URL: https://example.com
 ```
 
 ## 静态部署

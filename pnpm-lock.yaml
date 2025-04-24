@@ -129,8 +129,8 @@ importers:
         specifier: ^4.3.2
         version: 4.3.2(react@18.3.1)(zod@3.24.1)
       capacitor-stream-fetch:
-        specifier: ^0.0.4
-        version: 0.0.4(@capacitor/core@7.0.1)
+        specifier: ^0.0.5
+        version: 0.0.5(@capacitor/core@7.0.1)
       codejar:
         specifier: ^4.2.0
         version: 4.2.0
@@ -161,6 +161,12 @@ importers:
       liquidjs:
         specifier: ^10.16.7
         version: 10.16.7
+      markdown-it-footnote:
+        specifier: ^4.0.0
+        version: 4.0.0
+      markdown-it-link-attributes:
+        specifier: ^4.0.1
+        version: 4.0.1
       md-editor-v3:
         specifier: ^5.4.5
         version: 5.4.5(@codemirror/view@6.33.0)(@lezer/common@1.2.1)(vue@3.5.12(typescript@5.5.4))
@@ -3476,8 +3482,8 @@ packages:
   caniuse-lite@1.0.30001697:
     resolution: {integrity: sha512-GwNPlWJin8E+d7Gxq96jxM6w0w+VFeyyXRsjU58emtkYqnbwHqXm5uT2uCmO0RQE9htWknOP4xtBlLmM/gWxvQ==}
 
-  capacitor-stream-fetch@0.0.4:
-    resolution: {integrity: sha512-RGvoMfhCcM5ZIxvjKW/uy4DUxfqms5NmnnDVADVwt6Ue0yXZavaEBhPNG+CAwbRSvpMApqYSYM7z207DhUMHhA==}
+  capacitor-stream-fetch@0.0.5:
+    resolution: {integrity: sha512-+mK+TdCXLHHoyYYsoBeq8hrhQ71C/4O0hJRbyg2VbQvj65XmGbaUNL791x9F8FDKwe9aDvYbmFYvbDThQ7Jq2g==}
     peerDependencies:
       '@capacitor/core': '>=7.0.0'
 
@@ -4930,11 +4936,17 @@ packages:
   mark.js@8.11.1:
     resolution: {integrity: sha512-1I+1qpDt4idfgLQG+BNWmrqku+7/2bi5nLf4YwF8y8zXvmfiTBY3PV3ZibfrjBueCByROpuBjLLFCajqkgYoLQ==}
 
+  markdown-it-footnote@4.0.0:
+    resolution: {integrity: sha512-WYJ7urf+khJYl3DqofQpYfEYkZKbmXmwxQV8c8mO/hGIhgZ1wOe7R4HLFNwqx7TjILbnC98fuyeSsin19JdFcQ==}
+
   markdown-it-image-figures@2.1.1:
     resolution: {integrity: sha512-mwXSQ2nPeVUzCMIE3HlLvjRioopiqyJLNph0pyx38yf9mpqFDhNGnMpAXF9/A2Xv0oiF2cVyg9xwfF0HNAz05g==}
     engines: {node: '>=12.0.0'}
     peerDependencies:
       markdown-it: '*'
+
+  markdown-it-link-attributes@4.0.1:
+    resolution: {integrity: sha512-pg5OK0jPLg62H4k7M9mRJLT61gUp9nvG0XveKYHMOOluASo9OEF13WlXrpAp2aj35LbedAy3QOCgQCw0tkLKAQ==}
 
   markdown-it-sub@2.0.0:
     resolution: {integrity: sha512-iCBKgwCkfQBRg2vApy9vx1C1Tu6D8XYo8NvevI3OlwzBRmiMtsJ2sXupBgEA7PPxiDwNni3qIUkhZ6j5wofDUA==}
@@ -10826,7 +10838,7 @@ snapshots:
 
   caniuse-lite@1.0.30001697: {}
 
-  capacitor-stream-fetch@0.0.4(@capacitor/core@7.0.1):
+  capacitor-stream-fetch@0.0.5(@capacitor/core@7.0.1):
     dependencies:
       '@capacitor/core': 7.0.1
 
@@ -12426,9 +12438,13 @@ snapshots:
 
   mark.js@8.11.1: {}
 
+  markdown-it-footnote@4.0.0: {}
+
   markdown-it-image-figures@2.1.1(markdown-it@14.1.0):
     dependencies:
       markdown-it: 14.1.0
+
+  markdown-it-link-attributes@4.0.1: {}
 
   markdown-it-sub@2.0.0: {}
 

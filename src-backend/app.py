@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Request, Response, UploadFile, Form, File
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
@@ -5,9 +6,18 @@ import aiohttp
 from typing import Optional, Dict, Any
 from fastapi.staticfiles import StaticFiles
 from llama_parse import LlamaParse
+import os
 
+http_client = None
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global http_client
+    http_client = aiohttp.ClientSession()
+    yield
+    await http_client.close()
+
+app = FastAPI(lifespan=lifespan)
 
 ALLOWED_PREFIXES = [
     'https://lobehub.search1api.com/api/search',
@@ -38,14 +48,12 @@ async def proxy(request: ProxyRequest):
         else:
             kwargs['data'] = request.body
 
-    async with aiohttp.ClientSession() as session:
-        try:
-            async with session.request(**kwargs) as response:
-                content = await response.read()
-
-                return Response(content=content, status_code=response.status)
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+    try:
+        async with http_client.request(**kwargs) as response:
+            content = await response.read()
+            return Response(content=content, status_code=response.status)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post('/doc-parse/parse')
 async def parse_document(
@@ -80,6 +88,31 @@ async def parse_document(
 
     finally:
         await file.close()
+
+@app.get('/searxng')
+async def searxng(request: Request):
+    searxng_url = os.environ.get('SEARXNG_URL')
+
+    if not searxng_url:
+        raise HTTPException(status_code=502, detail="SEARXNG_URL environment variable not set")
+
+    query_string = request.url.query
+    target_url = f"{searxng_url}?{query_string}" if query_string else searxng_url
+
+    headers = dict(request.headers)
+    # 移除 host header 以避免冲突
+    headers.pop('host', None)
+
+    try:
+        async with http_client.get(target_url, headers=headers) as response:
+            content = await response.read()
+            return Response(
+                content=content,
+                status_code=response.status,
+                headers=dict(response.headers)
+            )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 app.mount('/', StaticFiles(directory='static', html=True), name='static')
 

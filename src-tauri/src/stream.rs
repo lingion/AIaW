@@ -83,7 +83,7 @@ pub async fn stream_fetch(
     let response_future = request.send();
 
     let res = response_future.await;
-    let response = match res {
+    match res {
         Ok(res) => {
             // get response and emit to client
             let mut headers = HashMap::new();
@@ -128,12 +128,12 @@ pub async fn stream_fetch(
                 }
             });
 
-            StreamResponse {
+            Ok(StreamResponse {
                 request_id,
                 status,
                 status_text: "OK".to_string(),
                 headers,
-            }
+            })
         }
         Err(err) => {
             let error: String = err
@@ -141,12 +141,14 @@ pub async fn stream_fetch(
                 .map(|e| e.to_string())
                 .unwrap_or_else(|| "Unknown error occurred".to_string());
             println!("Error response: {:?}", error);
+
+            let error_clone = error.clone();
             tauri::async_runtime::spawn(async move {
                 if let Err(e) = window.emit(
                     event_name,
                     ChunkPayload {
                         request_id,
-                        chunk: error.into(),
+                        chunk: error_clone.into(),
                     },
                 ) {
                     println!("Failed to emit chunk payload: {:?}", e);
@@ -161,14 +163,8 @@ pub async fn stream_fetch(
                     println!("Failed to emit end payload: {:?}", e);
                 }
             });
-            StreamResponse {
-                request_id,
-                status: 599,
-                status_text: "Error".to_string(),
-                headers: HashMap::new(),
-            }
+
+            Err(error)
         }
-    };
-    // println!("Response: {:?}", response);
-    Ok(response)
+    }
 }

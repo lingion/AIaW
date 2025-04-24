@@ -3,6 +3,8 @@ import { useQuasar } from 'quasar'
 import router from 'src/router'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { computed } from 'vue'
+import LinkAttr from 'markdown-it-link-attributes'
+import Footnote from 'markdown-it-footnote'
 import 'md-editor-v3/lib/preview.css'
 
 config({
@@ -23,6 +25,25 @@ config({
       {
         type: 'xss',
         plugin: XSSPlugin,
+        options: {}
+      },
+      {
+        type: 'linkAttr',
+        plugin: LinkAttr,
+        options: {
+          matcher(href: string) {
+            // 如果使用了markdown-it-anchor
+            // 应该忽略标题头部的锚点链接
+            return !href.startsWith('#')
+          },
+          attrs: {
+            target: '_blank'
+          }
+        }
+      },
+      {
+        type: 'footnote',
+        plugin: Footnote,
         options: {}
       }
     ]

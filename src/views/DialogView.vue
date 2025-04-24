@@ -295,32 +295,22 @@
             flat
             round
           />
-          <q-space />
-          <div
-            v-if="assistant && activePlugins.length"
-            my-2
-            @click="$router.push(`../assistants/${assistant.id}#plugins`)"
-            cursor-pointer
+          <q-btn
+            v-if="assistant"
+            flat
+            :round="!activePlugins.length"
+            px-2
+            icon="sym_o_extension"
+            :title="$t('dialogView.plugins')"
           >
-            <q-icon
-              name="sym_o_extension"
-              size="24px"
-            />
             <code
+              v-if="activePlugins.length"
               bg-sur-c-high
               px-2
-              py-1
             >{{ activePlugins.length }}</code>
-            <q-tooltip>
-              {{ $t('dialogView.enabledPlugins') }}
-              <template
-                v-for="p of activePlugins"
-                :key="p.id"
-              >
-                <br>- {{ p.title }}
-              </template>
-            </q-tooltip>
-          </div>
+            <enable-plugins-menu :assistant-id="assistant.id" />
+          </q-btn>
+          <q-space />
           <div
             v-if="usage"
             my-2
@@ -434,6 +424,7 @@ import { useI18n } from 'vue-i18n'
 import AInput from 'src/components/AInput.vue'
 import Mark from 'mark.js'
 import { useCreateDialog } from 'src/composables/create-dialog'
+import EnablePluginsMenu from 'src/components/EnablePluginsMenu.vue'
 const { t, locale } = useI18n()
 
 const props = defineProps<{
@@ -461,7 +452,7 @@ const workspace: Ref<Workspace> = inject('workspace')
 const assistants = computed(() => assistantsStore.assistants.filter(
   a => [workspace.value.id, '$root'].includes(a.workspaceId)
 ))
-const assistant = computed(() => assistantsStore.assistants.find(a => a.id === dialog.value?.assistantId))
+const assistant = computed(() => ({ ...assistantsStore.assistants.find(a => a.id === dialog.value?.assistantId) })) // force trigger updates
 provide('dialog', dialog)
 
 const chain = computed<string[]>(() => liveData.value.dialog ? getChain('$root', liveData.value.dialog.msgRoute)[0] : [])
@@ -1051,7 +1042,7 @@ async function stream(target, insert = false) {
         actions: [{ label: t('dialogView.recharge'), color: 'on-sur', handler() { router.push('/account') } }]
       })
     }
-    await db.messages.update(id, { contents, error: e.message, status: 'failed', generatingSession: null })
+    await db.messages.update(id, { contents, error: e.message || e.toString(), status: 'failed', generatingSession: null })
   }
   perfs.artifactsAutoExtract && autoExtractArtifact()
   lockingBottom.value = false

@@ -15,4 +15,4 @@ Through the "Export" button at the bottom of the assistant settings page, you ca
 You can also publish assistants to the assistant market so that other users can directly see and add them in the market. The publishing method is:
 
 - Complete the assistant's description, author and other information, and then export
-- Add the exported JSON to `/public/assistants.json` of the source code and submit a PR
+- Add the exported JSON to `/public/json/assistants.[language].json` of the source code and submit a PR

@@ -6,10 +6,10 @@
 docker run -d -p 9010:9010 --name aiaw krytro/aiaw:latest
 ```
 
-如果要使用内置的文档解析插件，则需要登录 [LlamaCloud](https://cloud.llamaindex.ai/) 并创建 API Key，传入 `LLAMA_CLOUD_API_KEY` 环境变量：
+如果要使用内置的文档解析插件，则需要登录 [LlamaCloud](https://cloud.llamaindex.ai/) 并创建 API Key，传入 `LLAMA_CLOUD_API_KEY` 环境变量；如果要使用联网搜索，需传入 `SEARXNG_URL` 环境变量：
 
 ```bash
-docker run -d -p 9010:9010 -e LLAMA_CLOUD_API_KEY=xxxxxxx --name aiaw krytro/aiaw:latest
+docker run -d -p 9010:9010 -e LLAMA_CLOUD_API_KEY=xxxxxxx -e SEARXNG_URL=https://example.com --name aiaw krytro/aiaw:latest
 ```
 
 ### Docker Compose
@@ -27,6 +27,8 @@ services:
     environment:
       # 如果要使用内置的文档解析插件
       LLAMA_CLOUD_API_KEY: xxxxxxx
+      # 如果要使用内置的联网搜索
+      SEARXNG_URL: https://example.com
 ```
 
 ## 更多功能

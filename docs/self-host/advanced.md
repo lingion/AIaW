@@ -12,7 +12,7 @@ git checkout -f $(git describe --tags $(git rev-list --tags --max-count=1))
 
 Set the environment variables for Docker building the front-end in `.env.docker`.
 
-Among them, `DOC_PARSE_BASE_URL` and `CORS_FETCH_BASE_URL` are the interfaces provided by the backend by default and do not need to be modified.
+Among them, `DOC_PARSE_BASE_URL`, `CORS_FETCH_BASE_URL` and `SEARXNG_BASE_URL` are the interfaces provided by the backend by default and do not need to be modified.
 
 ### Configure Cloud Synchronization
 
@@ -62,7 +62,7 @@ The deployment method is the same as the quick deployment, except that you switc
 docker run -d -p 9010:9010 --name my-aiaw my-aiaw
 ```
 
-Similarly, you can pass in `LLAMA_CLOUD_API_KEY` to enable document parsing, or use Docker Compose:
+Similarly, you can pass in `LLAMA_CLOUD_API_KEY` to enable document parsing, pass in `SEARXNG_URL` to enable web searching or use Docker Compose:
 
 ```yaml
 services:
@@ -74,6 +74,7 @@ services:
       - '9010:9010'
     environment:
       LLAMA_CLOUD_API_KEY: xxxxxxx
+      SEARXNG_URL: https://example.com
 ```
 
 ## Static Deployment

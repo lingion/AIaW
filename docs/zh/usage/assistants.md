@@ -15,4 +15,4 @@
 你也可以将助手发布到助手市场，使得其他用户可以直接在市场中看到并添加。发布方法为：
 
 - 补全助手的描述、作者等信息，然后导出
-- 将导出的 JSON 添加到源码的 `/public/assistants.json`，并提交 PR
+- 将导出的 JSON 添加到源码的 `/public/json/assistants.[language].json`，并提交 PR

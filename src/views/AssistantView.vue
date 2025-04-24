@@ -141,50 +141,7 @@
             {{ $t('assistantView.enable') }}
           </q-item-section>
         </q-item>
-        <q-item
-          v-for="plugin in pluginsStore.plugins.filter(p => p.available && (p.apis.length || p.prompt))"
-          :key="plugin.id"
-        >
-          <q-item-section
-            avatar
-            v-if="pluginsStore.data[plugin.id]"
-          >
-            <a-avatar :avatar="pluginsStore.data[plugin.id].avatar" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>
-              {{ plugin.title }}<plugin-type-badge
-                :type="plugin.type"
-                ml-2
-                lh="1.1em"
-              />
-            </q-item-label>
-            <q-item-label caption>
-              {{ plugin.description }}
-            </q-item-label>
-          </q-item-section>
-          <q-item-section side>
-            <div
-              flex
-              items-center
-            >
-              <q-btn
-                flat
-                dense
-                round
-                icon="sym_o_tune"
-                :to="`${assistant.id}/plugins/${plugin.id}`"
-                v-if="assistant.plugins[plugin.id]?.enabled"
-                :title="$t('assistantView.pluginFunction')"
-                mr-2
-              />
-              <q-checkbox
-                :model-value="!!assistant.plugins[plugin.id]?.enabled"
-                @update:model-value="setPlugin(plugin, $event)"
-              />
-            </div>
-          </q-item-section>
-        </q-item>
+        <enable-plugins-items :assistant-id="assistant.id" />
         <q-separator spaced />
         <q-item-label
           header
@@ -511,20 +468,19 @@ import { useAssistantsStore } from 'src/stores/assistants'
 import { computed, inject, toRaw } from 'vue'
 import ProviderInputItems from 'src/components/ProviderInputItems.vue'
 import PromptVarEditor from 'src/components/PromptVarEditor.vue'
-import { usePluginsStore } from 'src/stores/plugins'
-import { AssistantPlugin, Plugin, Assistant } from 'src/utils/types'
+import { Assistant } from 'src/utils/types'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import AAvatar from 'src/components/AAvatar.vue'
 import { copyToClipboard, exportFile, useQuasar } from 'quasar'
 import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
 import ModelInputItems from 'src/components/ModelInputItems.vue'
 import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
-import PluginTypeBadge from 'src/components/PluginTypeBadge.vue'
 import ATip from 'src/components/ATip.vue'
 import { useLocateId } from 'src/composables/locate-id'
 import { blobToBase64, pageFhStyle } from 'src/utils/functions'
 import { useSetTitle } from 'src/composables/set-title'
 import { db } from 'src/utils/db'
+import EnablePluginsItems from 'src/components/EnablePluginsItems.vue'
 
 const props = defineProps<{
   id: string
@@ -538,31 +494,6 @@ const assistant = syncRef<Assistant>(
   val => { store.put(toRaw(val)) },
   { valueDeep: true }
 )
-
-function setPlugin(plugin: Plugin, enabled: boolean) {
-  if (enabled && !assistant.value.plugins[plugin.id]) {
-    const assistantPlugin: AssistantPlugin = { enabled: true, infos: [], tools: [], resources: [], vars: {} }
-    plugin.apis.forEach(api => {
-      if (api.type === 'tool') {
-        assistantPlugin.tools.push({
-          name: api.name,
-          enabled: true
-        })
-      } else if (api.type === 'info') {
-        assistantPlugin.infos.push({
-          name: api.name,
-          enabled: true,
-          args: {}
-        })
-      }
-    })
-    assistant.value.plugins[plugin.id] = assistantPlugin
-  } else {
-    assistant.value.plugins[plugin.id].enabled = enabled
-  }
-}
-
-const pluginsStore = usePluginsStore()
 
 const $q = useQuasar()
 function pickAvatar() {

@@ -6,10 +6,10 @@
 docker run -d -p 9010:9010 --name aiaw krytro/aiaw:latest
 ```
 
-To use the built-in document parsing plugin, you need to log in to [LlamaCloud](https://cloud.llamaindex.ai/) and create an API Key, then pass it as the `LLAMA_CLOUD_API_KEY` environment variable:
+To use the built-in document parsing plugin, you need to log in to [LlamaCloud](https://cloud.llamaindex.ai/) and create an API Key, then pass it as the `LLAMA_CLOUD_API_KEY` environment variable; To use web search, you need to pass in the `SEARXNG_URL` environment variable:
 
 ```bash
-docker run -d -p 9010:9010 -e LLAMA_CLOUD_API_KEY=xxxxxxx --name aiaw krytro/aiaw:latest
+docker run -d -p 9010:9010 -e LLAMA_CLOUD_API_KEY=xxxxxxx -e SEARXNG_URL=https://example.com --name aiaw krytro/aiaw:latest
 ```
 
 ### Docker Compose
@@ -27,6 +27,8 @@ services:
     environment:
       # If you want to use the built-in document parsing plugin
       LLAMA_CLOUD_API_KEY: xxxxxxx
+      # If you want to use the built-in document web search plugin
+      SEARXNG_URL: https://example.com
 ```
 
 ## More Features

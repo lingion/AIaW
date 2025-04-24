@@ -10,6 +10,7 @@ import { genId } from 'src/utils/functions'
 import artifacts from 'src/utils/artifacts-plugin'
 import { IsTauri } from 'src/utils/platform-api'
 import { useI18n } from 'vue-i18n'
+import webSearchPlugin from 'src/utils/web-search-plugin'
 
 export const usePluginsStore = defineStore('plugins', () => {
   const installed = useLiveQuery(() => db.installedPluginsV2.toArray(), {
@@ -18,6 +19,7 @@ export const usePluginsStore = defineStore('plugins', () => {
   const availableIds = computed(() => installed.value.filter(i => i.available).map(i => i.id))
   const [data, ready] = persistentReactive<PluginsData>('#plugins-data', defaultData)
   const plugins = computed(() => [
+    webSearchPlugin.plugin,
     calculatorPlugin,
     videoTranscriptPlugin,
     whisperPlugin,

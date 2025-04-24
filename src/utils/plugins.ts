@@ -13,13 +13,14 @@ import { CallToolResult, GetPromptResult, ReadResourceResult } from '@modelconte
 import { fetch, IsTauri } from './platform-api'
 import { getClient } from './mcp-client'
 import { i18n } from 'src/boot/i18n'
+import webSearchPlugin from './web-search-plugin'
 
 const { t } = i18n.global
 
 const timePlugin: Plugin = {
   id: 'aiaw-time',
   type: 'builtin',
-  available: true,
+  available: false, // Disable it as it's useless
   apis: [
     {
       type: 'tool',
@@ -856,6 +857,7 @@ const defaultData: PluginsData = {
       parse: { enabled: true, mimeTypes: ['application/*'] }
     }
   },
+  [webSearchPlugin.pluginId]: webSearchPlugin.defaultData,
   [artifacts.pluginId]: artifacts.defaultData
 }
 

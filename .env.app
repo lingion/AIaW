@@ -1,5 +1,6 @@
 DOC_PARSE_BASE_URL=https://aiaw.app/doc-parse
 CORS_FETCH_BASE_URL=https://aiaw.app/cors
+SEARXNG_BASE_URL=https://aiaw.app/searxng
 DEXIE_DB_URL=https://znfeknvy1.dexie.cloud
 LITELLM_BASE_URL=https://aiaw.app/api
 BUDGET_BASE_URL=https://aiaw.app/budget
