@@ -159,7 +159,7 @@ export default {
     regenerate: 'Regenerate',
     edit: 'Edit',
     more: 'More',
-    showSourceCode: 'Show Source Code',
+    showSourceCode: 'Source Code',
     directEdit: 'Direct Edit',
     moreInfo: 'More Info',
     userMessageQuote: 'User Message Quote',

@@ -60,6 +60,12 @@
 - 支持 STDIO 和 SSE 两种连接方式
 - 可在插件市场安装 MCP 类型插件，或者手动添加 MCP 服务器
 
+### 联网搜索
+
+- 基于 SearXNG，开箱即用的联网搜索
+- 同时提供通过 URL 爬取网页内容的功能
+- 支持并发搜索和并发爬取
+
 ### [Artifacts](https://docs.aiaw.app/usage/artifacts.html)
 
 - 可将助手回答的任意部分转为 Artifacts

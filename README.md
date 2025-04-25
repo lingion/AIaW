@@ -60,6 +60,12 @@ A better AI client
 - STDIO and SSE connection methods
 - Install MCP-type plugins from the plugin marketplace or manually add MCP servers
 
+### Web Search
+
+- Web search based on SearXNG, ready to use out of the box.
+- Also provides the functionality to crawl web content via URL.
+- Supports concurrent search and concurrent crawling.
+
 ### [Artifacts](https://docs.aiaw.app/usage/artifacts.html)
 
 - Convert any part of assistant responses into Artifacts

@@ -496,6 +496,10 @@ function edit() {
   })
 }
 function deleteBranch() {
+  if (['inputing', 'failed'].includes(props.message.status)) {
+    emit('delete')
+    return
+  }
   $q.dialog({
     title: t('messageItem.deleteBranch'),
     message: t('messageItem.deleteBranchMessage'),
