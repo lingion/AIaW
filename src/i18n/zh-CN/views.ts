@@ -161,7 +161,8 @@ export default {
     convertedToArtifact: '已转为 Artifact',
     callPluginInfoFailed: '调用插件信息失败：{message}',
     pluginPromptParseFailed: '插件「{title}」提示词模板解析失败',
-    promptParseFailed: '提示词解析失败，请检查助手提示词模板'
+    promptParseFailed: '提示词解析失败，请检查助手提示词模板',
+    plugins: '插件'
   },
   settingsView: {
     title: '设置',
@@ -236,5 +237,26 @@ export default {
     subproviders: '子服务商',
     addSubprovider: '添加子服务商',
     removeSubprovider: '删除子服务商'
+  },
+  shortcutKeysView: {
+    keyboardShortcuts: '键盘快捷键',
+    enableKeyboardShortcuts: '启用键盘快捷键',
+    dialogPage: '对话页面',
+    scrollUp: '向上滚动',
+    scrollDown: '向下滚动',
+    scrollToTop: '滚动到顶部',
+    scrollToBottom: '滚动到底部',
+    switchToPreviousThread: '切换到前一条消息链',
+    switchToNextThread: '切换到后一条消息链',
+    switchToFirstThread: '切换到第一条消息链',
+    switchToLastThread: '切换到最后一条消息链',
+    regenerateAssistantMessage: '重新生成助手消息',
+    editUserMessage: '编辑用户消息',
+    focusInputBox: '聚焦输入框',
+    dialogList: '对话列表',
+    createDialog: '新建对话',
+    searchDialog: '搜索对话',
+    editArtifacts: '编辑 Artifacts',
+    saveArtifact: '保存 Artifact'
   }
 }

@@ -161,7 +161,8 @@ export default {
     convertedToArtifact: 'Converted to Artifact',
     callPluginInfoFailed: 'Failed to call plugin information: {message}',
     pluginPromptParseFailed: 'Plugin "{title}" prompt template parsing failed',
-    promptParseFailed: 'Prompt parsing failed, please check assistant prompt template'
+    promptParseFailed: 'Prompt parsing failed, please check assistant prompt template',
+    plugins: 'Plugins'
   },
   settingsView: {
     title: 'Settings',
@@ -236,5 +237,26 @@ export default {
     subproviders: 'Subproviders',
     addSubprovider: 'Add Subprovider',
     removeSubprovider: 'Remove Subprovider'
+  },
+  shortcutKeysView: {
+    keyboardShortcuts: 'Keyboard Shortcuts',
+    enableKeyboardShortcuts: 'Enable Keyboard Shortcuts',
+    dialogPage: 'Dialog Page',
+    scrollUp: 'Scroll Up',
+    scrollDown: 'Scroll Down',
+    scrollToTop: 'Scroll to Top',
+    scrollToBottom: 'Scroll to Bottom',
+    switchToPreviousThread: 'Switch to Previous Thread',
+    switchToNextThread: 'Switch to Next Thread',
+    switchToFirstThread: 'Switch to First Thread',
+    switchToLastThread: 'Switch to Last Thread',
+    regenerateAssistantMessage: 'Regenerate Assistant Message',
+    editUserMessage: 'Edit User Message',
+    focusInputBox: 'Focus Input Box',
+    dialogList: 'Dialog List',
+    createDialog: 'Create Dialog',
+    searchDialog: 'Search Dialogs',
+    editArtifacts: 'Edit Artifacts',
+    saveArtifact: 'Save Artifact'
   }
 }

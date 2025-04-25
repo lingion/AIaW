@@ -30,6 +30,10 @@ export default {
     name: '名称',
     nonTextFile: '非文本文件：{name}'
   },
+  dialogsExpansion: {
+    search: '搜索对话',
+    dialogs: '对话'
+  },
   artifactItemMenu: {
     save: '保存',
     rename: '重命名',
@@ -165,7 +169,10 @@ export default {
     convertToArtifactBtn: '转换为 Artifact',
     copyCode: '复制代码',
     fold: '折叠',
-    reasoningContent: '思考内容'
+    reasoningContent: '思考内容',
+    deleteBranch: '删除分支',
+    deleteBranchMessage: '确定要删除此消息分支吗？此条消息和所属的后续消息将会被删除。',
+    delete: '删除'
   },
   parseFilesDialog: {
     parseFiles: '解析文件',
@@ -338,5 +345,14 @@ export default {
     sortByName: '按名称排序',
     cancel: '取消',
     confirm: '确定'
+  },
+  searchDialog: {
+    placeholder: '搜索对话消息...',
+    noResults: '没有找到相关结果...',
+    workspace: '工作区',
+    global: '全局'
+  },
+  enablePluginsMenu: {
+    moreInfo: '更多信息'
   }
 }

@@ -135,5 +135,18 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
   db: {
     exampleWorkspace: '示例工作区',
     defaultAssistant: '默认助手'
+  },
+  webSearchPlugin: {
+    title: '联网搜索与爬取',
+    description: '提供调用搜索引擎和爬取网页内容的能力',
+    searxngURLCaption: '自定义 SearXNG 实例的地址',
+    jinaApiKeyCaption: '填写后可提高爬取网页的速率限制，可在 jina.ai 获取',
+    toolSearchCaption: '调用搜索引擎，搜索网页',
+    toolCrawlCaption: '爬取网页内容',
+    defaultEngines: '默认搜索引擎',
+    defaultEnginesCaption: '逗号分隔的搜索引擎列表，留空则遵循服务端配置',
+    resultsLimit: '结果数量限制',
+    resultsLimitCaption: '限制单次搜索结果的数量',
+    configureSearxngMessage: '请在服务端配置 SearXNG 实例，或在插件设置中配置 SearXNG URL'
   }
 }

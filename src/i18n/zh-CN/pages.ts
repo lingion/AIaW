@@ -16,7 +16,7 @@ export default {
     renewButton: '续订',
     modelServicesHeader: '模型服务',
     modelServicesDescription:
-      '一站式地使用不同服务商的各种先进模型，包括 deepseek-reasoner、claude-3-5-sonnet、o3-mini 等，无需配置。额度随用随充，永久有效。按照官方API原价扣费（按USD/CNY=7计算）。',
+      '一站式地使用不同服务商的各种先进模型，包括 deepseek-reasoner、claude-3-7-sonnet、o4-mini 等，无需配置。额度随用随充，永久有效。按照官方API原价扣费（按USD/CNY=7计算）。',
     modelPricingLink: '模型价格',
     usingDefaultService: '正在使用（作为全局默认服务商）',
     customService: '未使用（已配置全局默认服务商）',
@@ -69,26 +69,6 @@ export default {
     restore: '还原',
     providerSetFailed: '设置服务商失败：格式错误'
   },
-  shortcutKeysPage: {
-    keyboardShortcuts: '键盘快捷键',
-    enableKeyboardShortcuts: '启用键盘快捷键',
-    dialogPage: '对话页面',
-    scrollUp: '向上滚动',
-    scrollDown: '向下滚动',
-    scrollToTop: '滚动到顶部',
-    scrollToBottom: '滚动到底部',
-    switchToPreviousThread: '切换到前一条消息链',
-    switchToNextThread: '切换到后一条消息链',
-    switchToFirstThread: '切换到第一条消息链',
-    switchToLastThread: '切换到最后一条消息链',
-    regenerateAssistantMessage: '重新生成助手消息',
-    editUserMessage: '编辑用户消息',
-    focusInputBox: '聚焦输入框',
-    dialogList: '对话列表',
-    createDialog: '新建对话',
-    editArtifacts: '编辑 Artifacts',
-    saveArtifact: '保存 Artifact'
-  },
   settingsPage: {
     customProviders: '自定义服务商',
     customProviderUsage: '可参考自定义服务商的',
@@ -104,8 +84,7 @@ export default {
     closeArtifact: '关闭',
     closeAllArtifacts: '关闭全部 Artifacts',
     workspaceHome: '工作区主页',
-    workspaceSettings: '工作区设置',
-    dialogs: '对话'
+    workspaceSettings: '工作区设置'
   },
   mainLayout: {
     workspace: '工作区',

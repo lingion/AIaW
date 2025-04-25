@@ -30,6 +30,10 @@ export default {
     name: '名稱',
     nonTextFile: '非文本檔案：{name}'
   },
+  dialogsExpansion: {
+    search: '搜尋對話',
+    dialogs: '對話'
+  },
   artifactItemMenu: {
     save: '儲存',
     rename: '重新命名',
@@ -165,7 +169,10 @@ export default {
     convertToArtifactBtn: '轉換為 Artifact',
     copyCode: '複製程式碼',
     fold: '摺疊',
-    reasoningContent: '思考內容'
+    reasoningContent: '思考內容',
+    deleteBranch: '刪除分支',
+    deleteBranchMessage: '確定要刪除此訊息分支嗎？此條訊息和所屬的後續訊息將會被刪除。',
+    delete: '刪除'
   },
   parseFilesDialog: {
     parseFiles: '解析檔案',
@@ -338,5 +345,14 @@ export default {
     sortByName: '按名稱排序',
     cancel: '取消',
     confirm: '確定'
+  },
+  searchDialog: {
+    placeholder: '搜尋對話消息...',
+    noResults: '沒有找到相關結果...',
+    workspace: '工作區',
+    global: '全域'
+  },
+  enablePluginsMenu: {
+    moreInfo: '更多資訊'
   }
 }

@@ -30,6 +30,10 @@ export default {
     name: 'Name',
     nonTextFile: 'Non-text file: {name}'
   },
+  dialogsExpansion: {
+    search: 'Search Dialogs...',
+    dialogs: 'Dialogs'
+  },
   artifactItemMenu: {
     save: 'Save',
     rename: 'Rename',
@@ -165,7 +169,10 @@ export default {
     convertToArtifactBtn: 'Convert to Artifact',
     copyCode: 'Copy Code',
     fold: 'Fold',
-    reasoningContent: 'Reasoning Content'
+    reasoningContent: 'Reasoning Content',
+    deleteBranch: 'Delete Branch',
+    deleteBranchMessage: 'Are you sure you want to delete this message branch? This message and all subsequent messages will be deleted.',
+    delete: 'Delete'
   },
   parseFilesDialog: {
     parseFiles: 'Parse Files',
@@ -338,5 +345,14 @@ export default {
     sortByName: 'Sort by Name',
     cancel: 'Cancel',
     confirm: 'Confirm'
+  },
+  searchDialog: {
+    placeholder: 'Search Messages...',
+    noResults: 'No results found...',
+    workspace: 'Workspace',
+    global: 'Global'
+  },
+  enablePluginsMenu: {
+    moreInfo: 'More Info'
   }
 }

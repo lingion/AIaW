@@ -63,7 +63,7 @@ const props = defineProps<{
   models: string[]
 }>()
 
-const list = ref(props.models)
+const list = ref([...props.models])
 
 defineEmits([
   ...useDialogPluginComponent.emits

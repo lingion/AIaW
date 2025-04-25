@@ -14,6 +14,10 @@
 - 确保服务商类型、API 地址、API Key 填写正确。
 - API 地址末尾记得加 v1。比如 `https://api.xxxai.com/v1` 而不是 `https://api.xxxai.com`。
 
+### Linux 客户端启动报错 KMS: DRM_IOCTL_MODE_CREATE_DUMB failed: 权限不够
+
+似乎与 Webkitgtk + Nvidia 驱动的问题有关。尝试启动前设置环境变量 `WEBKIT_DISABLE_DMABUF_RENDERER=1`。详见 [Issue #49](https://github.com/NitroRCr/AIaW/issues/49)
+
 ## 回复报错
 
 ### deepseek-reasoner does not support Function Calling

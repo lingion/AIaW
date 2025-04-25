@@ -135,5 +135,18 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
   db: {
     exampleWorkspace: 'Example Workspace',
     defaultAssistant: 'Default Assistant'
+  },
+  webSearchPlugin: {
+    title: 'Web Search & Crawl',
+    description: 'Provide the ability to use search engines and crawl web content',
+    searxngURLCaption: 'Customize the address of the SearXNG instance',
+    jinaApiKeyCaption: 'Fill in to improve the rate limit of web crawling, available on jina.ai',
+    toolSearchCaption: 'Call search engines to search the web',
+    toolCrawlCaption: 'Crawl web content',
+    defaultEngines: 'Default Search Engines',
+    defaultEnginesCaption: 'Comma-separated list of search engines, leave blank to follow the server configuration',
+    resultsLimit: 'Results Limit',
+    resultsLimitCaption: 'Limit the number of search results per time',
+    configureSearxngMessage: 'Please configure SearXNG instance in the server, or configure SearXNG URL in the plugin settings'
   }
 }

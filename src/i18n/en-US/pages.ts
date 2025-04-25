@@ -16,7 +16,7 @@ export default {
     renewButton: 'Renew',
     modelServicesHeader: 'Model Services',
     modelServicesDescription:
-      'Use various advanced models from different service providers in one stop, including deepseek-reasoner, claude-3-5-sonnet, o3-mini, etc., without configuration. The quota is charged as you go and is permanently valid. Charges are deducted according to the official API original price.',
+      'Use various advanced models from different service providers in one stop, including deepseek-reasoner, claude-3-7-sonnet, o4-mini, etc., without configuration. The quota is charged as you go and is permanently valid. Charges are deducted according to the official API original price.',
     modelPricingLink: 'Model Pricing',
     usingDefaultService: 'Using (as global default provider)',
     customService: 'Not used (global custom provider configured)',
@@ -69,26 +69,6 @@ export default {
     restore: 'Restore',
     providerSetFailed: 'Failed to set provider: incorrect format'
   },
-  shortcutKeysPage: {
-    keyboardShortcuts: 'Keyboard Shortcuts',
-    enableKeyboardShortcuts: 'Enable Keyboard Shortcuts',
-    dialogPage: 'Dialog Page',
-    scrollUp: 'Scroll Up',
-    scrollDown: 'Scroll Down',
-    scrollToTop: 'Scroll to Top',
-    scrollToBottom: 'Scroll to Bottom',
-    switchToPreviousThread: 'Switch to Previous Thread',
-    switchToNextThread: 'Switch to Next Thread',
-    switchToFirstThread: 'Switch to First Thread',
-    switchToLastThread: 'Switch to Last Thread',
-    regenerateAssistantMessage: 'Regenerate Assistant Message',
-    editUserMessage: 'Edit User Message',
-    focusInputBox: 'Focus Input Box',
-    dialogList: 'Dialog List',
-    createDialog: 'Create Dialog',
-    editArtifacts: 'Edit Artifacts',
-    saveArtifact: 'Save Artifact'
-  },
   settingsPage: {
     customProviders: 'Custom Providers',
     customProviderUsage: 'Refer to the custom provider\'s',
@@ -104,8 +84,7 @@ export default {
     closeArtifact: 'Close',
     closeAllArtifacts: 'Close All Artifacts',
     workspaceHome: 'Workspace Home',
-    workspaceSettings: 'Workspace Settings',
-    dialogs: 'Dialogs'
+    workspaceSettings: 'Workspace Settings'
   },
   mainLayout: {
     workspace: 'Workspace | Workspaces',
@@ -114,6 +93,8 @@ export default {
     settings: 'Settings',
     usageGuide: 'Usage Guide',
     currentVersion: 'Current Version',
-    changeLog: 'Change Log'
+    changeLog: 'Change Log',
+    webVersion: 'Web Version',
+    localClient: 'Local Client'
   }
 }

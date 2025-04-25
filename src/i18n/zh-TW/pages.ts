@@ -16,7 +16,7 @@ export default {
     renewButton: '續訂',
     modelServicesHeader: '模型服務',
     modelServicesDescription:
-      '一站式地使用不同服務商的各種先進模型，包括 deepseek-reasoner、claude-3-5-sonnet、o3-mini 等，無需配置。額度隨用隨充，永久有效。按照官方API原價扣費（按USD/CNY=7計算）。',
+      '一站式地使用不同服務商的各種先進模型，包括 deepseek-reasoner、claude-3-7-sonnet、o4-mini 等，無需配置。額度隨用隨充，永久有效。按照官方API原價扣費（按USD/CNY=7計算）。',
     modelPricingLink: '模型價格',
     usingDefaultService: '正在使用（作為全域預設服務商）',
     customService: '未使用（已配置全域預設服務商）',
@@ -35,6 +35,7 @@ export default {
     orderType: '類型',
     syncServiceType: '雲同步服務',
     apiBudgetType: '模型額度',
+    apiBudgetUsdType: '模型額度(USD)',
     amount: '數量'
   },
   modelPricing: {
@@ -68,26 +69,6 @@ export default {
     restore: '還原',
     providerSetFailed: '設定服務商失敗：格式錯誤'
   },
-  shortcutKeysPage: {
-    keyboardShortcuts: '鍵盤快捷鍵',
-    enableKeyboardShortcuts: '啟用鍵盤快捷鍵',
-    dialogPage: '對話頁面',
-    scrollUp: '向上滾動',
-    scrollDown: '向下滾動',
-    scrollToTop: '滾動到頂部',
-    scrollToBottom: '滾動到底部',
-    switchToPreviousThread: '切換到前一條訊息鏈',
-    switchToNextThread: '切換到後一條訊息鏈',
-    switchToFirstThread: '切換到第一條訊息鏈',
-    switchToLastThread: '切換到最後一條訊息鏈',
-    regenerateAssistantMessage: '重新生成助手訊息',
-    editUserMessage: '編輯使用者訊息',
-    focusInputBox: '聚焦輸入框',
-    dialogList: '對話列表',
-    createDialog: '新建對話',
-    editArtifacts: '編輯 Artifacts',
-    saveArtifact: '儲存 Artifact'
-  },
   settingsPage: {
     customProviders: '自訂服務商',
     customProviderUsage: '可參考自訂服務商的',
@@ -103,8 +84,7 @@ export default {
     closeArtifact: '關閉',
     closeAllArtifacts: '關閉全部 Artifacts',
     workspaceHome: '工作區主頁',
-    workspaceSettings: '工作區設定',
-    dialogs: '對話'
+    workspaceSettings: '工作區設定'
   },
   mainLayout: {
     workspace: '工作區',
@@ -113,6 +93,8 @@ export default {
     settings: '設定',
     usageGuide: '使用指南',
     currentVersion: '目前版本',
-    changeLog: '更新日誌'
+    changeLog: '更新日誌',
+    webVersion: '網頁版',
+    localClient: '本地客戶端'
   }
 }

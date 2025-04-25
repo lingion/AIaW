@@ -161,7 +161,8 @@ export default {
     convertedToArtifact: '已轉為 Artifact',
     callPluginInfoFailed: '呼叫插件資訊失敗：{message}',
     pluginPromptParseFailed: '插件「{title}」提示詞範本解析失敗',
-    promptParseFailed: '提示詞解析失敗，請檢查助手提示詞範本'
+    promptParseFailed: '提示詞解析失敗，請檢查助手提示詞範本',
+    plugins: '插件'
   },
   settingsView: {
     title: '設定',
@@ -236,5 +237,26 @@ export default {
     subproviders: '子服務商',
     addSubprovider: '添加子服務商',
     removeSubprovider: '刪除子服務商'
+  },
+  shortcutKeysView: {
+    keyboardShortcuts: '鍵盤快捷鍵',
+    enableKeyboardShortcuts: '啟用鍵盤快捷鍵',
+    dialogPage: '對話頁面',
+    scrollUp: '向上滾動',
+    scrollDown: '向下滾動',
+    scrollToTop: '滾動到頂部',
+    scrollToBottom: '滾動到底部',
+    switchToPreviousThread: '切換到前一條訊息鏈',
+    switchToNextThread: '切換到後一條訊息鏈',
+    switchToFirstThread: '切換到第一條訊息鏈',
+    switchToLastThread: '切換到最後一條訊息鏈',
+    regenerateAssistantMessage: '重新生成助手訊息',
+    editUserMessage: '編輯使用者訊息',
+    focusInputBox: '聚焦輸入框',
+    dialogList: '對話列表',
+    createDialog: '新建對話',
+    searchDialog: '搜尋對話',
+    editArtifacts: '編輯 Artifacts',
+    saveArtifact: '儲存 Artifact'
   }
 }
