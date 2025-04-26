@@ -43,7 +43,7 @@ export default {
     modelPerformance: 'Model Performance',
     modelPerformanceDescription: 'Model performance leaderboard for reference',
     freeModelDisclaimer:
-      'Below are a few free models with a price of 0, which are mainly experimental models. Availability of free models is not guaranteed.',
+      'There are a few free models with a price of 0, which are mainly experimental models. Availability of free models is not guaranteed.',
     performanceNote: 'Model metrics/rankings are for reference only. The actual effect of the model shall prevail.',
     usageCalculator: 'Usage Calculator',
     budgetLabel: 'Budget (CNY)',

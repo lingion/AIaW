@@ -149,7 +149,7 @@ export default {
     tokenPrompt: 'Prompt',
     tokenCompletion: 'Completion',
     send: 'Send',
-    chatPlaceholder: 'Enter chat content...',
+    chatPlaceholder: 'Enter chat message...',
     recharge: 'Recharge',
     addImage: 'Add Image',
     addFile: 'Add File',
