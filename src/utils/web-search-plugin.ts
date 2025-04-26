@@ -79,7 +79,7 @@ Current time: {{ _currentTime }}
 `
 
 async function search({ q, engines, timeRange }, settings) {
-  const url = new URL('/search', settings.searxngURL || SearxngBaseURL)
+  const url = new URL(settings.searxngURL || SearxngBaseURL, location.origin)
   url.searchParams.set('format', 'json')
   url.searchParams.set('q', q)
   settings.defaultEngines && url.searchParams.set('engines', settings.defaultEngines)
@@ -194,7 +194,7 @@ const defaultData: PluginData = {
   settings: {
     resultsLimit: 15
   },
-  avatar: { type: 'icon', icon: 'sym_o_travel_explore', hue: 200 },
+  avatar: { type: 'icon', icon: 'sym_o_travel_explore', hue: 225 },
   fileparsers: {}
 }
 

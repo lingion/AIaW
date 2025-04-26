@@ -108,8 +108,7 @@ async def searxng(request: Request):
             content = await response.read()
             return Response(
                 content=content,
-                status_code=response.status,
-                headers=dict(response.headers)
+                status_code=response.status
             )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
