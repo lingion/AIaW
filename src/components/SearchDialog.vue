@@ -136,6 +136,7 @@ const listRef = ref<QList>()
 function search() {
   if (!q.value) return
   const hits = docs.value.filter(d => caselessIncludes(d.content, q.value)).slice(0, 100)
+  unmark()
   results.value = [
     ...hits.map(h => {
       const dialog = dialogs.value.find(d => d.id === h.dialogId)
@@ -159,9 +160,16 @@ function search() {
   })
 }
 
-function highlight() {
+function unmark() {
+  if (!listRef.value) return
   const mark = new Mark(listRef.value.$el)
   mark.unmark()
+}
+
+function highlight() {
+  if (!q.value) return
+  if (!listRef.value) return
+  const mark = new Mark(listRef.value.$el)
   mark.mark(q.value)
 }
 
