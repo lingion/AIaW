@@ -83,6 +83,7 @@
           px-2
           flex
           text-on-sur-var
+          items-center
         >
           <account-btn
             v-if="DexieDBURL"

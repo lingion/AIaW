@@ -244,6 +244,8 @@
             icon="sym_o_image"
             :title="$t('dialogView.addImage')"
             round
+            min-w="2.7em"
+            min-h="2.7em"
             @click="imageInput.click()"
           >
             <input
@@ -260,6 +262,8 @@
             icon="sym_o_folder"
             :title="$t('dialogView.addFile')"
             round
+            min-w="2.7em"
+            min-h="2.7em"
             @click="fileInput.click()"
           >
             <input
@@ -277,6 +281,8 @@
             icon="sym_o_tune"
             :title="showVars ? $t('dialogView.hideVars') : $t('dialogView.showVars')"
             round
+            min-w="2.7em"
+            min-h="2.7em"
             @click="showVars = !showVars"
             :class="{ 'text-ter': showVars }"
           />
@@ -287,6 +293,8 @@
             v-model="modelOptions"
             flat
             round
+            min-w="2.7em"
+            min-h="2.7em"
           />
           <add-info-btn
             :plugins="activePlugins"
@@ -294,11 +302,15 @@
             @add="addInputItems"
             flat
             round
+            min-w="2.7em"
+            min-h="2.7em"
           />
           <q-btn
             v-if="assistant"
             flat
             :round="!activePlugins.length"
+            min-w="2.7em"
+            min-h="2.7em"
             px-2
             icon="sym_o_extension"
             :title="$t('dialogView.plugins')"
@@ -306,7 +318,7 @@
             <code
               v-if="activePlugins.length"
               bg-sur-c-high
-              px-2
+              px="6px"
             >{{ activePlugins.length }}</code>
             <enable-plugins-menu :assistant-id="assistant.id" />
           </q-btn>
@@ -337,7 +349,7 @@
             @abort="abortController?.abort()"
             :loading="!!messageMap[chain.at(-2)]?.generatingSession"
             ml-4
-            self-stretch
+            min-h="40px"
           />
         </div>
         <div
