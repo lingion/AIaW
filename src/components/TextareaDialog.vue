@@ -14,7 +14,7 @@
         </div>
       </q-card-section>
       <q-card-section>
-        <q-input
+        <a-input
           v-model="value"
           max-h-60vh
           of-y-auto

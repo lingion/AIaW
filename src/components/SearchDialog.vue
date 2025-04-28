@@ -15,7 +15,7 @@
         flex
         gap-2
       >
-        <q-input
+        <a-input
           v-model="q"
           @keyup.enter="search"
           outlined
@@ -28,7 +28,7 @@
           <template #prepend>
             <q-icon name="sym_o_search" />
           </template>
-        </q-input>
+        </a-input>
         <q-btn-toggle
           shrink-0
           unelevated

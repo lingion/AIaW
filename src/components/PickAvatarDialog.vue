@@ -75,7 +75,7 @@
           </q-tab-panel>
 
           <q-tab-panel name="text">
-            <q-input
+            <a-input
               :label="$t('pickAvatarDialog.textLabel')"
               :model-value="selected.type === 'text' ? selected.text : null"
               @update:model-value="setText($event as string)"

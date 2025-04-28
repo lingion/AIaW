@@ -8,7 +8,7 @@
         {{ key }}
       </q-item-section>
       <q-item-section>
-        <q-input
+        <a-input
           v-model="model[key]"
           v-bind="inputProps"
         />

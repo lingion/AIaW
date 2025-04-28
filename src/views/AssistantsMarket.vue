@@ -47,7 +47,7 @@
       :style-fn="pageFhStyle"
     >
       <div>
-        <q-input
+        <a-input
           :label="$t('assistantsMarket.search')"
           outlined
           v-model="query"

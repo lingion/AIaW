@@ -6,7 +6,7 @@
 
 A better AI client
 
-[Website](https://aiaw.app) - [Download](https://github.com/NitroRCr/AIaW/releases/latest) - [Documentation](https://docs.aiaw.app/) - [Self-hosting Guide](https://docs.aiaw.app/self-host/) - [简体中文](README.zh-CN.md)
+[Website](https://aiaw.app) - [Download](https://github.com/NitroRCr/AIaW/releases/latest) - [Docs](https://docs.aiaw.app/) - [Self-hosting Guide](https://docs.aiaw.app/self-host/) - [简体中文](README.zh-CN.md)
 
 ## Features Overview
 

@@ -11,7 +11,7 @@
       </q-card-section>
       <q-card-section py-0>
         <div flex>
-          <q-input
+          <a-input
             type="number"
             :label="$t('hueSliderDialog.hue')"
             v-model.number="model"

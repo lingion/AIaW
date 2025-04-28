@@ -69,7 +69,7 @@
           gap-2
           mt-2
         >
-          <q-input
+          <a-input
             v-model="usage.budget"
             @update:model-value="calc('budget')"
             :label="$t('modelPricing.budgetLabel')"
@@ -92,7 +92,7 @@
               />
             </template>
           </q-select>
-          <q-input
+          <a-input
             v-model="usage.output"
             @update:model-value="calc('output')"
             filled

@@ -46,7 +46,7 @@
         px="6px"
         py="3px"
         text="xs"
-      >{{ sdkModel.modelId }}</code>
+      >{{ model.name }}</code>
       <q-menu important:max-w="300px">
         <q-list>
           <template v-if="assistant.model">
@@ -398,10 +398,8 @@ import { useLiveQueryWithDeps } from 'src/composables/live-query'
 import { almostEqual, displayLength, genId, isPlatformEnabled, isTextFile, JSONEqual, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode, wrapQuote } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { streamText, CoreMessage, generateText, tool, jsonSchema, StreamTextResult, GenerateTextResult } from 'ai'
-import { useModel } from 'src/composables/model'
 import { throttle, useQuasar } from 'quasar'
 import AssistantItem from 'src/components/AssistantItem.vue'
-import { useSystemModel } from 'src/composables/system-model'
 import { DialogContent, ExtractArtifactPrompt, ExtractArtifactResult, GenDialogTitle, NameArtifactPrompt, PluginsPrompt } from 'src/utils/templates'
 import sessions from 'src/utils/sessions'
 import PromptVarInput from 'src/components/PromptVarInput.vue'
@@ -433,10 +431,10 @@ import artifactsPlugin from 'src/utils/artifacts-plugin'
 import ModelOptionsBtn from 'src/components/ModelOptionsBtn.vue'
 import AddInfoBtn from 'src/components/AddInfoBtn.vue'
 import { useI18n } from 'vue-i18n'
-import AInput from 'src/components/AInput.vue'
 import Mark from 'mark.js'
 import { useCreateDialog } from 'src/composables/create-dialog'
 import EnablePluginsMenu from 'src/components/EnablePluginsMenu.vue'
+import { useGetModel } from 'src/composables/get-model'
 const { t, locale } = useI18n()
 
 const props = defineProps<{
@@ -513,6 +511,14 @@ async function edit(index) {
   focusInput()
 }
 async function regenerate(index) {
+  if (!assistant.value) {
+    $q.notify({ message: t('dialogView.errors.setAssistant'), color: 'negative' })
+    return
+  }
+  if (!sdkModel.value) {
+    $q.notify({ message: t('dialogView.errors.configModel'), color: 'negative' })
+    return
+  }
   const target = chain.value[index - 1]
   switchChain(index - 1, dialog.value.msgTree[target].length)
   await stream(target, false)
@@ -839,7 +845,9 @@ const pluginsStore = usePluginsStore()
 const { callApi } = useCallApi({ workspace, dialog })
 
 const modelOptions = ref({})
-const { sdkModel, model } = useModel(computed(() => assistant.value?.provider), computed(() => dialog.value?.modelOverride || assistant.value?.model), modelOptions)
+const { getModel, getSdkModel } = useGetModel()
+const model = computed(() => getModel(dialog.value?.modelOverride || assistant.value?.model))
+const sdkModel = computed(() => getSdkModel(assistant.value?.provider, model.value, modelOptions.value))
 const $q = useQuasar()
 const { data } = useUserDataStore()
 async function send() {
@@ -1094,7 +1102,7 @@ watch(lockingBottom, val => {
 const activePlugins = computed<Plugin[]>(() => pluginsStore.plugins.filter(p => p.available && assistant.value.plugins[p.id]?.enabled))
 const usage = computed(() => messageMap.value[chain.value.at(-2)]?.usage)
 
-const systemModel = useSystemModel()
+const systemSdkModel = computed(() => getSdkModel(perfs.systemProvider, perfs.systemModel))
 function getDialogContents() {
   return chain.value.slice(1, -1).map(id => messageMap.value[id].contents).flat()
 }
@@ -1102,7 +1110,7 @@ async function genTitle() {
   try {
     const dialogId = props.id
     const { text } = await generateText({
-      model: systemModel.sdkModel.value,
+      model: systemSdkModel.value,
       prompt: await engine.parseAndRender(GenDialogTitle, {
         contents: getDialogContents(),
         lang: locale.value
@@ -1306,7 +1314,7 @@ if (isPlatformEnabled(perfs.enableShortcutKey)) {
 
 async function genArtifactName(content: string, lang?: string) {
   const { text } = await generateText({
-    model: systemModel.sdkModel.value,
+    model: systemSdkModel.value,
     prompt: engine.parseAndRenderSync(NameArtifactPrompt, { content, lang })
   })
   return text
@@ -1334,7 +1342,7 @@ async function extractArtifact(message: Message, text: string, pattern, options:
 async function autoExtractArtifact() {
   const message = messageMap.value[chain.value.at(-2)]
   const { text } = await generateText({
-    model: systemModel.sdkModel.value,
+    model: systemSdkModel.value,
     prompt: engine.parseAndRenderSync(ExtractArtifactPrompt, {
       contents: chain.value.slice(-3, -1).map(id => messageMap.value[id].contents).flat()
     })

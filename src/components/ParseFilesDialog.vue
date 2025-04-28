@@ -36,7 +36,7 @@
               </q-item-label>
             </q-item-section>
             <q-item-section v-if="selected[index]?.rangeInput">
-              <q-input
+              <a-input
                 v-model="ranges[index]"
                 :label="selected[index].rangeInput.label"
                 :placeholder="selected[index].rangeInput.hint"

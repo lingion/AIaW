@@ -47,7 +47,7 @@
             {{ $t('workspaceSettings.homeContent') }}
           </q-item-section>
           <q-item-section pl-4>
-            <q-input
+            <a-input
               filled
               v-model="workspace.indexContent"
               autogrow

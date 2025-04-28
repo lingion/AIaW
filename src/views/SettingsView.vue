@@ -436,7 +436,7 @@
               </q-item-label>
             </q-item-section>
             <q-item-section side>
-              <q-input
+              <a-input
                 type="number"
                 v-model.number="perfs.mdAutoFoldThreshold"
                 dense
@@ -519,7 +519,6 @@ import { useLocateId } from 'src/composables/locate-id'
 import { pageFhStyle } from 'src/utils/functions'
 import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
 import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
-import { useModel } from 'src/composables/model'
 import { exportDB } from 'dexie-export-import'
 import ImportDataDialog from 'src/components/ImportDataDialog.vue'
 import { useI18n } from 'vue-i18n'
@@ -529,6 +528,7 @@ import ModelsInput from 'src/components/ModelsInput.vue'
 import GetModelList from 'src/components/GetModelList.vue'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import ModelDragSortDialog from 'src/components/ModelDragSortDialog.vue'
+import { useGetModel } from 'src/composables/get-model'
 
 defineEmits(['toggle-drawer'])
 
@@ -568,7 +568,8 @@ const providerLink = computed(() => {
 })
 const user = DexieDBURL ? useObservable(db.cloud.currentUser) : null
 
-const { provider } = useModel(ref(), ref())
+const { getProvider } = useGetModel()
+const provider = computed(() => getProvider())
 
 function exportData() {
   exportDB(db).then(blob => {

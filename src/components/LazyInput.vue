@@ -1,5 +1,5 @@
 <template>
-  <q-input
+  <a-input
     :model-value="modelValue"
     @change="$emit('update:modelValue', $event)"
   />

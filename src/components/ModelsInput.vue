@@ -23,9 +23,11 @@
 <script setup lang="ts">
 import { useFilterOptions } from 'src/composables/filter-options'
 import ModelItem from './ModelItem.vue'
-import { modelOptions } from 'src/utils/values'
+import { useProvidersStore } from 'src/stores/providers'
+import { toRef } from 'vue'
 
 const model = defineModel<string[]>()
 
-const { filteredOptions, filterFn } = useFilterOptions(modelOptions)
+const providersStore = useProvidersStore()
+const { filteredOptions, filterFn } = useFilterOptions(toRef(providersStore, 'modelOptions'))
 </script>

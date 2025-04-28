@@ -1,6 +1,6 @@
-import { ref } from 'vue'
+import { MaybeRef, ref, unref } from 'vue'
 
-export function useFilterOptions(options: string[]) {
+export function useFilterOptions(options: MaybeRef<string[]>) {
   const filteredOptions = ref([])
   function filterFn(val, update, abort) {
     if (!val) {
@@ -8,7 +8,7 @@ export function useFilterOptions(options: string[]) {
       return
     }
     update(() => {
-      filteredOptions.value = options.filter(v => v.toLowerCase().includes(val.toLowerCase()))
+      filteredOptions.value = unref(options).filter(v => v.toLowerCase().includes(val.toLowerCase()))
     })
   }
   return {

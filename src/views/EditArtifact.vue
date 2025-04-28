@@ -48,7 +48,7 @@
     </div>
     <q-space />
     <div mr-2>
-      <q-input
+      <a-input
         :model-value="artifact.language"
         @update:model-value="update({ language: $event as string })"
         :label="$t('editArtifact.language')"

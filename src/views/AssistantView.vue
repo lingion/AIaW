@@ -36,7 +36,7 @@
         <q-item>
           <q-item-section>{{ $t('assistantView.name') }}</q-item-section>
           <q-item-section side>
-            <q-input
+            <a-input
               class="w-150px"
               filled
               dense
@@ -58,7 +58,7 @@
             {{ $t('assistantView.roleSetting') }}
           </q-item-section>
           <q-item-section>
-            <q-input
+            <a-input
               filled
               v-model="assistant.prompt"
               autogrow
@@ -71,7 +71,7 @@
             {{ $t('assistantView.promptTemplate') }}
           </q-item-section>
           <q-item-section>
-            <q-input
+            <a-input
               filled
               v-model="assistant.promptTemplate"
               autogrow
@@ -165,7 +165,7 @@
             </q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-input
+            <a-input
               class="w-100px"
               filled
               dense
@@ -182,7 +182,7 @@
             </q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-input
+            <a-input
               class="w-100px"
               filled
               dense
@@ -199,7 +199,7 @@
             </q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-input
+            <a-input
               class="w-100px"
               filled
               dense
@@ -238,7 +238,7 @@
             </q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-input
+            <a-input
               class="w-100px"
               filled
               dense
@@ -256,7 +256,7 @@
             </q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-input
+            <a-input
               class="w-100px"
               filled
               dense
@@ -274,7 +274,7 @@
             </q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-input
+            <a-input
               class="w-100px"
               filled
               dense
@@ -292,7 +292,7 @@
             </q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-input
+            <a-input
               class="w-100px"
               filled
               dense
@@ -332,7 +332,7 @@
             </q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-input
+            <a-input
               class="w-150px"
               filled
               dense
@@ -350,7 +350,7 @@
             </q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-input
+            <a-input
               class="w-100px"
               filled
               dense
@@ -379,7 +379,7 @@
             <q-item-label>{{ $t('assistantView.author') }}</q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-input
+            <a-input
               class="w-150px"
               filled
               dense
@@ -392,7 +392,7 @@
             <q-item-label>{{ $t('assistantView.description') }}</q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-input
+            <a-input
               class="xs:w-250px sm:w-400px"
               filled
               dense
@@ -406,7 +406,7 @@
             <q-item-label>{{ $t('assistantView.homepage') }}</q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-input
+            <a-input
               class="xs:w-250px sm:w-400px"
               filled
               dense

@@ -63,7 +63,7 @@ export const useProvidersStore = defineStore('providers', () => {
   ])
   const modelOptions = computed(() => removeDuplicates([
     ...baseModelOptions,
-    ...providers.value.map(p => p.subproviders.map(sp => Object.keys(sp.modelMap)).flat()).flat()
+    ...providers.value.flatMap(p => p.subproviders.flatMap(sp => Object.keys(sp.modelMap)))
   ]))
   const { t } = useI18n()
   async function add(props: Partial<CustomProvider> = {}) {

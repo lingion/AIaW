@@ -43,7 +43,7 @@
       </a-tip>
       <q-list>
         <div p="x-4 y-2">
-          <q-input
+          <a-input
             dense
             outlined
             v-model="filter"

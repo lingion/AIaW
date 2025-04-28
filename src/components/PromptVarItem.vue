@@ -6,14 +6,14 @@
       flex-wrap
       gap-2
     >
-      <q-input
+      <a-input
         v-model="model.name"
         :label="$t('promptVarItem.variableName')"
         filled
         dense
         class="prompt-var-input-item"
       />
-      <q-input
+      <a-input
         v-model="model.label"
         :label="$t('promptVarItem.label')"
         filled

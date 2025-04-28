@@ -77,7 +77,7 @@
         {{ $t('pluginsMarket.rightDrawerTip') }}
       </a-tip>
       <div>
-        <q-input
+        <a-input
           :label="$t('pluginsMarket.search')"
           outlined
           v-model="query"

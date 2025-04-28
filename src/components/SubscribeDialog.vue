@@ -30,7 +30,7 @@
               </q-item-label>
             </q-item-section>
             <q-item-section side>
-              <q-input
+              <a-input
                 class="w-50px"
                 v-model.number="amount"
                 type="number"

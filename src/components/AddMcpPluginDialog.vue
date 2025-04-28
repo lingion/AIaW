@@ -49,7 +49,7 @@
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
-                  <q-input
+                  <a-input
                     v-model="title"
                     dense
                     class="w-150px"
@@ -66,7 +66,7 @@
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
-                  <q-input
+                  <a-input
                     v-model="stdioOptions.command"
                     dense
                     class="w-200px"
@@ -83,7 +83,7 @@
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
-                  <q-input
+                  <a-input
                     v-model="stdioOptions.cwd"
                     dense
                     class="w-200px"
@@ -123,7 +123,7 @@
                   </q-item-label>
                 </q-item-section>
                 <q-item-section side>
-                  <q-input
+                  <a-input
                     v-model="title"
                     dense
                   />
@@ -134,7 +134,7 @@
                   {{ $t('addMcpPluginDialog.url') }}
                 </q-item-section>
                 <q-item-section side>
-                  <q-input
+                  <a-input
                     v-model="sseOptions.url"
                     dense
                   />

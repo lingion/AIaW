@@ -17,7 +17,7 @@
           flex
           px-2
         >
-          <q-input
+          <a-input
             v-model="options.name"
             :label="$t('convertArtifactDialog.name')"
             dense
@@ -25,7 +25,7 @@
             @keyup.enter="onDialogOK(options)"
             autofocus
           />
-          <q-input
+          <a-input
             v-model="options.lang"
             :label="$t('convertArtifactDialog.lang')"
             dense

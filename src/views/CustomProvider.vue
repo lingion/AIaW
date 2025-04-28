@@ -17,7 +17,7 @@
         <q-item>
           <q-item-section>{{ $t('customProvider.name') }}</q-item-section>
           <q-item-section side>
-            <q-input
+            <a-input
               class="w-150px"
               filled
               dense
