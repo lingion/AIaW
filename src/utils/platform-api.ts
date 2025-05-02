@@ -4,6 +4,9 @@ import { readText } from '@tauri-apps/plugin-clipboard-manager'
 import { Clipboard } from '@capacitor/clipboard'
 import { platform } from '@tauri-apps/plugin-os'
 import { fetch as capFetch } from 'capacitor-stream-fetch'
+import { exportFile as webExportFile } from 'quasar'
+import { ExportFile } from 'capacitor-export-file'
+import { blobToBase64 } from './functions'
 
 export const IsTauri = '__TAURI_INTERNALS__' in window
 export const IsCapacitor = Capacitor.isNativePlatform()
@@ -23,3 +26,11 @@ export async function clipboardReadText(): Promise<string> {
 }
 
 export const PublicOrigin = IsTauri || IsCapacitor ? 'https://aiaw.app' : location.origin
+
+export async function exportFile(filename, data: Blob | string | ArrayBuffer) {
+  if (!IsCapacitor) return webExportFile(filename, data)
+  await ExportFile.exportFile({
+    filename,
+    data: (await blobToBase64(new Blob([data]))).replace(/^data:.*,/, '')
+  })
+}

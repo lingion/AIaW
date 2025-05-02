@@ -471,7 +471,7 @@ import PromptVarEditor from 'src/components/PromptVarEditor.vue'
 import { Assistant } from 'src/utils/types'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import AAvatar from 'src/components/AAvatar.vue'
-import { copyToClipboard, exportFile, useQuasar } from 'quasar'
+import { copyToClipboard, useQuasar } from 'quasar'
 import PickAvatarDialog from 'src/components/PickAvatarDialog.vue'
 import ModelInputItems from 'src/components/ModelInputItems.vue'
 import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
@@ -481,6 +481,7 @@ import { blobToBase64, pageFhStyle } from 'src/utils/functions'
 import { useSetTitle } from 'src/composables/set-title'
 import { db } from 'src/utils/db'
 import EnablePluginsItems from 'src/components/EnablePluginsItems.vue'
+import { exportFile } from 'src/utils/platform-api'
 
 const props = defineProps<{
   id: string

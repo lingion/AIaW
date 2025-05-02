@@ -79,7 +79,7 @@ const providerOptions = computed(() =>
 const providerType = computed(() => store.providerTypes.find(p => p.name === provider.value?.type))
 function switchProvider(type: string) {
   if (type) {
-    provider.value = { type, settings: store.providerTypes.find(p => p.name === type).initialSettings }
+    provider.value = { type, settings: { ...store.providerTypes.find(p => p.name === type).initialSettings } }
   } else {
     provider.value = null
   }

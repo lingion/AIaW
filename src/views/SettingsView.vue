@@ -502,7 +502,7 @@
 </template>
 
 <script setup lang="ts">
-import { exportFile, useQuasar } from 'quasar'
+import { useQuasar } from 'quasar'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import HctPreviewCircle from 'src/components/HctPreviewCircle.vue'
 import HueSliderDialog from 'src/components/HueSliderDialog.vue'
@@ -523,7 +523,7 @@ import { exportDB } from 'dexie-export-import'
 import ImportDataDialog from 'src/components/ImportDataDialog.vue'
 import { useI18n } from 'vue-i18n'
 import { localData } from 'src/utils/local-data'
-import { PublicOrigin } from 'src/utils/platform-api'
+import { exportFile, PublicOrigin } from 'src/utils/platform-api'
 import ModelsInput from 'src/components/ModelsInput.vue'
 import GetModelList from 'src/components/GetModelList.vue'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'

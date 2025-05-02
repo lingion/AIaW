@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { exportFile, useQuasar } from 'quasar'
+import { useQuasar } from 'quasar'
 import { dialogOptions } from 'src/utils/values'
 import MenuItem from './MenuItem.vue'
 import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
@@ -44,6 +44,7 @@ import { Artifact } from 'src/utils/types'
 import { db } from 'src/utils/db'
 import { artifactUnsaved, saveArtifactChanges } from 'src/utils/functions'
 import { useI18n } from 'vue-i18n'
+import { exportFile } from 'src/utils/platform-api'
 
 const $q = useQuasar()
 const { t } = useI18n()

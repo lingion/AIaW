@@ -309,9 +309,9 @@
             v-if="assistant"
             flat
             :round="!activePlugins.length"
+            :class="{ 'px-2': activePlugins.length }"
             min-w="2.7em"
             min-h="2.7em"
-            px-2
             icon="sym_o_extension"
             :title="$t('dialogView.plugins')"
           >
@@ -1157,6 +1157,7 @@ watch(route, to => {
         mark.mark(highlight)
       }
       item.querySelector('mark[data-markjs]')?.scrollIntoView()
+      router.replace({ query: {} })
     }
   })
 }, { immediate: true })
