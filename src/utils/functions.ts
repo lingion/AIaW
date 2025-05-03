@@ -57,14 +57,16 @@ function mimeTypeMatch(mimeType: string, mimeTypes: string[]) {
 }
 
 async function isTextFile(file: Blob) {
-  if (file.size > 1024 * 1024) return false
+  if (file.size > 4 * 1024 * 1024) return false
   const array = new Uint8Array(await file.arrayBuffer())
   for (const byte of array) {
     // Allowed control characters:
     // 9  - Tab
     // 10 - Line feed (LF)
     // 13 - Carriage return (CR)
-    if (byte < 32 && ![9, 10, 13].includes(byte)) {
+    // 12 - Form feed (FF)
+    // 11 - Vertical tab (VT)
+    if (byte < 32 && ![9, 10, 13, 12, 11].includes(byte)) {
       return false
     }
   }

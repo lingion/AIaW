@@ -5,9 +5,9 @@ import { Clipboard } from '@capacitor/clipboard'
 import { platform } from '@tauri-apps/plugin-os'
 import { fetch as capFetch } from 'capacitor-stream-fetch'
 import { exportFile as webExportFile } from 'quasar'
-import { ExportFile } from 'capacitor-export-file'
 import { blobToBase64 } from './functions'
-
+import { Directory, Filesystem } from '@capacitor/filesystem'
+import { ExportFile } from 'capacitor-export-file'
 export const IsTauri = '__TAURI_INTERNALS__' in window
 export const IsCapacitor = Capacitor.isNativePlatform()
 export const IsWeb = !IsTauri && !IsCapacitor
@@ -29,8 +29,17 @@ export const PublicOrigin = IsTauri || IsCapacitor ? 'https://aiaw.app' : locati
 
 export async function exportFile(filename, data: Blob | string | ArrayBuffer) {
   if (!IsCapacitor) return webExportFile(filename, data)
+  const { uri } = await Filesystem.writeFile({
+    path: filename,
+    data: (await blobToBase64(new Blob([data]))).replace(/^data:.*,/, ''),
+    directory: Directory.Cache
+  })
   await ExportFile.exportFile({
-    filename,
-    data: (await blobToBase64(new Blob([data]))).replace(/^data:.*,/, '')
+    uri,
+    filename
+  })
+  await Filesystem.deleteFile({
+    path: filename,
+    directory: Directory.Cache
   })
 }

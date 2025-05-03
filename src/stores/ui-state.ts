@@ -7,5 +7,6 @@ export const useUiStateStore = defineStore('ui-state', () => {
     mainDrawerOpen.value = !mainDrawerOpen.value
   }
   const colors = ref({})
-  return { mainDrawerOpen, toggleMainDrawer, colors }
+  const dialogScrollTops = ref<Record<string, number>>({})
+  return { mainDrawerOpen, toggleMainDrawer, colors, dialogScrollTops }
 })

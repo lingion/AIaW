@@ -435,6 +435,8 @@ import Mark from 'mark.js'
 import { useCreateDialog } from 'src/composables/create-dialog'
 import EnablePluginsMenu from 'src/components/EnablePluginsMenu.vue'
 import { useGetModel } from 'src/composables/get-model'
+import { useUiStateStore } from 'src/stores/ui-state'
+
 const { t, locale } = useI18n()
 
 const props = defineProps<{
@@ -1361,7 +1363,8 @@ async function autoExtractArtifact() {
   })
 }
 
-const scrollTops: Record<string, number> = {}
+const uiStateStore = useUiStateStore()
+const scrollTops = uiStateStore.dialogScrollTops
 function onScroll(ev) {
   scrollTops[props.id] = ev.target.scrollTop
 }

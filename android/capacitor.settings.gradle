@@ -8,6 +8,9 @@ project(':capacitor-app').projectDir = new File('../node_modules/.pnpm/@capacito
 include ':capacitor-clipboard'
 project(':capacitor-clipboard').projectDir = new File('../node_modules/.pnpm/@capacitor+clipboard@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/clipboard/android')
 
+include ':capacitor-filesystem'
+project(':capacitor-filesystem').projectDir = new File('../node_modules/.pnpm/@capacitor+filesystem@7.0.1_@capacitor+core@7.0.1/node_modules/@capacitor/filesystem/android')
+
 include ':capacitor-keyboard'
 project(':capacitor-keyboard').projectDir = new File('../node_modules/.pnpm/@capacitor+keyboard@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/keyboard/android')
 
@@ -21,7 +24,7 @@ include ':capawesome-capacitor-live-update'
 project(':capawesome-capacitor-live-update').projectDir = new File('../node_modules/.pnpm/@capawesome+capacitor-live-_20a03f2114908b7e52112a3ad72f2fa4/node_modules/@capawesome/capacitor-live-update/android')
 
 include ':capacitor-export-file'
-project(':capacitor-export-file').projectDir = new File('../../capacitor-export-file/android')
+project(':capacitor-export-file').projectDir = new File('../node_modules/.pnpm/capacitor-export-file@0.0.1_@capacitor+core@7.0.1/node_modules/capacitor-export-file/android')
 
 include ':capacitor-stream-fetch'
 project(':capacitor-stream-fetch').projectDir = new File('../node_modules/.pnpm/capacitor-stream-fetch@0.0.5_@capacitor+core@7.0.1/node_modules/capacitor-stream-fetch/android')
