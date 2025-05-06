@@ -85,7 +85,7 @@ export class SSEClientTransport implements Transport {
     this._eventSourceInit = opts?.eventSourceInit
     this._requestInit = opts?.requestInit
     this._authProvider = opts?.authProvider
-    this._fetch = opts?.fetch ?? fetch
+    this._fetch = opts?.fetch ?? fetch.bind(window)
   }
 
   private async _authThenStart(): Promise<void> {

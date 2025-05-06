@@ -13,7 +13,7 @@ export const IsCapacitor = Capacitor.isNativePlatform()
 export const IsWeb = !IsTauri && !IsCapacitor
 export const TauriPlatform = IsTauri ? platform() : undefined
 
-export const fetch = IsTauri ? tauriFetch : IsCapacitor ? capFetch : window.fetch
+export const fetch = IsTauri ? tauriFetch : IsCapacitor ? capFetch : window.fetch.bind(window)
 
 export async function clipboardReadText(): Promise<string> {
   if (IsTauri) {
