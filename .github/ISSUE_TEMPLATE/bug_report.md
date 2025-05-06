@@ -31,7 +31,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Environment**
  - Platform: [e.g. Windows, Android, Web]
- - Version: [e.g. v1.4.15]
+ - Version: [e.g. v1.4.15; Tip: Click the logo in the upper left corner to check the version]
  - Browser/Webview version: [e.g. Chrome 131]
 
 **Additional context**
