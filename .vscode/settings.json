@@ -29,5 +29,8 @@
     "editor.defaultFormatter": "vscode.css-language-features"
   },
   "rust-analyzer.initializeStopped": true,
-  "java.server.launchMode": "LightWeight"
+  "java.server.launchMode": "LightWeight",
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features"
+  }
 }

@@ -7,6 +7,7 @@
     @remove="$emit('remove')"
     @click="viewFile"
     clickable
+    max-w="360px"
   />
 </template>
 

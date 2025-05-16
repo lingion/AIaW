@@ -1,19 +1,18 @@
 import { GradioFixedInput, GradioManifestEndpoint, GradioPluginManifest, GradioApiInput, HuggingPluginManifest, Plugin, PluginApi, PluginData, PluginsData, McpPluginDump, McpPluginManifest, Avatar } from './types'
-import { base64ToArrayBuffer, defaultAvatar, parsePageRange, parseSeconds } from './functions'
+import { base64ToArrayBuffer, defaultAvatar, parseSeconds } from './functions'
 import { createHeadersWithPluginSettings, LobeChatPluginManifest, PluginSchema } from '@lobehub/chat-plugin-sdk'
 import { Boolean as TBoolean, Number as TNumber, Object as TObject, Optional as TOptional, String as TString } from '@sinclair/typebox'
 import { Client as GradioClient } from '@gradio/client'
 import { AudioEncoderSupported, extractAudioBlob } from './audio-process'
 import { Parser } from 'expr-eval'
-import { parseDoc } from './doc-parse'
 import { corsFetch } from './cors-fetch'
-import { DocParseBaseURL } from './config'
 import artifacts from './artifacts-plugin'
 import { CallToolResult, GetPromptResult, ReadResourceResult } from '@modelcontextprotocol/sdk/types.js'
 import { fetch, IsTauri } from './platform-api'
 import { getClient } from './mcp-client'
 import { i18n } from 'src/boot/i18n'
 import webSearchPlugin from './web-search-plugin'
+import docParsePlugin from './doc-parse-plugin'
 
 const { t } = i18n.global
 
@@ -787,36 +786,6 @@ const mermaidPlugin: Plugin = {
   prompt: t('plugins.mermaid.prompt')
 }
 
-const docParsePlugin: Plugin = {
-  id: 'aiaw-doc-parse',
-  type: 'builtin',
-  available: !!DocParseBaseURL,
-  apis: [],
-  fileparsers: [{
-    name: 'parse',
-    description: t('plugins.docParse.parse.description'),
-    async execute({ file, range }, settings) {
-      const docs = await parseDoc(file, {
-        language: settings.ocrLanguage,
-        targetPages: range ? parsePageRange(range).join(',') : undefined
-      })
-      return [{
-        type: 'file',
-        contentText: docs.map(r => r.text).join('\n--------page-separator--------\n')
-      }]
-    },
-    rangeInput: {
-      label: t('plugins.docParse.rangeInput.label'),
-      hint: t('plugins.docParse.rangeInput.hint')
-    }
-  }],
-  settings: TObject({
-    ocrLanguage: TString({ title: t('plugins.docParse.ocrLanguage') })
-  }),
-  title: t('plugins.docParse.title'),
-  description: t('plugins.docParse.description')
-}
-
 const defaultData: PluginsData = {
   'aiaw-time': {
     settings: {},
@@ -850,13 +819,7 @@ const defaultData: PluginsData = {
     avatar: { type: 'icon', icon: 'sym_o_account_tree', hue: 15 },
     fileparsers: {}
   },
-  'aiaw-doc-parse': {
-    settings: { ocrLanguage: 'en' },
-    avatar: { type: 'icon', icon: 'sym_o_description', hue: 190 },
-    fileparsers: {
-      parse: { enabled: true, mimeTypes: ['application/*'] }
-    }
-  },
+  [docParsePlugin.pluginId]: docParsePlugin.defaultData,
   [webSearchPlugin.pluginId]: webSearchPlugin.defaultData,
   [artifacts.pluginId]: artifacts.defaultData
 }
@@ -877,6 +840,5 @@ export {
   whisperPlugin,
   fluxPlugin,
   emotionsPlugin,
-  mermaidPlugin,
-  docParsePlugin
+  mermaidPlugin
 }

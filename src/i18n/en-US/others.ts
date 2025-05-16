@@ -87,18 +87,6 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
       description: 'Let AI use Mermaid syntax to create charts in its answers',
       prompt: 'In the answer, if you need to draw a chart, you can directly use mermaid syntax to create the chart, which can be rendered normally.'
     },
-    docParse: {
-      title: 'Document Parsing',
-      description: 'Parse document (PDF, Word, Excel, PPT, etc.) content and convert it to Markdown text',
-      parse: {
-        description: 'Parse document content'
-      },
-      rangeInput: {
-        label: 'Page Range',
-        hint: 'Example: 1-3,5'
-      },
-      ocrLanguage: 'OCR Language'
-    },
     mcp: {
       runCommand: 'Run Command',
       cwd: 'Working Directory'
@@ -148,5 +136,35 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
     resultsLimit: 'Results Limit',
     resultsLimitCaption: 'Limit the number of search results per time',
     configureSearxngMessage: 'Please configure SearXNG instance in the server, or configure SearXNG URL in the plugin settings'
+  },
+  docParsePlugin: {
+    title: 'Document Parsing',
+    description: 'Parse document (PDF, Word, Excel, PPT, etc.) content and convert it to Markdown text',
+    llamaParseDescription: 'Call LlamaParse to parse document',
+    pdfExtractTextLabel: 'Extract PDF Text',
+    pdfExtractTextDescription: 'Extract text content from PDF',
+    pdfScreenshotLabel: 'PDF Screenshot',
+    pdfScreenshotDescription: 'Screenshot PDF content',
+    docxParseLabel: 'Word Document Parsing',
+    docxParseDescription: 'Convert Word document to HTML',
+    xlsxParseLabel: 'Excel Spreadsheet Parsing',
+    xlsxParseDescription: 'Convert Excel spreadsheet to Markdown table',
+    pptxParseLabel: 'Extract PPTX Text',
+    pptxParseDescription: 'Extract text content from PPTX',
+    rangeInput: {
+      label: 'Page Range',
+      hint: 'Example: 1-3,5'
+    },
+    ocrLanguage: 'OCR Language',
+    pagesLimitDialog: {
+      title: 'Too Many Pages',
+      message: 'The number of document screenshots to be rendered is too large (>{limit}). Too many images may cause slow loading and affect the understanding of the model. It is recommended to specify a page range and re-parse. Continue parsing?',
+      cancel: 'Cancel',
+      continue: 'Continue Parsing'
+    },
+    emptyPagesDialog: {
+      title: 'Too Many Empty Pages',
+      message: 'More than half of the page parsing results are empty. This may be because the PDF document consists of scanned images, and this parser can only extract text from the document. It is recommended to re-parse using the "@:{docParsePlugin.pdfScreenshotLabel}" parser.'
+    }
   }
 }

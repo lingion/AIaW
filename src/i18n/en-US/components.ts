@@ -214,8 +214,9 @@ export default {
   },
   payDialog: {
     pay: 'Pay',
-    refreshAfterPay: 'After payment, click "Completed Payment" to refresh the data',
+    refreshAfterPay: 'After payment, click "Completed Payment" to refresh the data. If the payment is not triggered, please manually copy the payment link and open it in the browser.',
     cancel: 'Cancel',
+    paymentLink: 'Payment Link',
     completePayment: 'Completed Payment'
   },
   saveDialog: {

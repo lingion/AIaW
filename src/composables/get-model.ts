@@ -4,7 +4,7 @@ import { Model, Provider } from 'src/utils/types'
 import { useObservable } from '@vueuse/rxjs'
 import { db } from 'src/utils/db'
 import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
-import { LanguageModel, wrapLanguageModel } from 'ai'
+import { LanguageModel, wrapLanguageModel, extractReasoningMiddleware } from 'ai'
 import { AuthropicCors, FormattingReenabled } from 'src/utils/middlewares'
 import { fetch } from 'src/utils/platform-api'
 import { useProvidersStore } from 'src/stores/providers'
@@ -12,7 +12,7 @@ import { useProvidersStore } from 'src/stores/providers'
 const FormattingModels = ['o1', 'o3-mini', 'o3-mini-2025-01-31']
 
 function wrapMiddlewares(model: LanguageModel) {
-  const middlewares = []
+  const middlewares = [extractReasoningMiddleware({ tagName: 'think' })]
   FormattingModels.includes(model.modelId) && middlewares.push(FormattingReenabled)
   model.provider.startsWith('anthropic.') && middlewares.push(AuthropicCors)
   return middlewares.length ? wrapLanguageModel({ model, middleware: middlewares }) : model

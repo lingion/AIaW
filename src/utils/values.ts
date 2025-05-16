@@ -243,6 +243,7 @@ const models: Model[] = [
   { name: 'claude-3-opus-20240229', inputTypes: InputTypes.claudeVision },
   { name: 'claude-3-sonnet-20240229', inputTypes: InputTypes.claudeVision },
   { name: 'claude-3-haiku-20240307', inputTypes: InputTypes.claudeVision },
+  { name: 'gemini-2.5-pro-preview-05-06', inputTypes: InputTypes.gemini2 },
   { name: 'gemini-2.5-pro-preview-03-25', inputTypes: InputTypes.gemini2 },
   { name: 'gemini-2.5-flash-preview-04-17', inputTypes: InputTypes.gemini2 },
   { name: 'gemini-2.0-flash', inputTypes: InputTypes.gemini2 },

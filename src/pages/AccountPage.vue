@@ -239,7 +239,10 @@ function subscribeDialog() {
   }).onOk(res => {
     window.open(res.payUrl, '_blank')
     $q.dialog({
-      component: PayDialog
+      component: PayDialog,
+      componentProps: {
+        link: res.payUrl
+      }
     }).onOk(() => {
       db.cloud.sync()
     })
@@ -251,7 +254,10 @@ function topupDialog() {
   }).onOk(res => {
     window.open(res.payUrl, '_blank')
     $q.dialog({
-      component: PayDialog
+      component: PayDialog,
+      componentProps: {
+        link: res.payUrl
+      }
     }).onOk(() => {
       refreshLlmBalance()
       db.cloud.sync()

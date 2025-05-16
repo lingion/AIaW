@@ -49,10 +49,29 @@
       >{{ model.name }}</code>
       <q-menu important:max-w="300px">
         <q-list>
+          <q-item>
+            <q-item-section>
+              <autocomplete-input
+                :model-value="dialog.modelOverride?.name"
+                @update:model-value="setModel"
+                :options="providersStore.modelOptions"
+                dense
+                :label="$t('dialogView.model')"
+              >
+                <template #option="{ opt, selected, itemProps }">
+                  <model-item
+                    :model="opt"
+                    :selected
+                    v-bind="itemProps"
+                  />
+                </template>
+              </autocomplete-input>
+            </q-item-section>
+          </q-item>
           <template v-if="assistant.model">
             <q-item-label
               header
-              pb-2
+              py-2
             >
               {{ $t('dialogView.assistantModel') }}
             </q-item-label>
@@ -68,7 +87,7 @@
           <template v-else-if="perfs.model">
             <q-item-label
               header
-              pb-2
+              py-2
             >
               {{ $t('dialogView.globalDefault') }}
             </q-item-label>
@@ -81,7 +100,6 @@
               v-close-popup
             />
           </template>
-          <q-separator spaced />
           <q-item-label
             header
             py-2
@@ -104,7 +122,7 @@
             :key="m"
             clickable
             :model="m"
-            @click="dialog.modelOverride = models.find(model => model.name === m) || { name: m, inputTypes: InputTypes.default }"
+            @click="setModel(m)"
             :selected="dialog.modelOverride?.name === m"
             v-close-popup
           />
@@ -171,6 +189,7 @@
           items-end
           p-2
           gap-2
+          of-x-auto
         >
           <message-image
             v-for="image in inputContentItems.filter(i => i.mimeType?.startsWith('image/'))"
@@ -178,6 +197,7 @@
             :image
             removable
             h="100px"
+            shrink-0
             @remove="removeItem(image)"
             shadow
           />
@@ -375,12 +395,12 @@
           class="mt-2"
           max-h-50vh
           of-y-auto
-          :model-value="inputMessageContent?.text"
+          :model-value="inputText"
           @update:model-value="inputMessageContent && updateInputText($event)"
           outlined
           autogrow
           clearable
-          :debounce="30"
+          :debounce="25"
           :placeholder="$t('dialogView.chatPlaceholder')"
           @keydown.enter="onEnter"
           @paste="onTextPaste"
@@ -436,6 +456,8 @@ import { useCreateDialog } from 'src/composables/create-dialog'
 import EnablePluginsMenu from 'src/components/EnablePluginsMenu.vue'
 import { useGetModel } from 'src/composables/get-model'
 import { useUiStateStore } from 'src/stores/ui-state'
+import AutocompleteInput from 'src/components/AutocompleteInput.vue'
+import { useProvidersStore } from 'src/stores/providers'
 
 const { t, locale } = useI18n()
 
@@ -580,16 +602,6 @@ function expandMessageTree(root): string[] {
   return [root, ...dialog.value.msgTree[root].flatMap(id => expandMessageTree(id))]
 }
 
-async function updateInputText(text) {
-  await db.messages.update(chain.value.at(-1), {
-    // use shallow keyPath to avoid dexie's sync bug
-    contents: [{
-      ...inputMessageContent.value,
-      text
-    }]
-  })
-}
-
 const inputMessageContent = computed(() => messageMap.value[chain.value.at(-1)]?.contents[0] as UserMessageContent)
 const inputContentItems = computed(() => inputMessageContent.value.items.map(id => itemMap.value[id]).filter(x => x))
 const messageMap = computed<Record<string, Message>>(() => {
@@ -605,6 +617,33 @@ const itemMap = computed<Record<string, StoredItem>>(() => {
 provide('messageMap', messageMap)
 provide('itemMap', itemMap)
 const inputEmpty = computed(() => !inputMessageContent.value?.text && !inputMessageContent.value?.items.length)
+
+const inputText = ref('')
+const pendingTexts = []
+let timeoutId = null
+async function updateInputText(text) {
+  inputText.value = text
+  pendingTexts.push(text)
+  clearTimeout(timeoutId)
+  timeoutId = window.setTimeout(() => {
+    pendingTexts.splice(0)
+  }, 100)
+  await db.messages.update(chain.value.at(-1), {
+    // use shallow keyPath to avoid dexie's sync bug
+    contents: [{
+      ...inputMessageContent.value,
+      text
+    }]
+  })
+}
+watch(() => inputMessageContent.value?.text, val => {
+  const index = pendingTexts.indexOf(val)
+  if (index !== -1) {
+    pendingTexts.splice(0, index + 1)
+  } else {
+    inputText.value = val
+  }
+})
 
 function onTextPaste(ev: ClipboardEvent) {
   if (!perfs.codePasteOptimize) return
@@ -1152,13 +1191,15 @@ watch(route, to => {
       }
       await nextTick()
       const { items } = getEls()
-      const item = items[route.length - 1]
-      if (highlight) {
-        const mark = new Mark(item)
-        mark.unmark()
-        mark.mark(highlight)
+      if (route.length) {
+        const item = items[route.length - 1]
+        if (highlight) {
+          const mark = new Mark(item)
+          mark.unmark()
+          mark.mark(highlight)
+        }
+        item.querySelector('mark[data-markjs]')?.scrollIntoView()
       }
-      item.querySelector('mark[data-markjs]')?.scrollIntoView()
       router.replace({ query: {} })
     }
   })
@@ -1374,6 +1415,13 @@ watch(() => liveData.value.dialog?.id, id => {
     scrollContainer.value?.scrollTo({ top: scrollTops[id] ?? 0 })
   })
 })
+
+const providersStore = useProvidersStore()
+function setModel(name: string) {
+  dialog.value.modelOverride = name
+    ? models.find(model => model.name === name) || { name, inputTypes: InputTypes.default }
+    : null
+}
 
 const { createDialog } = useCreateDialog(workspace)
 

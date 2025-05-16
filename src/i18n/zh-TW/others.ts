@@ -87,18 +87,6 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
       description: '讓 AI 在回答中使用 Mermaid 語法創建圖表',
       prompt: '在回答中，如果需要繪製圖表，你可以直接使用 mermaid 語法創建圖表，它們能夠被正常渲染。'
     },
-    docParse: {
-      title: '文檔解析',
-      description: '解析文檔（PDF、Word、Excel、PPT 等）內容，並轉換為 Markdown 文本',
-      parse: {
-        description: '解析文檔內容'
-      },
-      rangeInput: {
-        label: '頁碼範圍',
-        hint: '例：1-3,5'
-      },
-      ocrLanguage: 'OCR 語言'
-    },
     mcp: {
       runCommand: '運行命令',
       cwd: '工作目錄'
@@ -148,5 +136,35 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
     resultsLimit: '結果數量限制',
     resultsLimitCaption: '限制單次搜索結果的數量',
     configureSearxngMessage: '請在服務端配置 SearXNG 實例，或在插件設定中配置 SearXNG URL'
+  },
+  docParsePlugin: {
+    title: '文檔解析',
+    description: '解析文檔（PDF、Word、Excel、PPT 等）內容，並轉換為 Markdown 文本',
+    llamaParseDescription: '調用 LlamaParse 解析文檔',
+    pdfExtractTextLabel: '提取 PDF 文本',
+    pdfExtractTextDescription: '提取 PDF 中的文本內容',
+    pdfScreenshotLabel: 'PDF 截圖',
+    pdfScreenshotDescription: '將 PDF 內容截圖',
+    docxParseLabel: 'Word 文檔解析',
+    docxParseDescription: '將 Word 文檔轉換為 HTML',
+    xlsxParseLabel: 'Excel 表格解析',
+    xlsxParseDescription: '將 Excel 表格轉換為 Markdown 表格',
+    pptxParseLabel: '提取 PPTX 文本',
+    pptxParseDescription: '提取 PPTX 中的文本內容',
+    rangeInput: {
+      label: '頁碼範圍',
+      hint: '例：1-3,5'
+    },
+    ocrLanguage: 'OCR 語言',
+    pagesLimitDialog: {
+      title: '頁數過多',
+      message: '當前要渲染的文檔截圖數量過多（>{limit}），過多的圖片可能導致加載緩慢，並影響模型的理解效果。建議指定頁碼範圍，重新解析。是否繼續解析？',
+      cancel: '取消',
+      continue: '繼續解析'
+    },
+    emptyPagesDialog: {
+      title: '空頁過多',
+      message: '超過一半的頁面解析結果為空，這可能是因為該 PDF 文檔由掃描圖片構成，而此解析器只能提取文檔中的文字。建議使用「@:{docParsePlugin.pdfScreenshotLabel}」解析器重新解析。'
+    }
   }
 }

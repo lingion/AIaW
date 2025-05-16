@@ -18,6 +18,7 @@
             <q-item-section
               avatar
               max-w="xs:150px sm:200px"
+              pr-3
             >
               <q-item-label
                 text-ellipsis
@@ -44,7 +45,10 @@
                 dense
               />
             </q-item-section>
-            <q-item-section side>
+            <q-item-section
+              side
+              important:pl-2
+            >
               <q-select
                 v-if="allOptions[index].length"
                 v-model="selected[index]"
@@ -59,10 +63,12 @@
                     min-h="40px"
                   >
                     <q-item-section>
-                      {{ opt.label }}
-                    </q-item-section>
-                    <q-item-section side>
-                      {{ opt.caption }}
+                      <q-item-label>
+                        {{ opt.label }}
+                      </q-item-label>
+                      <q-item-label caption>
+                        {{ opt.caption }}
+                      </q-item-label>
                     </q-item-section>
                   </q-item>
                 </template>
@@ -122,8 +128,9 @@ const fileparsers = computed(() => {
     p.fileparsers.forEach(fp => {
       data.fileparsers[fp.name].enabled && val.push({
         id: `${p.id}-${fp.name}`,
-        pluginTitle: p.title,
+        label: fp.label || p.title,
         name: fp.name,
+        description: fp.description,
         mimeTypes: data.fileparsers[fp.name].mimeTypes,
         rangeInput: fp.rangeInput,
         execute: fp.execute,
@@ -136,10 +143,10 @@ const fileparsers = computed(() => {
 })
 const allOptions = computed(() => props.files.map(file => {
   return fileparsers.value.filter(fp => mimeTypeMatch(file.type, fp.mimeTypes)).map(fp => ({
-    label: fp.pluginTitle,
+    label: fp.label,
     value: fp.id,
     avatar: fp.avatar,
-    caption: fp.name,
+    caption: fp.description,
     rangeInput: fp.rangeInput
   }))
 }

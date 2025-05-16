@@ -4,13 +4,14 @@ import { useLiveQuery } from 'src/composables/live-query'
 import { persistentReactive } from 'src/composables/persistent-reactive'
 import { db } from 'src/utils/db'
 import { GradioPluginManifest, HuggingPluginManifest, InstalledPlugin, McpPluginManifest, PluginsData } from 'src/utils/types'
-import { buildLobePlugin, timePlugin, defaultData, whisperPlugin, videoTranscriptPlugin, buildGradioPlugin, calculatorPlugin, huggingToGradio, fluxPlugin, lobeDefaultData, gradioDefaultData, emotionsPlugin, docParsePlugin, mermaidPlugin, mcpDefaultData, dumpMcpPlugin, buildMcpPlugin } from 'src/utils/plugins'
+import { buildLobePlugin, timePlugin, defaultData, whisperPlugin, videoTranscriptPlugin, buildGradioPlugin, calculatorPlugin, huggingToGradio, fluxPlugin, lobeDefaultData, gradioDefaultData, emotionsPlugin, mermaidPlugin, mcpDefaultData, dumpMcpPlugin, buildMcpPlugin } from 'src/utils/plugins'
 import { computed } from 'vue'
 import { genId } from 'src/utils/functions'
 import artifacts from 'src/utils/artifacts-plugin'
 import { IsTauri } from 'src/utils/platform-api'
 import { useI18n } from 'vue-i18n'
 import webSearchPlugin from 'src/utils/web-search-plugin'
+import docParsePlugin from 'src/utils/doc-parse-plugin'
 
 export const usePluginsStore = defineStore('plugins', () => {
   const installed = useLiveQuery(() => db.installedPluginsV2.toArray(), {
@@ -26,8 +27,8 @@ export const usePluginsStore = defineStore('plugins', () => {
     fluxPlugin,
     emotionsPlugin,
     mermaidPlugin,
-    docParsePlugin,
     timePlugin,
+    docParsePlugin.plugin,
     artifacts.plugin,
     ...installed.value.map(i => {
       if (i.type === 'lobechat') return buildLobePlugin(i.manifest, i.available)

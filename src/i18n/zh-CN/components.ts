@@ -214,8 +214,9 @@ export default {
   },
   payDialog: {
     pay: '支付',
-    refreshAfterPay: '支付完成后，点击「已完成支付」以刷新数据',
+    refreshAfterPay: '支付完成后，点击「已完成支付」以刷新数据。若没有跳转支付，请手动复制支付链接，并在浏览器中打开',
     cancel: '取消',
+    paymentLink: '复制支付链接',
     completePayment: '已完成支付'
   },
   saveDialog: {

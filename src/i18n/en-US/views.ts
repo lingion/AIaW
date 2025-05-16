@@ -30,7 +30,7 @@ export default {
     enable: 'Enable',
     pluginFunction: 'Plugin Function',
     generateSettings: 'Generation Settings',
-    stream: 'Stream',
+    stream: 'Streaming Transport',
     maxRetries: 'Max Retries',
     maxRetriesTip: 'Maximum number of retries when generation fails',
     maxSteps: 'Max Calls',
@@ -42,7 +42,7 @@ export default {
     temperature: 'Temperature',
     temperatureTip: 'The higher the value, the more random the reply',
     topP: 'Top P',
-    topPTip: 'Similar to randomness, but do not change with randomness together',
+    topPTip: 'Similar to temperature, but do not change with temperature together',
     presencePenalty: 'Presence Penalty',
     presencePenaltyTip: 'The higher the value, the more likely it is to expand to new topics',
     frequencyPenalty: 'Frequency Penalty',
@@ -125,6 +125,7 @@ export default {
     settings: 'Settings'
   },
   dialogView: {
+    model: 'Model',
     assistantModel: 'Assistant Model',
     globalDefault: 'Global Default',
     commonModels: 'Common Models',

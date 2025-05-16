@@ -125,6 +125,7 @@ export default {
     settings: '設定'
   },
   dialogView: {
+    model: '模型',
     assistantModel: '助手模型',
     globalDefault: '全域預設',
     commonModels: '常用模型',

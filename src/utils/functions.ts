@@ -111,7 +111,7 @@ function textBeginning(text: string, length = 10) {
 
 function parsePageRange(range: string) {
   return range.split(',').map(r => {
-    const [start, end] = r.split('-').map(Number)
+    const [start, end = start] = r.split('-').map(Number)
     const pages = []
     for (let i = start; i <= end; i++) {
       pages.push(i)

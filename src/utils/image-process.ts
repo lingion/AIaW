@@ -12,6 +12,21 @@ function imageFromFile(file: Blob) {
   })
 }
 
+function encodeFromUint8ClampedArray(data: Uint8ClampedArray, width: number, height: number, quality = 0.8) {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  canvas.width = width
+  canvas.height = height
+  const imgData = new ImageData(data, width, height)
+  ctx.putImageData(imgData, 0, 0)
+
+  return new Promise<Blob>((resolve) => {
+    canvas.toBlob((blob) => {
+      resolve(blob)
+    }, webpSupported ? 'image/webp' : 'image/jpeg', quality)
+  })
+}
+
 function encodeBlob(img, drawOptions, quality) {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
@@ -47,4 +62,4 @@ async function resizeBlob(imageFile: Blob, dw: number, dh: number, quality = 0.8
   return encodeBlob(img, { sx: 0, sy: 0, sw: img.width, sh: img.height, dw, dh }, quality)
 }
 
-export { cropSquareBlob, scaleBlob, resizeBlob }
+export { webpSupported, cropSquareBlob, encodeFromUint8ClampedArray, scaleBlob, resizeBlob }

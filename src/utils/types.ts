@@ -166,6 +166,7 @@ interface PluginApi {
 
 interface PluginFileparser {
   name: string
+  label?: string
   description: string
   rangeInput?: {
     label?: string

@@ -1,8 +1,8 @@
 export default {
   firstVisit: {
     title: 'Welcome to AI as Workspace',
-    messageWithLogin: 'AIaW is a full-featured, lightweight, and extensible AI client.<br><br>To use the AI model, you need to <b>configure a service provider (API)</b> or <b>log in</b>.<br>After logging in, you can also use cross-device real-time cloud synchronization.',
-    messageWithoutLogin: 'AIaW is a full-featured, lightweight, and extensible AI client.<br><br>To use the AI model, you need to <b>configure a service provider (API)</b>.',
+    messageWithLogin: 'In order to use AI models, you need to manually <b>configure the service provider</b>, or <b>log in</b> to use the model service we provide. <br>In addition, after logging in, you can also experience the real-time cloud synchronization across devices.',
+    messageWithoutLogin: 'In order to use AI models, you need to manually <b>configure the service provider</b>',
     cancel: 'Configure Provider',
     ok: 'Log In'
   },

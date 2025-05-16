@@ -300,7 +300,7 @@
         top-0
         px-2
         pb-4
-        v-if="perfs.messageCatalog && scrollContainer && $q.screen.gt.xs"
+        v-if="perfs.messageCatalog && scrollContainer && $q.screen.gt.xs && textContent.text"
         :editor-id="mdId"
         :scroll-element="scrollContainer"
         :md-heading-id="mdPreviewProps.mdHeadingId"

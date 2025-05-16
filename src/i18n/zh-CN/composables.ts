@@ -1,8 +1,8 @@
 export default {
   firstVisit: {
     title: '欢迎使用 AI as Workspace',
-    messageWithLogin: 'AIaW 是全功能、轻量级、可拓展的 AI 客户端。<br><br>为了使用 AI 模型，你需要<b>配置服务商（API）</b>或者<b>登录</b>。<br>登录之后，还可以使用跨设备实时云同步功能。',
-    messageWithoutLogin: 'AIaW 是全功能、轻量级、可拓展的 AI 客户端。<br><br>为了使用 AI 模型，你需要<b>配置服务商（API）</b>。',
+    messageWithLogin: '为了使用 AI 模型，你需要手动<b>配置服务商</b>，或者<b>登录</b>以使用我们提供的模型服务。<br>此外，登录之后还可以使用跨设备实时云同步功能。',
+    messageWithoutLogin: '为了使用 AI 模型，你需要<b>配置服务商</b>。',
     cancel: '配置服务商',
     ok: '登录'
   },

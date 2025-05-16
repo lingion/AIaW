@@ -215,7 +215,7 @@
           </q-item-section>
           <q-item-section side>
             <q-select
-              class="w-100px"
+              class="w-120px"
               filled
               dense
               v-model="assistant.promptRole"
