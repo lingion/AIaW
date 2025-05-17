@@ -12,7 +12,7 @@ File parsers are also provided by plugins. We have built-in several plugins for 
 
 - Document Parsing: Parse the content of documents (PDF, Word, Excel, PPT, etc.) and convert it to Markdown text.
 
-The first two plugins call the Whisper model through Huggingface🤗 Spaces, so they are free. The document parsing backend calls LlamaParse, which we also provide for free.
+The first two plugins call the Whisper model through Huggingface🤗 Spaces, so they are free. Document parsing will be parsed locally or through the backend calling LlamaParse, depending on the document type, which we also provide for free.
 
 ## Type Matching Process
 

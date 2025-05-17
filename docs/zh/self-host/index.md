@@ -6,11 +6,15 @@
 docker run -d -p 9010:9010 --name aiaw krytro/aiaw:latest
 ```
 
-如果要使用内置的文档解析插件，则需要登录 [LlamaCloud](https://cloud.llamaindex.ai/) 并创建 API Key，传入 `LLAMA_CLOUD_API_KEY` 环境变量；如果要使用联网搜索，需传入 `SEARXNG_URL` 环境变量：
+如果要使用联网搜索插件，需部署 SearXNG 实例，并传入 `SEARXNG_URL` 环境变量：
 
 ```bash
-docker run -d -p 9010:9010 -e LLAMA_CLOUD_API_KEY=xxxxxxx -e SEARXNG_URL=https://example.com --name aiaw krytro/aiaw:latest
+docker run -d -p 9010:9010 -e SEARXNG_URL=https://example.com --name aiaw krytro/aiaw:latest
 ```
+
+在 v1.7 之前，文档解析功能依赖 LlamaParse。在 v1.7+ 中，实现了针对 PDF, Docx, Xlsx, PPTX 文档的纯前端解析。但部分格式（如 .doc, .xls, .ppt）仍然使用 LlamaParse 解析。
+
+若需要使用 LlamaParse，请登录 [LlamaCloud](https://cloud.llamaindex.ai/) 并创建 API Key，传入 `LLAMA_CLOUD_API_KEY` 环境变量。
 
 ### Docker Compose
 
@@ -25,10 +29,10 @@ services:
     ports:
       - '9010:9010'
     environment:
-      # 如果要使用内置的文档解析插件
-      LLAMA_CLOUD_API_KEY: xxxxxxx
-      # 如果要使用内置的联网搜索
+      # 如果要使用内置的联网搜索插件
       SEARXNG_URL: https://example.com
+      # 如果要使用 LlamaParse
+      LLAMA_CLOUD_API_KEY: xxxxxxx
 ```
 
 ## 更多功能
@@ -44,8 +48,7 @@ services:
 | 基本功能 | √ | √ | √ | √ |
 | 插件市场/助手市场/Gradio插件 | √ | √ | √ | √ |
 | LobeChat插件 | × | √ | √ | √ |
-| 文档解析插件 | × | 需要 `LLAMA_CLOUD_API_KEY` | 需要 `LLAMA_CLOUD_API_KEY` | √ |
 | 云同步 | 需配置 DexieCloud | × | 需配置 DexieCloud | √ |
 | 开箱即用的模型服务 | × | × | × | √ |
 
-我们也使用 Docker 快速部署的方式，部署了一个版本：[lite.aiaw.app](https://lite.aiaw.app)，支持 LobeChat 插件和文档解析，没有云同步和开箱即用的模型服务。
+我们也使用 Docker 快速部署的方式，部署了一个没有云同步和模型服务的版本，可直接使用：[lite.aiaw.app](https://lite.aiaw.app)

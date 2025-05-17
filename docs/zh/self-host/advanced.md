@@ -62,7 +62,7 @@ docker build -t my-aiaw .
 docker run -d -p 9010:9010 --name my-aiaw my-aiaw
 ```
 
-同样，可以传入 `LLAMA_CLOUD_API_KEY` 以启用文档解析，传入 `SEARXNG_URL` 以启用联网搜索，或是使用 Docker Compose：
+同样，可以传入 `SEARXNG_URL` 以启用联网搜索，或是使用 Docker Compose：
 
 ```yaml
 services:
@@ -73,7 +73,6 @@ services:
     ports:
       - '9010:9010'
     environment:
-      LLAMA_CLOUD_API_KEY: xxxxxxx
       SEARXNG_URL: https://example.com
 ```
 
@@ -106,6 +105,5 @@ pnpm build
 | 基本功能 | √ | √ | √ | √ |
 | 插件市场/助手市场/Gradio插件 | √ | √ | √ | √ |
 | LobeChat插件 | × | √ | √ | √ |
-| 文档解析插件 | × | 需要 `LLAMA_CLOUD_API_KEY` | 需要 `LLAMA_CLOUD_API_KEY` | √ |
 | 云同步 | 需配置 DexieCloud | × | 需配置 DexieCloud | √ |
 | 开箱即用的模型服务 | × | × | × | √ |

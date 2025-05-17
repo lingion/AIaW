@@ -6,11 +6,15 @@
 docker run -d -p 9010:9010 --name aiaw krytro/aiaw:latest
 ```
 
-To use the built-in document parsing plugin, you need to log in to [LlamaCloud](https://cloud.llamaindex.ai/) and create an API Key, then pass it as the `LLAMA_CLOUD_API_KEY` environment variable; To use web search, you need to pass in the `SEARXNG_URL` environment variable:
+If you want to use the web search plugin, you need to deploy a SearXNG instance and pass in the `SEARXNG_URL` environment variable:
 
 ```bash
-docker run -d -p 9010:9010 -e LLAMA_CLOUD_API_KEY=xxxxxxx -e SEARXNG_URL=https://example.com --name aiaw krytro/aiaw:latest
+docker run -d -p 9010:9010 -e SEARXNG_URL=https://example.com --name aiaw krytro/aiaw:latest
 ```
+
+Before v1.7, the document parsing function relied on LlamaParse. In v1.7+, pure front-end parsing for PDF, Docx, Xlsx, PPTX documents is implemented. However, some formats (such as .doc, .xls, .ppt) are still parsed using LlamaParse.
+
+If you need to use LlamaParse, please log in to [LlamaCloud](https://cloud.llamaindex.ai/) and create an API Key, passing it in the `LLAMA_CLOUD_API_KEY` environment variable.
 
 ### Docker Compose
 
@@ -25,10 +29,10 @@ services:
     ports:
       - '9010:9010'
     environment:
-      # If you want to use the built-in document parsing plugin
-      LLAMA_CLOUD_API_KEY: xxxxxxx
-      # If you want to use the built-in document web search plugin
+      # If you want to use the built-in web search plugin
       SEARXNG_URL: https://example.com
+      # If you want to use LlamaParse
+      LLAMA_CLOUD_API_KEY: xxxxxxx
 ```
 
 ## More Features
@@ -44,8 +48,7 @@ Below is a feature comparison table for different deployment methods:
 | Basic Features | √ | √ | √ | √ |
 | Plugin Market / Assistant Market / Gradio Plugins | √ | √ | √ | √ |
 | LobeChat Plugins | × | √ | √ | √ |
-| Document Parsing Plugin | × | Requires `LLAMA_CLOUD_API_KEY` | Requires `LLAMA_CLOUD_API_KEY` | √ |
 | Cloud Synchronization | Requires DexieCloud Configuration | × | Requires DexieCloud Configuration | √ |
 | Out-of-the-Box Model Service | × | × | × | √ |
 
-We also use the Quick Docker Deployment method to deploy a version: [lite.aiaw.app](https://lite.aiaw.app), which supports LobeChat plugins and document parsing, but does not have cloud synchronization and out-of-the-box model services.
+We also used the docker image to deploy a version without cloud synchronization and model service, which can be used directly: [lite.aiaw.app](https://lite.aiaw.app)

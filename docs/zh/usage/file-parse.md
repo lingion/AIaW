@@ -12,7 +12,7 @@
 
 - 文档解析：解析文档（PDF、Word、Excel、PPT 等）内容，并转换为 Markdown 文本
 
-前两个插件通过 Huggingface🤗 Spaces 调用 Whisper 模型，因此是免费的。文档解析后端调用的是 LlamaParse，目前我们也免费提供。
+前两个插件通过 Huggingface🤗 Spaces 调用 Whisper 模型，因此是免费的。文档解析会根据文档类型，在本地解析或者通过后端调用 LlamaParse 解析，我们也免费提供。
 
 ## 类型匹配流程
 

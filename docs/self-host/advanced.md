@@ -62,7 +62,7 @@ The deployment method is the same as the quick deployment, except that you switc
 docker run -d -p 9010:9010 --name my-aiaw my-aiaw
 ```
 
-Similarly, you can pass in `LLAMA_CLOUD_API_KEY` to enable document parsing, pass in `SEARXNG_URL` to enable web searching or use Docker Compose:
+Similarly, you can pass in `SEARXNG_URL` to enable web searching, or use Docker Compose:
 
 ```yaml
 services:
@@ -73,7 +73,6 @@ services:
     ports:
       - '9010:9010'
     environment:
-      LLAMA_CLOUD_API_KEY: xxxxxxx
       SEARXNG_URL: https://example.com
 ```
 
@@ -106,6 +105,5 @@ Here is the feature comparison table of different deployment methods again:
 | Basic Features | √ | √ | √ | √ |
 | Plugin Market / Assistant Market / Gradio Plugins | √ | √ | √ | √ |
 | LobeChat Plugins | × | √ | √ | √ |
-| Document Parsing Plugin | × | Requires `LLAMA_CLOUD_API_KEY` | Requires `LLAMA_CLOUD_API_KEY` | √ |
 | Cloud Synchronization | Requires DexieCloud Configuration | × | Requires DexieCloud Configuration | √ |
 | Out-of-the-Box Model Service | × | × | × | √ |
