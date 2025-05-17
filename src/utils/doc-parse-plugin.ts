@@ -118,7 +118,7 @@ function rowsToMarkdown(rows) {
 }
 
 async function parseXlsx(file: Blob): Promise<ApiResultItem[]> {
-  const xlsx = await import('xlsx')
+  const xlsx = await import('xlsx-republish')
   const workbook = xlsx.read(await file.arrayBuffer())
   const result = workbook.SheetNames.map(name => {
     const markdown = rowsToMarkdown(xlsx.utils.sheet_to_json(workbook.Sheets[name], { header: 1 }))
@@ -222,7 +222,7 @@ const plugin: Plugin = {
     }
   }],
   settings: TObject({
-    ocrLanguage: TString({ title: t('docParsePlugin.ocrLanguage') })
+    ocrLanguage: TString({ title: t('docParsePlugin.ocrLanguage'), description: t('docParsePlugin.ocrLanguageDescription') })
   }),
   title: t('docParsePlugin.title'),
   description: t('docParsePlugin.description')

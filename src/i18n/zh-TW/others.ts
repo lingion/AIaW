@@ -156,6 +156,7 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
       hint: '例：1-3,5'
     },
     ocrLanguage: 'OCR 語言',
+    ocrLanguageDescription: '調用 LlamaParse 時指定的 OCR 語言',
     pagesLimitDialog: {
       title: '頁數過多',
       message: '當前要渲染的文檔截圖數量過多（>{limit}），過多的圖片可能導致加載緩慢，並影響模型的理解效果。建議指定頁碼範圍，重新解析。是否繼續解析？',

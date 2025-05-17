@@ -42,7 +42,7 @@ const timePlugin: Plugin = {
 }
 
 const calculatorPrompt =
-`Use this tool to evaluate mathetical expressions. The calculator is based on the \`expr-eval\` js library.
+  `Use this tool to evaluate mathetical expressions. The calculator is based on the \`expr-eval\` js library.
 
 Examples:
 
@@ -70,7 +70,7 @@ Examples:
 `
 
 const calculatorExpressionPrompt =
-`### Expression Syntax ###
+  `### Expression Syntax ###
 
 The parser accepts a pretty basic grammar. It's similar to normal JavaScript
 expressions, but is more math-oriented. For example, the \`^\` operator is
@@ -236,7 +236,7 @@ function buildGradioSettings(endpoint: GradioManifestEndpoint) {
     const title = `${endpoint.name}.${input.name}`
     const opt = {
       description: input.description,
-      title: input.paramType === 'optional' ? `${title} 默认值` : title
+      title: input.paramType === 'optional' ? `default ${title}` : title
     }
     let type
     if (input.type === 'str') type = TString(opt)
@@ -710,7 +710,7 @@ const fluxPlugin: Plugin = buildGradioPlugin(fluxPluginManifest, true)
 fluxPlugin.type = 'builtin'
 
 const emotionsPrompt =
-`在回答中，你可以使用 html img 标签插入表情包，使回答更可爱、富有情感。
+  `在回答中，你可以使用 html img 标签插入表情包，使回答更可爱、富有情感。
 设置 width="{{ displayWidth }}"，以避免显示得太大。
 
 可用的表情：

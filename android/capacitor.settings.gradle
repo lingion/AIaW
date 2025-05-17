@@ -27,4 +27,4 @@ include ':capacitor-export-file'
 project(':capacitor-export-file').projectDir = new File('../node_modules/.pnpm/capacitor-export-file@0.0.1_@capacitor+core@7.0.1/node_modules/capacitor-export-file/android')
 
 include ':capacitor-stream-fetch'
-project(':capacitor-stream-fetch').projectDir = new File('../node_modules/.pnpm/capacitor-stream-fetch@0.0.5_@capacitor+core@7.0.1/node_modules/capacitor-stream-fetch/android')
+project(':capacitor-stream-fetch').projectDir = new File('../node_modules/.pnpm/capacitor-stream-fetch@0.0.6_@capacitor+core@7.0.1/node_modules/capacitor-stream-fetch/android')

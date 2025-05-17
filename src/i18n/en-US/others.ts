@@ -156,6 +156,7 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
       hint: 'Example: 1-3,5'
     },
     ocrLanguage: 'OCR Language',
+    ocrLanguageDescription: 'The OCR language specified when calling LlamaParse',
     pagesLimitDialog: {
       title: 'Too Many Pages',
       message: 'The number of document screenshots to be rendered is too large (>{limit}). Too many images may cause slow loading and affect the understanding of the model. It is recommended to specify a page range and re-parse. Continue parsing?',
