@@ -17,7 +17,7 @@
           >
             <q-item-section
               avatar
-              max-w="xs:150px sm:200px"
+              max-w="xs:125px sm:200px"
               pr-3
             >
               <q-item-label
@@ -56,6 +56,7 @@
                 :options="allOptions[index]"
                 :label="$t('parseFilesDialog.parser')"
                 dense
+                class="xs:max-w-100px sm:max-w-200px"
               >
                 <template #option="{ opt, itemProps }">
                   <q-item

@@ -145,15 +145,15 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
     pdfExtractTextDescription: 'Extract text content from PDF',
     pdfScreenshotLabel: 'PDF Screenshot',
     pdfScreenshotDescription: 'Screenshot PDF content',
-    docxParseLabel: 'Word Document Parsing',
+    docxParseLabel: 'Docx parsing',
     docxParseDescription: 'Convert Word document to HTML',
-    xlsxParseLabel: 'Excel Spreadsheet Parsing',
+    xlsxParseLabel: 'Xlsx parsing',
     xlsxParseDescription: 'Convert Excel spreadsheet to Markdown table',
-    pptxParseLabel: 'Extract PPTX Text',
+    pptxParseLabel: 'PPTX parsing',
     pptxParseDescription: 'Extract text content from PPTX',
     rangeInput: {
       label: 'Page Range',
-      hint: 'Example: 1-3,5'
+      hint: 'e.g. 1-3,5'
     },
     ocrLanguage: 'OCR Language',
     ocrLanguageDescription: 'The OCR language specified when calling LlamaParse',
