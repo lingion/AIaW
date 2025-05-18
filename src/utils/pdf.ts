@@ -1,4 +1,4 @@
-import { type DocumentInitParameters, type PDFDocumentProxy, type TextItem } from 'pdfjs-dist/types/src/display/api'
+import type { DocumentInitParameters, PDFDocumentProxy, TextItem } from 'pdfjs-dist/types/src/display/api'
 import { webpSupported } from './image-process'
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/build/pdf.mjs'
 
@@ -6,7 +6,7 @@ export async function getDocumentProxy(
   data: DocumentInitParameters['data'],
   options: DocumentInitParameters = {}
 ) {
-  const pdf = await getDocument({
+  const pdf: PDFDocumentProxy = await getDocument({
     data,
     isEvalSupported: false,
     // See: https://github.com/mozilla/pdf.js/issues/4244#issuecomment-1479534301
@@ -38,7 +38,7 @@ export function extractText(
   text: string
 }>
 export async function extractText(
-  data: DocumentInitParameters['data'],
+  data: DocumentInitParameters['data'] | PDFDocumentProxy,
   options?: { mergePages?: boolean }
 ) {
   if (typeof window === 'undefined') {
@@ -69,7 +69,7 @@ async function getPageText(document: PDFDocumentProxy, pageNumber: number): Prom
 }
 
 export async function renderPageAsImage(
-  data: DocumentInitParameters['data'],
+  data: DocumentInitParameters['data'] | PDFDocumentProxy,
   pageNumber: number,
   options: {
     scale?: number;

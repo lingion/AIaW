@@ -74,7 +74,7 @@ async function renderPdfImages(file: Blob, { targetPages }): Promise<ApiResultIt
     if (!continueRender) return []
   }
   for (const i of pages) {
-    const image = await renderPageAsImage(pdf, i + 1, { scale: 1.5 })
+    const image = await renderPageAsImage(pdf, i + 1, { height: 1440 })
     images.push({
       type: 'file',
       mimeType: image.type,
