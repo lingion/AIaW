@@ -1,4 +1,4 @@
-![](docs/public/combine.webp)
+![](docs/public/combine.en.webp)
 
 # AI as Workspace
 
@@ -6,7 +6,7 @@
 
 A better AI client
 
-[Website](https://aiaw.app) - [Download](https://github.com/NitroRCr/AIaW/releases/latest) - [Docs](https://docs.aiaw.app/) - [Self-hosting Guide](https://docs.aiaw.app/self-host/) - [简体中文](README.zh-CN.md)
+[Web Version](https://aiaw.app) - [Download](https://github.com/NitroRCr/AIaW/releases/latest) - [Docs](https://docs.aiaw.app/) - [Self-hosting Guide](https://docs.aiaw.app/self-host/) - [简体中文](README.zh-CN.md)
 
 ## Features Overview
 

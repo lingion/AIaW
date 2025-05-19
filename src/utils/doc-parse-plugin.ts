@@ -118,10 +118,10 @@ function rowsToMarkdown(rows) {
 }
 
 async function parseXlsx(file: Blob): Promise<ApiResultItem[]> {
-  const xlsx = await import('xlsx-republish')
-  const workbook = xlsx.read(await file.arrayBuffer())
+  const { read, utils } = await import('xlsx-republish')
+  const workbook = read(await file.arrayBuffer())
   const result = workbook.SheetNames.map(name => {
-    const markdown = rowsToMarkdown(xlsx.utils.sheet_to_json(workbook.Sheets[name], { header: 1 }))
+    const markdown = rowsToMarkdown(utils.sheet_to_json(workbook.Sheets[name], { header: 1 }))
     return `**${name}:**\n${markdown}`
   }).join('\n\n')
   return [{

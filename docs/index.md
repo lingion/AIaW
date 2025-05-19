@@ -6,7 +6,7 @@ hero:
   name: "AI as Workspace"
   text: "Next-Gen LLM Client"
   tagline: AIaW is a full-featured, lightweight, and extensible AI client.
-  image: /ui.webp
+  image: /ui.en.webp
   actions:
     - theme: brand
       text: Usage Guide

@@ -36,7 +36,10 @@
                 {{ file.type }}
               </q-item-label>
             </q-item-section>
-            <q-item-section v-if="selected[index]?.rangeInput">
+            <q-item-section
+              v-if="selected[index]?.rangeInput"
+              min-w="80px"
+            >
               <a-input
                 v-model="ranges[index]"
                 :label="selected[index].rangeInput.label"
@@ -56,7 +59,6 @@
                 :options="allOptions[index]"
                 :label="$t('parseFilesDialog.parser')"
                 dense
-                class="xs:max-w-100px sm:max-w-200px"
               >
                 <template #option="{ opt, itemProps }">
                   <q-item
