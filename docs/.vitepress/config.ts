@@ -58,6 +58,7 @@ export default defineConfig({
             text: 'Usage',
             items: [
               { text: 'Features Overview', link: '/usage/' },
+              { text: 'Usage Tips', link: '/usage/usage-tips' },
               { text: 'Artifacts', link: '/usage/artifacts' },
               { text: 'File Parsing', link: '/usage/file-parse' },
               { text: 'Cross-Platform', link: '/usage/cross-platform' },
@@ -97,6 +98,7 @@ export default defineConfig({
             text: '使用文档',
             items: [
               { text: '功能概览', link: '/zh/usage/' },
+              { text: '使用技巧', link: '/zh/usage/usage-tips' },
               { text: 'Artifacts', link: '/zh/usage/artifacts' },
               { text: '文件解析', link: '/zh/usage/file-parse' },
               { text: '跨平台', link: '/zh/usage/cross-platform' },

@@ -16,7 +16,7 @@
 - Video Parsing: Supports selecting video files and specifying a duration range (default is the entire video), which will be automatically transcribed into text input, thereby realizing the ability to ask questions about video content.
 <img src="./res/video-parse.png" width="440">
 
-- [Plugin System](plugins): Built-in plugins such as calculator and image generation. In addition, more plugins can be installed in the plugin store.
+- [Plugin System](plugins): Built-in plugins such as web search, calculator and image generation. In addition, more plugins can be installed in the plugin store.
 <img src="./res/gen-image.webp" title="Image Generation Plugin">
 
 - Assistant Market: Get various customized prompt assistants (prompts from [lobe-chat-agents](https://github.com/lobehub/lobe-chat-agents))

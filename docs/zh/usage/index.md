@@ -16,7 +16,7 @@
 - 视频解析：支持选择视频文件并指定时长范围（默认为整个视频），将自动转稿为文本输入，以此实现对视频内容的提问
 <img src="./res/video-parse.png" width="440">
 
-- [插件系统](plugins)：内置了计算器、图像生成等插件。此外可在插件商店安装更多插件
+- [插件系统](plugins)：内置了联网搜索、计算器、图像生成等插件。此外可在插件商店安装更多插件
 <img src="./res/gen-image.webp" title="图像生成插件">
 
 - 助手市场：获取各种各样定制提示词的助手（提示词来自[lobe-chat-agents](https://github.com/lobehub/lobe-chat-agents)）
