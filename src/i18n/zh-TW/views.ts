@@ -227,7 +227,9 @@ export default {
     dark: '深色',
     exportFailed: '導出失敗',
     auto: '自動',
-    language: '語言'
+    language: '語言',
+    userInputDebounce: '使用者輸入去抖動',
+    userInputDebounceCaption: '若高頻輸入時出現已輸入內容被覆寫的情況，可嘗試調高此值'
   },
   customProvider: {
     title: '編輯服務商',

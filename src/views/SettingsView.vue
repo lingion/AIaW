@@ -296,6 +296,25 @@
             <q-icon name="sym_o_chevron_right" />
           </q-item-section>
         </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>
+              {{ $t('settingsView.userInputDebounce') }}
+            </q-item-label>
+            <q-item-label caption>
+              {{ $t('settingsView.userInputDebounceCaption') }}
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-input
+              type="number"
+              v-model.number="perfs.userInputDebounce"
+              dense
+              filled
+              class="w-120px"
+            />
+          </q-item-section>
+        </q-item>
         <q-separator spaced />
         <q-item-label
           header

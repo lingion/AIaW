@@ -227,7 +227,9 @@ export default {
     dark: 'Dark',
     exportFailed: 'Export Failed',
     auto: 'Auto',
-    language: 'Language'
+    language: 'Language',
+    userInputDebounce: 'User Input Debounce',
+    userInputDebounceCaption: 'If the input content is overwritten when inputting at a high frequency, try increasing this value'
   },
   customProvider: {
     title: 'Edit Provider',

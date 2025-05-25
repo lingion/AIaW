@@ -400,7 +400,7 @@
           outlined
           autogrow
           clearable
-          :debounce="25"
+          :debounce="perfs.userInputDebounce"
           :placeholder="$t('dialogView.chatPlaceholder')"
           @keydown.enter="onEnter"
           @paste="onTextPaste"
@@ -620,14 +620,14 @@ const inputEmpty = computed(() => !inputMessageContent.value?.text && !inputMess
 
 const inputText = ref('')
 const pendingTexts = []
-let timeoutId = null
+let pendingTimeout = null
 async function updateInputText(text) {
   inputText.value = text
   pendingTexts.push(text)
-  clearTimeout(timeoutId)
-  timeoutId = window.setTimeout(() => {
+  clearTimeout(pendingTimeout)
+  pendingTimeout = window.setTimeout(() => {
     pendingTexts.splice(0)
-  }, 100)
+  }, 200)
   await db.messages.update(chain.value.at(-1), {
     // use shallow keyPath to avoid dexie's sync bug
     contents: [{
@@ -1211,8 +1211,12 @@ function onEnter(ev) {
   } else if (perfs.sendKey === 'shift+enter') {
     ev.shiftKey && send()
   } else {
-    if (ev.ctrlKey) document.execCommand('insertText', false, '\n')
-    else if (!ev.shiftKey) send()
+    if (ev.ctrlKey) {
+      document.execCommand('insertText', false, '\n')
+    } else if (!ev.shiftKey) {
+      ev.preventDefault()
+      send()
+    }
   }
 }
 

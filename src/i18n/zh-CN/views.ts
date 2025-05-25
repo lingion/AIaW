@@ -227,7 +227,9 @@ export default {
     dark: '深色',
     exportFailed: '导出失败',
     auto: '自动',
-    language: '语言'
+    language: '语言',
+    userInputDebounce: '用户输入防抖',
+    userInputDebounceCaption: '若高频输入时出现已输入内容被覆写的情况，可尝试调高此值'
   },
   customProvider: {
     title: '编辑服务商',
