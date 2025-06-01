@@ -402,7 +402,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
   const prompts: PluginApi[] = dump.prompts.map(prompt => {
     const { name, description } = prompt
     const params: Record<string, any> = {}
-    prompt.arguments.forEach(arg => {
+    prompt.arguments?.forEach(arg => {
       const t = TString({ title: arg.name, description: arg.description })
       params[arg.name] = arg.required ? t : TOptional(t)
     })
@@ -476,12 +476,12 @@ async function dumpMcpPlugin(manifest: McpPluginManifest): Promise<McpPluginDump
   const capabilities = client.getServerCapabilities()
   const { tools } = capabilities.tools ? await client.listTools() : { tools: [] }
   const { resources } = capabilities.resources ? await client.listResources() : { resources: [] }
-  const res = capabilities.prompts ? await client.listPrompts() : { prompts: [] }
+  const { prompts } = capabilities.prompts ? await client.listPrompts() : { prompts: [] }
   return {
     ...manifest,
     tools,
     resources,
-    prompts: res.prompts
+    prompts
   }
 }
 

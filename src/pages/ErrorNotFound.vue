@@ -45,7 +45,7 @@ const show = ref(false)
 onMounted(() => {
   setTimeout(() => {
     show.value = true
-  }, props.timeout ?? 200)
+  }, props.timeout ?? 250)
 })
 
 </script>

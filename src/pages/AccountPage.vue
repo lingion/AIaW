@@ -133,7 +133,8 @@
                 {{ $t('accountPage.remainingBudget') }}
               </q-item-label>
               <q-item-label caption>
-                <span v-if="llmBalance != null">{{ localePrice(llmBalance, 4) }}</span>
+                <span v-if="Number.isNaN(llmBalance)">≤0</span>
+                <span v-else-if="llmBalance != null">{{ localePrice(llmBalance, 4) }}</span>
                 <span v-else>-</span>
               </q-item-label>
             </q-item-section>
@@ -281,7 +282,7 @@ async function refreshLlmBalance() {
   })
   const { info, error } = await resp.json()
   if (resp.status === 400 && error.type === 'budget_exceeded') {
-    llmBalance.value = 0
+    llmBalance.value = NaN
     return
   }
   llmBalance.value = info.max_budget - info.spend
