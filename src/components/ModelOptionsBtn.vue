@@ -47,7 +47,7 @@ const rules = [{
   }
 }, {
   match: (provider: string, model: string) => {
-    return provider.startsWith('google.') && /^gemini-2\.0-(flash|pro)(-(exp|latest|00\d))?$/.test(model)
+    return provider.startsWith('google.') && (/^gemini-2\.[05]/.test(model))
   },
   options: {
     useSearchGrounding: Optional(TBoolean({ title: t('modelOptionsBtn.useSearchGrounding') }))
