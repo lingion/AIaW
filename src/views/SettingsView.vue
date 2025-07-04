@@ -469,7 +469,7 @@
         <q-separator spaced />
         <q-item-label
           header
-          id="ui"
+          id="data"
         >
           {{ $t('settingsView.dataHeader') }}
         </q-item-label>

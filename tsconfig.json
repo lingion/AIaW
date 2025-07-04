@@ -1,6 +1,11 @@
 {
   "extends": "./.quasar/tsconfig.json",
   "exclude": [
+    "./dist",
+    "./node_modules",
+    "./src-capacitor",
+    "./src-cordova",
+    "./quasar.config.*.temporary.compiled*",
     "./src-tauri"
   ]
 }

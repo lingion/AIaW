@@ -204,7 +204,7 @@ const InputTypes = {
   claudePdf: { user: ['image/*', 'application/pdf'], assistant: [], tool: ['image/*'] },
   audioPreview: { user: ['audio/*'], assistant: [], tool: [] },
   default: { user: ['image/*'], assistant: [], tool: [] },
-  gemini2: { user: ['image/*', 'audio/*'], assistant: [], tool: [] }
+  gemini2: { user: ['image/*', 'audio/*', 'application/pdf'], assistant: [], tool: [] }
 }
 const models: Model[] = [
   { name: 'o4-mini', inputTypes: InputTypes.commonVision },
