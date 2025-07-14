@@ -43,6 +43,8 @@ const avatar = computed<Avatar>(() => {
   if (m.startsWith('qwen') || m.startsWith('qwq')) return { type: 'svg', name: 'qwen-c' }
   if (m.startsWith('deepseek')) return { type: 'svg', name: 'deepseek-c' }
   if (m.startsWith('grok') || m.startsWith('xai')) return { type: 'svg', name: 'grok' }
+  if (m.startsWith('kimi') || m.startsWith('moonshot')) return { type: 'svg', name: 'kimi-c' }
+  if (m.startsWith('doubao')) return { type: 'svg', name: 'doubao-c' }
   return defaultAvatar(m[0].toUpperCase())
 })
 </script>
