@@ -96,7 +96,17 @@ const ProviderTypes: ProviderType[] = [
       baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultGoogleAddress'), default: OfficialBaseURLs.google })
     }),
     initialSettings: {},
-    constructor: createGoogleGenerativeAI
+    constructor: createGoogleGenerativeAI,
+    getModelList: async (settings) => {
+      const baseURL = settings.baseURL || OfficialBaseURLs.google
+      const resp = await fetch(`${baseURL}/models`, {
+        headers: {
+          'x-goog-api-key': settings.apiKey
+        }
+      })
+      const { models } = await resp.json()
+      return models.filter(m => m.supportedGenerationMethods.includes('generateContent')).map(m => m.name.split('/').at(-1))
+    }
   },
   {
     name: 'openai-compatible',
