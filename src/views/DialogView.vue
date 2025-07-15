@@ -317,6 +317,7 @@
             min-h="2.7em"
           />
           <add-info-btn
+            v-if="assistant"
             :plugins="activePlugins"
             :assistant-plugins="assistant.plugins"
             @add="addInputItems"
@@ -486,7 +487,10 @@ const workspace: Ref<Workspace> = inject('workspace')
 const assistants = computed(() => assistantsStore.assistants.filter(
   a => [workspace.value.id, '$root'].includes(a.workspaceId)
 ))
-const assistant = computed(() => ({ ...assistantsStore.assistants.find(a => a.id === dialog.value?.assistantId) })) // force trigger updates
+const assistant = computed(() => {
+  const val = assistantsStore.assistants.find(a => a.id === dialog.value?.assistantId)
+  return val && { ...val } // force trigger updates
+})
 provide('dialog', dialog)
 
 const chain = computed<string[]>(() => liveData.value.dialog ? getChain('$root', liveData.value.dialog.msgRoute)[0] : [])
