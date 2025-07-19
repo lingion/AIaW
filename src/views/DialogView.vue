@@ -398,7 +398,7 @@
           max-h-50vh
           of-y-auto
           :model-value="inputText"
-          @update:model-value="inputMessageContent && updateInputText($event)"
+          @update:model-value="inputMessageContent && updateInputText($event ?? '')"
           outlined
           autogrow
           clearable
@@ -897,6 +897,7 @@ const sdkModel = computed(() => getSdkModel(assistant.value?.provider, model.val
 const $q = useQuasar()
 const { data } = useUserDataStore()
 async function send() {
+  if (inputEmpty.value) return
   if (!assistant.value) {
     $q.notify({ message: t('dialogView.errors.setAssistant'), color: 'negative' })
     return
