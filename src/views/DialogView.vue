@@ -179,7 +179,7 @@
         pos-relative
       >
         <div
-          v-if="inputMessageContent?.items.length"
+          v-if="inputMessageContent?.items?.length"
           pos-absolute
           z-3
           top-0
@@ -369,6 +369,7 @@
             @click="send"
             @abort="abortController?.abort()"
             :loading="!!messageMap[chain.at(-2)]?.generatingSession"
+            :disable="inputEmpty"
             ml-4
             min-h="40px"
           />
@@ -419,7 +420,7 @@ import { useLiveQueryWithDeps } from 'src/composables/live-query'
 import { almostEqual, displayLength, genId, isPlatformEnabled, isTextFile, JSONEqual, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode, wrapQuote } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { streamText, CoreMessage, generateText, tool, jsonSchema, StreamTextResult, GenerateTextResult } from 'ai'
-import { throttle, useQuasar } from 'quasar'
+import { copyToClipboard, throttle, useQuasar } from 'quasar'
 import AssistantItem from 'src/components/AssistantItem.vue'
 import { DialogContent, ExtractArtifactPrompt, ExtractArtifactResult, GenDialogTitle, NameArtifactPrompt, PluginsPrompt } from 'src/utils/templates'
 import sessions from 'src/utils/sessions'
@@ -620,7 +621,7 @@ const itemMap = computed<Record<string, StoredItem>>(() => {
 })
 provide('messageMap', messageMap)
 provide('itemMap', itemMap)
-const inputEmpty = computed(() => !inputMessageContent.value?.text && !inputMessageContent.value?.items.length)
+const inputEmpty = computed(() => !inputMessageContent.value?.text && !inputMessageContent.value?.items?.length)
 
 const inputText = ref('')
 const pendingTexts = []
@@ -919,18 +920,14 @@ async function send() {
     return
   }
   showVars.value = false
-  if (inputEmpty.value) {
-    await stream(chain.value.at(-2), true)
-  } else {
-    const target = chain.value.at(-1)
-    await db.messages.update(target, { status: 'default' })
-    until(chain).changed().then(() => {
-      nextTick().then(() => {
-        scroll('bottom')
-      })
+  const target = chain.value.at(-1)
+  await db.messages.update(target, { status: 'default' })
+  until(chain).changed().then(() => {
+    nextTick().then(() => {
+      scroll('bottom')
     })
-    await stream(target, false)
-  }
+  })
+  await stream(target, false)
   perfs.autoGenTitle && chain.value.length === 4 && genTitle()
 }
 
@@ -1168,7 +1165,7 @@ async function genTitle() {
   }
 }
 async function copyContent() {
-  await navigator.clipboard.writeText(await engine.parseAndRender(DialogContent, {
+  await copyToClipboard(await engine.parseAndRender(DialogContent, {
     contents: getDialogContents(),
     title: dialog.value.name
   }))
