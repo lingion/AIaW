@@ -368,8 +368,8 @@
             :label="$t('dialogView.send')"
             @click="send"
             @abort="abortController?.abort()"
-            :loading="!!messageMap[chain.at(-2)]?.generatingSession"
-            :disable="inputEmpty"
+            :loading="generating"
+            :disable="inputEmpty && !generating"
             ml-4
             min-h="40px"
           />
@@ -621,6 +621,7 @@ const itemMap = computed<Record<string, StoredItem>>(() => {
 })
 provide('messageMap', messageMap)
 provide('itemMap', itemMap)
+const generating = computed(() => !!messageMap.value[chain.value.at(-2)]?.generatingSession)
 const inputEmpty = computed(() => !inputMessageContent.value?.text && !inputMessageContent.value?.items?.length)
 
 const inputText = ref('')

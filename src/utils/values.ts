@@ -286,7 +286,8 @@ const models: Model[] = [
   { name: 'grok-3-mini', inputTypes: InputTypes.textOnly },
   { name: 'grok-3-mini-beta', inputTypes: InputTypes.textOnly },
   { name: 'grok-3-mini-fast', inputTypes: InputTypes.textOnly },
-  { name: 'grok-3-mini-fast-beta', inputTypes: InputTypes.textOnly }
+  { name: 'grok-3-mini-fast-beta', inputTypes: InputTypes.textOnly },
+  { name: 'grok-4', inputTypes: InputTypes.commonVision }
 ]
 const modelOptions = models.map(m => m.name)
 const dialogOptions = {
