@@ -225,7 +225,6 @@ export default {
     followSystem: '跟随系统',
     light: '浅色',
     dark: '深色',
-    exportFailed: '导出失败',
     auto: '自动',
     language: '语言',
     userInputDebounce: '用户输入防抖',

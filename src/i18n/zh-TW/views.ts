@@ -225,7 +225,6 @@ export default {
     followSystem: '跟隨系統',
     light: '淺色',
     dark: '深色',
-    exportFailed: '導出失敗',
     auto: '自動',
     language: '語言',
     userInputDebounce: '使用者輸入去抖動',

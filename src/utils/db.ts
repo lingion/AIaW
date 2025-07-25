@@ -29,7 +29,7 @@ if (DexieDBURL) {
     nameSuffix: false
   })
 }
-db.version(6).stores({
+const schema = {
   workspaces: 'id, type, parentId',
   dialogs: 'id, workspaceId',
   messages: 'id, type, dialogId',
@@ -41,7 +41,8 @@ db.version(6).stores({
   avatarImages: 'id',
   items: 'id, type, dialogId',
   providers: 'id'
-})
+}
+db.version(6).stores(schema)
 
 const defaultModelSettings = {
   temperature: 0.6,
@@ -116,5 +117,5 @@ db.workspaces.hook('reading', workspace => {
   return workspace
 })
 
-export { db, defaultModelSettings }
+export { schema, db, defaultModelSettings }
 export type { Db }

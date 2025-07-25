@@ -101,6 +101,14 @@ export default {
     importSuccess: '導入成功',
     importFailed: '導入失敗：{message}'
   },
+  exportDataDialog: {
+    title: '導出使用者資料',
+    removeUserMark: '移除使用者標記（遷移資料時勾選）',
+    cancel: '取消',
+    export: '導出',
+    exportSuccess: '導出成功',
+    exportFailed: '導出失敗'
+  },
   imageInputArea: {
     clickToSelect: '點擊選擇圖片',
     dragHere: '拖曳到此處',

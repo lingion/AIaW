@@ -225,7 +225,6 @@ export default {
     followSystem: 'Follow System',
     light: 'Light',
     dark: 'Dark',
-    exportFailed: 'Export Failed',
     auto: 'Auto',
     language: 'Language',
     userInputDebounce: 'User Input Debounce',

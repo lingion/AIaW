@@ -538,16 +538,16 @@ import { useLocateId } from 'src/composables/locate-id'
 import { pageFhStyle } from 'src/utils/functions'
 import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
 import PlatformEnabledInput from 'src/components/PlatformEnabledInput.vue'
-import { exportDB } from 'dexie-export-import'
 import ImportDataDialog from 'src/components/ImportDataDialog.vue'
 import { useI18n } from 'vue-i18n'
 import { localData } from 'src/utils/local-data'
-import { exportFile, PublicOrigin } from 'src/utils/platform-api'
+import { PublicOrigin } from 'src/utils/platform-api'
 import ModelsInput from 'src/components/ModelsInput.vue'
 import GetModelList from 'src/components/GetModelList.vue'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import ModelDragSortDialog from 'src/components/ModelDragSortDialog.vue'
 import { useGetModel } from 'src/composables/get-model'
+import ExportDataDialog from 'src/components/ExportDataDialog.vue'
 
 defineEmits(['toggle-drawer'])
 
@@ -590,20 +590,14 @@ const user = DexieDBURL ? useObservable(db.cloud.currentUser) : null
 const { getProvider } = useGetModel()
 const provider = computed(() => getProvider())
 
-function exportData() {
-  exportDB(db).then(blob => {
-    exportFile('aiaw_user_db.json', blob)
-  }).catch(err => {
-    console.error(err)
-    $q.notify({
-      message: t('settingsView.exportFailed'),
-      color: 'negative'
-    })
-  })
-}
 function importData() {
   $q.dialog({
     component: ImportDataDialog
+  })
+}
+function exportData() {
+  $q.dialog({
+    component: ExportDataDialog
   })
 }
 const langOptions = [

@@ -98,8 +98,16 @@ export default {
     clear: 'Clear Existing Data Before Import',
     cancel: 'Cancel',
     import: 'Import',
-    importSuccess: 'Import successful',
+    importSuccess: 'Import success',
     importFailed: 'Import failed: {message}'
+  },
+  exportDataDialog: {
+    title: 'Export User Data',
+    removeUserMark: 'Remove User Mark (check when migrating data)',
+    cancel: 'Cancel',
+    export: 'Export',
+    exportSuccess: 'Export success',
+    exportFailed: 'Export failed'
   },
   imageInputArea: {
     clickToSelect: 'Click to Select Image',
