@@ -61,7 +61,9 @@ function viewImage() {
   $q.dialog({
     component: ViewImageDialog,
     componentProps: {
-      url: url.value
+      url: url.value,
+      arrayBuffer: props.image.contentBuffer,
+      mimeType: props.image.mimeType
     }
   })
 }
