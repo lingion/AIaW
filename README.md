@@ -30,7 +30,7 @@ An elegant AI client
 - Group workspaces into folders; supports nesting
 - Create multiple assistants within a workspace or global assistants
 
-<img src="docs/usage/res/workspace-list.png" width="378">
+<img src="docs/usage/res/workspace-list.en.png" width="378">
 
 ### Data Storage
 
@@ -82,7 +82,7 @@ An elegant AI client
 - Configure Gradio applications as plugins; compatible with some LobeChat plugins
 - Plugins are more than just tool calling
 
-![](docs/public/plugin-market.png)
+![](docs/public/plugin-market.en.webp)
 
 ### Lightweight and High Performance
 

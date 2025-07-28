@@ -34,7 +34,7 @@
 ## Extended Use
 
 - Multi-Workspace: In the left sidebar, you can create multiple workspaces to separate conversations with different themes and different types of assistants; you can also create folders to put multiple workspaces into them; supports nesting.
-<img src="./res/workspace-list.png" width="378">
+<img src="./res/workspace-list.en.png" width="378">
 
 - [Artifacts](artifacts): Any part of the assistant's response can be converted into Artifacts, which will be displayed in a separate window for easy modification and reuse.
 <img src="https://fs.krytro.com/aiaw/convert-artifact.webp" width="600">

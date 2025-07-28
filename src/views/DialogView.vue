@@ -110,7 +110,8 @@
             tip-key="configure-common-models"
             rd-0
           >
-            {{ $t('dialogView.modelsConfigGuide1') }}<router-link
+            {{ $t('dialogView.modelsConfigGuide1') }}
+            <router-link
               to="/settings"
               pri-link
             >
