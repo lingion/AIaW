@@ -4,6 +4,8 @@
 
 ![](https://badge.mcpx.dev?type=client 'MCP Client') ![](https://badge.mcpx.dev?type=client&features=resources,prompts,tools 'MCP client with features')
 
+<a href="https://www.producthunt.com/products/ai-as-workspace?embed=true&utm_source=badge-featured&utm_medium=badge&utm_source=badge-ai&#0045;as&#0045;workspace" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=998422&theme=light&t=1754113514744" alt="AI&#0032;as&#0032;Workspace - An&#0032;elegant&#0032;AI&#0032;chat&#0032;client&#0032;with&#0032;multi&#0045;workspaces&#0032;&#0038;&#0032;cloud&#0032;sync | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+
 An elegant AI client
 
 [Web Version](https://aiaw.app) - [Download](https://github.com/NitroRCr/AIaW/releases/latest) - [Docs](https://docs.aiaw.app/) - [Self-hosting Guide](https://docs.aiaw.app/self-host/) - [简体中文](README.zh-CN.md)
