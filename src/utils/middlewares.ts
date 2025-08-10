@@ -14,6 +14,20 @@ const FormattingReenabled: LanguageModelV1Middleware = {
   }
 }
 
+const MarkdownFormatting: LanguageModelV1Middleware = {
+  async transformParams({ params }) {
+    const prompt = params.prompt
+    prompt.unshift({
+      role: 'system',
+      content: '- Use Markdown **only where semantically correct** (e.g., `inline code`, ```code fences```, lists, tables).\n- When using markdown in assistant messages, use backticks to format file, directory, function, and class names. Use \\( and \\) for inline math, \\[ and \\] for block math.'
+    })
+    return {
+      ...params,
+      prompt
+    }
+  }
+}
+
 const AuthropicCors: LanguageModelV1Middleware = {
   async transformParams({ params }) {
     return {
@@ -76,5 +90,6 @@ export const LogMiddleware: LanguageModelV1Middleware = {
 
 export {
   FormattingReenabled,
+  MarkdownFormatting,
   AuthropicCors
 }

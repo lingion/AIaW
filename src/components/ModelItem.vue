@@ -32,6 +32,7 @@ const props = defineProps<{
 
 const avatar = computed<Avatar>(() => {
   const m = props.model.toLowerCase()
+  if (m.includes('gpt-5')) return { type: 'svg', name: 'openai', hue: 358 }
   if (m.includes('gpt-4')) return { type: 'svg', name: 'openai', hue: 307 }
   if (m.startsWith('o1') || m.startsWith('o3') || m.startsWith('o4')) return { type: 'svg', name: 'openai', hue: 88 }
   if (m.includes('gpt') || m.startsWith('openai')) return { type: 'svg', name: 'openai', hue: 160 }
