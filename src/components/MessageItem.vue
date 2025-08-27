@@ -63,7 +63,7 @@
                 pt-2
                 @vue:updated="onHtmlChanged()"
               >
-                {{ content.reasoning }}
+                {{ content.reasoning.trim() }}
               </q-card-section>
             </q-card>
           </q-expansion-item>
@@ -554,7 +554,6 @@ function selectedConvertArtifact() {
 }
 
 function onHtmlChanged(inject = false) {
-  console.log(inject)
   nextTick(() => {
     inject && injectConvertArtifact()
     emit('rendered')
