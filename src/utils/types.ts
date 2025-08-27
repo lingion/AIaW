@@ -10,7 +10,7 @@ interface ModelSettings {
   frequencyPenalty: number
   maxSteps: number
   maxRetries: number
-  maxTokens?: number
+  maxOutputTokens?: number
   stopSequences?: string[]
   seed?: number
 }
@@ -116,7 +116,7 @@ interface AssistantToolContent {
 
 type MessageContent = UserMessageContent | AssistantMessageContent | AssistantToolContent
 
-class ApiCallError extends Error {}
+class ApiCallError extends Error { }
 
 interface AssistantPluginInfo {
   name: string

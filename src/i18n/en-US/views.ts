@@ -49,8 +49,8 @@ export default {
     frequencyPenaltyTip: 'The higher the value, the more likely it is to reduce repeated words',
     stopSequences: 'Stop Sequences',
     stopSequencesTip: 'When the model generates a stop word, it will stop generating. Press Enter to add a value.',
-    maxTokens: 'Single Reply Limit',
-    maxTokensTip: 'Maximum number of tokens generated at once',
+    maxOutputTokens: 'Single Reply Limit',
+    maxOutputTokensTip: 'Maximum number of tokens generated at once',
     seed: 'Seed',
     seedTip: 'Seed for random sampling (integer). Used to generate deterministic results.',
     notAllParamsSupported: 'Tip: Not all providers support all parameters',
@@ -228,7 +228,8 @@ export default {
     auto: 'Auto',
     language: 'Language',
     userInputDebounce: 'User Input Debounce',
-    userInputDebounceCaption: 'If the input content is overwritten when inputting at a high frequency, try increasing this value'
+    userInputDebounceCaption: 'If the input content is overwritten when inputting at a high frequency, try increasing this value',
+    expandReasoningContent: 'Auto Expand Reasoning Content'
   },
   customProvider: {
     title: 'Edit Provider',

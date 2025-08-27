@@ -11,7 +11,7 @@ import { createXai } from '@ai-sdk/xai'
 import { createTogetherAI } from '@ai-sdk/togetherai'
 import { createCohere } from '@ai-sdk/cohere'
 import { createGroq } from '@ai-sdk/groq'
-import { createOllama } from 'ollama-ai-provider'
+import { createOllama } from 'ai-sdk-ollama'
 import { createDeepSeek } from '@ai-sdk/deepseek'
 import { i18n } from 'src/boot/i18n'
 import { fetch } from './platform-api'
@@ -40,8 +40,11 @@ const ProviderTypes: ProviderType[] = [
       organization: String({ title: t('values.organization'), description: t('values.optional') }),
       project: String({ title: t('values.project'), description: t('values.optional') })
     }),
-    initialSettings: { compatibility: 'strict' },
-    constructor: createOpenAI,
+    initialSettings: {},
+    constructor: (...args) => {
+      const provider = createOpenAI(...args)
+      return modelId => provider.chat(modelId)
+    },
     getModelList: async (settings) => {
       const baseURL = settings.baseURL || OfficialBaseURLs.openai
       const resp = await fetch(`${baseURL}/models`, {
@@ -117,7 +120,7 @@ const ProviderTypes: ProviderType[] = [
       baseURL: String({ title: t('values.apiAddress'), description: t('values.required') })
     }),
     initialSettings: {},
-    constructor: createOpenAICompatible,
+    constructor: options => createOpenAICompatible({ name: 'openai-compatible', includeUsage: true, ...options }),
     getModelList: async (settings) => {
       const baseURL = settings.baseURL
       const resp = await fetch(`${baseURL}/models`, {
@@ -234,6 +237,7 @@ const models: Model[] = [
   { name: 'gpt-5-mini-2025-08-07', inputTypes: InputTypes.commonVision },
   { name: 'gpt-5-nano', inputTypes: InputTypes.commonVision },
   { name: 'gpt-5-nano-2025-08-07', inputTypes: InputTypes.commonVision },
+  { name: 'gpt-5-chat-latest', inputTypes: InputTypes.commonVision },
   { name: 'gpt-4.1', inputTypes: InputTypes.commonVision },
   { name: 'gpt-4.1-2025-04-14', inputTypes: InputTypes.commonVision },
   { name: 'gpt-4.1-mini', inputTypes: InputTypes.commonVision },

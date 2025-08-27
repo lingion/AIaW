@@ -49,8 +49,8 @@ export default {
     frequencyPenaltyTip: '值越大，越有可能降低重复字词',
     stopSequences: '停止词',
     stopSequencesTip: '当模型生成停止词时，就会停止生成。按回车添加值。',
-    maxTokens: '单次回复限制',
-    maxTokensTip: '单次生成的最大token数',
+    maxOutputTokens: '单次回复限制',
+    maxOutputTokensTip: '单次生成的最大token数',
     seed: '种子',
     seedTip: '用于随机采样的种子（整数）。用于生成确定性的结果。',
     notAllParamsSupported: '提示：不是所有服务商都支持全部参数',
@@ -228,7 +228,8 @@ export default {
     auto: '自动',
     language: '语言',
     userInputDebounce: '用户输入防抖',
-    userInputDebounceCaption: '若高频输入时出现已输入内容被覆写的情况，可尝试调高此值'
+    userInputDebounceCaption: '若高频输入时出现已输入内容被覆写的情况，可尝试调高此值',
+    expandReasoningContent: '自动展开思考内容'
   },
   customProvider: {
     title: '编辑服务商',

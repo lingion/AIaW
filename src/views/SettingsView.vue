@@ -315,6 +315,16 @@
             />
           </q-item-section>
         </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>
+              {{ $t('settingsView.expandReasoningContent') }}
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-toggle v-model="perfs.expandReasoningContent" />
+          </q-item-section>
+        </q-item>
         <q-separator spaced />
         <q-item-label
           header

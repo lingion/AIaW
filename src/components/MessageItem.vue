@@ -43,17 +43,30 @@
           :class="message.type === 'user' ? 'bg-sur-c-low' : 'bg-sur'"
           rd-lg
         >
-          <md-preview
+          <q-expansion-item
             v-if="content.type === 'assistant-message' && content.reasoning"
-            :model-value="`\`\`\`${$t('messageItem.reasoningContent')}\n${content.reasoning}\n\`\`\``"
-            v-bind="mdPreviewProps"
-            @on-html-changed="onHtmlChanged(false)"
-            class="content-reasoning"
-            bg-sur
-            no-highlight
-            :show-code-row-number="false"
-            :auto-fold-threshold="message.generatingSession ? Infinity : 0"
-          />
+            icon="sym_o_auto_awesome"
+            :label="$t('messageItem.reasoningContent')"
+            :default-opened="message.generatingSession && perfs.expandReasoningContent"
+            bg-sur-c-low
+            of-hidden
+            rd-md
+            my-2
+            mx-4
+            header-class="min-h-40px reasoning-content-header"
+          >
+            <q-card important:bg-sur-c-low>
+              <q-card-section
+                text="on-sur-var"
+                font-code
+                whitespace-pre-wrap
+                pt-2
+                @vue:updated="onHtmlChanged()"
+              >
+                {{ content.reasoning }}
+              </q-card-section>
+            </q-card>
+          </q-expansion-item>
           <div
             ref="textDiv"
             @mouseup="onSelect('mouse')"
@@ -541,6 +554,7 @@ function selectedConvertArtifact() {
 }
 
 function onHtmlChanged(inject = false) {
+  console.log(inject)
   nextTick(() => {
     inject && injectConvertArtifact()
     emit('rendered')
@@ -577,13 +591,10 @@ const { t } = useI18n()
 .md-editor-preview-wrapper {
   --at-apply: 'py-0';
 }
-.content-reasoning {
-  code {
-    white-space: pre-wrap !important;
-  }
 
-  details {
-    margin: 8px 0 0 0 !important;
+.reasoning-content-header {
+  .q-item__section--avatar {
+    min-width: 0;
   }
 }
 </style>

@@ -4,14 +4,15 @@ import { Model, Provider } from 'src/utils/types'
 import { useObservable } from '@vueuse/rxjs'
 import { db } from 'src/utils/db'
 import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
-import { LanguageModel, wrapLanguageModel, extractReasoningMiddleware } from 'ai'
+import { wrapLanguageModel, extractReasoningMiddleware } from 'ai'
 import { AuthropicCors, FormattingReenabled, MarkdownFormatting } from 'src/utils/middlewares'
 import { fetch } from 'src/utils/platform-api'
 import { useProvidersStore } from 'src/stores/providers'
+import { LanguageModelV2 } from '@openrouter/ai-sdk-provider'
 
 const FormattingModels = ['o1', 'o3-mini', 'o3-mini-2025-01-31']
 
-function wrapMiddlewares(model: LanguageModel) {
+function wrapMiddlewares(model: LanguageModelV2) {
   const middlewares = [extractReasoningMiddleware({ tagName: 'think' })]
   FormattingModels.includes(model.modelId) && middlewares.push(FormattingReenabled)
   model.modelId.startsWith('gpt-5') && middlewares.push(MarkdownFormatting)
@@ -21,8 +22,8 @@ function wrapMiddlewares(model: LanguageModel) {
 export function useGetModel() {
   const user = DexieDBURL ? useObservable(db.cloud.currentUser) : null
   const defaultProvider = computed(() => user?.value.isLoggedIn ? {
-    type: 'openai',
-    settings: { apiKey: user.value.data.apiKey, baseURL: LitellmBaseURL, compatibility: 'strict' }
+    type: 'openai-compatible',
+    settings: { apiKey: user.value.data.apiKey, baseURL: LitellmBaseURL }
   } : null)
   const { perfs } = useUserPerfsStore()
   const providersStore = useProvidersStore()

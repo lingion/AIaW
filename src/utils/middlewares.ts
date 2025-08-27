@@ -1,6 +1,6 @@
-import { LanguageModelV1Middleware, LanguageModelV1StreamPart } from 'ai'
+import { LanguageModelMiddleware } from 'ai'
 
-const FormattingReenabled: LanguageModelV1Middleware = {
+const FormattingReenabled: LanguageModelMiddleware = {
   async transformParams({ params }) {
     const prompt = params.prompt
     prompt.unshift({
@@ -14,7 +14,7 @@ const FormattingReenabled: LanguageModelV1Middleware = {
   }
 }
 
-const MarkdownFormatting: LanguageModelV1Middleware = {
+const MarkdownFormatting: LanguageModelMiddleware = {
   async transformParams({ params }) {
     const prompt = params.prompt
     prompt.unshift({
@@ -28,7 +28,7 @@ const MarkdownFormatting: LanguageModelV1Middleware = {
   }
 }
 
-const AuthropicCors: LanguageModelV1Middleware = {
+const AuthropicCors: LanguageModelMiddleware = {
   async transformParams({ params }) {
     return {
       ...params,
@@ -41,7 +41,7 @@ const AuthropicCors: LanguageModelV1Middleware = {
 }
 
 // Used for debugging only
-export const LogMiddleware: LanguageModelV1Middleware = {
+export const LogMiddleware: LanguageModelMiddleware = {
   wrapGenerate: async ({ doGenerate, params }) => {
     console.log('doGenerate called')
     console.log(`params: ${JSON.stringify(params, null, 2)}`)
@@ -49,7 +49,6 @@ export const LogMiddleware: LanguageModelV1Middleware = {
     const result = await doGenerate()
 
     console.log('doGenerate finished')
-    console.log(`generated text: ${result.text}`)
 
     return result
   },
@@ -62,10 +61,7 @@ export const LogMiddleware: LanguageModelV1Middleware = {
 
     let generatedText = ''
 
-    const transformStream = new TransformStream<
-      LanguageModelV1StreamPart,
-      LanguageModelV1StreamPart
-    >({
+    const transformStream = new TransformStream({
       transform(chunk, controller) {
         console.log(chunk)
         if (chunk.type === 'text-delta') {

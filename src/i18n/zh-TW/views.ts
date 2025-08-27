@@ -49,8 +49,8 @@ export default {
     frequencyPenaltyTip: '值越大，越有可能降低重複字詞',
     stopSequences: '停止詞',
     stopSequencesTip: '當模型生成停止詞時，就會停止生成。按 Enter 鍵新增值。',
-    maxTokens: '單次回覆限制',
-    maxTokensTip: '單次生成的最大 token 數',
+    maxOutputTokens: '單次回覆限制',
+    maxOutputTokensTip: '單次生成的最大 token 數',
     seed: '種子',
     seedTip: '用於隨機取樣的種子（整數）。用於生成確定性的結果。',
     notAllParamsSupported: '提示：不是所有服務商都支援全部參數',
@@ -228,7 +228,8 @@ export default {
     auto: '自動',
     language: '語言',
     userInputDebounce: '使用者輸入去抖動',
-    userInputDebounceCaption: '若高頻輸入時出現已輸入內容被覆寫的情況，可嘗試調高此值'
+    userInputDebounceCaption: '若高頻輸入時出現已輸入內容被覆寫的情況，可嘗試調高此值',
+    expandReasoningContent: '自動展開思考內容'
   },
   customProvider: {
     title: '編輯服務商',

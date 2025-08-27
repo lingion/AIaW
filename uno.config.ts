@@ -73,6 +73,7 @@ export default defineConfig({
   rules: [
     ['icon-fill', { 'font-variation-settings': "'FILL' 1" }],
     ['break-word', { 'word-break': 'break-word' }],
+    ['font-code', { 'font-family': 'source-code-pro,Menlo,Monaco,Consolas,"Courier New",monospace' }],
     [/^(text|bg)-(\d+)-(\d+)-(\d+)$/, ([, type, h, c, t]) => ({
       [type === 'text' ? 'color' : 'background-color']: hexFromArgb(Hct.from(+h, +c, +t).toInt())
     })],

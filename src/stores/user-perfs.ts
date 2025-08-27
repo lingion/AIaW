@@ -48,6 +48,7 @@ interface Perfs {
   messageCatalog: boolean
   showWarnings: boolean
   userInputDebounce: number
+  expandReasoningContent: boolean
 }
 
 export const useUserPerfsStore = defineStore('user-perfs', () => {
@@ -106,7 +107,8 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     streamingLockBottom: true,
     messageCatalog: true,
     showWarnings: false,
-    userInputDebounce: 30
+    userInputDebounce: 30,
+    expandReasoningContent: true
   }
   const [perfs, ready] = persistentReactive('#user-perfs', { ...defaultPerfs })
   watchEffect(() => {

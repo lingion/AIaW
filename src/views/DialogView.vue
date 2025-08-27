@@ -358,10 +358,10 @@
               bg-sur-c-high
               px-2
               py-1
-            >{{ usage.promptTokens }}+{{ usage.completionTokens }}</code>
+            >{{ usage.inputTokens }}+{{ usage.outputTokens }}</code>
             <q-tooltip>
               {{ $t('dialogView.messageTokens') }}<br>
-              {{ $t('dialogView.tokenPrompt') }}：{{ usage.promptTokens }}，{{ $t('dialogView.tokenCompletion') }}：{{ usage.completionTokens }}
+              {{ $t('dialogView.tokenPrompt') }}：{{ usage.inputTokens }}，{{ $t('dialogView.tokenCompletion') }}：{{ usage.outputTokens }}
             </q-tooltip>
           </div>
           <abortable-btn
@@ -420,7 +420,7 @@ import { db } from 'src/utils/db'
 import { useLiveQueryWithDeps } from 'src/composables/live-query'
 import { almostEqual, displayLength, genId, isPlatformEnabled, isTextFile, JSONEqual, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode, wrapQuote } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
-import { streamText, CoreMessage, generateText, tool, jsonSchema, StreamTextResult, GenerateTextResult } from 'ai'
+import { streamText, generateText, tool, jsonSchema, StreamTextResult, GenerateTextResult, ModelMessage, stepCountIs } from 'ai'
 import { copyToClipboard, throttle, useQuasar } from 'quasar'
 import AssistantItem from 'src/components/AssistantItem.vue'
 import { DialogContent, ExtractArtifactPrompt, ExtractArtifactResult, GenDialogTitle, NameArtifactPrompt, PluginsPrompt } from 'src/utils/templates'
@@ -785,7 +785,7 @@ async function saveItems(items: StoredItem[]) {
 }
 
 function getChainMessages() {
-  const val: CoreMessage[] = []
+  const val: ModelMessage[] = []
   historyChain.value
     .slice(1)
     .slice(-assistant.value.contextNum || 0)
@@ -811,9 +811,9 @@ function getChainMessages() {
                 if (!mimeTypeMatch(i.mimeType, model.value.inputTypes.user)) {
                   return null
                 } else if (i.mimeType.startsWith('image/')) {
-                  return { type: 'image' as const, image: i.contentBuffer, mimeType: i.mimeType }
+                  return { type: 'image' as const, image: i.contentBuffer, mediaType: i.mimeType }
                 } else {
-                  return { type: 'file' as const, mimeType: i.mimeType, data: i.contentBuffer }
+                  return { type: 'file' as const, mediaType: i.mimeType, data: i.contentBuffer }
                 }
               }
             }).filter(x => x)
@@ -836,7 +836,7 @@ function getChainMessages() {
             type: 'tool-call',
             toolName: `${pluginId}-${name}`,
             toolCallId: id,
-            args
+            input: args
           }]
         })
         val.push({
@@ -845,8 +845,7 @@ function getChainMessages() {
             type: 'tool-result',
             toolName: `${pluginId}-${name}`,
             toolCallId: id,
-            result: toToolResultContent(result.map(id => itemMap.value[id])),
-            experimental_content: toToolResultContent(result.map(id => itemMap.value[id]))
+            output: toToolResultContent(result.map(id => itemMap.value[id]))
           }]
         })
       }
@@ -1011,13 +1010,13 @@ async function stream(target, insert = false) {
       const { name, prompt } = a
       tools[`${p.id}-${name}`] = tool({
         description: engine.parseAndRenderSync(prompt, pluginVars),
-        parameters: jsonSchema(a.parameters),
+        inputSchema: jsonSchema(a.parameters),
         async execute(args) {
           const { result, error } = await callTool(p, a, args)
           if (error) throw new ApiCallError(error)
           return result
         },
-        experimental_toToolResultContent: toToolResultContent
+        toModelOutput: toToolResultContent
       })
     })
     const pluginInfos = {}
@@ -1050,13 +1049,13 @@ async function stream(target, insert = false) {
     })
     tools[`${plugin.id}-${api.name}`] = tool({
       description: api.prompt,
-      parameters: jsonSchema(api.parameters),
+      inputSchema: jsonSchema(api.parameters),
       async execute(args) {
         const { result, error } = await callTool(plugin, api, args)
         if (error) throw new ApiCallError(error)
         return result
       },
-      experimental_toToolResultContent: toToolResultContent
+      toModelOutput: toToolResultContent
     })
   }
   try {
@@ -1070,6 +1069,7 @@ async function stream(target, insert = false) {
       messages,
       tools,
       ...settings,
+      stopWhen: stepCountIs(settings.maxSteps),
       abortSignal: abortController.value.signal
     }
     let result: StreamTextResult<any, any> | GenerateTextResult<any, any>
@@ -1079,10 +1079,10 @@ async function stream(target, insert = false) {
       lockingBottom.value = perfs.streamingLockBottom
       for await (const part of result.fullStream) {
         if (part.type === 'text-delta') {
-          messageContent.text += part.textDelta
+          messageContent.text += part.text
           update()
-        } else if (part.type === 'reasoning') {
-          messageContent.reasoning = (messageContent.reasoning ?? '') + part.textDelta
+        } else if (part.type === 'reasoning-delta') {
+          messageContent.reasoning = (messageContent.reasoning ?? '') + part.text
           update()
         } else if (part.type === 'error') {
           throw part.error
@@ -1091,7 +1091,7 @@ async function stream(target, insert = false) {
     } else {
       result = await generateText(params)
       messageContent.text = await result.text
-      messageContent.reasoning = await result.reasoning
+      messageContent.reasoning = await result.reasoningText
     }
 
     const usage = await result.usage
@@ -1121,7 +1121,10 @@ function toToolResultContent(items: StoredItem[]) {
       val.push({ type: item.mimeType.startsWith('image/') ? 'image' : 'file', mimeType: item.mimeType, data: item.contentBuffer })
     }
   }
-  return val
+  return {
+    type: 'content' as const,
+    value: val
+  }
 }
 const lockingBottom = ref(false)
 let lastScrollTop

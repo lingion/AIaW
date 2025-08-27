@@ -326,9 +326,9 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>{{ $t('assistantView.maxTokens') }}<code>maxTokens</code></q-item-label>
+            <q-item-label>{{ $t('assistantView.maxOutputTokens') }}<code>maxOutputTokens</code></q-item-label>
             <q-item-label caption>
-              {{ $t('assistantView.maxTokensTip') }}
+              {{ $t('assistantView.maxOutputTokensTip') }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -336,7 +336,7 @@
               class="w-150px"
               filled
               dense
-              v-model.number="assistant.modelSettings.maxTokens"
+              v-model.number="assistant.modelSettings.maxOutputTokens"
               type="number"
               clearable
             />

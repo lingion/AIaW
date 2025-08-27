@@ -103,6 +103,12 @@ db.on.populate.subscribe(() => {
 db.assistants.hook('reading', assistant => {
   assistant.promptRole ??= 'system'
   assistant.stream ??= true
+  // Migration to v1.8
+  const { modelSettings } = assistant
+  if ('maxTokens' in modelSettings) {
+    modelSettings.maxOutputTokens = modelSettings.maxTokens as number
+    delete modelSettings.maxTokens
+  }
   return assistant
 })
 // Migration to v1.4
@@ -115,6 +121,18 @@ db.workspaces.hook('reading', workspace => {
     }
   }
   return workspace
+})
+
+db.messages.hook('reading', message => {
+  const usage = message.usage as any
+  if (usage && 'promptTokens' in usage) {
+    message.usage = {
+      inputTokens: usage.promptTokens,
+      outputTokens: usage.completionTokens,
+      totalTokens: usage.totalTokens
+    }
+  }
+  return message
 })
 
 export { schema, db, defaultModelSettings }

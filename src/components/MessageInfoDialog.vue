@@ -48,7 +48,7 @@
               {{ $t('messageInfoDialog.tokenUsage') }}
             </q-item-section>
             <q-item-section side>
-              {{ $t('messageInfoDialog.prompt') }}{{ message.usage.promptTokens }} ，{{ $t('messageInfoDialog.completion') }}{{ message.usage.completionTokens }}
+              {{ $t('messageInfoDialog.prompt') }}{{ message.usage.inputTokens }} ，{{ $t('messageInfoDialog.completion') }}{{ message.usage.outputTokens }}
             </q-item-section>
           </q-item>
         </q-list>
