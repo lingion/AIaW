@@ -41,12 +41,12 @@ export function useGetModel() {
       fetch
     })
   }
-  function getSdkModel(provider?: Provider, model?: Model, options?: Record<string, any>) {
+  function getSdkModel(provider?: Provider, model?: Model) {
     const sdkProvider = getSdkProvider(provider)
     if (!sdkProvider) return null
     model = getModel(model)
     if (!model) return null
-    const m = sdkProvider(model.name, options) || getSdkProvider(defaultProvider.value)(model.name, options)
+    const m = sdkProvider(model.name) || getSdkProvider(defaultProvider.value)(model.name)
     return m && wrapMiddlewares(m)
   }
   return { getProvider, getModel, getSdkProvider, getSdkModel }

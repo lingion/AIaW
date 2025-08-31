@@ -162,7 +162,8 @@ export default {
   },
   messageItem: {
     quote: '引用',
-    copyMarkdown: 'Markdown',
+    markdown: 'Markdown',
+    copyMarkdown: '複製 Markdown',
     convertToArtifact: '轉換為 Artifact',
     regenerate: '重新生成',
     edit: '修改',
@@ -336,10 +337,15 @@ export default {
     moveTo: '移動至',
     delete: '刪除'
   },
-  modelOptionsBtn: {
-    modelOptions: '模型選項',
+  providerOptionsBtn: {
+    providerOptions: '模型選項',
     reasoningEffort: '推理力度',
-    useSearchGrounding: '使用搜尋'
+    webSearch: '網路搜尋',
+    codeExecution: '程式碼執行',
+    urlContext: 'URL 上下文',
+    thinkingBudget: '思考預算',
+    extendedThinking: '擴展思考',
+    textVerbosity: '詳細程度'
   },
   subproviderInput: {
     modelList: '模型列表'

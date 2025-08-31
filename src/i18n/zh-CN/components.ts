@@ -162,7 +162,8 @@ export default {
   },
   messageItem: {
     quote: '引用',
-    copyMarkdown: 'Markdown',
+    markdown: 'Markdown',
+    copyMarkdown: '复制 Markdown',
     convertToArtifact: '转换为 Artifact',
     regenerate: '重新生成',
     edit: '修改',
@@ -336,10 +337,15 @@ export default {
     moveTo: '移动至',
     delete: '删除'
   },
-  modelOptionsBtn: {
-    modelOptions: '模型选项',
+  providerOptionsBtn: {
+    providerOptions: '服务商选项',
     reasoningEffort: '推理力度',
-    useSearchGrounding: '使用搜索'
+    webSearch: '网络搜索',
+    codeExecution: '代码执行',
+    urlContext: 'URL 上下文',
+    thinkingBudget: '思考预算',
+    extendedThinking: '扩展思考',
+    textVerbosity: '详细程度'
   },
   subproviderInput: {
     modelList: '模型列表'

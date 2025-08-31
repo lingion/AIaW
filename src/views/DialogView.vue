@@ -307,11 +307,12 @@
             @click="showVars = !showVars"
             :class="{ 'text-ter': showVars }"
           />
-          <model-options-btn
+          <provider-options-btn
             v-if="sdkModel"
             :provider-name="sdkModel.provider"
             :model-id="sdkModel.modelId"
-            v-model="modelOptions"
+            v-model:provider-options="providerOptions"
+            v-model:tools="providerTools"
             flat
             round
             min-w="2.7em"
@@ -418,7 +419,7 @@
 import { computed, inject, onUnmounted, provide, ref, Ref, toRaw, toRef, watch, nextTick } from 'vue'
 import { db } from 'src/utils/db'
 import { useLiveQueryWithDeps } from 'src/composables/live-query'
-import { almostEqual, displayLength, genId, isPlatformEnabled, isTextFile, JSONEqual, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode, wrapQuote } from 'src/utils/functions'
+import { almostEqual, displayLength, genId, inputValueEmpty, isPlatformEnabled, isTextFile, JSONEqual, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode, wrapQuote } from 'src/utils/functions'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { streamText, generateText, tool, jsonSchema, StreamTextResult, GenerateTextResult, ModelMessage, stepCountIs } from 'ai'
 import { copyToClipboard, throttle, useQuasar } from 'quasar'
@@ -451,7 +452,7 @@ import { useListenKey } from 'src/composables/listen-key'
 import { useSetTitle } from 'src/composables/set-title'
 import { useCreateArtifact } from 'src/composables/create-artifact'
 import artifactsPlugin from 'src/utils/artifacts-plugin'
-import ModelOptionsBtn from 'src/components/ModelOptionsBtn.vue'
+import providerOptionsBtn from 'src/components/ProviderOptionsBtn.vue'
 import AddInfoBtn from 'src/components/AddInfoBtn.vue'
 import { useI18n } from 'vue-i18n'
 import Mark from 'mark.js'
@@ -823,7 +824,8 @@ function getChainMessages() {
         val.push({
           role: 'assistant',
           content: [
-            { type: 'text', text: content.text }
+            { type: 'text', text: content.text },
+            ...content.reasoning ? [{ type: 'reasoning' as const, text: content.reasoning }] : []
           ]
         })
       } else if (content.type === 'assistant-tool') {
@@ -891,10 +893,11 @@ const pluginsStore = usePluginsStore()
 
 const { callApi } = useCallApi({ workspace, dialog })
 
-const modelOptions = ref({})
+const providerOptions = ref({})
+const providerTools = ref({})
 const { getModel, getSdkModel } = useGetModel()
 const model = computed(() => getModel(dialog.value?.modelOverride || assistant.value?.model))
-const sdkModel = computed(() => getSdkModel(assistant.value?.provider, model.value, modelOptions.value))
+const sdkModel = computed(() => getSdkModel(assistant.value?.provider, model.value))
 const $q = useQuasar()
 const { data } = useUserDataStore()
 async function send() {
@@ -939,7 +942,7 @@ async function stream(target, insert = false) {
   const settings: Partial<ModelSettings> = {}
   for (const key in assistant.value.modelSettings) {
     const val = assistant.value.modelSettings[key]
-    if (val || val === 0) {
+    if (!inputValueEmpty(val)) {
       settings[key] = val
     }
   }
@@ -1067,7 +1070,11 @@ async function stream(target, insert = false) {
     const params = {
       model: sdkModel.value,
       messages,
-      tools,
+      tools: {
+        ...providerTools.value,
+        ...tools
+      },
+      providerOptions: providerOptions.value,
       ...settings,
       stopWhen: stepCountIs(settings.maxSteps),
       abortSignal: abortController.value.signal

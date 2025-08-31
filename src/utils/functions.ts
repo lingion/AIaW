@@ -229,6 +229,28 @@ function localePrice(usd: number, fixed = 2) {
   return i18n.global.locale.value === 'zh-CN' ? `￥${(usd * UsdToCnyRate).toFixed(fixed)}` : `$ ${usd.toFixed(fixed)}`
 }
 
+function isObject(item) {
+  return item instanceof Object && !Array.isArray(item)
+}
+
+function mergeObjects(objects: object[], depth = 1) {
+  const merged = {}
+  for (const obj of objects) {
+    for (const key in obj) {
+      if (depth > 0 && isObject(obj[key]) && isObject(merged[key])) {
+        merged[key] = mergeObjects([merged[key], obj[key]], depth - 1)
+      } else {
+        merged[key] = obj[key]
+      }
+    }
+  }
+  return merged
+}
+
+function inputValueEmpty(val) {
+  return val === undefined || val === null || val === ''
+}
+
 export {
   randomHash,
   escapeRegex,
@@ -261,5 +283,8 @@ export {
   cyrb53,
   hash53,
   removeDuplicates,
-  localePrice
+  localePrice,
+  isObject,
+  mergeObjects,
+  inputValueEmpty
 }

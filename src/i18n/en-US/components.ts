@@ -162,7 +162,8 @@ export default {
   },
   messageItem: {
     quote: 'Quote',
-    copyMarkdown: 'Markdown',
+    markdown: 'Markdown',
+    copyMarkdown: 'Copy Markdown',
     convertToArtifact: 'Convert to Artifact',
     regenerate: 'Regenerate',
     edit: 'Edit',
@@ -336,10 +337,15 @@ export default {
     moveTo: 'Move To',
     delete: 'Delete'
   },
-  modelOptionsBtn: {
-    modelOptions: 'Model Options',
+  providerOptionsBtn: {
+    providerOptions: 'Model Options',
     reasoningEffort: 'Reasoning Effort',
-    useSearchGrounding: 'Use Search'
+    webSearch: 'Web Search',
+    codeExecution: 'Code Execution',
+    urlContext: 'URL Context',
+    thinkingBudget: 'Thinking Budget',
+    extendedThinking: 'Extended Thinking',
+    textVerbosity: 'Text Verbosity'
   },
   subproviderInput: {
     modelList: 'Model List'

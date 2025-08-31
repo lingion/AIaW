@@ -2,28 +2,30 @@ import { LanguageModelMiddleware } from 'ai'
 
 const FormattingReenabled: LanguageModelMiddleware = {
   async transformParams({ params }) {
-    const prompt = params.prompt
-    prompt.unshift({
-      role: 'system',
-      content: 'Formatting re-enabled'
-    })
     return {
       ...params,
-      prompt
+      prompt: [
+        {
+          role: 'system',
+          content: 'Formatting re-enabled'
+        },
+        ...params.prompt
+      ]
     }
   }
 }
 
 const MarkdownFormatting: LanguageModelMiddleware = {
   async transformParams({ params }) {
-    const prompt = params.prompt
-    prompt.unshift({
-      role: 'system',
-      content: '- Use Markdown **only where semantically correct** (e.g., `inline code`, ```code fences```, lists, tables).\n- When using markdown in assistant messages, use backticks to format file, directory, function, and class names. Use \\( and \\) for inline math, \\[ and \\] for block math.'
-    })
     return {
       ...params,
-      prompt
+      prompt: [
+        {
+          role: 'system',
+          content: '- Use Markdown **only where semantically correct** (e.g., `inline code`, ```code fences```, lists, tables).\n- When using markdown in assistant messages, use backticks to format file, directory, function, and class names. Use \\( and \\) for inline math, \\[ and \\] for block math.'
+        },
+        ...params.prompt
+      ]
     }
   }
 }

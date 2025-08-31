@@ -19,7 +19,8 @@ export default {
     defaultAnthropicAddress: 'Default to Anthropic official address',
     defaultGoogleAddress: 'Default to Google official address',
     openaiCompatible: 'OpenAI Compatible',
-    required: 'Required'
+    required: 'Required',
+    burncloudKeyDescription: 'Obtainable at ai.burncloud.com'
   },
   templates: {
     defaultWsIndexContent: `## {'{{ workspace.name }}'}

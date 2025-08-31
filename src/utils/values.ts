@@ -23,11 +23,21 @@ const OfficialBaseURLs = {
   anthropic: 'https://api.anthropic.com/v1',
   google: 'https://generativelanguage.googleapis.com/v1beta',
   ollama: 'http://localhost:11434/api',
-  openrouter: 'https://openrouter.ai/api/v1'
+  openrouter: 'https://openrouter.ai/api/v1',
+  burncloud: 'https://ai.burncloud.com/v1'
 }
 const commonSettings = {
   baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultServiceAddress') }),
   apiKey: String({ title: 'API Key', format: 'password' })
+}
+async function openaiGetModelList({ baseURL, apiKey }) {
+  const resp = await fetch(`${baseURL}/models`, {
+    headers: {
+      Authorization: `Bearer ${apiKey}`
+    }
+  })
+  const { data } = await resp.json()
+  return data.map(m => m.id)
 }
 const ProviderTypes: ProviderType[] = [
   {
@@ -45,28 +55,24 @@ const ProviderTypes: ProviderType[] = [
       const provider = createOpenAI(...args)
       return modelId => provider.chat(modelId)
     },
-    getModelList: async (settings) => {
-      const baseURL = settings.baseURL || OfficialBaseURLs.openai
-      const resp = await fetch(`${baseURL}/models`, {
-        headers: {
-          Authorization: `Bearer ${settings.apiKey}`
-        }
-      })
-      const { data } = await resp.json()
-      return data.map(m => m.id)
-    }
+    getModelList: ({ baseURL, apiKey }) => openaiGetModelList({ baseURL: baseURL || OfficialBaseURLs.openai, apiKey })
   },
   {
-    name: 'azure',
-    label: 'Azure',
-    avatar: { type: 'svg', name: 'microsoft-c' },
+    name: 'openai-responses',
+    label: 'OpenAI Responses',
+    avatar: { type: 'svg', name: 'openai', hue: 88 },
     settings: Object({
       ...commonSettings,
-      resourceName: String({ title: t('values.resourceName') }),
-      apiVersion: String({ title: t('values.apiVersion') })
+      baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultOpenAIAddress'), default: OfficialBaseURLs.openai }),
+      organization: String({ title: t('values.organization'), description: t('values.optional') }),
+      project: String({ title: t('values.project'), description: t('values.optional') })
     }),
     initialSettings: {},
-    constructor: createAzure
+    constructor: (...args) => {
+      const provider = createOpenAI(...args)
+      return modelId => provider.responses(modelId)
+    },
+    getModelList: ({ baseURL, apiKey }) => openaiGetModelList({ baseURL: baseURL || OfficialBaseURLs.openai, apiKey })
   },
   {
     name: 'anthropic',
@@ -112,25 +118,28 @@ const ProviderTypes: ProviderType[] = [
     }
   },
   {
+    name: 'azure',
+    label: 'Azure',
+    avatar: { type: 'svg', name: 'microsoft-c' },
+    settings: Object({
+      ...commonSettings,
+      resourceName: String({ title: t('values.resourceName') }),
+      apiVersion: String({ title: t('values.apiVersion') })
+    }),
+    initialSettings: {},
+    constructor: createAzure
+  },
+  {
     name: 'openai-compatible',
     label: t('values.openaiCompatible'),
-    avatar: { type: 'svg', name: 'openai' },
+    avatar: { type: 'svg', name: 'openai', hue: 160 },
     settings: Object({
       ...commonSettings,
       baseURL: String({ title: t('values.apiAddress'), description: t('values.required') })
     }),
     initialSettings: {},
     constructor: options => createOpenAICompatible({ name: 'openai-compatible', includeUsage: true, ...options }),
-    getModelList: async (settings) => {
-      const baseURL = settings.baseURL
-      const resp = await fetch(`${baseURL}/models`, {
-        headers: settings.apiKey ? {
-          Authorization: `Bearer ${settings.apiKey}`
-        } : {}
-      })
-      const { data } = await resp.json()
-      return data.map(m => m.id)
-    }
+    getModelList: openaiGetModelList
   },
   {
     name: 'openrouter',
@@ -139,32 +148,7 @@ const ProviderTypes: ProviderType[] = [
     settings: Object(commonSettings),
     initialSettings: {},
     constructor: createOpenRouter,
-    getModelList: async (settings) => {
-      const baseURL = settings.baseURL || OfficialBaseURLs.openrouter
-      const resp = await fetch(`${baseURL}/models`, {
-        headers: {
-          Authorization: `Bearer ${settings.apiKey}`
-        }
-      })
-      const { data } = await resp.json()
-      return data.map(m => m.id)
-    }
-  },
-  {
-    name: 'deepseek',
-    label: 'DeepSeek',
-    avatar: { type: 'svg', name: 'deepseek-c' },
-    settings: Object(commonSettings),
-    initialSettings: {},
-    constructor: createDeepSeek
-  },
-  {
-    name: 'mistral',
-    label: 'Mistral',
-    avatar: { type: 'svg', name: 'mistral-c' },
-    settings: Object(commonSettings),
-    initialSettings: {},
-    constructor: createMistral
+    getModelList: ({ baseURL, apiKey }) => openaiGetModelList({ baseURL: baseURL || OfficialBaseURLs.openrouter, apiKey })
   },
   {
     name: 'xai',
@@ -175,28 +159,12 @@ const ProviderTypes: ProviderType[] = [
     constructor: createXai
   },
   {
-    name: 'togetherai',
-    label: 'Together.ai',
-    avatar: { type: 'svg', name: 'togetherai-c' },
+    name: 'deepseek',
+    label: 'DeepSeek',
+    avatar: { type: 'svg', name: 'deepseek-c' },
     settings: Object(commonSettings),
     initialSettings: {},
-    constructor: createTogetherAI
-  },
-  {
-    name: 'cohere',
-    label: 'Cohere',
-    avatar: { type: 'svg', name: 'cohere-c' },
-    settings: Object(commonSettings),
-    initialSettings: {},
-    constructor: createCohere
-  },
-  {
-    name: 'groq',
-    label: 'Groq',
-    avatar: { type: 'svg', name: 'groq' },
-    settings: Object(commonSettings),
-    initialSettings: {},
-    constructor: createGroq
+    constructor: createDeepSeek
   },
   {
     name: 'ollama',
@@ -207,6 +175,54 @@ const ProviderTypes: ProviderType[] = [
     }),
     initialSettings: {},
     constructor: createOllama
+  },
+  {
+    name: 'burncloud',
+    label: 'BurnCloud',
+    avatar: { type: 'svg', name: 'burncloud-c' },
+    settings: Object({
+      apiKey: String({ title: 'API Key', format: 'password', description: t('values.burncloudKeyDescription') })
+    }),
+    initialSettings: {},
+    constructor: options => createOpenAICompatible({
+      name: 'openai-compatible',
+      baseURL: OfficialBaseURLs.burncloud,
+      includeUsage: true,
+      ...options
+    }),
+    getModelList: ({ apiKey }) => openaiGetModelList({ baseURL: OfficialBaseURLs.burncloud, apiKey })
+  },
+  {
+    name: 'togetherai',
+    label: 'Together.ai',
+    avatar: { type: 'svg', name: 'togetherai-c' },
+    settings: Object(commonSettings),
+    initialSettings: {},
+    constructor: createTogetherAI
+  },
+  {
+    name: 'groq',
+    label: 'Groq',
+    avatar: { type: 'svg', name: 'groq' },
+    settings: Object(commonSettings),
+    initialSettings: {},
+    constructor: createGroq
+  },
+  {
+    name: 'cohere',
+    label: 'Cohere',
+    avatar: { type: 'svg', name: 'cohere-c' },
+    settings: Object(commonSettings),
+    initialSettings: {},
+    constructor: createCohere
+  },
+  {
+    name: 'mistral',
+    label: 'Mistral',
+    avatar: { type: 'svg', name: 'mistral-c' },
+    settings: Object(commonSettings),
+    initialSettings: {},
+    constructor: createMistral
   }
 ]
 
@@ -256,11 +272,11 @@ const models: Model[] = [
   { name: 'gpt-4o-mini', inputTypes: InputTypes.commonVision },
   { name: 'gpt-4o-mini-2024-07-18', inputTypes: InputTypes.commonVision },
   { name: 'gpt-3.5-turbo', inputTypes: InputTypes.textOnly },
-  { name: 'claude-sonnet-4-20250514', inputTypes: InputTypes.claudePdf },
-  { name: 'claude-opus-4-1-20250805', inputTypes: InputTypes.claudePdf },
-  { name: 'claude-opus-4-20250514', inputTypes: InputTypes.claudePdf },
-  { name: 'claude-3-7-sonnet-20250219', inputTypes: InputTypes.claudePdf },
-  { name: 'claude-3-5-sonnet-20241022', inputTypes: InputTypes.claudePdf },
+  { name: 'claude-sonnet-4-20250514', inputTypes: InputTypes.claudeVision },
+  { name: 'claude-opus-4-1-20250805', inputTypes: InputTypes.claudeVision },
+  { name: 'claude-opus-4-20250514', inputTypes: InputTypes.claudeVision },
+  { name: 'claude-3-7-sonnet-20250219', inputTypes: InputTypes.claudeVision },
+  { name: 'claude-3-5-sonnet-20241022', inputTypes: InputTypes.claudeVision },
   { name: 'claude-3-5-sonnet-20240620', inputTypes: InputTypes.claudeVision },
   { name: 'claude-3-5-haiku-20241022', inputTypes: InputTypes.textOnly },
   { name: 'claude-3-opus-20240229', inputTypes: InputTypes.claudeVision },

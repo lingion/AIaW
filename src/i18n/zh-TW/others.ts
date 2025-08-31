@@ -19,7 +19,8 @@ export default {
     defaultAnthropicAddress: '預設為 Anthropic 官方地址',
     defaultGoogleAddress: '預設為 Google 官方地址',
     openaiCompatible: 'OpenAI 相容',
-    required: '必填'
+    required: '必填',
+    burncloudKeyDescription: '可在 ai.burncloud.com 上取得'
   },
   templates: {
     defaultWsIndexContent: `## {'{{ workspace.name }}'}
