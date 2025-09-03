@@ -18,7 +18,7 @@
         }"
         :input-props="{
           filled: false,
-          class: 'important:w-90px'
+          class: 'min-w-80px'
         }"
       />
     </q-menu>
@@ -55,16 +55,14 @@ const rules: Rule[] = [{
     (model.startsWith('o3') || model.startsWith('o4') || model.startsWith('gpt-5') || model === 'o1'),
   options: {},
   default: {},
-  exec: () => {
-    return {
-      providerOptions: {
-        openai: {
-          reasoningSummary: 'auto'
-        }
-      },
-      tools: {}
-    }
-  }
+  exec: () => ({
+    providerOptions: {
+      openai: {
+        reasoningSummary: 'auto'
+      }
+    },
+    tools: {}
+  })
 }, {
   match: (provider: string) => provider.startsWith('openai.responses'),
   options: {
@@ -145,8 +143,7 @@ const rules: Rule[] = [{
       tools
     }
   }
-},
-{
+}, {
   match: (provider: string, model: string) =>
     provider.startsWith('anthropic.') &&
     (model.startsWith('claude-opus-4') || model.startsWith('claude-sonnet-4') || model.startsWith('claude-3-7')),

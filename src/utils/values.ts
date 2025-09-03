@@ -233,7 +233,8 @@ const InputTypes = {
   claudePdf: { user: ['image/*', 'application/pdf'], assistant: [], tool: ['image/*'] },
   audioPreview: { user: ['audio/*'], assistant: [], tool: [] },
   default: { user: ['image/*'], assistant: [], tool: [] },
-  gemini2: { user: ['image/*', 'audio/*', 'application/pdf'], assistant: [], tool: [] }
+  gemini2: { user: ['image/*', 'audio/*', 'application/pdf'], assistant: [], tool: [] },
+  geminiImage: { user: ['image/*'], assistant: ['image/*'], tool: [] }
 }
 const models: Model[] = [
   { name: 'o4-mini', inputTypes: InputTypes.commonVision },
@@ -272,11 +273,11 @@ const models: Model[] = [
   { name: 'gpt-4o-mini', inputTypes: InputTypes.commonVision },
   { name: 'gpt-4o-mini-2024-07-18', inputTypes: InputTypes.commonVision },
   { name: 'gpt-3.5-turbo', inputTypes: InputTypes.textOnly },
-  { name: 'claude-sonnet-4-20250514', inputTypes: InputTypes.claudeVision },
-  { name: 'claude-opus-4-1-20250805', inputTypes: InputTypes.claudeVision },
-  { name: 'claude-opus-4-20250514', inputTypes: InputTypes.claudeVision },
-  { name: 'claude-3-7-sonnet-20250219', inputTypes: InputTypes.claudeVision },
-  { name: 'claude-3-5-sonnet-20241022', inputTypes: InputTypes.claudeVision },
+  { name: 'claude-sonnet-4-20250514', inputTypes: InputTypes.claudePdf },
+  { name: 'claude-opus-4-1-20250805', inputTypes: InputTypes.claudePdf },
+  { name: 'claude-opus-4-20250514', inputTypes: InputTypes.claudePdf },
+  { name: 'claude-3-7-sonnet-20250219', inputTypes: InputTypes.claudePdf },
+  { name: 'claude-3-5-sonnet-20241022', inputTypes: InputTypes.claudePdf },
   { name: 'claude-3-5-sonnet-20240620', inputTypes: InputTypes.claudeVision },
   { name: 'claude-3-5-haiku-20241022', inputTypes: InputTypes.textOnly },
   { name: 'claude-3-opus-20240229', inputTypes: InputTypes.claudeVision },
@@ -287,6 +288,7 @@ const models: Model[] = [
   { name: 'gemini-2.5-pro-preview-05-06', inputTypes: InputTypes.gemini2 },
   { name: 'gemini-2.5-pro-preview-03-25', inputTypes: InputTypes.gemini2 },
   { name: 'gemini-2.5-flash', inputTypes: InputTypes.gemini2 },
+  { name: 'gemini-2.5-flash-image-preview', inputTypes: InputTypes.geminiImage },
   { name: 'gemini-2.5-flash-preview-05-20', inputTypes: InputTypes.gemini2 },
   { name: 'gemini-2.5-flash-preview-04-17', inputTypes: InputTypes.gemini2 },
   { name: 'gemini-2.5-flash-lite-preview-06-17', inputTypes: InputTypes.gemini2 },
