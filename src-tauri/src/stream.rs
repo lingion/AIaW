@@ -58,7 +58,7 @@ pub async fn stream_fetch(
     let client = Client::builder()
         .default_headers(_headers)
         .redirect(reqwest::redirect::Policy::limited(3))
-        .connect_timeout(Duration::new(3, 0))
+        .connect_timeout(Duration::new(15, 0))
         .build()
         .map_err(|err| format!("failed to generate client: {}", err))?;
 
@@ -136,10 +136,13 @@ pub async fn stream_fetch(
             })
         }
         Err(err) => {
-            let error: String = err
-                .source()
-                .map(|e| e.to_string())
-                .unwrap_or_else(|| "Unknown error occurred".to_string());
+            let error: String = match err.source() {
+                Some(e2) => match e2.source() {
+                    Some(e3) => format!("{}: {}", e2, e3),
+                    None => format!("{}", e2),
+                },
+                None => "Unknown error".to_string(),
+            };
             println!("Error response: {:?}", error);
 
             let error_clone = error.clone();

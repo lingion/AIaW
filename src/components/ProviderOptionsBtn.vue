@@ -12,7 +12,6 @@
         :schema
         v-model="options"
         component="item"
-        lazy
         :item-props="{
           class: 'px-3 py-1'
         }"
