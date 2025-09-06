@@ -23,7 +23,10 @@ export function useGetModel() {
   const user = DexieDBURL ? useObservable(db.cloud.currentUser) : null
   const defaultProvider = computed(() => user?.value.isLoggedIn ? {
     type: 'openai-compatible',
-    settings: { apiKey: user.value.data.apiKey, baseURL: LitellmBaseURL }
+    settings: {
+      apiKey: user.value.data.apiKey,
+      baseURL: new URL(LitellmBaseURL, location.origin).toString()
+    }
   } : null)
   const { perfs } = useUserPerfsStore()
   const providersStore = useProvidersStore()
