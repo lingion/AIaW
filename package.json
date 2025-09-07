@@ -61,7 +61,6 @@
     "ai-sdk-ollama": "^0.5.1",
     "capacitor-export-file": "^0.0.1",
     "capacitor-stream-fetch": "^0.0.6",
-    "codejar": "^4.2.0",
     "codejar-linenumbers": "^1.0.1",
     "dexie": "^4.0.11",
     "dexie-cloud-addon": "^4.0.11",

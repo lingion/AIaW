@@ -5,7 +5,7 @@
   />
 </template>
 <script setup lang="ts">
-import { CodeJar } from 'codejar'
+import { CodeJar } from 'src/utils/codejar'
 import { withLineNumbers } from 'codejar-linenumbers'
 import 'codejar-linenumbers/js/codejar-linenumbers.css'
 
