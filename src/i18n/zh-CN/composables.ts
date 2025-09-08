@@ -23,7 +23,8 @@ export default {
     enterOtp: '请输入验证邮件中的OTP验证码',
     logout: '退出登录',
     confirmLogout: '确定要退出登录吗？',
-    loggedIn: '已登录：{email}'
+    loggedIn: '已登录：{email}',
+    privacyPolicy: '登录即代表同意我们的<a href="https://docs.aiaw.app/zh/privacy-policy/" text-pri target="_blank">隐私政策</a>'
   },
   installPlugin: {
     fetchFailed: '获取插件配置失败：{message}',

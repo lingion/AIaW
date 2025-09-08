@@ -19,6 +19,8 @@ export function useLoginDialogs() {
     if (interaction.type === 'email') {
       $q.dialog({
         title: t('login.register'),
+        message: t('login.privacyPolicy'),
+        html: true,
         prompt: {
           model: '',
           type: 'email',

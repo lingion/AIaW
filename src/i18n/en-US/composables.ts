@@ -23,7 +23,8 @@ export default {
     enterOtp: 'Please enter the OTP code from the verification email',
     logout: 'Log Out',
     confirmLogout: 'Are you sure you want to log out?',
-    loggedIn: 'Logged in: {email}'
+    loggedIn: 'Logged in: {email}',
+    privacyPolicy: 'By logging in, you agree to our <a href="https://docs.aiaw.app/privacy-policy/" text-pri target="_blank">Privacy Policy</a>'
   },
   installPlugin: {
     fetchFailed: 'Failed to get plugin configuration: {message}',

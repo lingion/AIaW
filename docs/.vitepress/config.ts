@@ -79,6 +79,10 @@ export default defineConfig({
               { text: 'Quick Docker Deployment', link: '/self-host/' },
               { text: 'Advanced Deployment', link: '/self-host/advanced' }
             ]
+          },
+          {
+            text: 'Privacy Policy',
+            link: '/privacy-policy/'
           }
         ]
       }
@@ -119,6 +123,10 @@ export default defineConfig({
               { text: 'Docker 快速部署', link: '/zh/self-host/' },
               { text: '进阶部署', link: '/zh/self-host/advanced' }
             ]
+          },
+          {
+            text: '隐私政策',
+            link: '/zh/privacy-policy/'
           }
         ]
       }
