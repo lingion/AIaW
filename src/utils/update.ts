@@ -7,12 +7,14 @@ import { Loading, Notify, QNotifyAction } from 'quasar'
 import { i18n } from 'src/boot/i18n'
 import { localData } from './local-data'
 import { invoke } from '@tauri-apps/api/core'
+import { DisableCheckUpdate } from './config'
 
 const BaseURL = 'https://github.com/NitroRCr/AIaW/releases/latest/download'
 type Version = typeof version
 
 async function checkUpdate() {
   if (IsWeb) return
+  if (DisableCheckUpdate) return
   const res = await fetch(`${BaseURL}/version.json`)
   if (!res.ok) return
   const latest: Version = await res.json()
