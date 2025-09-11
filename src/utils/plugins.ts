@@ -655,7 +655,7 @@ const fluxPluginManifest: GradioPluginManifest = {
     inputs: [
       {
         name: 'prompt',
-        description: 'A prompt to generate an image from',
+        description: 'A prompt (en-US) to generate an image from',
         paramType: 'required',
         type: 'str'
       },
