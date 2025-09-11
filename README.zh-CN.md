@@ -8,6 +8,10 @@
 
 [网站链接](https://aiaw.app) - [下载客户端](https://github.com/NitroRCr/AIaW/releases/latest) - [使用文档](https://docs.aiaw.app/zh/) - [自部署指南](https://docs.aiaw.app/self-host/)
 
+<a href="https://apps.microsoft.com/detail/9NVMXSXJMWP8?referrer=appbadge&mode=direct">
+	<img src="https://get.microsoft.com/images/zh-cn%20dark.svg" width="200"/>
+</a>
+
 ## 功能概览
 
 ### 全平台一致体验
