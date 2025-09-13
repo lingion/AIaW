@@ -69,26 +69,25 @@ export function fetch(url: string, options?: RequestInit): Promise<Response> {
         close()
       }
     })
-  )
-    .then((u: Function) => (unlisten = u))
+  ).then((u: Function) => (unlisten = u))
 
-  const headers: Record<string, string> = {
+  const headers = new Headers({
     Accept: 'application/json, text/plain, */*',
     'Accept-Language': 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7',
     'User-Agent': navigator.userAgent
-  }
-  for (const item of new Headers(_headers || {})) {
-    headers[item[0]] = item[1]
+  })
+  for (const [key, value] of new Headers(_headers || {})) {
+    headers.set(key, value)
   }
   return invoke('stream_fetch', {
     method: method.toUpperCase(),
     url,
-    headers,
+    headers: Object.fromEntries(headers.entries()),
     // TODO FormData
     body:
-          typeof body === 'string'
-            ? Array.from(new TextEncoder().encode(body))
-            : []
+      typeof body === 'string'
+        ? Array.from(new TextEncoder().encode(body))
+        : []
   })
     .then((res: StreamResponse) => {
       const { request_id, status, status_text: statusText, headers } = res

@@ -296,6 +296,11 @@ const TransportConfSchema = Union([
   Object({
     type: Literal('sse'),
     url: String()
+  }),
+  Object({
+    type: Literal('http'),
+    url: String(),
+    headers: Optional(Object(undefined))
   })
 ])
 type TransportConf = Static<typeof TransportConfSchema>

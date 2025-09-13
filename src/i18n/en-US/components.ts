@@ -1,7 +1,5 @@
 export default {
   addMcpPluginDialog: {
-    stdio: 'STDIO',
-    sse: 'SSE',
     pluginName: 'Plugin Name',
     pluginNameCaption: 'Any name will do',
     command: 'Run Command',
@@ -14,7 +12,9 @@ export default {
     cancel: 'Cancel',
     install: 'Install',
     installFailed: 'Installation failed',
-    stdioPlatformTip: 'Only the desktop version supports STDIO type MCP plugins, and the current platform only supports SSE type'
+    stdioPlatformTip: 'Only the desktop version supports STDIO type MCP plugins, and the current platform only supports HTTP/SSE type',
+    addHeader: 'Add Header',
+    headerName: 'Header Name'
   },
   abortableBtn: {
     stop: 'Stop'

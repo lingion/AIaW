@@ -16,15 +16,19 @@
           dense
           active-color="primary"
           indicator-color="primary"
-          v-if="IsTauri"
         >
           <q-tab
+            v-if="IsTauri"
             name="stdio"
-            :label="$t('addMcpPluginDialog.stdio')"
+            label="STDIO"
+          />
+          <q-tab
+            name="http"
+            label="HTTP"
           />
           <q-tab
             name="sse"
-            :label="$t('addMcpPluginDialog.sse')"
+            label="SSE"
           />
         </q-tabs>
 
@@ -67,7 +71,7 @@
                 </q-item-section>
                 <q-item-section side>
                   <a-input
-                    v-model="stdioOptions.command"
+                    v-model="options.stdio.command"
                     dense
                     class="w-200px"
                   />
@@ -84,7 +88,7 @@
                 </q-item-section>
                 <q-item-section side>
                   <a-input
-                    v-model="stdioOptions.cwd"
+                    v-model="options.stdio.cwd"
                     dense
                     class="w-200px"
                   />
@@ -98,16 +102,66 @@
                 {{ $t('addMcpPluginDialog.envVars') }}
               </q-item-label>
               <vars-input
-                v-model="stdioOptions.env"
+                v-model="options.stdio.env"
                 :input-props="{
                   dense: true,
-                  clearale: true,
                   placeholder: $t('addMcpPluginDialog.inputVarsPlaceholder')
                 }"
               />
             </q-list>
           </q-tab-panel>
-
+          <q-tab-panel
+            name="http"
+            p-0
+          >
+            <q-list mt-2>
+              <q-item>
+                <q-item-section>
+                  <q-item-label>
+                    {{ $t('addMcpPluginDialog.pluginName') }}
+                  </q-item-label>
+                  <q-item-label caption>
+                    {{ $t('addMcpPluginDialog.pluginNameCaption') }}
+                  </q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <a-input
+                    v-model="title"
+                    dense
+                    class="w-150px"
+                  />
+                </q-item-section>
+              </q-item>
+              <q-item>
+                <q-item-section>
+                  {{ $t('addMcpPluginDialog.url') }}
+                </q-item-section>
+                <q-item-section side>
+                  <a-input
+                    v-model="options.http.url"
+                    dense
+                  />
+                </q-item-section>
+              </q-item>
+              <q-separator spaced />
+              <q-item-label
+                header
+                py-2
+              >
+                Headers
+              </q-item-label>
+              <vars-input
+                v-model="options.http.headers"
+                :input-props="{
+                  dense: true
+                }"
+                :labels="{
+                  addVariable: $t('addMcpPluginDialog.addHeader'),
+                  variableName: $t('addMcpPluginDialog.headerName')
+                }"
+              />
+            </q-list>
+          </q-tab-panel>
           <q-tab-panel
             name="sse"
             p-0
@@ -135,7 +189,7 @@
                 </q-item-section>
                 <q-item-section side>
                   <a-input
-                    v-model="sseOptions.url"
+                    v-model="options.sse.url"
                     dense
                   />
                 </q-item-section>
@@ -155,7 +209,7 @@
           flat
           color="primary"
           :label="$t('addMcpPluginDialog.install')"
-          :disable="!valid"
+          :disable="!keyValue"
           :loading
           @click="add"
         />
@@ -177,18 +231,28 @@ import ATip from './ATip.vue'
 
 const { t } = useI18n()
 
-const type = ref<'stdio' | 'sse'>(IsTauri ? 'stdio' : 'sse')
+const type = ref(IsTauri ? 'stdio' : 'http')
 const title = ref('')
-const stdioOptions = reactive({
-  command: '',
-  cwd: undefined,
-  env: {}
-})
-const sseOptions = reactive({
-  url: ''
+const options = reactive({
+  stdio: {
+    command: '',
+    cwd: undefined,
+    env: {} as Record<string, string>
+  },
+  sse: {
+    url: ''
+  },
+  http: {
+    url: '',
+    headers: {} as Record<string, string>
+  }
 })
 
-const valid = computed(() => type.value === 'stdio' ? stdioOptions.command : sseOptions.url)
+const keyValue = computed(() =>
+  type.value === 'stdio' ? options.stdio.command
+    : type.value === 'sse' ? options.sse.url
+      : options.http.url
+)
 
 defineEmits([
   ...useDialogPluginComponent.emits
@@ -199,13 +263,14 @@ const { install } = useInstallPlugin()
 const $q = useQuasar()
 function add() {
   loading.value = true
-  if (!stdioOptions.cwd) delete stdioOptions.cwd
+  if (!options.stdio.cwd) delete options.stdio.cwd
   const manifest: McpPluginManifest = {
-    id: hash53(type.value === 'stdio' ? stdioOptions.command : sseOptions.url),
+    id: hash53(keyValue.value),
     title: title.value,
-    transport: type.value === 'stdio'
-      ? { type: 'stdio', ...toRaw(stdioOptions) }
-      : { type: 'sse', ...toRaw(sseOptions) }
+    transport: {
+      type: type.value,
+      ...toRaw(options[type.value])
+    }
   }
   install(manifest).then(() => {
     onDialogOK()

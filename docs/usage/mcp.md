@@ -14,7 +14,7 @@ Currently, most MCP servers are STDIO type, which are called locally via `npx` o
 - Installed [NodeJS](https://nodejs.org/)
 - Installed [Python](https://www.python.org/) and [uv](https://github.com/astral-sh/uv)
 
-If it is an SSE type MCP server, the above requirements are not required and it can be used on any platform.
+If it is an HTTP/SSE type MCP server, the above requirements are not required and it can be used on any platform.
 
 ## Install MCP Plugin
 
@@ -66,6 +66,12 @@ interface McpPluginManifest {
   } | {
     type: "sse"
     url: string
+  } | {
+    type: "http"
+    url: string
+    headers?: {
+      [x: string]: string
+    }
   }
   avatar?: Avatar
   description?: string

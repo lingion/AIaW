@@ -25,9 +25,10 @@
     <q-item>
       <q-item-section>
         <q-btn
-          :label="$t('varsInput.addVariable')"
+          :label="labels?.addVariable ?? $t('varsInput.addVariable')"
           icon="sym_o_add"
           flat
+          no-caps
           text-sec
           @click="add"
         />
@@ -45,19 +46,23 @@ const { t } = useI18n()
 
 const model = defineModel<Record<string, string>>()
 
-defineProps<{
+const props = defineProps<{
   inputProps: Record<string, any>
+  labels?: {
+    addVariable: string
+    variableName: string
+  }
 }>()
 
 const $q = useQuasar()
 
 function add() {
   $q.dialog({
-    title: t('varsInput.addVariable'),
+    title: props.labels?.addVariable ?? t('varsInput.addVariable'),
     prompt: {
       model: '',
       type: 'text',
-      label: t('varsInput.variableName')
+      label: props.labels?.variableName ?? t('varsInput.variableName')
     },
     cancel: true,
     ...dialogOptions

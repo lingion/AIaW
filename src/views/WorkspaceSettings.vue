@@ -65,7 +65,7 @@
         :input-props="{
           filled: true,
           autogrow: true,
-          clearale: true,
+          clearable: $q.screen.gt.sm,
           placeholder: $t('workspaceSettings.inputPlaceholder')
         }"
       />

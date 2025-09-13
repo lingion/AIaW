@@ -8,6 +8,7 @@ import { fetch } from './platform-api'
 import { Notify } from 'quasar'
 import { i18n } from 'src/boot/i18n'
 import { SSEClientTransport } from './mcp-sse-transport'
+import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
 
 const KeepAliveTimeout = 300e3
 
@@ -53,8 +54,18 @@ export async function getClient(key: string, transportConf: TransportConf) {
       env: transportConf.env,
       cwd: transportConf.cwd
     }))
+  } else if (transportConf.type === 'http') {
+    await client.connect(new StreamableHTTPClientTransport(new URL(transportConf.url), {
+      fetch,
+      requestInit: { headers: transportConf.headers }
+    })).catch(err => {
+      client.close()
+      throw err
+    })
   } else {
-    await client.connect(new SSEClientTransport(new URL(transportConf.url), { fetch })).catch(err => {
+    await client.connect(new SSEClientTransport(new URL(transportConf.url), {
+      fetch
+    })).catch(err => {
       client.close()
       throw err
     })

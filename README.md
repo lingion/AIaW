@@ -61,7 +61,7 @@ An elegant AI client
 ### [MCP Protocol](https://docs.aiaw.app/usage/mcp.html)
 
 - Support for MCP Tools, Prompts, Resources
-- STDIO and SSE connection methods
+- STDIO and HTTP connection methods
 - Install MCP-type plugins from the plugin marketplace or manually add MCP servers
 
 ### Web Search

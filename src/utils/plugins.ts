@@ -365,23 +365,25 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
         name: tool.name,
         arguments: args
       })
-      return res.content.map(i => {
+      return await Promise.all(res.content.map(async i => {
         if (i.type === 'text') {
           return {
             type: 'text' as const,
             contentText: i.text
           }
-        } else if (i.type === 'image') {
+        } else if (i.type === 'image' || i.type === 'audio') {
           return {
             type: 'file' as const,
             contentBuffer: base64ToArrayBuffer(i.data),
             mimeType: i.mimeType
           }
-        } else {
-          // type: 'resource'
+        } else if (i.type === 'resource') {
           return resourceToResultItem(i.resource)
+        } else {
+          const resource = await client.readResource({ uri: i.uri })
+          return resourceToResultItem(resource.contents[0])
         }
-      })
+      }))
     }
   }))
   const resources: PluginApi[] = dump.resources.map(resource => {
@@ -415,7 +417,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
       async execute(args, settings) {
         const client = await getClient(id, { type: transport.type, ...settings })
         const res: GetPromptResult = await client.getPrompt({ name, arguments: args })
-        return res.messages.map(m => {
+        return await Promise.all(res.messages.map(async m => {
           const { content } = m
           if (content.type === 'text') {
             return {
@@ -423,18 +425,20 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
               name,
               contentText: content.text
             }
-          } else if (content.type === 'image') {
+          } else if (content.type === 'image' || content.type === 'audio') {
             return {
               type: 'file',
               name,
               contentBuffer: base64ToArrayBuffer(content.data),
               mimeType: content.mimeType
             }
-          } else {
-            // type: 'resource'
+          } else if (content.type === 'resource') {
             return resourceToResultItem(content.resource, content.resource.uri)
+          } else {
+            const resource = await client.readResource({ uri: content.uri })
+            return resourceToResultItem(resource.contents[0])
           }
-        })
+        }))
       }
     }
   })
@@ -451,6 +455,17 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
       }
       settings.env = TObject(env)
     }
+  } else if (transport.type === 'http') {
+    const headers: Record<string, any> = {}
+    settings = {
+      url: TString({ title: 'URL' })
+    }
+    if (transport.headers) {
+      for (const key in transport.headers) {
+        headers[key] = TString()
+      }
+      settings.headers = TObject(headers)
+    }
   } else {
     settings = {
       url: TString({ title: 'SSE URL' })
@@ -461,7 +476,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
     type: 'mcp',
     title,
     description,
-    available: available && (IsTauri || transport.type === 'sse'),
+    available: available && (IsTauri || transport.type !== 'stdio'),
     settings: TObject(settings),
     apis: [...tools, ...resources, ...prompts],
     fileparsers: [],
@@ -521,13 +536,17 @@ function gradioDefaultData(manifest: GradioPluginManifest): PluginData {
 
 function mcpDefaultData(manifest: McpPluginManifest): PluginData {
   const { transport } = manifest
-  const settings = transport.type === 'stdio' ? {
-    command: transport.command,
-    cwd: transport.cwd,
-    env: transport.env
-  } : {
-    url: transport.url
-  }
+  const settings =
+    transport.type === 'stdio' ? {
+      command: transport.command,
+      cwd: transport.cwd,
+      env: transport.env
+    } : transport.type === 'http' ? {
+      url: transport.url,
+      headers: transport.headers
+    } : {
+      url: transport.url
+    }
   const avatar = manifest.avatar as Avatar ?? defaultAvatar(manifest.title[0].toUpperCase())
   return { settings, avatar, fileparsers: {} }
 }

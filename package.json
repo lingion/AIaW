@@ -1,6 +1,6 @@
 {
   "name": "aiaw",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "description": "精心设计的 AI (LLM) 客户端。全功能，轻量级；支持多工作区、插件系统、跨平台、本地优先+实时云同步",
   "productName": "AI as Workspace",
   "author": "NitroRCr <i@krytro.com>",
@@ -44,7 +44,7 @@
     "@gradio/client": "^1.7.1",
     "@lobehub/chat-plugin-sdk": "^1.32.4",
     "@material/material-color-utilities": "^0.3.0",
-    "@modelcontextprotocol/sdk": "^1.8.0",
+    "@modelcontextprotocol/sdk": "^1.18.0",
     "@openrouter/ai-sdk-provider": "^1.1.2",
     "@quasar/extras": "^1.16.12",
     "@sinclair/typebox": "^0.33.12",

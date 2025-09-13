@@ -1,7 +1,5 @@
 export default {
   addMcpPluginDialog: {
-    stdio: 'STDIO',
-    sse: 'SSE',
     pluginName: '插件名稱',
     pluginNameCaption: '任意名稱即可',
     command: '執行命令',
@@ -14,7 +12,9 @@ export default {
     cancel: '取消',
     install: '安裝',
     installFailed: '安裝失敗',
-    stdioPlatformTip: '僅桌面版支援 STDIO 類型 MCP 插件，當前平台僅支援 SSE 類型'
+    stdioPlatformTip: '僅桌面版支援 STDIO 類型 MCP 插件，當前平台僅支援 HTTP/SSE 類型',
+    addHeader: '新增 Header',
+    headerName: 'Header 名稱'
   },
   abortableBtn: {
     stop: '停止'

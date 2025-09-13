@@ -14,7 +14,7 @@ AIaW 在 v1.4 版本添加了对 MCP 协议的支持，支持以下 MCP 特性�
 - 已安装 [NodeJS](https://nodejs.org/)
 - 已安装 [Python](https://www.python.org/) 和 [uv](https://github.com/astral-sh/uv)
 
-如果是 SSE 类型的 MCP 服务器，则无上述要求，在任何平台都可用。
+如果是 HTTP/SSE 类型的 MCP 服务器，则无上述要求，在任何平台都可用。
 
 ## 安装 MCP 插件
 
@@ -66,6 +66,12 @@ interface McpPluginManifest {
   } | {
     type: "sse"
     url: string
+  } | {
+    type: "http"
+    url: string
+    headers?: {
+      [x: string]: string
+    }
   }
   avatar?: Avatar
   description?: string

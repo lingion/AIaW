@@ -61,7 +61,7 @@
 ### [MCP 协议](https://docs.aiaw.app/usage/mcp.html)
 
 - 支持 MCP Tools, Prompts, Resources
-- 支持 STDIO 和 SSE 两种连接方式
+- 支持 STDIO 和 HTTP 连接方式
 - 可在插件市场安装 MCP 类型插件，或者手动添加 MCP 服务器
 
 ### 联网搜索
