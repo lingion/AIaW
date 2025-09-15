@@ -299,6 +299,8 @@ const models: Model[] = [
   { name: 'gemini-1.5-flash', inputTypes: InputTypes.commonVision },
   { name: 'deepseek-chat', inputTypes: InputTypes.textOnly },
   { name: 'deepseek-reasoner', inputTypes: InputTypes.textOnly },
+  { name: 'qwen3-next-80b-a3b-thinking', inputTypes: InputTypes.textOnly },
+  { name: 'qwen3-next-80b-a3b-instruct', inputTypes: InputTypes.textOnly },
   { name: 'qwen3-235b-a22b', inputTypes: InputTypes.textOnly },
   { name: 'qwen3-32b', inputTypes: InputTypes.textOnly },
   { name: 'qwen3-30b-a3b', inputTypes: InputTypes.textOnly },
