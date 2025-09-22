@@ -312,6 +312,7 @@
               dense
               filled
               class="w-120px"
+              suffix="ms"
             />
           </q-item-section>
         </q-item>

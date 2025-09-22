@@ -352,6 +352,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
     contentBuffer: base64ToArrayBuffer(resource.blob as string),
     mimeType: resource.mimeType
   }
+  const requestOptions = settings => settings.timeout ? { timeout: settings.timeout * 1000 } : {}
   const { id, title, description, transport, noRoundtrip, author, homepage } = dump
   const tools: PluginApi[] = dump.tools.map(tool => ({
     type: 'tool',
@@ -364,7 +365,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
       const res: CallToolResult = await client.callTool({
         name: tool.name,
         arguments: args
-      })
+      }, undefined, requestOptions(settings))
       return await Promise.all(res.content.map(async i => {
         if (i.type === 'text') {
           return {
@@ -380,7 +381,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
         } else if (i.type === 'resource') {
           return resourceToResultItem(i.resource)
         } else {
-          const resource = await client.readResource({ uri: i.uri })
+          const resource = await client.readResource({ uri: i.uri }, requestOptions(settings))
           return resourceToResultItem(resource.contents[0])
         }
       }))
@@ -396,7 +397,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
       parameters: TObject({}),
       async execute(args, settings) {
         const client = await getClient(id, { type: transport.type, ...settings })
-        const res: ReadResourceResult = await client.readResource({ uri })
+        const res: ReadResourceResult = await client.readResource({ uri }, requestOptions(settings))
         return res.contents.map(c => resourceToResultItem(c, name))
       }
     }
@@ -416,7 +417,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
       parameters: TObject(params),
       async execute(args, settings) {
         const client = await getClient(id, { type: transport.type, ...settings })
-        const res: GetPromptResult = await client.getPrompt({ name, arguments: args })
+        const res: GetPromptResult = await client.getPrompt({ name, arguments: args }, requestOptions(settings))
         return await Promise.all(res.messages.map(async m => {
           const { content } = m
           if (content.type === 'text') {
@@ -435,7 +436,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
           } else if (content.type === 'resource') {
             return resourceToResultItem(content.resource, content.resource.uri)
           } else {
-            const resource = await client.readResource({ uri: content.uri })
+            const resource = await client.readResource({ uri: content.uri }, requestOptions(settings))
             return resourceToResultItem(resource.contents[0])
           }
         }))
@@ -471,6 +472,11 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
       url: TString({ title: 'SSE URL' })
     }
   }
+  settings.timeout = TOptional(TNumber({
+    title: t('plugins.mcp.timeout'),
+    description: t('plugins.mcp.timeoutDescription'),
+    default: 60
+  }))
   return {
     id,
     type: 'mcp',

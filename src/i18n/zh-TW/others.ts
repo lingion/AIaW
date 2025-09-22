@@ -90,7 +90,9 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
     },
     mcp: {
       runCommand: '運行命令',
-      cwd: '工作目錄'
+      cwd: '工作目錄',
+      timeout: '超時時間',
+      timeoutDescription: '單次調用的最長時間，單位為秒'
     }
   },
   artifactsPlugin: {

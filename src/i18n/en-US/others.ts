@@ -90,7 +90,9 @@ GitHub: <a href="https://github.com/NitroRCr/aiaw" target="_blank">NitroRCr/AIaW
     },
     mcp: {
       runCommand: 'Run Command',
-      cwd: 'Working Directory'
+      cwd: 'Working Directory',
+      timeout: 'Timeout',
+      timeoutDescription: 'The maximum time for a single call, in seconds'
     }
   },
   artifactsPlugin: {
