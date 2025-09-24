@@ -46,7 +46,8 @@
   <component
     :is="inputComponent"
     v-else-if="type === 'number'"
-    v-model.number="model"
+    :model-value="model"
+    @update:model-value="model = $event ? Number($event) : undefined"
     :label
     v-bind="inputProps"
     type="number"

@@ -18,9 +18,25 @@ const pool = new Map<string, {
   timeoutId: number
 }>()
 
+type Settings = TransportConf & { timeout?: number }
+
+function parseSettings(settings: Settings): {
+  transportConf: TransportConf
+  timeout?: number
+} {
+  const timeout = settings.timeout
+  delete settings.timeout
+  return {
+    transportConf: settings,
+    timeout
+  }
+}
+
 const { t } = i18n.global
 
-export async function getClient(key: string, transportConf: TransportConf) {
+export async function getClient(key: string, settings: Settings) {
+  const { transportConf, timeout } = parseSettings(settings)
+  const clientTimeout = Math.max(timeout ? timeout * 1000 : 0, KeepAliveTimeout)
   if (pool.has(key)) {
     const item = pool.get(key)
     const { conf, client, timeoutId } = item
@@ -28,7 +44,7 @@ export async function getClient(key: string, transportConf: TransportConf) {
       window.clearTimeout(timeoutId)
       item.timeoutId = window.setTimeout(() => {
         client.close()
-      }, KeepAliveTimeout)
+      }, clientTimeout)
       return client
     } else {
       await client.close()
@@ -37,11 +53,6 @@ export async function getClient(key: string, transportConf: TransportConf) {
   const client = new Client({
     name: 'aiaw',
     version
-  }, {
-    capabilities: {
-      tools: {},
-      resources: {}
-    }
   })
   Notify.create({
     message: t('mcpClient.connectingMcpServer')
@@ -72,7 +83,7 @@ export async function getClient(key: string, transportConf: TransportConf) {
   }
   const timeoutId = window.setTimeout(() => {
     client.close()
-  }, KeepAliveTimeout)
+  }, clientTimeout)
   pool.set(key, { conf: transportConf, client, timeoutId })
   client.onclose = () => {
     window.clearTimeout(pool.get(key).timeoutId)
