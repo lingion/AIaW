@@ -22,7 +22,8 @@ const listener = (ev: KeyboardEvent) => {
     key: ev.code,
     withCtrl: ev.ctrlKey,
     withShift: ev.shiftKey,
-    withAlt: ev.altKey
+    withAlt: ev.altKey,
+    withMeta: ev.metaKey
   }
   ev.preventDefault()
 }
@@ -38,6 +39,7 @@ const text = computed(() => {
   if (!model.value) return
   let val = ''
   if (model.value.withCtrl) val += 'Ctrl + '
+  if (model.value.withMeta) val += 'Meta + '
   if (model.value.withShift) val += 'Shift + '
   if (model.value.withAlt) val += 'Alt + '
   val += model.value.key

@@ -1224,6 +1224,8 @@ function onEnter(ev) {
     ev.ctrlKey && send()
   } else if (perfs.sendKey === 'shift+enter') {
     ev.shiftKey && send()
+  } else if (perfs.sendKey === 'meta+enter') {
+    ev.metaKey && send()
   } else {
     if (ev.ctrlKey) {
       document.execCommand('insertText', false, '\n')

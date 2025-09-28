@@ -510,6 +510,7 @@ interface ShortcutKey {
   withCtrl?: boolean
   withShift?: boolean
   withAlt?: boolean
+  withMeta?: boolean
 }
 
 type PlatformEnabled = 'always' | 'desktop-only' | 'mobile-only' | 'never'

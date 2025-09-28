@@ -278,7 +278,12 @@
             <q-select
               class="w-150px"
               v-model="perfs.sendKey"
-              :options="[{ label: 'Ctrl + Enter', value: 'ctrl+enter' }, { label: 'Shift + Enter', value: 'shift+enter' }, { label: 'Enter', value: 'enter' }]"
+              :options="[
+                { label: 'Ctrl + Enter', value: 'ctrl+enter' },
+                { label: 'Shift + Enter', value: 'shift+enter' },
+                { label: 'Command + Enter', value: 'meta+enter' },
+                { label: 'Enter', value: 'enter' }
+              ]"
               filled
               dense
               emit-value

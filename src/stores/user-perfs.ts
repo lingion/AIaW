@@ -16,7 +16,7 @@ interface Perfs {
   userAvatar: Avatar
   commonModelOptions: string[]
   autoGenTitle: boolean
-  sendKey: 'ctrl+enter' | 'shift+enter' | 'enter'
+  sendKey: 'ctrl+enter' | 'shift+enter' | 'meta+enter' | 'enter'
   messageSelectionBtn: boolean
   codePasteOptimize: boolean
   dialogScrollBtn: PlatformEnabled
