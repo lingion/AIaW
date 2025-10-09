@@ -273,6 +273,7 @@ const models: Model[] = [
   { name: 'gpt-4o-mini', inputTypes: InputTypes.commonVision },
   { name: 'gpt-4o-mini-2024-07-18', inputTypes: InputTypes.commonVision },
   { name: 'gpt-3.5-turbo', inputTypes: InputTypes.textOnly },
+  { name: 'claude-sonnet-4-5-20250929', inputTypes: InputTypes.claudePdf },
   { name: 'claude-sonnet-4-20250514', inputTypes: InputTypes.claudePdf },
   { name: 'claude-opus-4-1-20250805', inputTypes: InputTypes.claudePdf },
   { name: 'claude-opus-4-20250514', inputTypes: InputTypes.claudePdf },
