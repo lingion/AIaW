@@ -47,6 +47,11 @@ config({
         options: {}
       }
     ]
+  },
+  editorExtensions: {
+    mermaid: {
+      js: 'https://unpkg.com/mermaid@11.12.0/dist/mermaid.min.js'
+    }
   }
 })
 
