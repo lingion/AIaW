@@ -69,7 +69,7 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
       'gpt-5-mini',
       'o4-mini',
       'claude-sonnet-4-5-20250929',
-      'claude-opus-4-1-20250805',
+      'claude-opus-4-5-20251101',
       'gemini-2.5-pro',
       'gemini-2.5-flash',
       'deepseek-chat',
