@@ -154,6 +154,7 @@ export default {
     recharge: 'Recharge',
     addImage: 'Add Image',
     addFile: 'Add File',
+    takePhoto: 'Take Photo',
     showVars: 'Show Variables',
     hideVars: 'Hide Variables',
     pastedText: 'Pasted text: {text}',
