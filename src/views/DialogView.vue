@@ -260,6 +260,24 @@
           items-center
         >
           <q-btn
+            flat
+            icon="sym_o_photo_camera"
+            :title="$t('dialogView.takePhoto')"
+            round
+            min-w="2.7em"
+            min-h="2.7em"
+            @click="cameraInput.click()"
+          >
+            <input
+              ref="cameraInput"
+              type="file"
+              accept="image/*"
+              capture="environment"
+              @change="onInputFiles"
+              un-hidden
+            >
+          </q-btn>
+          <q-btn
             v-if="model && mimeTypeMatch('image/webp', model.inputTypes.user)"
             flat
             icon="sym_o_image"
