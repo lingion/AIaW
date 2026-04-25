@@ -10,12 +10,28 @@
     />
     <component
       :is="inputComponent"
-      v-else
+      v-else-if="!inputProps?.type || inputProps.type !== 'password'"
       v-model="model"
       :label
       v-bind="inputProps"
       :class="$attrs.class"
     />
+    <component
+      :is="inputComponent"
+      v-else
+      v-model="model"
+      :label
+      v-bind="{ ...inputProps, type: showSecret ? 'text' : 'password' }"
+      :class="$attrs.class"
+    >
+      <template #append>
+        <q-icon
+          :name="showSecret ? 'sym_o_visibility_off' : 'sym_o_visibility'"
+          class="cursor-pointer"
+          @click="showSecret = !showSecret"
+        />
+      </template>
+    </component>
   </template>
   <template v-else-if="type === 'array'">
     <q-select
@@ -63,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import LazyInput from './LazyInput.vue'
 import { QInput } from 'quasar'
 
@@ -81,4 +97,5 @@ if (props.type === 'array' && !model.value) {
 }
 
 const inputComponent = computed(() => props.lazy ? LazyInput : QInput)
+const showSecret = ref(false)
 </script>
