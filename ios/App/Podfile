@@ -1,0 +1,39 @@
+require_relative '../../node_modules/.pnpm/@capacitor+ios@7.0.1_@capacitor+core@7.0.1/node_modules/@capacitor/ios/scripts/pods_helpers'
+
+platform :ios, '14.0'
+use_frameworks!
+
+# workaround to avoid Xcode caching of Pods that requires
+# Product -> Clean Build Folder after new Cordova plugins installed
+# Requires CocoaPods 1.6 or newer
+install! 'cocoapods', :disable_input_output_paths => true
+
+def capacitor_pods
+  pod 'Capacitor', :path => '../../node_modules/.pnpm/@capacitor+ios@7.0.1_@capacitor+core@7.0.1/node_modules/@capacitor/ios'
+  pod 'CapacitorCordova', :path => '../../node_modules/.pnpm/@capacitor+ios@7.0.1_@capacitor+core@7.0.1/node_modules/@capacitor/ios'
+  pod 'CapacitorApp', :path => '../../node_modules/.pnpm/@capacitor+app@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/app'
+  pod 'CapacitorCamera', :path => '../../node_modules/.pnpm/@capacitor+camera@6.1.3_@capacitor+core@7.0.1/node_modules/@capacitor/camera'
+  pod 'CapacitorClipboard', :path => '../../node_modules/.pnpm/@capacitor+clipboard@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/clipboard'
+  pod 'CapacitorFilesystem', :path => '../../node_modules/.pnpm/@capacitor+filesystem@7.0.1_@capacitor+core@7.0.1/node_modules/@capacitor/filesystem'
+  pod 'CapacitorKeyboard', :path => '../../node_modules/.pnpm/@capacitor+keyboard@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/keyboard'
+  pod 'CapacitorStatusBar', :path => '../../node_modules/.pnpm/@capacitor+status-bar@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/status-bar'
+  pod 'CapawesomeCapacitorLiveUpdate', :path => '../../node_modules/.pnpm/@capawesome+capacitor-live-update@7.1.0_@capacitor+core@7.0.1/node_modules/@capawesome/capacitor-live-update'
+  pod 'CapacitorExportFile', :path => '../../node_modules/.pnpm/capacitor-export-file@0.0.1_@capacitor+core@7.0.1/node_modules/capacitor-export-file'
+  pod 'CapacitorStreamFetch', :path => '../../node_modules/.pnpm/capacitor-stream-fetch@0.0.6_@capacitor+core@7.0.1/node_modules/capacitor-stream-fetch'
+end
+
+target 'App' do
+  capacitor_pods
+  # Add your Pods here
+end
+
+post_install do |installer|
+  assertDeploymentTarget(installer)
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['CODE_SIGN_IDENTITY'] = 'Apple Development'
+      config.build_settings['DEVELOPMENT_TEAM'] = 'R2VYD546TY'
+      config.build_settings['CODE_SIGNING_ALLOWED'] = 'YES'
+    end
+  end
+end
