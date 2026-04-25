@@ -46,3 +46,10 @@ yarn-error.log*
 /docs/.vitepress/cache
 /docs/.vitepress/dist
 .aider*
+ios/App/Pods/
+ios/App/build/
+ios/App/App.entitlements
+*.xcuserdata
+*.xcuserdatad
+xcuserdata/
+DerivedData/
