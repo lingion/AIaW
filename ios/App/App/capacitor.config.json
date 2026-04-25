@@ -1,0 +1,24 @@
+{
+	"appId": "app.aiaw",
+	"appName": "AIaW",
+	"webDir": "dist/spa",
+	"plugins": {
+		"EdgeToEdge": {
+			"backgroundColor": "#00ffffff"
+		},
+		"Keyboard": {
+			"resizeOnFullScreen": true
+		}
+	},
+	"packageClassList": [
+		"AppPlugin",
+		"CAPCameraPlugin",
+		"ClipboardPlugin",
+		"FilesystemPlugin",
+		"KeyboardPlugin",
+		"StatusBarPlugin",
+		"LiveUpdatePlugin",
+		"ExportFilePlugin",
+		"CapacitorStreamFetchPlugin"
+	]
+}
