@@ -492,7 +492,15 @@ defineEmits(['toggle-drawer'])
 const store = useAssistantsStore()
 const assistant = syncRef<Assistant>(
   () => store.assistants.find(a => a.id === props.id),
-  val => { store.put(toRaw(val)) },
+  val => {
+    const v = toRaw(val)
+    if (v.provider?.settings) {
+      try {
+        localStorage.setItem(`provider-backup-${v.id}`, JSON.stringify(v.provider.settings))
+      } catch {}
+    }
+    store.put(v)
+  },
   { valueDeep: true }
 )
 
