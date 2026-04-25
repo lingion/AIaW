@@ -12,6 +12,7 @@ export default {
     cancel: '取消',
     install: '安装',
     installFailed: '安装失败',
+    retry: '重试',
     stdioPlatformTip: '仅桌面版支持 STDIO 类型 MCP 插件，当前平台仅支持 HTTP/SSE 类型',
     addHeader: '添加 Header',
     headerName: 'Header 名称'
@@ -158,7 +159,9 @@ export default {
   installedPlugins: {
     uninstallPlugin: '卸载插件',
     uninstallConfirm: '确定要卸载插件「{title}」吗？',
-    uninstall: '卸载'
+    uninstall: '卸载',
+    refreshMcp: '刷新工具列表',
+    refreshSuccess: 'MCP 工具列表已刷新'
   },
   messageItem: {
     quote: '引用',

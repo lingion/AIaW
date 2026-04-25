@@ -32,6 +32,16 @@
           flat
           dense
           round
+          icon="sym_o_refresh"
+          :title="t('installedPlugins.refreshMcp')"
+          v-if="plugin.type === 'mcp'"
+          :loading="refreshing === plugin.id"
+          @click.prevent.stop="refreshMcp(plugin)"
+        />
+        <q-btn
+          flat
+          dense
+          round
           icon="sym_o_delete"
           :title="t('installedPlugins.uninstall')"
           v-if="plugin.type !== 'builtin'"
@@ -43,6 +53,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useQuasar } from 'quasar'
 import AAvatar from './AAvatar.vue'
 import { usePluginsStore } from 'src/stores/plugins'
@@ -55,6 +66,19 @@ const pluginsStore = usePluginsStore()
 const { data } = pluginsStore
 
 const $q = useQuasar()
+const refreshing = ref<string | null>(null)
+
+async function refreshMcp(plugin) {
+  refreshing.value = plugin.id
+  try {
+    await pluginsStore.refreshMcpPlugin(plugin.id)
+    $q.notify({ type: 'positive', message: t('installedPlugins.refreshSuccess') })
+  } catch (e) {
+    $q.notify({ type: 'negative', message: String(e) })
+  } finally {
+    refreshing.value = null
+  }
+}
 
 function deleteItem(plugin) {
   $q.dialog({

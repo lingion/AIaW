@@ -12,6 +12,7 @@ export default {
     cancel: 'Cancel',
     install: 'Install',
     installFailed: 'Installation failed',
+    retry: 'Retry',
     stdioPlatformTip: 'Only the desktop version supports STDIO type MCP plugins, and the current platform only supports HTTP/SSE type',
     addHeader: 'Add Header',
     headerName: 'Header Name'
@@ -158,7 +159,9 @@ export default {
   installedPlugins: {
     uninstallPlugin: 'Uninstall Plugin',
     uninstallConfirm: 'Are you sure you want to uninstall the plugin "{title}"?',
-    uninstall: 'Uninstall'
+    uninstall: 'Uninstall',
+    refreshMcp: 'Refresh tool list',
+    refreshSuccess: 'MCP tool list refreshed'
   },
   messageItem: {
     quote: 'Quote',
