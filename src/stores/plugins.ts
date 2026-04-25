@@ -76,7 +76,10 @@ export const usePluginsStore = defineStore('plugins', () => {
   const { t } = useI18n()
   async function installMcpPlugin(manifest: McpPluginManifest) {
     if (manifest.transport.type === 'stdio' && !IsTauri) throw new Error(t('stores.plugins.stdioRequireDesktop'))
-    const dump = await dumpMcpPlugin(manifest)
+    const dump = await dumpMcpPlugin(manifest).catch(err => {
+      console.error('MCP dump failed:', err)
+      throw new Error(`MCP connection failed: ${err.message}. Check network/CORS.`)
+    })
     await db.transaction('rw', db.installedPluginsV2, db.reactives, async () => {
       const plugin = await db.installedPluginsV2.where('id').equals(manifest.id).first()
       if (plugin) {
@@ -103,6 +106,13 @@ export const usePluginsStore = defineStore('plugins', () => {
     })
   }
 
+  async function refreshMcpPlugin(id: string) {
+    const plugin = await db.installedPluginsV2.where('id').equals(id).first()
+    if (!plugin || plugin.type !== 'mcp') throw new Error('Not an MCP plugin')
+    const dump = await dumpMcpPlugin(plugin.manifest)
+    await db.installedPluginsV2.update(plugin.key, { manifest: dump })
+  }
+
   return {
     data,
     ready,
@@ -112,6 +122,7 @@ export const usePluginsStore = defineStore('plugins', () => {
     installHuggingPlugin,
     installGradioPlugin,
     installMcpPlugin,
-    uninstall
+    uninstall,
+    refreshMcpPlugin
   }
 })

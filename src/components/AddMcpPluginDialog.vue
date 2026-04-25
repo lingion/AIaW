@@ -276,9 +276,13 @@ function add() {
     onDialogOK()
   }).catch(err => {
     console.error(err)
-    $q.notify({
-      message: `${t('addMcpPluginDialog.installFailed')}: ${err.message}`,
-      color: 'negative'
+    $q.dialog({
+      title: t('addMcpPluginDialog.installFailed'),
+      message: `${err.message}`,
+      ok: { label: t('addMcpPluginDialog.retry'), color: 'primary', flat: true },
+      cancel: { label: t('addMcpPluginDialog.cancel'), flat: true }
+    }).onOk(() => {
+      add()
     })
   }).finally(() => {
     loading.value = false

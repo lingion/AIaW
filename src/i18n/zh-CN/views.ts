@@ -154,6 +154,7 @@ export default {
     recharge: '充值',
     addImage: '添加图片',
     addFile: '添加文件',
+    takePhoto: '拍照',
     showVars: '显示变量',
     hideVars: '隐藏变量',
     pastedText: '粘贴文本：{text}',
