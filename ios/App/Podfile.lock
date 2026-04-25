@@ -1,0 +1,87 @@
+PODS:
+  - Alamofire (5.9.1)
+  - Capacitor (7.0.1):
+    - CapacitorCordova
+  - CapacitorApp (7.0.0):
+    - Capacitor
+  - CapacitorCamera (6.1.3):
+    - Capacitor
+  - CapacitorClipboard (7.0.0):
+    - Capacitor
+  - CapacitorCordova (7.0.1)
+  - CapacitorExportFile (0.0.1):
+    - Capacitor
+  - CapacitorFilesystem (7.0.1):
+    - Capacitor
+  - CapacitorKeyboard (7.0.0):
+    - Capacitor
+  - CapacitorStatusBar (7.0.0):
+    - Capacitor
+  - CapacitorStreamFetch (0.0.6):
+    - Capacitor
+  - CapawesomeCapacitorLiveUpdate (7.1.0):
+    - Alamofire (~> 5.9.0)
+    - Capacitor
+    - SSZipArchive (~> 2.2.3)
+  - SSZipArchive (2.2.3)
+
+DEPENDENCIES:
+  - "Capacitor (from `../../node_modules/.pnpm/@capacitor+ios@7.0.1_@capacitor+core@7.0.1/node_modules/@capacitor/ios`)"
+  - "CapacitorApp (from `../../node_modules/.pnpm/@capacitor+app@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/app`)"
+  - "CapacitorCamera (from `../../node_modules/.pnpm/@capacitor+camera@6.1.3_@capacitor+core@7.0.1/node_modules/@capacitor/camera`)"
+  - "CapacitorClipboard (from `../../node_modules/.pnpm/@capacitor+clipboard@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/clipboard`)"
+  - "CapacitorCordova (from `../../node_modules/.pnpm/@capacitor+ios@7.0.1_@capacitor+core@7.0.1/node_modules/@capacitor/ios`)"
+  - "CapacitorExportFile (from `../../node_modules/.pnpm/capacitor-export-file@0.0.1_@capacitor+core@7.0.1/node_modules/capacitor-export-file`)"
+  - "CapacitorFilesystem (from `../../node_modules/.pnpm/@capacitor+filesystem@7.0.1_@capacitor+core@7.0.1/node_modules/@capacitor/filesystem`)"
+  - "CapacitorKeyboard (from `../../node_modules/.pnpm/@capacitor+keyboard@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/keyboard`)"
+  - "CapacitorStatusBar (from `../../node_modules/.pnpm/@capacitor+status-bar@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/status-bar`)"
+  - "CapacitorStreamFetch (from `../../node_modules/.pnpm/capacitor-stream-fetch@0.0.6_@capacitor+core@7.0.1/node_modules/capacitor-stream-fetch`)"
+  - "CapawesomeCapacitorLiveUpdate (from `../../node_modules/.pnpm/@capawesome+capacitor-live-update@7.1.0_@capacitor+core@7.0.1/node_modules/@capawesome/capacitor-live-update`)"
+
+SPEC REPOS:
+  trunk:
+    - Alamofire
+    - SSZipArchive
+
+EXTERNAL SOURCES:
+  Capacitor:
+    :path: "../../node_modules/.pnpm/@capacitor+ios@7.0.1_@capacitor+core@7.0.1/node_modules/@capacitor/ios"
+  CapacitorApp:
+    :path: "../../node_modules/.pnpm/@capacitor+app@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/app"
+  CapacitorCamera:
+    :path: "../../node_modules/.pnpm/@capacitor+camera@6.1.3_@capacitor+core@7.0.1/node_modules/@capacitor/camera"
+  CapacitorClipboard:
+    :path: "../../node_modules/.pnpm/@capacitor+clipboard@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/clipboard"
+  CapacitorCordova:
+    :path: "../../node_modules/.pnpm/@capacitor+ios@7.0.1_@capacitor+core@7.0.1/node_modules/@capacitor/ios"
+  CapacitorExportFile:
+    :path: "../../node_modules/.pnpm/capacitor-export-file@0.0.1_@capacitor+core@7.0.1/node_modules/capacitor-export-file"
+  CapacitorFilesystem:
+    :path: "../../node_modules/.pnpm/@capacitor+filesystem@7.0.1_@capacitor+core@7.0.1/node_modules/@capacitor/filesystem"
+  CapacitorKeyboard:
+    :path: "../../node_modules/.pnpm/@capacitor+keyboard@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/keyboard"
+  CapacitorStatusBar:
+    :path: "../../node_modules/.pnpm/@capacitor+status-bar@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/status-bar"
+  CapacitorStreamFetch:
+    :path: "../../node_modules/.pnpm/capacitor-stream-fetch@0.0.6_@capacitor+core@7.0.1/node_modules/capacitor-stream-fetch"
+  CapawesomeCapacitorLiveUpdate:
+    :path: "../../node_modules/.pnpm/@capawesome+capacitor-live-update@7.1.0_@capacitor+core@7.0.1/node_modules/@capawesome/capacitor-live-update"
+
+SPEC CHECKSUMS:
+  Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
+  Capacitor: 23fff43571a4d1e3ee7d67b5a3588c6e757c2913
+  CapacitorApp: 45cb7cbef4aa380b9236fd6980033eb5cde6fcd2
+  CapacitorCamera: 36dd808d7a49f946c1743b41d518208777e1fbd9
+  CapacitorClipboard: 2afc5e21902233d7990978c8f41f023ddcee3e3d
+  CapacitorCordova: 63d476958d5022d76f197031e8b7ea3519988c64
+  CapacitorExportFile: 7336181b031a11e9044444d31c8b96d6e026d321
+  CapacitorFilesystem: 307f97c27a265edf8396a1c9c235592fd8572fe3
+  CapacitorKeyboard: 2c26c6fccde35023c579fc37d4cae6326d5e6343
+  CapacitorStatusBar: 438e90beeeefa8276b24e6c5991cb02dd13e51bf
+  CapacitorStreamFetch: ac0d36d91f5987fc8da6266b5a10c4dec6e3e3d3
+  CapawesomeCapacitorLiveUpdate: db7f6f4ce9d96df49ba9ca104334ac8bf4bcd511
+  SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
+
+PODFILE CHECKSUM: 3976f4a9298820d3f51177af21444a516b405497
+
+COCOAPODS: 1.16.2
