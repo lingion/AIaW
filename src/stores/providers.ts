@@ -15,7 +15,21 @@ export const useProvidersStore = defineStore('providers', () => {
       const p = providers.value.find(p => `custom:${p.id}` === provider.type)
       return p && createCustomProvider(p, options, stack)
     } else {
-      return ProviderTypes.find(pt => pt.name === provider.type)?.constructor({ ...provider.settings, ...options })
+      let settings = { ...provider.settings, ...options }
+      // Restore apiKey from localStorage backup if missing
+      if (settings.apiKey === undefined || settings.apiKey === '') {
+        try {
+          const keys = Object.keys(localStorage).filter(k => k.startsWith('provider-backup-'))
+          for (const k of keys) {
+            const backup = JSON.parse(localStorage.getItem(k))
+            if (backup.apiKey) {
+              settings = { ...settings, ...backup }
+              break
+            }
+          }
+        } catch {}
+      }
+      return ProviderTypes.find(pt => pt.name === provider.type)?.constructor(settings)
     }
   }
   function createCustomProvider(provider: CustomProvider, options, stack = []) {
