@@ -266,17 +266,8 @@
             round
             min-w="2.7em"
             min-h="2.7em"
-            @click="cameraInput.click()"
-          >
-            <input
-              ref="cameraInput"
-              type="file"
-              accept="image/*"
-              capture="environment"
-              @change="onInputFiles"
-              un-hidden
-            >
-          </q-btn>
+            @click="takePhoto"
+          />
           <q-btn
             v-if="model && mimeTypeMatch('image/webp', model.inputTypes.user)"
             flat
@@ -480,6 +471,8 @@ import { useGetModel } from 'src/composables/get-model'
 import { useUiStateStore } from 'src/stores/ui-state'
 import AutocompleteInput from 'src/components/AutocompleteInput.vue'
 import { useProvidersStore } from 'src/stores/providers'
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
+import { Capacitor } from '@capacitor/core'
 
 const { t, locale } = useI18n()
 
@@ -691,6 +684,38 @@ function onTextPaste(ev: ClipboardEvent) {
 
 const imageInput = ref()
 const fileInput = ref()
+
+async function takePhoto() {
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const photo = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Camera
+      })
+      const res = await fetch(photo.dataUrl)
+      const blob = await res.blob()
+      const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' })
+      parseFiles([file])
+    } catch (e) {
+      if (e.message !== 'User cancelled photos app') {
+        $q.notify({ message: `Camera error: ${e.message}`, color: 'negative' })
+      }
+    }
+  } else {
+    // Web fallback: use file input with capture
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    input.capture = 'environment'
+    input.onchange = () => {
+      if (input.files.length) parseFiles(Array.from(input.files))
+    }
+    input.click()
+  }
+}
+
 function onInputFiles({ target }) {
   const files = target.files
   parseFiles(Array.from(files))
