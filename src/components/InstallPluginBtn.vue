@@ -1,7 +1,11 @@
 <template>
   <q-btn
-    :label="store.availableIds.includes(id) ? $t('installPluginBtn.installed') : $t('installPluginBtn.install')"
-    :disable="store.availableIds.includes(id)"
+    :label="store.availableIds.includes(id)
+      ? $t('installPluginBtn.installed')
+      : disabled
+        ? (disabledReason || 'Unavailable')
+        : $t('installPluginBtn.install')"
+    :disable="store.availableIds.includes(id) || disabled"
     :loading
     @click="installIt"
   />
@@ -20,6 +24,8 @@ const { t } = useI18n()
 const props = defineProps<{
   id: string
   manifest: PluginManifest
+  disabled?: boolean
+  disabledReason?: string
 }>()
 
 const store = usePluginsStore()
@@ -27,6 +33,7 @@ const { install } = useInstallPlugin()
 const loading = ref(false)
 const $q = useQuasar()
 function installIt() {
+  if (props.disabled) return
   loading.value = true
   install(props.manifest).catch(err => {
     console.error(err)
