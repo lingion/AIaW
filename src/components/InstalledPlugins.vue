@@ -24,29 +24,28 @@
           />
         </q-item-label>
       </q-item-section>
-      <q-item-section
-        side
-        important:pl-1
-      >
-        <q-btn
-          flat
-          dense
-          round
-          icon="sym_o_refresh"
-          :title="t('installedPlugins.refreshMcp')"
-          v-if="plugin.type === 'mcp'"
-          :loading="refreshing === plugin.id"
-          @click.prevent.stop="refreshMcp(plugin)"
-        />
-        <q-btn
-          flat
-          dense
-          round
-          icon="sym_o_delete"
-          :title="t('installedPlugins.uninstall')"
-          v-if="plugin.type !== 'builtin'"
-          @click.prevent.stop="deleteItem(plugin)"
-        />
+      <q-item-section side important:pl-1>
+        <div flex items-center no-wrap gap-1>
+          <q-btn
+            flat
+            dense
+            round
+            icon="sym_o_refresh"
+            :title="t('installedPlugins.refreshMcp')"
+            v-if="plugin.type === 'mcp'"
+            :loading="refreshing === plugin.id"
+            @click.prevent.stop="refreshMcp(plugin)"
+          />
+          <q-btn
+            flat
+            dense
+            round
+            icon="sym_o_delete"
+            :title="t('installedPlugins.uninstall')"
+            v-if="plugin.type !== 'builtin'"
+            @click.prevent.stop="deleteItem(plugin)"
+          />
+        </div>
       </q-item-section>
     </q-item>
   </q-list>
