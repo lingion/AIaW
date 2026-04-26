@@ -12,8 +12,14 @@ export const IsTauri = '__TAURI_INTERNALS__' in window
 export const IsCapacitor = Capacitor.isNativePlatform()
 export const IsWeb = !IsTauri && !IsCapacitor
 export const TauriPlatform = IsTauri ? platform() : undefined
+export const CapacitorPlatform = IsCapacitor ? Capacitor.getPlatform() : undefined
 
-export const fetch = IsTauri ? tauriFetch : IsCapacitor ? capFetch : window.fetch.bind(window)
+// capacitor-stream-fetch is not implemented on iOS; fall back to web fetch there.
+export const fetch = IsTauri
+  ? tauriFetch
+  : IsCapacitor
+    ? (CapacitorPlatform === 'ios' ? window.fetch.bind(window) : capFetch)
+    : window.fetch.bind(window)
 
 export async function clipboardReadText(): Promise<string> {
   if (IsTauri) {
