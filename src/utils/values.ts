@@ -281,6 +281,7 @@ const InputTypes = {
 const models: Model[] = [
   { name: 'qwen-3-235b-a22b-instruct-2507', inputTypes: InputTypes.default },
   { name: 'llama3.1-8b', inputTypes: InputTypes.default },
+  { name: 'llama3.1-70b', inputTypes: InputTypes.default },
   { name: 'MiniMax-M2.7', inputTypes: InputTypes.default },
   { name: 'MiniMax-M2.7-highspeed', inputTypes: InputTypes.default },
   { name: 'MiniMax-M2.5', inputTypes: InputTypes.default },
