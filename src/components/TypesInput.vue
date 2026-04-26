@@ -21,7 +21,15 @@
       v-else
       v-model="model"
       :label
-      v-bind="{ ...inputProps, type: showSecret ? 'text' : 'password' }"
+      v-bind="{
+        ...inputProps,
+        type: showSecret ? 'text' : 'password',
+        autocomplete: 'off',
+        autocorrect: 'off',
+        autocapitalize: 'off',
+        spellcheck: false,
+        inputmode: showSecret ? 'text' : 'text'
+      }"
       :class="$attrs.class"
     >
       <template #append>
