@@ -5,7 +5,8 @@ export const SyncServicePrice = process.env.SYNC_SERVICE_PRICE && parseFloat(pro
 export const SyncServicePriceUSD = process.env.SYNC_SERVICE_PRICE_USD && parseFloat(process.env.SYNC_SERVICE_PRICE_USD)
 export const UsdToCnyRate = process.env.USD_TO_CNY_RATE && parseFloat(process.env.USD_TO_CNY_RATE)
 export const StripeFee = process.env.STRIPE_FEE && parseFloat(process.env.STRIPE_FEE)
-export const DexieDBURL = process.env.DEXIE_DB_URL
+// Cloud sync is stripped by default in this fork. Re-enable only if you explicitly wire your own Dexie Cloud URL.
+export const DexieDBURL = undefined
 export const LitellmBaseURL = process.env.LITELLM_BASE_URL
 export const BudgetBaseURL = process.env.BUDGET_BASE_URL
 export const SearxngBaseURL = process.env.SEARXNG_BASE_URL
