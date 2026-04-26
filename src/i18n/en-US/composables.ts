@@ -1,10 +1,10 @@
 export default {
   firstVisit: {
     title: 'Welcome to AI as Workspace',
-    messageWithLogin: 'In order to use AI models, you need to manually <b>configure the service provider</b>, or <b>log in</b> to use the model service we provide. <br>In addition, after logging in, you can also experience the real-time cloud synchronization across devices.',
-    messageWithoutLogin: 'In order to use AI models, you need to manually <b>configure the service provider</b>',
+    messageWithLogin: 'To use AI models, please manually <b>configure a provider</b>. This fork is local-first and does not rely on the upstream hosted model service or cloud sync by default.',
+    messageWithoutLogin: 'To use AI models, please <b>configure a provider</b>. This fork is local-first by default.',
     cancel: 'Configure Provider',
-    ok: 'Log In'
+    ok: 'OK'
   },
   createDialog: {
     newDialog: 'New Dialog'
@@ -17,7 +17,7 @@ export default {
     failure: 'Order failed'
   },
   login: {
-    register: 'Log In / Register',
+    register: 'Account',
     next: 'Next',
     otp: 'OTP Code',
     enterOtp: 'Please enter the OTP code from the verification email',
@@ -46,11 +46,11 @@ export default {
     delete: 'Delete'
   },
   subscriptionNotify: {
-    evalExpired: 'Cloud sync trial has expired, you can choose to subscribe',
-    evalExpiring: 'Cloud sync trial is about to expire, you can choose to subscribe',
-    prodExpired: 'Your cloud sync subscription has expired',
-    prodExpiring: 'Your cloud sync subscription is about to expire',
-    renewal: 'Renew',
-    subscribe: 'Subscribe'
+    evalExpired: 'Cloud sync is disabled in this fork by default',
+    evalExpiring: 'Cloud sync is disabled in this fork by default',
+    prodExpired: 'Cloud sync is disabled in this fork by default',
+    prodExpiring: 'Cloud sync is disabled in this fork by default',
+    renewal: 'OK',
+    subscribe: 'OK'
   }
 }
