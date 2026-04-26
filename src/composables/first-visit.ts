@@ -1,6 +1,4 @@
 import { useQuasar } from 'quasar'
-import { DexieDBURL, LitellmBaseURL } from 'src/utils/config'
-import { db } from 'src/utils/db'
 import { localData } from 'src/utils/local-data'
 import { dialogOptions } from 'src/utils/values'
 import { onMounted } from 'vue'
@@ -18,13 +16,9 @@ export function useFirstVisit() {
       return
     }
     if (!localData.visited) {
-      const serviceAvailable = DexieDBURL && LitellmBaseURL
-      const message = serviceAvailable
-        ? t('firstVisit.messageWithLogin')
-        : t('firstVisit.messageWithoutLogin')
       $q.dialog({
         title: t('firstVisit.title'),
-        message,
+        message: t('firstVisit.messageWithoutLogin'),
         html: true,
         cancel: {
           label: t('firstVisit.cancel'),
@@ -32,17 +26,10 @@ export function useFirstVisit() {
           flat: true
         },
         persistent: true,
-        ok: serviceAvailable ? {
-          label: t('firstVisit.ok'),
-          noCaps: true,
-          flat: true
-        } : false,
+        ok: false,
         ...dialogOptions
       }).onCancel(() => {
         router.push('/settings')
-        localData.visited = true
-      }).onOk(() => {
-        db.cloud.login()
         localData.visited = true
       })
     }
