@@ -46,9 +46,17 @@ function getModelList() {
     })
   }).catch(err => {
     console.error(err)
-    $q.notify({
-      message: t('getModelList.getModelListFailed'),
-      color: 'negative'
+    $q.dialog({
+      title: t('getModelList.getModelListFailed'),
+      message: `${err.message}\n\nYou can still enter model names manually, one per line:`,
+      prompt: {
+        model: (models.value || []).join('\n'),
+        type: 'textarea'
+      },
+      cancel: true,
+      ...dialogOptions
+    }).onOk(val => {
+      models.value = String(val).split('\n').map(v => v.trim()).filter(Boolean)
     })
   })
 }
