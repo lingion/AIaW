@@ -1,10 +1,10 @@
 export default {
   firstVisit: {
     title: '欢迎使用 AI as Workspace',
-    messageWithLogin: '为了使用 AI 模型，你需要手动<b>配置服务商</b>，或者<b>登录</b>以使用我们提供的模型服务。<br>此外，登录之后还可以使用跨设备实时云同步功能。',
-    messageWithoutLogin: '为了使用 AI 模型，你需要<b>配置服务商</b>。',
+    messageWithLogin: '为了使用 AI 模型，请手动<b>配置服务商</b>。这个 fork 默认是本地优先，不依赖上游托管模型服务，也不默认启用云同步。',
+    messageWithoutLogin: '为了使用 AI 模型，你需要<b>配置服务商</b>。这个 fork 默认是本地优先。',
     cancel: '配置服务商',
-    ok: '登录'
+    ok: '确定'
   },
   createDialog: {
     newDialog: '新对话'
@@ -17,7 +17,7 @@ export default {
     failure: '下单失败'
   },
   login: {
-    register: '登录/注册',
+    register: '账号',
     next: '下一步',
     otp: 'OTP验证码',
     enterOtp: '请输入验证邮件中的OTP验证码',
@@ -46,11 +46,11 @@ export default {
     delete: '删除'
   },
   subscriptionNotify: {
-    evalExpired: '云同步试用已过期，可选择订阅',
-    evalExpiring: '云同步试用即将过期，可选择订阅',
-    prodExpired: '您的云同步订阅已过期',
-    prodExpiring: '您的云同步订阅即将过期',
-    renewal: '续订',
-    subscribe: '订阅'
+    evalExpired: '这个 fork 默认不启用云同步',
+    evalExpiring: '这个 fork 默认不启用云同步',
+    prodExpired: '这个 fork 默认不启用云同步',
+    prodExpiring: '这个 fork 默认不启用云同步',
+    renewal: '确定',
+    subscribe: '确定'
   }
 }
