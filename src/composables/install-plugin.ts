@@ -4,7 +4,7 @@ import { Validator } from '@cfworker/json-schema'
 import { toRaw } from 'vue'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
-import { fetch } from 'src/utils/platform-api'
+import { fetch, IsCapacitor, CapacitorPlatform, IsTauri } from 'src/utils/platform-api'
 
 export function useInstallPlugin() {
   const store = usePluginsStore()
@@ -45,6 +45,20 @@ export function useInstallPlugin() {
     } else if (new Validator(LobePluginManifestSchema).validate(manifest).valid) {
       await store.installLobePlugin(manifest)
     } else if (new Validator(McpPluginManifestSchema).validate(manifest).valid) {
+      if (manifest.transport.type === 'stdio' && !IsTauri) {
+        $q.notify({
+          message: t('installPlugin.installFailed', { message: 'STDIO MCP plugins require desktop/Tauri.' }),
+          color: 'negative'
+        })
+        return
+      }
+      if (IsCapacitor && CapacitorPlatform === 'ios' && manifest.transport.type === 'stdio') {
+        $q.notify({
+          message: t('installPlugin.installFailed', { message: 'iOS only supports HTTP/SSE MCP plugins.' }),
+          color: 'negative'
+        })
+        return
+      }
       await store.installMcpPlugin(manifest).catch(err => {
         console.error(err)
         $q.notify({
