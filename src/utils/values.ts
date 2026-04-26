@@ -30,14 +30,49 @@ const commonSettings = {
   baseURL: String({ title: t('values.apiAddress'), description: t('values.defaultServiceAddress') }),
   apiKey: String({ title: 'API Key', format: 'password' })
 }
-async function openaiGetModelList({ baseURL, apiKey }) {
-  const resp = await fetch(`${baseURL}/models`, {
+
+function normalizeBaseURL(baseURL: string) {
+  return baseURL.replace(/\/+$/, '')
+}
+
+function extractModelList(payload: any): string[] {
+  if (Array.isArray(payload?.data)) return payload.data.map(m => m?.id || m?.name).filter(Boolean)
+  if (Array.isArray(payload?.models)) return payload.models.map(m => m?.id || m?.name || m).filter(Boolean)
+  if (Array.isArray(payload)) return payload.map(m => m?.id || m?.name || m).filter(Boolean)
+  return []
+}
+
+async function tryFetchModels(url: string, apiKey: string) {
+  const resp = await fetch(url, {
     headers: {
-      Authorization: `Bearer ${apiKey}`
+      Authorization: `Bearer ${apiKey}`,
+      Accept: 'application/json'
     }
   })
-  const { data } = await resp.json()
-  return data.map(m => m.id)
+  if (!resp.ok) throw new Error(`${resp.status} ${resp.statusText}`)
+  const payload = await resp.json()
+  const models = extractModelList(payload)
+  if (!models.length) throw new Error('No models returned')
+  return models
+}
+
+async function openaiGetModelList({ baseURL, apiKey }) {
+  const normalized = normalizeBaseURL(baseURL)
+  const candidates = [
+    `${normalized}/models`,
+    normalized.endsWith('/v1') ? null : `${normalized}/v1/models`
+  ].filter(Boolean)
+
+  const errors: string[] = []
+  for (const url of candidates) {
+    try {
+      return await tryFetchModels(url, apiKey)
+    } catch (err) {
+      errors.push(`${url} -> ${err.message}`)
+    }
+  }
+
+  throw new Error(errors.join(' | '))
 }
 const ProviderTypes: ProviderType[] = [
   {
@@ -118,28 +153,35 @@ const ProviderTypes: ProviderType[] = [
     }
   },
   {
-    name: 'azure',
-    label: 'Azure',
-    avatar: { type: 'svg', name: 'microsoft-c' },
-    settings: Object({
-      ...commonSettings,
-      resourceName: String({ title: t('values.resourceName') }),
-      apiVersion: String({ title: t('values.apiVersion') })
+    name: 'cerebras',
+    label: 'Cerebras',
+    avatar: { type: 'text', text: 'C' },
+    settings: Object(commonSettings),
+    initialSettings: {
+      baseURL: 'https://api.cerebras.ai/v1'
+    },
+    constructor: options => createOpenAICompatible({
+      name: 'cerebras',
+      includeUsage: true,
+      baseURL: 'https://api.cerebras.ai/v1',
+      ...options
     }),
-    initialSettings: {},
-    constructor: createAzure
+    getModelList: ({ baseURL, apiKey }) => openaiGetModelList({ baseURL: baseURL || 'https://api.cerebras.ai/v1', apiKey })
   },
   {
-    name: 'openai-compatible',
-    label: t('values.openaiCompatible'),
-    avatar: { type: 'svg', name: 'openai', hue: 160 },
-    settings: Object({
-      ...commonSettings,
-      baseURL: String({ title: t('values.apiAddress'), description: t('values.required') })
-    }),
-    initialSettings: {},
-    constructor: options => createOpenAICompatible({ name: 'openai-compatible', includeUsage: true, ...options }),
-    getModelList: openaiGetModelList
+    name: 'minimax',
+    label: 'MiniMax',
+    avatar: { type: 'text', text: 'M' },
+    settings: Object(commonSettings),
+    initialSettings: {
+      baseURL: 'https://api.minimaxi.com/v1'
+    },
+    constructor: options => createOpenAICompatible({
+      name: 'minimax',
+      includeUsage: true,
+      baseURL: 'https://api.minimaxi.com/v1',
+      ...options
+    })
   },
   {
     name: 'openrouter',
@@ -237,8 +279,16 @@ const InputTypes = {
   geminiImage: { user: ['image/*'], assistant: ['image/*'], tool: [] }
 }
 const models: Model[] = [
+  { name: 'qwen-3-235b-a22b-instruct-2507', inputTypes: InputTypes.default },
+  { name: 'llama3.1-8b', inputTypes: InputTypes.default },
+  { name: 'MiniMax-M2.7', inputTypes: InputTypes.default },
+  { name: 'MiniMax-M2.7-highspeed', inputTypes: InputTypes.default },
+  { name: 'MiniMax-M2.5', inputTypes: InputTypes.default },
+  { name: 'MiniMax-M2.5-highspeed', inputTypes: InputTypes.default },
+  { name: 'MiniMax-M2.1', inputTypes: InputTypes.default },
+  { name: 'MiniMax-M2.1-highspeed', inputTypes: InputTypes.default },
+  { name: 'MiniMax-M2-Stable', inputTypes: InputTypes.default },
   { name: 'o4-mini', inputTypes: InputTypes.commonVision },
-  { name: 'o4-mini-2025-04-16', inputTypes: InputTypes.commonVision },
   { name: 'o3', inputTypes: InputTypes.commonVision },
   { name: 'o3-2025-04-16', inputTypes: InputTypes.commonVision },
   { name: 'o3-mini', inputTypes: InputTypes.textOnly },
