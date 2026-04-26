@@ -20,6 +20,9 @@
             dense
           />
         </div>
+        <div px-2 class="text-caption q-mt-sm">
+          支持完整导出包和轻量导出包。轻量导出包不会恢复图片/附件二进制内容，只恢复数据库主数据。
+        </div>
         <div my-2>
           <q-checkbox
             v-model="options.overwrite"
@@ -46,10 +49,10 @@
         <q-btn
           flat
           color="primary"
-          :label="$t('importDataDialog.import')"
           :loading
           :disable="!file"
           @click="importData"
+          :label="$t('importDataDialog.import')"
         />
       </q-card-actions>
     </q-card>
@@ -85,7 +88,8 @@ function importData() {
     acceptMissingTables: force,
     acceptVersionDiff: force,
     overwriteValues: overwrite,
-    clearTablesBeforeImport: clear
+    clearTablesBeforeImport: clear,
+    progressCallback: () => true
   }).then(() => {
     $q.notify({
       message: t('importDataDialog.importSuccess'),
