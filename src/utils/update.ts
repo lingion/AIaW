@@ -9,7 +9,7 @@ import { localData } from './local-data'
 import { invoke } from '@tauri-apps/api/core'
 import { DisableCheckUpdate } from './config'
 
-const BaseURL = 'https://github.com/NitroRCr/AIaW/releases/latest/download'
+const BaseURL = 'https://github.com/lingion/AIaW/releases/latest/download'
 type Version = typeof version
 
 async function checkUpdate() {
