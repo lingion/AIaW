@@ -22,6 +22,12 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>AIaW needs camera access so you can take photos and attach them in chat.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>AIaW needs photo library access so you can choose images to attach in chat.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>AIaW needs permission to save or process captured photos for chat attachments.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
