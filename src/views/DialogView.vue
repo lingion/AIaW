@@ -989,6 +989,21 @@ async function stream(target, insert = false) {
       settings[key] = val
     }
   }
+  const currentProviderType = assistant.value.provider?.type || perfs.provider?.type
+  if (currentProviderType === 'cerebras') {
+    delete settings.frequencyPenalty
+    delete settings.presencePenalty
+  }
+  if (currentProviderType === 'minimax') {
+    delete settings.frequencyPenalty
+    delete settings.presencePenalty
+    if (typeof settings.temperature === 'number' && settings.temperature <= 0) {
+      delete settings.temperature
+    }
+    if (typeof settings.topP === 'number' && settings.topP <= 0) {
+      settings.topP = 0.01
+    }
+  }
   const messageContent: AssistantMessageContent = {
     type: 'assistant-message',
     text: ''
@@ -1142,6 +1157,23 @@ async function stream(target, insert = false) {
       result = await generateText(params)
       messageContent.text = await result.text
       messageContent.reasoning = await result.reasoningText
+    }
+
+    if (currentProviderType === 'minimax') {
+      messageContent.text = messageContent.text
+        .replace(/^\s+|\s+$/g, '')
+        .replace(/^```(?:think)?\s*/i, '')
+        .replace(/```$/i, '')
+      if (!messageContent.reasoning) {
+        const match = messageContent.text.match(/^<think>([\s\S]*?)<\/think>\s*([\s\S]*)$/i)
+        if (match) {
+          messageContent.reasoning = match[1].trim()
+          messageContent.text = match[2].trim()
+        }
+      }
+    }
+    if (currentProviderType === 'cerebras') {
+      messageContent.text = messageContent.text.replace(/^\s+|\s+$/g, '')
     }
 
     const usage = await result.usage
