@@ -120,7 +120,7 @@
                   clickable
                   v-close-popup
                   min-h-0
-                  href="https://github.com/NitroRCr/AIaW"
+                  href="https://github.com/lingion/AIaW"
                   target="_blank"
                 >
                   <q-item-section
@@ -139,14 +139,7 @@
                   v-if="IsWeb"
                   icon="sym_o_download"
                   :label="t('mainLayout.localClient')"
-                  href="https://github.com/NitroRCr/AIaW/releases/latest"
-                  target="_blank"
-                />
-                <menu-item
-                  v-else
-                  icon="sym_o_web"
-                  :label="t('mainLayout.webVersion')"
-                  href="https://aiaw.app"
+                  href="https://github.com/lingion/AIaW/releases/latest"
                   target="_blank"
                 />
               </q-list>
@@ -193,7 +186,7 @@ function notifyVersion() {
     actions: [{
       label: t('mainLayout.changeLog'),
       handler: () => {
-        window.open('https://github.com/NitroRCr/AIaW/releases', '_blank')
+        window.open('https://github.com/lingion/AIaW/releases', '_blank')
       },
       textColor: 'inv-pri'
     }]
