@@ -31,13 +31,52 @@ export async function clipboardReadText(): Promise<string> {
   }
 }
 
-export const PublicOrigin = IsTauri || IsCapacitor ? 'https://aiaw.app' : location.origin
+// In this fork, mobile/desktop should not default users to the upstream web app.
+export const PublicOrigin = location.origin
+
+async function writeBlobInChunks(filename: string, blob: Blob) {
+  const chunkSize = 256 * 1024
+  let first = true
+  for (let offset = 0; offset < blob.size; offset += chunkSize) {
+    const chunk = blob.slice(offset, Math.min(offset + chunkSize, blob.size))
+    const base64 = (await blobToBase64(chunk)).replace(/^data:.*,/, '')
+    if (first) {
+      await Filesystem.writeFile({
+        path: filename,
+        data: base64,
+        directory: Directory.Cache,
+        recursive: true
+      })
+      first = false
+    } else {
+      await Filesystem.appendFile({
+        path: filename,
+        data: base64,
+        directory: Directory.Cache
+      })
+    }
+  }
+}
 
 export async function exportFile(filename, data: Blob | string | ArrayBuffer) {
   if (!IsCapacitor) return webExportFile(filename, data)
-  const { uri } = await Filesystem.writeFile({
+
+  if (typeof data === 'string') {
+    const { uri } = await Filesystem.writeFile({
+      path: filename,
+      data,
+      directory: Directory.Cache,
+      recursive: true
+    })
+    await ExportFile.exportFile({ uri, filename })
+    await Filesystem.deleteFile({ path: filename, directory: Directory.Cache })
+    return
+  }
+
+  const blob = data instanceof Blob ? data : new Blob([data])
+  await writeBlobInChunks(filename, blob)
+  const { uri } = await Filesystem.getUri({
     path: filename,
-    data: (await blobToBase64(new Blob([data]))).replace(/^data:.*,/, ''),
     directory: Directory.Cache
   })
   await ExportFile.exportFile({
