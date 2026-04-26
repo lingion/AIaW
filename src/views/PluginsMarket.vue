@@ -102,11 +102,20 @@
             <q-item-label caption>
               {{ item.description }}
             </q-item-label>
+            <q-item-label
+              caption
+              v-if="item.type === 'mcp' && !IsTauri"
+              class="text-warning"
+            >
+              iOS / mobile only supports manually added HTTP/SSE MCP plugins. Marketplace stdio MCP plugins are desktop-only.
+            </q-item-label>
           </q-item-section>
           <q-item-section side>
             <install-plugin-btn
               :id="item.id"
               :manifest="item.manifest"
+              :disabled="item.type === 'mcp' && !IsTauri"
+              :disabled-reason="item.type === 'mcp' && !IsTauri ? 'Desktop-only stdio MCP' : ''"
               unelevated
               bg-pri-c
               text-on-pri-c
@@ -145,7 +154,6 @@ const filterList = computed(() => {
       item => caselessIncludes(item.title, query.value) || caselessIncludes(item.description, query.value)
     )
   }
-  if (!IsTauri) res = res.filter(item => item.type !== 'mcp')
   return res
 })
 
