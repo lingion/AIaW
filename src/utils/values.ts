@@ -93,6 +93,21 @@ const ProviderTypes: ProviderType[] = [
     getModelList: ({ baseURL, apiKey }) => openaiGetModelList({ baseURL: baseURL || OfficialBaseURLs.openai, apiKey })
   },
   {
+    name: 'openai-compatible',
+    label: 'OpenAI Compatible',
+    avatar: { type: 'svg', name: 'openai', hue: 210 },
+    settings: Object(commonSettings),
+    initialSettings: {
+      baseURL: OfficialBaseURLs.openai
+    },
+    constructor: options => createOpenAICompatible({
+      name: 'openai-compatible',
+      includeUsage: true,
+      ...options
+    }),
+    getModelList: ({ baseURL, apiKey }) => openaiGetModelList({ baseURL: baseURL || OfficialBaseURLs.openai, apiKey })
+  },
+  {
     name: 'openai-responses',
     label: 'OpenAI Responses',
     avatar: { type: 'svg', name: 'openai', hue: 88 },
@@ -258,6 +273,77 @@ const ProviderTypes: ProviderType[] = [
     initialSettings: {},
     constructor: createCohere
   },
+  {
+    name: 'azure',
+    label: 'Azure OpenAI',
+    avatar: { type: 'svg', name: 'microsoft-c' },
+    settings: Object({
+      apiKey: String({ title: 'API Key', format: 'password' }),
+      resourceName: String({ title: 'Resource Name' }),
+      apiVersion: String({ title: 'API Version', default: '2024-10-21' })
+    }),
+    initialSettings: {},
+    constructor: createAzure
+  },
+  {
+    name: 'mistral',
+    label: 'Mistral',
+    avatar: { type: 'svg', name: 'mistral-c' },
+    settings: Object(commonSettings),
+    initialSettings: {},
+    constructor: createMistral
+  }
+]
+
+export {
+  ProviderTypes
+}
+
+const InputTypes = {
+  default: ['text/*', 'image/*', 'application/pdf'],
+  commonVision: ['text/*', 'image/*'],
+  textOnly: ['text/*']
+}
+
+const modelOptions: Model[] = [
+  { name: 'gpt-4.1', inputTypes: InputTypes.default },
+  { name: 'gpt-4.1-mini', inputTypes: InputTypes.default },
+  { name: 'gpt-4.1-nano', inputTypes: InputTypes.default },
+  { name: 'gpt-4o', inputTypes: InputTypes.default },
+  { name: 'gpt-4o-mini', inputTypes: InputTypes.default },
+  { name: 'chatgpt-4o-latest', inputTypes: InputTypes.default },
+  { name: 'o1', inputTypes: InputTypes.default },
+  { name: 'o3-mini', inputTypes: InputTypes.default },
+  { name: 'o4-mini', inputTypes: InputTypes.default },
+  { name: 'gpt-5', inputTypes: InputTypes.default },
+  { name: 'gpt-5-mini', inputTypes: InputTypes.default },
+  { name: 'gpt-5-nano', inputTypes: InputTypes.default },
+  { name: 'claude-3-5-sonnet-latest', inputTypes: InputTypes.default },
+  { name: 'claude-3-7-sonnet-latest', inputTypes: InputTypes.default },
+  { name: 'claude-sonnet-4-20250514', inputTypes: InputTypes.default },
+  { name: 'claude-opus-4-20250514', inputTypes: InputTypes.default },
+  { name: 'gemini-2.5-pro', inputTypes: InputTypes.commonVision },
+  { name: 'gemini-2.5-flash', inputTypes: InputTypes.commonVision },
+  { name: 'gemini-2.0-flash', inputTypes: InputTypes.commonVision },
+  { name: 'grok-3', inputTypes: InputTypes.default },
+  { name: 'grok-3-mini', inputTypes: InputTypes.default },
+  { name: 'DeepSeek-V3.1', inputTypes: InputTypes.default },
+  { name: 'DeepSeek-R1-0528', inputTypes: InputTypes.default },
+  { name: 'MiniMax-M2.7', inputTypes: InputTypes.default },
+  { name: 'MiniMax-M2.7-highspeed', inputTypes: InputTypes.default },
+  { name: 'MiniMax-M2.5', inputTypes: InputTypes.default },
+  { name: 'MiniMax-M2.5-highspeed', inputTypes: InputTypes.default },
+  { name: 'MiniMax-M2.1', inputTypes: InputTypes.default },
+  { name: 'MiniMax-M2.1-highspeed', inputTypes: InputTypes.default },
+  { name: 'MiniMax-M2-Stable', inputTypes: InputTypes.default }
+]
+
+export {
+  modelOptions,
+  OfficialBaseURLs,
+  InputTypes
+}
+
   {
     name: 'mistral',
     label: 'Mistral',
