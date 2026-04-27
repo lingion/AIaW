@@ -1145,6 +1145,7 @@ async function stream(target, insert = false) {
       result = streamText(params)
       await db.messages.update(id, { status: 'streaming' })
       lockingBottom.value = perfs.streamingLockBottom
+      let minimaxStreamError: Error | null = null
       for await (const part of result.fullStream) {
         if (part.type === 'text-delta') {
           messageContent.text += part.text
@@ -1153,7 +1154,25 @@ async function stream(target, insert = false) {
           messageContent.reasoning = (messageContent.reasoning ?? '') + part.text
           update()
         } else if (part.type === 'error') {
+          const hasToolRoundtrip = contents.some(content => content.type === 'assistant-tool')
+          if (currentProviderType === 'minimax' && !hasToolRoundtrip) {
+            minimaxStreamError = part.error
+            console.warn('MiniMax stream interrupted, falling back to generateText', part.error)
+            break
+          }
           throw part.error
+        }
+      }
+      if (minimaxStreamError) {
+        const fallbackResult = await generateText(params)
+        result = fallbackResult
+        const fallbackText = await fallbackResult.text
+        const fallbackReasoning = await fallbackResult.reasoningText
+        if (fallbackReasoning) {
+          messageContent.reasoning = fallbackReasoning
+        }
+        if (fallbackText) {
+          messageContent.text = fallbackText
         }
       }
     } else {
