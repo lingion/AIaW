@@ -851,7 +851,7 @@ function getChainMessages() {
                 } else {
                   return { type: 'text' as const, text: i.contentText }
                 }
-              } else {
+              } else if (i.contentBuffer) {
                 if (!mimeTypeMatch(i.mimeType, model.value.inputTypes.user)) {
                   return null
                 } else if (i.mimeType.startsWith('image/')) {
@@ -859,6 +859,9 @@ function getChainMessages() {
                 } else {
                   return { type: 'file' as const, mediaType: i.mimeType, data: i.contentBuffer }
                 }
+              } else {
+                // contentBuffer missing (lightweight export), skip binary payload
+                return null
               }
             }).filter(x => x)
           ]
@@ -1199,7 +1202,7 @@ function toToolResultContent(items: StoredItem[]) {
   for (const item of items) {
     if (item.type === 'text') {
       val.push({ type: 'text', text: item.contentText })
-    } else if (mimeTypeMatch(item.mimeType, model.value.inputTypes.tool)) {
+    } else if (item.contentBuffer && mimeTypeMatch(item.mimeType, model.value.inputTypes.tool)) {
       val.push({ type: item.mimeType.startsWith('image/') ? 'image' : 'file', mimeType: item.mimeType, data: item.contentBuffer })
     }
   }
