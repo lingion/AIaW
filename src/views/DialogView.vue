@@ -1569,7 +1569,6 @@ watch(() => liveData.value.dialog?.id, id => {
   })
 })
 
-const providersStore = useProvidersStore()
 function setModel(name: string) {
   dialog.value.modelOverride = name
     ? models.find(model => model.name === name) || { name, inputTypes: InputTypes.default }
