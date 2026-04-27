@@ -557,7 +557,8 @@ async function regenerate(index) {
     $q.notify({ message: t('dialogView.errors.setAssistant'), color: 'negative' })
     return
   }
-  if (!sdkModel.value) {
+  const runtimeSdkModel = await resolveRuntimeSdkModel()
+  if (!runtimeSdkModel) {
     $q.notify({ message: t('dialogView.errors.configModel'), color: 'negative' })
     return
   }
@@ -958,10 +959,10 @@ async function resolveCustomSdkModelFallback() {
 
   for (const subprovider of customProvider.subproviders) {
     if (!subprovider.provider) continue
-    if (!(selectedModel.name in subprovider.modelMap)) continue
+    const mappedModel = subprovider.modelMap[selectedModel.name]
+    if (!mappedModel) continue
     const sdkProvider = providersStore.createProvider(subprovider.provider, { fetch }, [customProvider.id])
     if (!sdkProvider) continue
-    const mappedModel = subprovider.modelMap[selectedModel.name]
     const sdkModel = sdkProvider(mappedModel)
     if (sdkModel) return sdkModel
   }
@@ -977,13 +978,17 @@ async function resolveCustomSdkModelFallback() {
   return null
 }
 
+async function resolveRuntimeSdkModel() {
+  return sdkModel.value || await resolveCustomSdkModelFallback()
+}
+
 async function send() {
   if (inputEmpty.value) return
   if (!assistant.value) {
     $q.notify({ message: t('dialogView.errors.setAssistant'), color: 'negative' })
     return
   }
-  const runtimeSdkModel = sdkModel.value || await resolveCustomSdkModelFallback()
+  const runtimeSdkModel = await resolveRuntimeSdkModel()
   if (!runtimeSdkModel) {
     $q.notify({ message: t('dialogView.errors.configModel'), color: 'negative' })
     return
