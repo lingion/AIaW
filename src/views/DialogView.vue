@@ -1258,6 +1258,26 @@ async function stream(target, insert = false) {
           messageContent.text = match[2].trim()
         }
       }
+      if (!messageContent.text.trim()) {
+        const hasCompletedToolCalls = contents.some(content => content.type === 'assistant-tool' && content.status === 'completed')
+        if (hasCompletedToolCalls) {
+          const finalResult = await generateText({
+            ...params,
+            tools: {},
+            maxSteps: 1,
+            stopWhen: stepCountIs(1)
+          })
+          const finalText = await finalResult.text
+          const finalReasoning = await finalResult.reasoningText
+          if (finalReasoning) {
+            messageContent.reasoning = finalReasoning
+          }
+          if (finalText) {
+            messageContent.text = finalText
+          }
+          result = finalResult
+        }
+      }
     }
     if (currentProviderType === 'cerebras') {
       messageContent.text = messageContent.text.replace(/^\s+|\s+$/g, '')
