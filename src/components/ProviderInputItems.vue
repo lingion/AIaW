@@ -50,6 +50,10 @@
     v-model="provider.settings"
     component="item"
     lazy
+    :context="{
+      secretScope: provider.type,
+      secretLabelPrefix: providerType.label
+    }"
     :input-props="{
       clearable: true
     }"

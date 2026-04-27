@@ -6,9 +6,10 @@
     <json-input
       v-if="sch.type === 'object'"
       :schema="sch as PluginSchema"
-      :prefix="key as string"
+      :prefix="keyPath(key as string)"
       :component
       :lazy
+      :context="context"
       v-model="model[key] as unknown as Model"
       :input-props
     />
@@ -20,6 +21,10 @@
       :description="sch.description"
       :component
       :lazy
+      :context="{
+        ...context,
+        secretField: keyPath(key as string)
+      }"
       v-model="model[key] as any"
       :input-props="{
         type: sch.format === 'password' ? 'password' : undefined,
@@ -34,14 +39,16 @@
 <script setup lang="ts">
 import { PluginSchema } from '@lobehub/chat-plugin-sdk'
 import UnifiedInput from './UnifiedInput.vue'
+import { computed } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   schema: PluginSchema
   prefix?: string
   component: 'input' | 'item'
   inputProps?: Record<string, any>
   itemProps?: Record<string, any>
   lazy?: boolean
+  context?: Record<string, any>
 }>()
 
 interface Model {
@@ -50,4 +57,8 @@ interface Model {
 
 const model = defineModel<Model>()
 model.value ??= {}
+
+function keyPath(key: string) {
+  return props.prefix ? `${props.prefix}.${key}` : key
+}
 </script>
