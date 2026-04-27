@@ -1251,13 +1251,19 @@ async function stream(target, insert = false) {
         .replace(/^\s+|\s+$/g, '')
         .replace(/^```(?:think)?\s*/i, '')
         .replace(/```$/i, '')
-      if (!messageContent.reasoning) {
-        const match = messageContent.text.match(/^<think>([\s\S]*?)<\/think>\s*([\s\S]*)$/i)
-        if (match) {
-          messageContent.reasoning = match[1].trim()
-          messageContent.text = match[2].trim()
+
+      const minimaxThinkMatches = [...messageContent.text.matchAll(/<think>([\s\S]*?)<\/think>/gi)]
+      if (minimaxThinkMatches.length) {
+        const extractedReasoning = minimaxThinkMatches
+          .map(match => match[1]?.trim())
+          .filter(Boolean)
+          .join('\n\n')
+        if (extractedReasoning) {
+          messageContent.reasoning = [messageContent.reasoning, extractedReasoning].filter(Boolean).join('\n\n')
         }
+        messageContent.text = messageContent.text.replace(/<think>[\s\S]*?<\/think>\s*/gi, '').trim()
       }
+
       if (!messageContent.text.trim()) {
         const hasCompletedToolCalls = contents.some(content => content.type === 'assistant-tool' && content.status === 'completed')
         if (hasCompletedToolCalls) {
