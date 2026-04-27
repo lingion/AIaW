@@ -35,7 +35,7 @@
             >
               <a-avatar
                 size="24px"
-                :avatar="store.providerTypes.find(p => p.name === opt.value)?.avatar || fallbackAvatar(opt.value)"
+                :avatar="allProviderTypes.find(p => p.name === opt.value)?.avatar || fallbackAvatar(opt.value)"
               />
             </q-item-section>
             <q-item-section>{{ opt.label }}</q-item-section>
@@ -66,6 +66,7 @@ import { Provider } from 'src/utils/types'
 import AAvatar from 'src/components/AAvatar.vue'
 import { computed } from 'vue'
 import { useProvidersStore } from 'src/stores/providers'
+import { Object as TObject, String as TString } from '@sinclair/typebox'
 
 defineProps<{
   label?: string
@@ -100,8 +101,29 @@ function fallbackAvatar(type: string) {
   return { type: 'icon', icon: 'sym_o_api' }
 }
 
+const fallbackOpenAICompatible = {
+  name: 'openai-compatible',
+  label: 'OpenAI Compatible',
+  avatar: { type: 'svg', name: 'openai', hue: 210 },
+  settings: TObject({
+    baseURL: TString({ title: 'API Address' }),
+    apiKey: TString({ title: 'API Key', format: 'password' })
+  }),
+  initialSettings: {
+    baseURL: 'https://api.openai.com/v1'
+  }
+}
+
+const allProviderTypes = computed(() => {
+  const list = [...store.providerTypes]
+  if (!list.some(p => p.name === 'openai-compatible')) {
+    list.unshift(fallbackOpenAICompatible as any)
+  }
+  return list
+})
+
 const providerOptions = computed(() => {
-  const all = store.providerTypes.map(p => ({
+  const all = allProviderTypes.value.map(p => ({
     label: p.label,
     value: p.name
   }))
@@ -123,19 +145,12 @@ const providerOptions = computed(() => {
   })
 })
 
-const providerType = computed(() => store.providerTypes.find(p => p.name === provider.value?.type))
+const providerType = computed(() => allProviderTypes.value.find(p => p.name === provider.value?.type))
 function switchProvider(type: string) {
   if (type) {
-    const matched = store.providerTypes.find(p => p.name === type)
+    const matched = allProviderTypes.value.find(p => p.name === type)
     if (matched) {
       provider.value = { type, settings: { ...matched.initialSettings } }
-    } else if (type === 'openai-compatible') {
-      provider.value = {
-        type,
-        settings: {
-          baseURL: 'https://api.openai.com/v1'
-        }
-      }
     }
   } else {
     provider.value = null
