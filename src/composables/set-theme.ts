@@ -3,7 +3,7 @@ import { Dark } from 'quasar'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { watchEffect } from 'vue'
-import { IsCapacitor } from 'src/utils/platform-api'
+import { IsCapacitor, CapacitorPlatform } from 'src/utils/platform-api'
 import { StatusBar, Style } from '@capacitor/status-bar'
 import { EdgeToEdge } from '@capawesome/capacitor-android-edge-to-edge-support'
 
@@ -11,6 +11,8 @@ export function useSetTheme() {
   const uiStateStore = useUiStateStore()
   watchEffect(() => {
     const { perfs } = useUserPerfsStore()
+    document.body.classList.toggle('platform-android', CapacitorPlatform === 'android')
+    document.body.classList.toggle('platform-ios', CapacitorPlatform === 'ios')
     const theme = themeFromSourceColor(Hct.from(perfs.themeHue, 48, 40).toInt())
     const { primary, secondary, tertiary, neutral, neutralVariant, error } = theme.palettes
     const success = TonalPalette.fromHueAndChroma(140, 55)

@@ -1,3 +1,6 @@
+@use './platform/android/index.scss' as android;
+@use './platform/ios/index.scss' as ios;
+
 // app global css in SCSS form
 body.body--dark,
 body.body--light {
