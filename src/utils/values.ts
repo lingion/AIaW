@@ -93,6 +93,21 @@ const ProviderTypes: ProviderType[] = [
     getModelList: ({ baseURL, apiKey }) => openaiGetModelList({ baseURL: baseURL || OfficialBaseURLs.openai, apiKey })
   },
   {
+    name: 'openai-compatible',
+    label: 'OpenAI Compatible',
+    avatar: { type: 'svg', name: 'openai', hue: 210 },
+    settings: Object(commonSettings),
+    initialSettings: {
+      baseURL: OfficialBaseURLs.openai
+    },
+    constructor: options => createOpenAICompatible({
+      name: 'openai-compatible',
+      includeUsage: true,
+      ...options
+    }),
+    getModelList: ({ baseURL, apiKey }) => openaiGetModelList({ baseURL: baseURL || OfficialBaseURLs.openai, apiKey })
+  },
+  {
     name: 'openai-responses',
     label: 'OpenAI Responses',
     avatar: { type: 'svg', name: 'openai', hue: 88 },
