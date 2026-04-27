@@ -1043,6 +1043,9 @@ async function stream(target, insert = false) {
     if (typeof settings.topP === 'number' && settings.topP <= 0) {
       settings.topP = 0.01
     }
+    // MiniMax often spends too many steps on tool-calls/reasoning and stops before final text.
+    // Give it a higher floor when tools are enabled.
+    settings.maxSteps = Math.max(Number(settings.maxSteps || 0), 8)
   }
   const messageContent: AssistantMessageContent = {
     type: 'assistant-message',
@@ -1220,6 +1223,27 @@ async function stream(target, insert = false) {
       result = await generateText(params)
       messageContent.text = await result.text
       messageContent.reasoning = await result.reasoningText
+    }
+
+    if (currentProviderType === 'minimax' && !messageContent.text.trim()) {
+      const hasCompletedToolCalls = contents.some(content => content.type === 'assistant-tool' && content.status === 'completed')
+      if (hasCompletedToolCalls) {
+        const finalResult = await generateText({
+          ...params,
+          tools: {},
+          maxSteps: 1,
+          stopWhen: stepCountIs(1)
+        })
+        const finalText = await finalResult.text
+        const finalReasoning = await finalResult.reasoningText
+        if (finalReasoning) {
+          messageContent.reasoning = finalReasoning
+        }
+        if (finalText) {
+          messageContent.text = finalText
+        }
+        result = finalResult
+      }
     }
 
     if (currentProviderType === 'minimax') {
