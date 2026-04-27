@@ -76,6 +76,7 @@ const $q = useQuasar()
 const router = useRouter()
 async function addItem() {
   const id = await providersStore.add()
+  perfs.provider = { type: `custom:${id}`, settings: {} }
   router.push(`/settings/providers/${id}`)
 }
 
