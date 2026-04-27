@@ -35,7 +35,7 @@
             >
               <a-avatar
                 size="24px"
-                :avatar="store.providerTypes.find(p => p.name === opt.value).avatar"
+                :avatar="store.providerTypes.find(p => p.name === opt.value)?.avatar || fallbackAvatar(opt.value)"
               />
             </q-item-section>
             <q-item-section>{{ opt.label }}</q-item-section>
@@ -74,16 +74,69 @@ defineProps<{
 
 const provider = defineModel<Provider>()
 const store = useProvidersStore()
-const providerOptions = computed(() =>
-  store.providerTypes.map(p => ({
+
+const preferredOrder = [
+  'openai-compatible',
+  'openai',
+  'openai-responses',
+  'anthropic',
+  'google',
+  'minimax',
+  'cerebras',
+  'openrouter',
+  'deepseek',
+  'xai',
+  'groq',
+  'cohere',
+  'togetherai',
+  'azure',
+  'mistral',
+  'ollama',
+  'burncloud'
+]
+
+function fallbackAvatar(type: string) {
+  if (type === 'openai-compatible') return { type: 'svg', name: 'openai', hue: 210 }
+  return { type: 'icon', icon: 'sym_o_api' }
+}
+
+const providerOptions = computed(() => {
+  const all = store.providerTypes.map(p => ({
     label: p.label,
     value: p.name
   }))
-)
+
+  if (!all.some(p => p.value === 'openai-compatible')) {
+    all.unshift({
+      label: 'OpenAI Compatible',
+      value: 'openai-compatible'
+    })
+  }
+
+  return all.slice().sort((a, b) => {
+    const ai = preferredOrder.indexOf(a.value)
+    const bi = preferredOrder.indexOf(b.value)
+    if (ai === -1 && bi === -1) return a.label.localeCompare(b.label)
+    if (ai === -1) return 1
+    if (bi === -1) return -1
+    return ai - bi
+  })
+})
+
 const providerType = computed(() => store.providerTypes.find(p => p.name === provider.value?.type))
 function switchProvider(type: string) {
   if (type) {
-    provider.value = { type, settings: { ...store.providerTypes.find(p => p.name === type).initialSettings } }
+    const matched = store.providerTypes.find(p => p.name === type)
+    if (matched) {
+      provider.value = { type, settings: { ...matched.initialSettings } }
+    } else if (type === 'openai-compatible') {
+      provider.value = {
+        type,
+        settings: {
+          baseURL: 'https://api.openai.com/v1'
+        }
+      }
+    }
   } else {
     provider.value = null
   }
