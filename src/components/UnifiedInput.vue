@@ -6,6 +6,7 @@
     :lazy
     :label
     :hint="description"
+    :context="context"
     :input-props
     v-model="model"
     class="min-w-120px"
@@ -30,6 +31,7 @@
         :type
         :options
         :lazy
+        :context="context"
         v-model="model"
         :input-props="{
           dense: true,
@@ -57,6 +59,7 @@ defineProps<{
   inputProps?: Record<string, any>
   itemProps?: Record<string, any>
   lazy?: boolean
+  context?: Record<string, any>
 }>()
 
 const model = defineModel<string | number | boolean | string[]>()

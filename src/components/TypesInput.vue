@@ -41,22 +41,38 @@
           v-if="secretHistory.length"
         >
           <q-menu>
-            <q-list style="min-width: 260px; max-width: 360px">
+            <q-list style="min-width: 280px; max-width: 420px">
               <q-item
                 v-for="item in secretHistory"
-                :key="item"
+                :key="item.value"
                 clickable
                 v-close-popup
-                @click="model = item"
+                @click="model = item.value"
+                @mousedown="startLongPress(item)"
+                @mouseup="cancelLongPress"
+                @mouseleave="cancelLongPress"
+                @touchstart="startLongPress(item)"
+                @touchend="cancelLongPress"
+                @touchcancel="cancelLongPress"
               >
-                <q-item-section style="word-break: break-all">{{ maskSecret(item) }}</q-item-section>
-                <q-item-section side>
+                <q-item-section>
+                  <q-item-label style="word-break: break-all">{{ maskSecret(item.value) }}</q-item-label>
+                  <q-item-label v-if="item.note" caption>{{ item.note }}</q-item-label>
+                </q-item-section>
+                <q-item-section side class="row no-wrap items-center gap-1">
+                  <q-btn
+                    flat
+                    round
+                    dense
+                    icon="sym_o_edit"
+                    @click.stop="editSecretNote(item)"
+                  />
                   <q-btn
                     flat
                     round
                     dense
                     icon="sym_o_close"
-                    @click.stop="removeSecretHistory(item)"
+                    @click.stop="removeSecretHistory(item.value)"
                   />
                 </q-item-section>
               </q-item>
@@ -119,7 +135,13 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import LazyInput from './LazyInput.vue'
-import { QInput } from 'quasar'
+import { Dialog, QInput } from 'quasar'
+
+interface SecretHistoryItem {
+  value: string
+  note?: string
+  updatedAt?: number
+}
 
 const props = defineProps<{
   type: 'string' | 'array' | 'number' | 'boolean'
@@ -127,6 +149,11 @@ const props = defineProps<{
   label?: string
   inputProps?: Record<string, any>
   lazy?: boolean
+  context?: {
+    secretScope?: string
+    secretField?: string
+    secretLabelPrefix?: string
+  }
 }>()
 const model = defineModel<any>()
 
@@ -136,41 +163,89 @@ if (props.type === 'array' && !model.value) {
 
 const inputComponent = computed(() => props.lazy ? LazyInput : QInput)
 const showSecret = ref(false)
-const secretHistory = ref<string[]>([])
+const secretHistory = ref<SecretHistoryItem[]>([])
+const longPressTimer = ref<number | null>(null)
 
-const secretHistoryKey = computed(() => `secret-history:${props.label || 'default'}`)
+const secretHistoryKey = computed(() => {
+  const scope = props.context?.secretScope || 'default'
+  const field = props.context?.secretField || props.label || 'default'
+  return `secret-history:${scope}:${field}`
+})
+
+function normalizeHistory(list: Array<string | SecretHistoryItem>): SecretHistoryItem[] {
+  return list.map(item => typeof item === 'string' ? { value: item } : item).filter(item => item?.value)
+}
 
 function loadSecretHistory() {
   if (props.inputProps?.type !== 'password') return
   try {
-    secretHistory.value = JSON.parse(localStorage.getItem(secretHistoryKey.value) || '[]')
+    secretHistory.value = normalizeHistory(JSON.parse(localStorage.getItem(secretHistoryKey.value) || '[]'))
   } catch {
     secretHistory.value = []
   }
+}
+
+function persistSecretHistory() {
+  try {
+    localStorage.setItem(secretHistoryKey.value, JSON.stringify(secretHistory.value))
+  } catch {}
 }
 
 function saveSecretHistory() {
   if (props.inputProps?.type !== 'password') return
   const val = typeof model.value === 'string' ? model.value.trim() : ''
   if (!val) return
-  const next = [val, ...secretHistory.value.filter(v => v !== val)].slice(0, 10)
-  secretHistory.value = next
-  try {
-    localStorage.setItem(secretHistoryKey.value, JSON.stringify(next))
-  } catch {}
+  const existed = secretHistory.value.find(v => v.value === val)
+  const next: SecretHistoryItem = {
+    value: val,
+    note: existed?.note,
+    updatedAt: Date.now()
+  }
+  secretHistory.value = [next, ...secretHistory.value.filter(v => v.value !== val)].slice(0, 10)
+  persistSecretHistory()
 }
 
-function removeSecretHistory(item: string) {
-  secretHistory.value = secretHistory.value.filter(v => v !== item)
-  try {
-    localStorage.setItem(secretHistoryKey.value, JSON.stringify(secretHistory.value))
-  } catch {}
+function removeSecretHistory(value: string) {
+  secretHistory.value = secretHistory.value.filter(v => v.value !== value)
+  persistSecretHistory()
 }
 
 function maskSecret(v: string) {
   if (showSecret.value) return v
   if (v.length <= 8) return '•'.repeat(v.length)
   return `${v.slice(0, 4)}${'•'.repeat(Math.max(4, v.length - 8))}${v.slice(-4)}`
+}
+
+function editSecretNote(item: SecretHistoryItem) {
+  Dialog.create({
+    title: '备注 Key',
+    message: `${props.context?.secretLabelPrefix || props.label || 'Provider'} · ${maskSecret(item.value)}`,
+    prompt: {
+      model: item.note || '',
+      type: 'text'
+    },
+    cancel: true,
+    persistent: true
+  }).onOk(note => {
+    item.note = typeof note === 'string' ? note.trim() : ''
+    secretHistory.value = [...secretHistory.value]
+    persistSecretHistory()
+  })
+}
+
+function startLongPress(item: SecretHistoryItem) {
+  cancelLongPress()
+  longPressTimer.value = window.setTimeout(() => {
+    editSecretNote(item)
+    longPressTimer.value = null
+  }, 500)
+}
+
+function cancelLongPress() {
+  if (longPressTimer.value) {
+    clearTimeout(longPressTimer.value)
+    longPressTimer.value = null
+  }
 }
 
 watch(secretHistoryKey, loadSecretHistory, { immediate: true })
