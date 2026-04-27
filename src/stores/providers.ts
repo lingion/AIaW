@@ -110,6 +110,8 @@ export const useProvidersStore = defineStore('providers', () => {
     providers,
     providerTypes,
     modelOptions,
+    createProvider,
+    getModelList,
     add,
     update,
     put,

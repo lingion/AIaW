@@ -39,17 +39,15 @@ export function useGetModel() {
   function getSdkProvider(provider?: Provider) {
     provider = getProvider(provider)
     if (!provider) return null
-    return providersStore.providerTypes.find(p => p.name === provider.type)?.constructor({
-      ...provider.settings,
-      fetch
-    })
+    return providersStore.createProvider(provider, { fetch }, [])
   }
   function getSdkModel(provider?: Provider, model?: Model) {
     const sdkProvider = getSdkProvider(provider)
     if (!sdkProvider) return null
     model = getModel(model)
     if (!model) return null
-    const m = sdkProvider(model.name) || getSdkProvider(defaultProvider.value)(model.name)
+    const fallbackProvider = defaultProvider.value ? providersStore.createProvider(defaultProvider.value, { fetch }, []) : null
+    const m = sdkProvider(model.name) || fallbackProvider?.(model.name)
     return m && wrapMiddlewares(m)
   }
   return { getProvider, getModel, getSdkProvider, getSdkModel }
