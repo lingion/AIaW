@@ -944,15 +944,47 @@ const providerTools = ref({})
 const { getModel, getSdkModel } = useGetModel()
 const model = computed(() => getModel(dialog.value?.modelOverride || assistant.value?.model))
 const sdkModel = computed(() => getSdkModel(assistant.value?.provider, model.value))
+const providersStore = useProvidersStore()
 const $q = useQuasar()
 const { data } = useUserDataStore()
+
+async function resolveCustomSdkModelFallback() {
+  const provider = assistant.value?.provider
+  const selectedModel = model.value
+  if (!provider?.type?.startsWith('custom:') || !selectedModel?.name) return null
+  const id = provider.type.slice('custom:'.length)
+  const customProvider = await db.providers.get(id)
+  if (!customProvider) return null
+
+  for (const subprovider of customProvider.subproviders) {
+    if (!subprovider.provider) continue
+    if (!(selectedModel.name in subprovider.modelMap)) continue
+    const sdkProvider = providersStore.createProvider(subprovider.provider, { fetch }, [customProvider.id])
+    if (!sdkProvider) continue
+    const mappedModel = subprovider.modelMap[selectedModel.name]
+    const sdkModel = sdkProvider(mappedModel)
+    if (sdkModel) return sdkModel
+  }
+
+  if (customProvider.fallbackProvider) {
+    const fallbackProvider = providersStore.createProvider(customProvider.fallbackProvider, { fetch }, [customProvider.id])
+    if (fallbackProvider) {
+      const sdkModel = fallbackProvider(selectedModel.name)
+      if (sdkModel) return sdkModel
+    }
+  }
+
+  return null
+}
+
 async function send() {
   if (inputEmpty.value) return
   if (!assistant.value) {
     $q.notify({ message: t('dialogView.errors.setAssistant'), color: 'negative' })
     return
   }
-  if (!sdkModel.value) {
+  const runtimeSdkModel = sdkModel.value || await resolveCustomSdkModelFallback()
+  if (!runtimeSdkModel) {
     $q.notify({ message: t('dialogView.errors.configModel'), color: 'negative' })
     return
   }
@@ -1125,11 +1157,15 @@ async function stream(target, insert = false) {
   try {
     if (noRoundtrip) settings.maxSteps = 1
     abortController.value = new AbortController()
+    const runtimeSdkModel = sdkModel.value || await resolveCustomSdkModelFallback()
+    if (!runtimeSdkModel) {
+      throw new Error(t('dialogView.errors.configModel'))
+    }
     const messages = getChainMessages()
     const prompt = getSystemPrompt(enabledPlugins.filter(p => p.prompt))
     prompt && messages.unshift({ role: assistant.value.promptRole, content: prompt })
     const params = {
-      model: sdkModel.value,
+      model: runtimeSdkModel,
       messages,
       tools: {
         ...providerTools.value,
