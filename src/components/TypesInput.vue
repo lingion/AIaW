@@ -38,10 +38,14 @@
         <q-icon
           name="sym_o_history"
           class="cursor-pointer q-mr-sm"
-          v-if="secretHistory.length"
         >
           <q-menu>
             <q-list style="min-width: 280px; max-width: 420px">
+              <q-item v-if="!secretHistory.length">
+                <q-item-section>
+                  <q-item-label caption>暂无历史 Key</q-item-label>
+                </q-item-section>
+              </q-item>
               <q-item
                 v-for="item in secretHistory"
                 :key="item.value"
@@ -56,8 +60,8 @@
                 @touchcancel="cancelLongPress"
               >
                 <q-item-section>
-                  <q-item-label style="word-break: break-all">{{ maskSecret(item.value) }}</q-item-label>
-                  <q-item-label v-if="item.note" caption>{{ item.note }}</q-item-label>
+                  <q-item-label style="word-break: break-all">{{ item.note || maskSecret(item.value) }}</q-item-label>
+                  <q-item-label caption>{{ maskSecret(item.value) }}</q-item-label>
                 </q-item-section>
                 <q-item-section side class="row no-wrap items-center gap-1">
                   <q-btn
