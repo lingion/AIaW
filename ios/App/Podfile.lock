@@ -69,19 +69,19 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Alamofire: f36a35757af4587d8e4f4bfa223ad10be2422b8c
-  Capacitor: 23fff43571a4d1e3ee7d67b5a3588c6e757c2913
-  CapacitorApp: 45cb7cbef4aa380b9236fd6980033eb5cde6fcd2
-  CapacitorCamera: 36dd808d7a49f946c1743b41d518208777e1fbd9
-  CapacitorClipboard: 2afc5e21902233d7990978c8f41f023ddcee3e3d
+  Capacitor: de199cba6c8b20995428ad0b7cb0bc6ca625ffd4
+  CapacitorApp: 9cb31064a6c6bb2b1438583733a7bf45557fc1da
+  CapacitorCamera: 5ba135b0cb55a788758139fa2404d726bf60f0f3
+  CapacitorClipboard: 007d79cd6c104002b274546d13873526ca20beb7
   CapacitorCordova: 63d476958d5022d76f197031e8b7ea3519988c64
-  CapacitorExportFile: 7336181b031a11e9044444d31c8b96d6e026d321
-  CapacitorFilesystem: 307f97c27a265edf8396a1c9c235592fd8572fe3
-  CapacitorKeyboard: 2c26c6fccde35023c579fc37d4cae6326d5e6343
-  CapacitorStatusBar: 438e90beeeefa8276b24e6c5991cb02dd13e51bf
-  CapacitorStreamFetch: ac0d36d91f5987fc8da6266b5a10c4dec6e3e3d3
-  CapawesomeCapacitorLiveUpdate: db7f6f4ce9d96df49ba9ca104334ac8bf4bcd511
+  CapacitorExportFile: be9b1e8729415fa82b6b345a6a671f7cc883366f
+  CapacitorFilesystem: e6261c410436f54908c11f94336c5b58286b1db0
+  CapacitorKeyboard: 4db71e694e7afb5d7c0be09b05495c19f7d6c914
+  CapacitorStatusBar: a8c4c83ed2e973bdafb979e80e4b00d027832cb7
+  CapacitorStreamFetch: 584d841b080a48cd02270c95504d7725cd1f7a9b
+  CapawesomeCapacitorLiveUpdate: 3bc1bda06ba2842eda7a726b57fda8839cbdcd25
   SSZipArchive: 62d4947b08730e4cda640473b0066d209ff033c9
 
-PODFILE CHECKSUM: 3976f4a9298820d3f51177af21444a516b405497
+PODFILE CHECKSUM: 7a982a7fa31b71cc94e66a7197b16b9b0bad62dd
 
 COCOAPODS: 1.16.2

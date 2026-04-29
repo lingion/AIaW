@@ -11,6 +11,8 @@ import { useSubscriptionNotify } from './composables/subscription-notify'
 import { onMounted } from 'vue'
 import { checkUpdate, ready } from './utils/update'
 import { useMigrationAlert } from './composables/migration-alert'
+import { db } from './utils/db'
+import { reconcileAssistantBuiltinPlugins } from './utils/builtin-plugin-seed'
 
 defineOptions({
   name: 'App'
@@ -29,9 +31,26 @@ router.afterEach(to => {
   }
 })
 
+async function migrateBuiltinPluginsAtStartup() {
+  try {
+    const assistants = await db.assistants.toArray()
+    for (const assistant of assistants) {
+      const beforeKeys = Object.keys(assistant.plugins || {})
+      const migrated = reconcileAssistantBuiltinPlugins(assistant)
+      const afterKeys = Object.keys(migrated.plugins || {})
+      if (afterKeys.length !== beforeKeys.length || afterKeys.some(k => !beforeKeys.includes(k))) {
+        await db.assistants.put(migrated)
+      }
+    }
+  } catch (e) {
+    console.error('builtin plugin migration failed', e)
+  }
+}
+
 onMounted(() => {
   ready()
   checkUpdate()
+  migrateBuiltinPluginsAtStartup()
 })
 
 </script>

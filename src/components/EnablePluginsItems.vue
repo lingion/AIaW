@@ -61,9 +61,7 @@ import { syncRef } from 'src/composables/sync-ref'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { usePluginsStore } from 'src/stores/plugins'
 import { AssistantPlugin, Plugin, Assistant } from 'src/utils/types'
-import { toRaw } from 'vue'
-import AAvatar from './AAvatar.vue'
-import PluginTypeBadge from './PluginTypeBadge.vue'
+import { toRaw, watchEffect } from 'vue'
 
 const props = defineProps<{
   assistantId: string
@@ -79,27 +77,59 @@ const assistant = syncRef<Assistant>(
 )
 const pluginsStore = usePluginsStore()
 
+function buildAssistantPlugin(plugin: Plugin): AssistantPlugin {
+  const assistantPlugin: AssistantPlugin = { enabled: true, infos: [], tools: [], resources: [], vars: {} }
+  plugin.apis.forEach(api => {
+    if (api.type === 'tool') {
+      assistantPlugin.tools.push({
+        name: api.name,
+        enabled: true
+      })
+    } else if (api.type === 'info') {
+      assistantPlugin.infos.push({
+        name: api.name,
+        enabled: true,
+        args: {}
+      })
+    }
+  })
+  return assistantPlugin
+}
+
+function reconcilePlugin(plugin: Plugin) {
+  const existing = assistant.value?.plugins?.[plugin.id]
+  if (!existing) return
+
+  existing.tools ||= []
+  existing.infos ||= []
+  existing.resources ||= []
+  existing.vars ||= {}
+
+  const toolNames = new Set(existing.tools.map(t => t.name))
+  const infoNames = new Set(existing.infos.map(i => i.name))
+
+  plugin.apis.forEach(api => {
+    if (api.type === 'tool' && !toolNames.has(api.name)) {
+      existing.tools.push({ name: api.name, enabled: true })
+    } else if (api.type === 'info' && !infoNames.has(api.name)) {
+      existing.infos.push({ name: api.name, enabled: true, args: {} })
+    }
+  })
+}
+
 function setPlugin(plugin: Plugin, enabled: boolean) {
   if (enabled && !assistant.value.plugins[plugin.id]) {
-    const assistantPlugin: AssistantPlugin = { enabled: true, infos: [], tools: [], resources: [], vars: {} }
-    plugin.apis.forEach(api => {
-      if (api.type === 'tool') {
-        assistantPlugin.tools.push({
-          name: api.name,
-          enabled: true
-        })
-      } else if (api.type === 'info') {
-        assistantPlugin.infos.push({
-          name: api.name,
-          enabled: true,
-          args: {}
-        })
-      }
-    })
-    assistant.value.plugins[plugin.id] = assistantPlugin
+    assistant.value.plugins[plugin.id] = buildAssistantPlugin(plugin)
+  } else if (enabled) {
+    assistant.value.plugins[plugin.id].enabled = true
+    reconcilePlugin(plugin)
   } else {
     assistant.value.plugins[plugin.id].enabled = enabled
   }
 }
 
+watchEffect(() => {
+  if (!assistant.value?.plugins) return
+  pluginsStore.plugins.forEach(plugin => reconcilePlugin(plugin))
+})
 </script>
