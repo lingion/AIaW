@@ -6,7 +6,7 @@ use_frameworks!
 # workaround to avoid Xcode caching of Pods that requires
 # Product -> Clean Build Folder after new Cordova plugins installed
 # Requires CocoaPods 1.6 or newer
-install! 'cocoapods', :disable_input_output_paths => true
+install! 'cocoapods'
 
 def capacitor_pods
   pod 'Capacitor', :path => '../../node_modules/.pnpm/@capacitor+ios@7.0.1_@capacitor+core@7.0.1/node_modules/@capacitor/ios'
@@ -17,8 +17,10 @@ def capacitor_pods
   pod 'CapacitorFilesystem', :path => '../../node_modules/.pnpm/@capacitor+filesystem@7.0.1_@capacitor+core@7.0.1/node_modules/@capacitor/filesystem'
   pod 'CapacitorKeyboard', :path => '../../node_modules/.pnpm/@capacitor+keyboard@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/keyboard'
   pod 'CapacitorStatusBar', :path => '../../node_modules/.pnpm/@capacitor+status-bar@7.0.0_@capacitor+core@7.0.1/node_modules/@capacitor/status-bar'
+  pod 'CapawesomeCapacitorFilePicker', :path => '../../node_modules/.pnpm/@capawesome+capacitor-file-picker@7.2.0_@capacitor+core@7.0.1/node_modules/@capawesome/capacitor-file-picker'
   pod 'CapawesomeCapacitorLiveUpdate', :path => '../../node_modules/.pnpm/@capawesome+capacitor-live-update@7.1.0_@capacitor+core@7.0.1/node_modules/@capawesome/capacitor-live-update'
   pod 'CapacitorExportFile', :path => '../../node_modules/.pnpm/capacitor-export-file@0.0.1_@capacitor+core@7.0.1/node_modules/capacitor-export-file'
+  pod 'CapacitorPluginShellExec', :path => '../../node_modules/.pnpm/capacitor-plugin-shell-exec@1.3.0_@capacitor+core@7.0.1/node_modules/capacitor-plugin-shell-exec'
   pod 'CapacitorStreamFetch', :path => '../../node_modules/.pnpm/capacitor-stream-fetch@0.0.6_@capacitor+core@7.0.1/node_modules/capacitor-stream-fetch'
 end
 
@@ -32,8 +34,8 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['CODE_SIGN_IDENTITY'] = 'Apple Development'
-      config.build_settings['DEVELOPMENT_TEAM'] = 'R2VYD546TY'
-      config.build_settings['CODE_SIGNING_ALLOWED'] = 'YES'
+      config.build_settings['DEVELOPMENT_TEAM'] = 'GU39QS224C'
+      config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
     end
   end
 end

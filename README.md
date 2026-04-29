@@ -4,80 +4,107 @@
 
 ![](https://badge.mcpx.dev?type=client 'MCP Client') ![](https://badge.mcpx.dev?type=client&features=resources,prompts,tools 'MCP client with features')
 
-A maintained fork focused on **mobile usability**, **local-first storage**, and **practical MCP support**.
+A maintained fork of AIaW focused on **mobile usability**, **local-first workflows**, and **real on-device file operations**.
 
-## Downloads
+## What this fork changes
 
-| Platform | Link |
-|----------|------|
-| Android | [Latest Release APK](https://github.com/lingion/AIaW/releases/latest) |
-| iOS | [Latest Release IPA](https://github.com/lingion/AIaW/releases/latest) |
-| Web (PWA) | [Latest Deployment](https://feat-mcp-refresh.aiaw-dqx.pages.dev) |
-| Desktop | Build from source (Tauri / Capacitor source included) |
+This fork is opinionated around practical day-to-day use on phones and tablets:
 
-## Fork Focus
+- better mobile UX for provider / key configuration
+- safer local-first storage behavior
+- improved plugin management on constrained platforms
+- Android-native real directory access via a new `LocalFs` bridge
+- iterative fixes for mobile file tools, attachments, and runtime stability
 
-This fork is optimized around:
-- mobile-first usability fixes
-- local-first data storage
-- practical provider management
-- MCP compatibility improvements on constrained platforms
+## Current focus
 
-## Fork Changes
+### Mobile file operations
 
-### Provider / API Key UX
-- Show / hide toggle for token fields
-- Mobile-friendly password input behavior
-- API key history dropdown for faster switching
-- Per-key delete button in history list
-- Local backup / restore protection against accidental token loss
+Two layers exist in this fork:
 
-### MCP Improvements
-- Refresh button for installed MCP plugins
-- Retry dialog on MCP install failure
-- Better platform-aware MCP error messages
-- iOS transport fallback fixes
-- Desktop-only stdio MCP plugins are blocked earlier on mobile platforms
+1. **Legacy file tools** (`read` / `write` / `list` etc.)
+   - useful for quick local sandbox workflows
+   - partially bridged to external Android paths
+   - still less authoritative than the native layer
 
-### Camera / Attachments
-- Dedicated camera button in chat input
-- Native camera integration on mobile builds
-- iOS permission strings fixed for camera and photo library access
+2. **LocalFs (Android native)**
+   - built on Android Storage Access Framework
+   - intended for true user-authorized local directory access
+   - supports mounted directory workflows and segmented file reads
+   - forms the long-term foundation for a real local file agent on Android
 
-## Core Features
-- Supported platforms: Windows, Linux, macOS, Android, iOS, Web (PWA)
-- Multiple AI providers: OpenAI, Anthropic, Google, DeepSeek, xAI, Azure, OpenRouter, Ollama, and OpenAI-compatible endpoints
-- MCP Protocol: Tools, Prompts, Resources via STDIO / HTTP / SSE
-- Plugin system with marketplace support
-- Web search, Artifacts, document parsing, image generation
+### Plugin / assistant stability
+
+This fork also includes work on:
+- restoring missing builtin plugin entries for existing assistants
+- safer mobile plugin registration
+- more predictable assistant/plugin behavior across upgrades
+
+## Features
+
+- Platforms: Web, Android, iOS, desktop source tree preserved
+- Multiple providers: OpenAI, Anthropic, Google, DeepSeek, xAI, Azure, OpenRouter, Ollama, OpenAI-compatible endpoints
+- MCP client support: tools / prompts / resources
 - Multiple workspaces and assistants
-- **Local-first storage by default**
-- Dark mode and customizable themes
+- Artifacts, document parsing, web search, image generation
+- Local-first storage by default
+- Mobile-first adjustments for provider and plugin workflows
 
-## Build from Source
+## Android status
+
+Android is the primary target of this fork right now.
+
+Implemented and actively iterated:
+- provider settings UX improvements
+- local file tools improvements
+- Android-native `LocalFs` plugin for true directory authorization
+- release APKs uploaded through GitHub Releases
+
+## iOS status
+
+iOS is still supported in source and packaging flow, but capabilities are not fully equivalent to Android.
+
+What to expect:
+- core app can still be built and packaged
+- provider / assistant / plugin UX improvements apply
+- Android-specific shell behavior does **not** carry over
+- native real-directory agent features are currently **Android-first**
+
+## Build from source
 
 ```bash
 pnpm i
-quasar dev          # Development
-quasar build        # SPA build
-quasar build -m pwa # PWA build
+quasar dev
+quasar build
 ```
 
-Android:
+### Android
+
 ```bash
 quasar build -m spa --skip-pkg
 npx cap sync android
-cd android && ./gradlew assembleDebug
+cd android
+./gradlew assembleDebug
 ```
 
-iOS:
+### iOS
+
 ```bash
 quasar build -m spa --skip-pkg
 npx cap sync ios
-cd ios/App && pod install
+cd ios/App
+pod install
 xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug -destination 'generic/platform=iOS' build
 ```
 
+## Releases
+
+Latest builds for this fork are published in:
+
+- https://github.com/lingion/AIaW/releases
+
 ## Notes
-- This fork disables cloud sync by default unless you explicitly wire your own backend.
-- Release/update endpoints point to `lingion/AIaW`, not upstream.
+
+- This fork intentionally prioritizes working mobile workflows over upstream purity.
+- Some features may temporarily exist in parallel while Android-native replacements are being introduced.
+- Release/update paths should point to `lingion/AIaW` for this fork.

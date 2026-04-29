@@ -12,6 +12,9 @@ import { IsTauri, CapacitorPlatform, IsCapacitor } from 'src/utils/platform-api'
 import { useI18n } from 'vue-i18n'
 import webSearchPlugin from 'src/utils/web-search-plugin'
 import docParsePlugin from 'src/utils/doc-parse-plugin'
+import codeExecPlugin from 'src/utils/code-exec-plugin'
+import fileOpsPlugin from 'src/utils/file-ops-plugin'
+import localFsNativePlugin from 'src/utils/local-fs-native-plugin'
 
 export const usePluginsStore = defineStore('plugins', () => {
   const installed = useLiveQuery(() => db.installedPluginsV2.toArray(), {
@@ -30,6 +33,9 @@ export const usePluginsStore = defineStore('plugins', () => {
     timePlugin,
     docParsePlugin.plugin,
     artifacts.plugin,
+    codeExecPlugin.plugin,
+    fileOpsPlugin.plugin,
+    localFsNativePlugin.plugin,
     ...installed.value.map(i => {
       if (i.type === 'lobechat') return buildLobePlugin(i.manifest, i.available)
       else if (i.type === 'gradio') return buildGradioPlugin(i.manifest, i.available)

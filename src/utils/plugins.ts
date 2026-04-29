@@ -13,6 +13,9 @@ import { getClient } from './mcp-client'
 import { i18n } from 'src/boot/i18n'
 import webSearchPlugin from './web-search-plugin'
 import docParsePlugin from './doc-parse-plugin'
+import codeExecPlugin from './code-exec-plugin'
+import fileOpsPlugin from './file-ops-plugin'
+import localFsNativePlugin from './local-fs-native-plugin'
 
 const { t } = i18n.global
 
@@ -846,7 +849,10 @@ const defaultData: PluginsData = {
   },
   [docParsePlugin.pluginId]: docParsePlugin.defaultData,
   [webSearchPlugin.pluginId]: webSearchPlugin.defaultData,
-  [artifacts.pluginId]: artifacts.defaultData
+  [artifacts.pluginId]: artifacts.defaultData,
+  [codeExecPlugin.plugin.id]: codeExecPlugin.defaultData,
+  [fileOpsPlugin.plugin.id]: fileOpsPlugin.defaultData,
+  [localFsNativePlugin.plugin.id]: localFsNativePlugin.defaultData
 }
 
 export {

@@ -1,5 +1,5 @@
 {
-	"appId": "app.aiaw",
+	"appId": "app.aiaw.glass",
 	"appName": "AIaW",
 	"webDir": "dist/spa",
 	"plugins": {
@@ -17,8 +17,10 @@
 		"FilesystemPlugin",
 		"KeyboardPlugin",
 		"StatusBarPlugin",
+		"FilePickerPlugin",
 		"LiveUpdatePlugin",
 		"ExportFilePlugin",
+		"ShellExecPlugin",
 		"CapacitorStreamFetchPlugin"
 	]
 }

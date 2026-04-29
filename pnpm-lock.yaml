@@ -74,6 +74,9 @@ importers:
       '@capawesome/capacitor-android-edge-to-edge-support':
         specifier: ^7.1.0
         version: 7.1.0(@capacitor/core@7.0.1)
+      '@capawesome/capacitor-file-picker':
+        specifier: 7.2.0
+        version: 7.2.0(@capacitor/core@7.0.1)
       '@capawesome/capacitor-live-update':
         specifier: ^7.1.0
         version: 7.1.0(@capacitor/core@7.0.1)
@@ -140,6 +143,9 @@ importers:
       capacitor-export-file:
         specifier: ^0.0.1
         version: 0.0.1(@capacitor/core@7.0.1)
+      capacitor-plugin-shell-exec:
+        specifier: ^1.3.0
+        version: 1.3.0(@capacitor/core@7.0.1)
       capacitor-stream-fetch:
         specifier: ^0.0.6
         version: 0.0.6(@capacitor/core@7.0.1)
@@ -1214,6 +1220,11 @@ packages:
 
   '@capawesome/capacitor-android-edge-to-edge-support@7.1.0':
     resolution: {integrity: sha512-VHPK90xA/lYkuB2fCOyfnO2PJLxMqzaulZmwiC+78JJWmfOePWvlzrvfEscTCjnoPrNgsA+9sDcEeGEZDG0z5w==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
+
+  '@capawesome/capacitor-file-picker@7.2.0':
+    resolution: {integrity: sha512-qUNa+Ypem575xSNiJwgiOaaHXzAHaxMtERySRIsIC0HggoCa11xGS3xEVtMooQ3fS0cDXfl4/17DYoHQtkDjXA==}
     peerDependencies:
       '@capacitor/core': '>=7.0.0'
 
@@ -3501,6 +3512,11 @@ packages:
     resolution: {integrity: sha512-F8Jsu9o9JmfQejoezh2AErVtVO4uB+I35VaQs3VTtSIbz6ZFOCkjJsVIJOgHZwx7xlCCJEt1ox+5KDm02woodg==}
     peerDependencies:
       '@capacitor/core': '>=7.0.0'
+
+  capacitor-plugin-shell-exec@1.3.0:
+    resolution: {integrity: sha512-Y85/tAQDkMPNidTUsdWGKv4dBRWs8vCTGcRbk/6Y0f7+7thVG1+BFsveOXEEo5CVzVWWg2WeiPLIlIl+4mHZAw==}
+    peerDependencies:
+      '@capacitor/core': ^6.0.0
 
   capacitor-stream-fetch@0.0.6:
     resolution: {integrity: sha512-rARQOq5sF6063MZNPAe+I/dMxAwoomD3rPraWxgOWIr7FZoS9RIx6mgv8QZ+mDos5gwgC7471XpaR4Xu/JpeFA==}
@@ -8247,6 +8263,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 7.0.1
 
+  '@capawesome/capacitor-file-picker@7.2.0(@capacitor/core@7.0.1)':
+    dependencies:
+      '@capacitor/core': 7.0.1
+
   '@capawesome/capacitor-live-update@7.1.0(@capacitor/core@7.0.1)':
     dependencies:
       '@capacitor/core': 7.0.1
@@ -10958,6 +10978,10 @@ snapshots:
   caniuse-lite@1.0.30001727: {}
 
   capacitor-export-file@0.0.1(@capacitor/core@7.0.1):
+    dependencies:
+      '@capacitor/core': 7.0.1
+
+  capacitor-plugin-shell-exec@1.3.0(@capacitor/core@7.0.1):
     dependencies:
       '@capacitor/core': 7.0.1
 
