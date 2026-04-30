@@ -344,6 +344,58 @@ function buildGradioPlugin(manifest: GradioPluginManifest, available: boolean): 
   }
 }
 
+function mcpProviderHeaderKey(provider: string, field: 'api_key' | 'base_url') {
+  return field === 'api_key' ? `x-${provider}-api-key` : `x-${provider}-base-url`
+}
+
+function deriveMcpProviderSettings(tools: Tool[]) {
+  const settings: Record<string, any> = {}
+  for (const tool of tools) {
+    if (!tool.name.startsWith('provider_set_')) continue
+    const provider = tool.name.replace(/^provider_set_/, '')
+    const schema: any = tool.inputSchema || {}
+    const props = schema.properties || {}
+    if (props.api_key) {
+      settings[`${provider}ApiKey`] = TString({
+        title: `${provider} API Key`,
+        format: 'password',
+        description: props.api_key.description || ''
+      })
+    }
+    if (props.base_url) {
+      settings[`${provider}BaseUrl`] = TOptional(TString({
+        title: `${provider} Base URL`,
+        description: props.base_url.description || ''
+      }))
+    }
+    if (props.enabled) {
+      settings[`${provider}Enabled`] = TOptional(TBoolean({
+        title: `${provider} Enabled`,
+        description: props.enabled.description || '',
+        default: true
+      }))
+    }
+  }
+  return settings
+}
+
+function applyDerivedProviderHeaders(settings: Record<string, any>, transportConf: any) {
+  const out = { ...transportConf }
+  if (out.type !== 'http') return out
+  out.headers = { ...(out.headers || {}) }
+  for (const [k, v] of Object.entries(settings || {})) {
+    if (v === undefined || v === null || v === '') continue
+    const m = String(k).match(/^([a-z0-9_]+)(ApiKey|BaseUrl|Enabled)$/i)
+    if (!m) continue
+    const provider = m[1]
+    const kind = m[2]
+    if (kind === 'ApiKey') out.headers[mcpProviderHeaderKey(provider, 'api_key')] = String(v)
+    else if (kind === 'BaseUrl') out.headers[mcpProviderHeaderKey(provider, 'base_url')] = String(v)
+    else if (kind === 'Enabled') out.headers[`x-${provider}-enabled`] = String(v)
+  }
+  return out
+}
+
 function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
   const resourceToResultItem = (resource, name?) => resource.text ? {
     type: 'text' as const,
@@ -364,7 +416,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
     prompt: tool.description,
     parameters: tool.inputSchema as PluginSchema,
     async execute(args, settings) {
-      const client = await getClient(id, { type: transport.type, ...settings })
+      const client = await getClient(id, applyDerivedProviderHeaders(settings, { type: transport.type, ...settings }))
       const res = await client.callTool({
         name: tool.name,
         arguments: args
@@ -399,7 +451,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
       description,
       parameters: TObject({}),
       async execute(args, settings) {
-        const client = await getClient(id, { type: transport.type, ...settings })
+        const client = await getClient(id, applyDerivedProviderHeaders(settings, { type: transport.type, ...settings }))
         const res: ReadResourceResult = await client.readResource({ uri }, requestOptions(settings))
         return res.contents.map(c => resourceToResultItem(c, name))
       }
@@ -419,7 +471,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
       description,
       parameters: TObject(params),
       async execute(args, settings) {
-        const client = await getClient(id, { type: transport.type, ...settings })
+        const client = await getClient(id, applyDerivedProviderHeaders(settings, { type: transport.type, ...settings }))
         const res: GetPromptResult = await client.getPrompt({ name, arguments: args }, requestOptions(settings))
         return await Promise.all(res.messages.map(async m => {
           const { content } = m
@@ -447,11 +499,13 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
     }
   })
   let settings: Record<string, any>
+  const derivedProviderSettings = deriveMcpProviderSettings(dump.tools)
   if (transport.type === 'stdio') {
     const env: Record<string, any> = {}
     settings = {
       command: TString({ title: t('plugins.mcp.runCommand') }),
-      cwd: TOptional(TString({ title: t('plugins.mcp.cwd') }))
+      cwd: TOptional(TString({ title: t('plugins.mcp.cwd') })),
+      ...derivedProviderSettings
     }
     if (transport.env) {
       for (const key in transport.env) {
@@ -462,7 +516,8 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
   } else if (transport.type === 'http') {
     const headers: Record<string, any> = {}
     settings = {
-      url: TString({ title: 'URL' })
+      url: TString({ title: 'URL' }),
+      ...derivedProviderSettings
     }
     if (transport.headers) {
       for (const key in transport.headers) {
@@ -472,7 +527,8 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
     }
   } else {
     settings = {
-      url: TString({ title: 'SSE URL' })
+      url: TString({ title: 'SSE URL' }),
+      ...derivedProviderSettings
     }
   }
   settings.timeout = TOptional(TNumber({
