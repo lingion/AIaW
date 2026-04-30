@@ -3,6 +3,9 @@
     :icon="icon"
     @click="copy"
     :title="$t('copyBtn.title')"
+    flat
+    round
+    dense
   />
 </template>
 <script setup>

@@ -374,19 +374,11 @@
               {{ $t('dialogView.tokenPrompt') }}：{{ usage.inputTokens }}，{{ $t('dialogView.tokenCompletion') }}：{{ usage.outputTokens }}
             </q-tooltip>
           </div>
-          <abortable-btn
-            icon="sym_o_send"
-            :label="$t('dialogView.send')"
-            @click="send"
-            @abort="abortController?.abort()"
-            :loading="generating"
-            :disable="inputEmpty && !generating"
-            ml-4
-            min-h="40px"
-          />
         </div>
         <div
           flex
+          items-end
+          gap-2
           v-if="assistant"
           v-show="showVars"
         >
