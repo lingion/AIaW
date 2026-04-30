@@ -414,7 +414,7 @@
           autogrow
           clearable
           :debounce="perfs.userInputDebounce"
-          :placeholder="$t('dialogView.chatPlaceholder')"
+          :placeholder="''"
           @keydown.enter="onEnter"
           @paste="onTextPaste"
         />

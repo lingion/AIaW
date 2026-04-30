@@ -129,17 +129,27 @@ body.body--light {
   }
 
   .q-field__control {
-    padding-left: 14px;
-    padding-right: 14px;
+    padding-left: 18px;
+    padding-right: 18px;
     border: 1px solid color-mix(in srgb, var(--a-out-var) 60%, transparent);
     box-shadow: none !important;
   }
 
   .q-field__native,
+  .q-field__input,
   textarea,
   input {
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding: 12px 4px !important;
+    text-indent: 0;
+  }
+}
+
+.dialog-message-shell {
+  .md-editor-preview,
+  .q-expansion-item,
+  .q-card {
+    margin-left: 6px;
+    margin-right: 6px;
   }
 }
 
