@@ -405,7 +405,7 @@
         </div>
         <a-input
           ref="messageInput"
-          class="mt-2"
+          class="mt-2 dialog-main-input"
           max-h-50vh
           of-y-auto
           :model-value="inputText"

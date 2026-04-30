@@ -1,3 +1,125 @@
 // iOS-only visual polish
 body.platform-ios {
+  .q-page,
+  .q-page-container,
+  .q-dialog__inner > div,
+  .q-menu {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  .q-item {
+    min-height: 54px;
+    padding: 10px 16px;
+    border-radius: 18px;
+    margin: 2px 8px;
+    transition: background-color .18s ease, transform .18s ease;
+  }
+
+  .q-item__label--header {
+    padding: 8px 20px 4px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+  }
+
+  .q-separator--horizontal {
+    margin: 10px 16px;
+    opacity: .6;
+  }
+
+  .q-card,
+  .q-dialog__inner > .q-card,
+  .q-menu,
+  .q-tab-panels,
+  .q-list[py-2] {
+    border-radius: 24px;
+    box-shadow: none;
+    border: 1px solid color-mix(in srgb, var(--a-out-var) 60%, transparent);
+    overflow: hidden;
+  }
+
+  .q-btn {
+    border-radius: 18px;
+    letter-spacing: 0;
+    font-weight: 600;
+    text-transform: none;
+  }
+
+  .q-btn--rectangle {
+    border-radius: 18px;
+  }
+
+  .q-btn.bg-primary,
+  .q-btn.bg-secondary,
+  .q-btn.bg-accent {
+    box-shadow: none;
+  }
+
+  .q-field--filled .q-field__control,
+  .q-select .q-field__control {
+    border-radius: 16px !important;
+    box-shadow: none !important;
+    border: 1px solid color-mix(in srgb, var(--a-out-var) 65%, transparent);
+  }
+
+  .q-field__native,
+  .q-field__input {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .q-chip {
+    border-radius: 14px;
+  }
+
+  .q-expansion-item {
+    margin: 6px 8px;
+    border-radius: 22px;
+    overflow: hidden;
+    background: var(--a-sur-c-low);
+    border: 1px solid color-mix(in srgb, var(--a-out-var) 50%, transparent);
+  }
+
+  .q-expansion-item__container > .q-item {
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .q-toolbar {
+    min-height: 60px;
+    padding: 0 12px;
+  }
+
+  .q-toolbar-title {
+    font-size: 1.08rem;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .q-footer,
+  .q-header {
+    backdrop-filter: saturate(1.15) blur(16px);
+  }
+
+  .q-notification {
+    border-radius: 20px;
+    box-shadow: none;
+    border: 1px solid color-mix(in srgb, var(--a-out-var) 50%, transparent);
+  }
+
+  .q-dialog__inner--minimized > div {
+    border-radius: 24px;
+  }
+
+  .message-item,
+  .tool-content,
+  .artifact-item,
+  .q-banner {
+    border-radius: 20px;
+  }
+
+  .q-drawer .q-item {
+    min-height: 50px;
+  }
 }
