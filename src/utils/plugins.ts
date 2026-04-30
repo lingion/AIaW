@@ -356,11 +356,11 @@ function deriveMcpProviderSettings(tools: Tool[]) {
     const schema: any = tool.inputSchema || {}
     const props = schema.properties || {}
     if (props.api_key) {
-      settings[`${provider}ApiKey`] = TString({
+      settings[`${provider}ApiKey`] = TOptional(TString({
         title: `${provider} API Key`,
         format: 'password',
         description: props.api_key.description || ''
-      })
+      }))
     }
     if (props.base_url) {
       settings[`${provider}BaseUrl`] = TOptional(TString({
