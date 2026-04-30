@@ -4,71 +4,68 @@
 
 ![](https://badge.mcpx.dev?type=client 'MCP Client') ![](https://badge.mcpx.dev?type=client&features=resources,prompts,tools 'MCP client with features')
 
-A maintained fork of AIaW focused on **mobile usability**, **local-first workflows**, and **real on-device file operations**.
+A maintained fork of AIaW focused on **mobile usability**, **source-first packaging**, and **practical on-device workflows**.
 
-## What this fork changes
+## What this fork is optimizing for
 
-This fork is opinionated around practical day-to-day use on phones and tablets:
+This fork is not trying to stay visually or structurally identical to upstream at all costs.
+It is optimized for:
 
-- better mobile UX for provider / key configuration
-- safer local-first storage behavior
-- improved plugin management on constrained platforms
-- Android-native real directory access via a new `LocalFs` bridge
-- iterative fixes for mobile file tools, attachments, and runtime stability
+- better **mobile chat usability**
+- more reliable **Android/iOS packaging and release iteration**
+- safer **local-first** behavior
+- practical **plugin / assistant** workflows on constrained devices
+- source-controlled fixes that actually survive packaging
 
-## Current focus
+## Current mobile status
 
-### Mobile file operations
+### Android
 
-Two layers exist in this fork:
+Android is currently the primary target.
 
-1. **Legacy file tools** (`read` / `write` / `list` etc.)
-   - useful for quick local sandbox workflows
-   - partially bridged to external Android paths
-   - still less authoritative than the native layer
+Working areas actively maintained:
+- chat-first mobile UI
+- provider / assistant / plugin workflow fixes
+- attachment and file-handling improvements
+- plugin menu fixes (icons, scrolling, dialog behavior)
+- rounded composer / message layout tuning
+- release APKs published in GitHub Releases
 
-2. **LocalFs (Android native)**
-   - built on Android Storage Access Framework
-   - intended for true user-authorized local directory access
-   - supports mounted directory workflows and segmented file reads
-   - forms the long-term foundation for a real local file agent on Android
+### iOS
 
-### Plugin / assistant stability
+iOS is also being actively packaged and tested.
 
-This fork also includes work on:
-- restoring missing builtin plugin entries for existing assistants
-- safer mobile plugin registration
-- more predictable assistant/plugin behavior across upgrades
+Current known-good direction:
+- source-built IPA packaging works
+- iOS app icon assets have been restored in-source
+- iOS packaged frontend is now explicitly synced from the current built web assets
+- chat UI parity with Android is being improved through source changes, not old shell patching
 
-## Features
+Important project lesson from this fork:
+- iOS behavior should be diagnosed from the **actual packaged source-built artifact**, not guessed from source files alone
 
-- Platforms: Web, Android, iOS, desktop source tree preserved
-- Multiple providers: OpenAI, Anthropic, Google, DeepSeek, xAI, Azure, OpenRouter, Ollama, OpenAI-compatible endpoints
-- MCP client support: tools / prompts / resources
-- Multiple workspaces and assistants
-- Artifacts, document parsing, web search, image generation
-- Local-first storage by default
-- Mobile-first adjustments for provider and plugin workflows
+## Recent release line
 
-## Android status
+### v1.8.13
 
-Android is the primary target of this fork right now.
+This release line includes the latest mobile polish work from this fork, including:
 
-Implemented and actively iterated:
-- provider settings UX improvements
-- local file tools improvements
-- Android-native `LocalFs` plugin for true directory authorization
-- release APKs uploaded through GitHub Releases
+- iOS app icon restoration from source asset catalog
+- iOS packaged frontend synchronized to the same current frontend asset set used by Android
+- dialog composer input refinements
+- send button layout refinements
+- message spacing / alignment refinements
+- right-side message content catalog rail behavior for wider layouts
+- plugin dialog/menu fixes from earlier hotfixes
 
-## iOS status
+## Packaging philosophy in this fork
 
-iOS is still supported in source and packaging flow, but capabilities are not fully equivalent to Android.
+This fork now treats packaging as part of the feature itself.
+A UI fix is not considered complete until:
 
-What to expect:
-- core app can still be built and packaged
-- provider / assistant / plugin UX improvements apply
-- Android-specific shell behavior does **not** carry over
-- native real-directory agent features are currently **Android-first**
+1. the fix is present in source
+2. the built package actually contains the new assets/styles
+3. the user verifies the behavior on device
 
 ## Build from source
 
@@ -81,30 +78,46 @@ quasar build
 ### Android
 
 ```bash
-quasar build -m spa --skip-pkg
+pnpm build
 npx cap sync android
 cd android
 ./gradlew assembleDebug
 ```
 
+Note for this environment:
+- after `cap sync android`, Gradle files may need Java/Kotlin target correction back to 17 if the local machine is not on JDK 21
+
 ### iOS
 
 ```bash
-quasar build -m spa --skip-pkg
-npx cap sync ios
+pnpm build
+npx cap copy ios
 cd ios/App
-pod install
-xcodebuild -workspace App.xcworkspace -scheme App -configuration Debug -destination 'generic/platform=iOS' build
+xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos \
+  -archivePath ios/build/App.xcarchive archive
+xcodebuild -exportArchive \
+  -archivePath ios/build/App.xcarchive \
+  -exportOptionsPlist ios/build-src/exportOptions-dev.plist \
+  -exportPath ios/build/export
 ```
+
+Notes:
+- for iOS frontend parity work, `npx cap copy ios` matters because the packaged `public/` assets must match the current built frontend
+- packaging validation should compare final packaged assets, not just local source edits
 
 ## Releases
 
-Latest builds for this fork are published in:
+Latest builds for this fork are published here:
 
 - https://github.com/lingion/AIaW/releases
 
-## Notes
+## Repository direction
 
-- This fork intentionally prioritizes working mobile workflows over upstream purity.
-- Some features may temporarily exist in parallel while Android-native replacements are being introduced.
-- Release/update paths should point to `lingion/AIaW` for this fork.
+This fork currently prioritizes:
+- mobile chat usability
+- practical packaging reliability
+- real-world deployment iteration
+- direct user-verified fixes
+
+Release/update paths for this fork should always point to:
+- `lingion/AIaW`
