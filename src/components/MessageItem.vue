@@ -304,7 +304,7 @@
     </div>
     <div
       v-if="!colMode"
-      w="xs:20px sm:22.5%"
+      class="message-catalog-rail"
       shrink-0
     >
       <md-catalog
