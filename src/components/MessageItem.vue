@@ -3,6 +3,7 @@
     flex
     :class="{ 'flex-row-reverse': message.type === 'user', 'flex-col': colMode }"
     relative
+    class="dialog-message-shell px-3 sm:px-4"
   >
     <div>
       <div
