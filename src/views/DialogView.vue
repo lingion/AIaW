@@ -395,21 +395,32 @@
             component="input"
           />
         </div>
-        <a-input
-          ref="messageInput"
-          class="mt-2 dialog-main-input"
-          max-h-50vh
-          of-y-auto
-          :model-value="inputText"
-          @update:model-value="inputMessageContent && updateInputText($event ?? '')"
-          outlined
-          autogrow
-          clearable
-          :debounce="perfs.userInputDebounce"
-          :placeholder="''"
-          @keydown.enter="onEnter"
-          @paste="onTextPaste"
-        />
+        <div class="mt-2 dialog-composer-row" flex items-end gap-2>
+          <a-input
+            ref="messageInput"
+            class="dialog-main-input"
+            max-h-50vh
+            of-y-auto
+            :model-value="inputText"
+            @update:model-value="inputMessageContent && updateInputText($event ?? '')"
+            outlined
+            autogrow
+            clearable
+            :debounce="perfs.userInputDebounce"
+            :placeholder="''"
+            @keydown.enter="onEnter"
+            @paste="onTextPaste"
+          />
+          <abortable-btn
+            icon="sym_o_send"
+            :label="$t('dialogView.send')"
+            @click="send"
+            @abort="abortController?.abort()"
+            :loading="generating"
+            :disable="inputEmpty && !generating"
+            min-h="48px"
+          />
+        </div>
       </div>
     </q-page>
   </q-page-container>
