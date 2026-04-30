@@ -7,11 +7,10 @@
   >
     <q-item-section
       avatar
-      v-if="pluginsStore.data[plugin.id]"
       min-w-0
     >
       <a-avatar
-        :avatar="pluginsStore.data[plugin.id].avatar"
+        :avatar="resolveAvatar(plugin)"
         :size="dense ? '32px' : '40px'"
       />
     </q-item-section>
@@ -57,6 +56,7 @@
 </template>
 
 <script setup lang="ts">
+import AAvatar from './AAvatar.vue'
 import { syncRef } from 'src/composables/sync-ref'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { usePluginsStore } from 'src/stores/plugins'
@@ -67,6 +67,16 @@ const props = defineProps<{
   assistantId: string
   dense?: boolean
 }>()
+
+function fallbackAvatar(plugin: Plugin) {
+  return { type: 'text' as const, text: plugin.title?.[0]?.toUpperCase() ?? '?', hue: 250 }
+}
+
+function resolveAvatar(plugin: Plugin) {
+  const raw = pluginsStore.data[plugin.id]?.avatar
+  if (raw && typeof raw === 'object' && raw.type) return raw
+  return fallbackAvatar(plugin)
+}
 
 const store = useAssistantsStore()
 
