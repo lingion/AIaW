@@ -10,20 +10,20 @@
         flex
         :class="[
           colMode ? 'flex-row items-center' : 'flex-col pos-sticky top-0',
-          message.type === 'assistant' ? 'pl-2' : ''
+          message.type === 'assistant' ? 'pl-0' : ''
         ]"
       >
         <a-avatar
           v-if="avatar"
           :avatar
           :size="colMode ? '36px' : denseMode ? '40px' : '48px'"
-          :class="colMode ? 'mx-3' : 'xs:mx-3 sm:mx-4'"
+          :class="colMode ? 'mx-3' : 'ml-1 mr-2'"
           @click="onAvatarClick"
           cursor-pointer
         />
         <div
           v-if="name"
-          :class="colMode ? '' : 'my-2 text-xs'"
+          :class="colMode ? '' : 'my-2 text-xs ml-1'"
           text="center on-sur-var"
         >
           {{ name }}
