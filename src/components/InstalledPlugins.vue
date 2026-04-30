@@ -10,9 +10,8 @@
     >
       <q-item-section avatar>
         <a-avatar
-          v-if="data[plugin.id]"
           size="md"
-          :avatar="data[plugin.id].avatar"
+          :avatar="resolveAvatar(plugin)"
         />
       </q-item-section>
       <q-item-section>
@@ -58,8 +57,19 @@ import AAvatar from './AAvatar.vue'
 import { usePluginsStore } from 'src/stores/plugins'
 import PluginTypeBadge from 'src/components/PluginTypeBadge.vue'
 import { useI18n } from 'vue-i18n'
+import { Plugin } from 'src/utils/types'
 
 const { t } = useI18n()
+
+function fallbackAvatar(plugin: Plugin) {
+  return { type: 'text' as const, text: plugin.title?.[0]?.toUpperCase() ?? '?', hue: 250 }
+}
+
+function resolveAvatar(plugin: Plugin) {
+  const raw = data[plugin.id]?.avatar
+  if (raw && typeof raw === 'object' && raw.type) return raw
+  return fallbackAvatar(plugin)
+}
 
 const pluginsStore = usePluginsStore()
 const { data } = pluginsStore
