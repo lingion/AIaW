@@ -150,13 +150,19 @@ body.body--light {
 
 .dialog-composer-row {
   width: 100%;
+  align-items: center;
 
   .abortable-icon-btn {
     width: 48px;
     min-width: 48px;
     height: 48px;
     flex: 0 0 48px;
-    align-self: flex-end;
+    align-self: center;
+    margin-bottom: 0;
+  }
+
+  .dialog-main-input .q-field__control {
+    min-height: 48px;
   }
 }
 
