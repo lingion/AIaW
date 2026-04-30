@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: "app.aiaw.glass",
+  appId: "app.aiaw",
   appName: 'AIaW',
   webDir: 'dist/spa',
   plugins: {
