@@ -4,12 +4,6 @@
 
 ![](https://badge.mcpx.dev?type=client 'MCP Client') ![](https://badge.mcpx.dev?type=client&features=resources,prompts,tools 'MCP client with features')
 
-> [!WARNING]
->
-> 上游项目已弃用，并已由 [Nya AI](https://github.com/NitroRCr/nyaai) 接替，后者使用了新的技术栈重写。
->
-> 这个仓库继续维护当前 AIaW 这一条线，重点放在移动端可用性、真实打包验证、以及设备侧可复现修复上。
-
 更好的 AI 客户端。
 
 [网站链接](https://aiaw.app) - [下载构建包](https://github.com/lingion/AIaW/releases/latest) - [使用文档](https://docs.aiaw.app/zh/) - [English](README.md)
@@ -33,12 +27,6 @@
 - 对齐到消息开头/结尾的快速滚动
 
 <img src="https://fs.krytro.com/aiaw/dialog.webp" width="600">
-
-**本仓库在这一块的持续改动：**
-- 持续针对移动端聊天界面做源代码级修复，而不是只跟随上游默认布局
-- 修复打包后移动端里代码块复制按钮 / 工具气泡图标渲染问题
-- 调整 message catalog rail 的显示逻辑，避免在窄屏上错误占位
-- 调试包中可临时禁用启动时 live update，确保本地前端修改不会被远程 bundle 覆盖
 
 ### 多工作区
 
@@ -69,10 +57,6 @@
 - 粘贴从 VSCode 复制的代码时，自动用代码块包裹，并标明语言
 
 <img src="https://fs.krytro.com/aiaw/paste-code.webp" width="600">
-
-**本仓库在这一块的持续改动：**
-- Android 打包产物里 md-editor 代码块复制图标（`content_copy` / `check` 等）已做设备侧修复
-- 聊天页面问题以源码为主线排查，而不是继续依赖壳层补丁或口头推断
 
 ### [MCP 协议](https://docs.aiaw.app/usage/mcp.html)
 
@@ -111,11 +95,6 @@
 
 <img src="https://fs.krytro.com/aiaw/switch-dialog.webp" width="600">
 
-**本仓库在这一块的持续改动：**
-- 移动端打包与调试流程被当作一等路径维护
-- Android 调试 APK 用于快速验证真实 UI 效果
-- iOS 源码打包链会显式同步当前前端产物，而不是假设包内资源总是最新的
-
 ### [动态提示词](https://docs.aiaw.app/usage/prompt-vars.html)
 
 - 通过创建提示词变量，使用模板语法，构建动态可复用的提示词
@@ -127,29 +106,135 @@
 
 助手市场、深色模式、自定义主题色等。
 
-## 本仓库的额外说明
+## 本仓库：`lingion/AIaW`
 
-### 移动端调试与发布口径
+这个仓库不是简单的重新打包镜像。相对于 `NitroRCr/AIaW`，它已经有大量源码改动，重点放在移动端可用性、真实打包验证、原生壳改造，以及设备侧可复现修复。
+
+### 相对上游的主要改动范围
+
+#### 1. 移动端打包与原生壳
+涉及路径包括：
+- `android/app/*`
+- `android/capacitor.settings.gradle`
+- `android/gradlew`
+- `ios/App/App.xcodeproj/*`
+- `ios/App/App.xcworkspace/*`
+- `ios/App/AppDelegate.swift`
+- `ios/App/App/Info.plist`
+- `ios/App/App/Assets.xcassets/*`
+- `ios/capacitor-cordova-ios-plugins/*`
+- `capacitor.config.ts`
+
+实际改动方向包括：
+- Android 壳层与原生插件接线调整
+- iOS 源码打包链长期维护
+- iOS App Icon / Asset Catalog 恢复与同步
+- 从源码直出移动包，而不是只假设 Web/PWA 就等于最终客户端效果
+
+#### 2. 前端移动端聊天 / 对话界面
+涉及路径包括：
+- `src/App.vue`
+- `src/components/MessageItem.vue`
+- `src/views/DialogView.vue`
+- `src/css/app.scss`
+- `src/css/platform/android/index.scss`
+- `src/css/platform/ios/index.scss`
+- `src/layouts/MainLayout.vue`
+
+实际改动方向包括：
+- 移动端聊天布局排查与修复
+- composer 输入区样式调整
+- message spacing / preview 渲染链修复
+- message catalog rail 在窄屏上的占位逻辑调整
+- 调试包中临时关闭启动时 live update，避免远程 bundle 立刻覆盖本地前端
+
+#### 3. 插件 / provider / MCP 工作流
+涉及路径包括：
+- `src/stores/plugins.ts`
+- `src/stores/providers.ts`
+- `src/utils/plugins.ts`
+- `src/utils/platform-api.ts`
+- `src/utils/config.ts`
+- `src/utils/update.ts`
+- `src/utils/values.ts`
+- `src/components/AddMcpPluginDialog.vue`
+- `src/components/CustomProviders.vue`
+- `src/components/EnablePluginsItems.vue`
+- `src/components/EnablePluginsMenu.vue`
+- `src/components/InstalledPlugins.vue`
+- `src/components/ProviderInputItems.vue`
+- `src/components/TypesInput.vue`
+- `src/components/UnifiedInput.vue`
+- `src/components/GetModelList.vue`
+
+实际改动方向包括：
+- 自定义 provider 工作流变更
+- MCP/provider 设置项显式暴露到 UI
+- 插件启用/菜单行为修复
+- 面向移动端的插件展示优化
+- 面向打包客户端的更新链路调整
+
+#### 4. 本地优先 / 原生文件与执行能力
+涉及路径包括：
+- `src/utils/local-fs-native-plugin.ts`
+- `src/utils/local-fs-native.ts`
+- `src/utils/file-ops-plugin.ts`
+- `src/utils/code-exec-plugin.ts`
+- `android/app/src/main/java/app/aiaw/LocalFsPlugin.java`
+
+实际改动方向包括：
+- 为打包客户端暴露更强的本地文件系统能力
+- 面向设备侧的本地执行 / 文件处理适配
+- 更实用的 on-device 工作流支持
+
+#### 5. 内置数据 / 语言 / seed 行为
+涉及路径包括：
+- `src/utils/builtin-plugin-seed.ts`
+- `src/i18n/en-US/components.ts`
+- `src/i18n/en-US/composables.ts`
+- `src/i18n/en-US/views.ts`
+- `src/i18n/zh-CN/components.ts`
+- `src/i18n/zh-CN/composables.ts`
+- `src/i18n/zh-CN/views.ts`
+- `src/version.json`
+
+实际改动方向包括：
+- built-in plugin migration / seeding 逻辑
+- fork 特有流程下的 UI 文案变化
+- 与本仓库版本线绑定的客户端行为调整
+
+#### 6. Backend helper / 测试脚本 / 工程规则文档
+涉及路径包括：
+- `src-backend/app.py`
+- `src-backend/requirements.txt`
+- `scripts/test-export-import*.mjs`
+- `ACTIVE_RUNTIME_CONFIG.md`
+- `ARCHITECTURE_BOUNDARIES.md`
+- `DELIVERY_RULES.md`
+- `REGRESSION_CHECKLIST.md`
+- `RISK_REGISTER.md`
+
+实际改动方向包括：
+- 面向本仓库工作流的 backend helper
+- 项目特有的发布/调试规则
+- 回归 / 风险 / 交付文档化
+
+#### 7. iOS App 包内同步资源
+涉及路径包括：
+- `ios/App/App/public/*`
+
+这些不是逐个手写的新功能源码，而是 iOS 打包所携带的同步前端产物；但相对上游，它们确实也是当前仓库差异的一部分。
+
+## 本仓库的工作假设
 
 这个仓库把“打包是否真的携带了前端修改”视为功能的一部分。
-一个 UI 修复不算完成，除非同时满足：
+一个前端/UI 修复不算完成，除非同时满足：
 
 1. 源码里已经有改动
 2. 最终安装包确实携带了新的前端资源
 3. 用户在设备上确认行为已经变化
 
-### 调试期间的更新策略
-
-当前 Capacitor 构建包含 `@capawesome/capacitor-live-update`。
-在调试本地 UI 问题时，可能需要暂时禁用启动时 live update，避免应用启动后被远程 bundle 覆盖，导致本地改动看不到效果。
-
-### 本仓库最近维护的方向
-
-- 恢复移动端聊天输入区圆角 / 撑满布局样式
-- 修正 message catalog rail 在窄屏上的占位逻辑
-- 修复 md-editor 代码块复制图标字体样式
-- Android Java 21 打包链验证
-- 用真实 APK 反复验证前端改动是否真的落地，而不是只在浏览器里观察
+这点很重要，因为打包客户端和浏览器行为可能不同，而且 update 路径 / 原生壳 / bundle 覆盖都可能让“源码看起来对”不等于“设备上真的对”。
 
 ## LightHouse
 
