@@ -110,120 +110,101 @@
 
 这个仓库不是简单的重新打包镜像。相对于 `NitroRCr/AIaW`，它已经有大量源码改动，重点放在移动端可用性、真实打包验证、原生壳改造，以及设备侧可复现修复。
 
-### 相对上游的主要改动范围
+## 这个 fork 里明确新增 / 强化的功能条目
 
-#### 1. 移动端打包与原生壳
-涉及路径包括：
+### 移动端聊天与 UI 修复
+
+这个仓库在移动端聊天页做了直接源码级修复，而不是只跟随上游默认布局：
+
+- 恢复底部输入区圆角、撑满布局、发送按钮单独占位
+- 修复聊天页在 Android 打包后才出现的布局问题
+- 调整 message catalog rail 的显示逻辑，避免在窄屏上错误占位
+- 对用户消息 / assistant 消息渲染链做设备侧验证，而不是只在浏览器里看结果
+
+### 插件刷新能力
+
+这个仓库明确增加了 **MCP 插件刷新** 能力：
+
+- 在已安装插件列表中为 MCP 插件提供刷新按钮
+- 用户无需卸载重装插件，就可以重新刷新 MCP manifest / dump 状态
+- 相关文件：
+  - `src/stores/plugins.ts`
+  - `src/components/InstalledPlugins.vue`
+
+### 导出 / 导入优化
+
+这个仓库明确做了导出导入优化，而不只是内部重构：
+
+- **轻量导出模式**
+  - 跳过图片 / 附件等二进制大字段
+  - 降低 Android 侧大数据导出时崩溃或失败概率
+  - 导出文件名明确区分 full / light
+- **轻量导入兼容说明**
+  - 轻量导出包只恢复数据库主数据，不恢复图片 / 附件二进制内容
+- **缺失二进制内容时的运行时保护**
+  - 对话渲染中如果 `contentBuffer` 缺失，会跳过二进制 payload，而不是假设永远存在
+- 相关文件：
+  - `src/components/ExportDataDialog.vue`
+  - `src/components/ImportDataDialog.vue`
+  - `src/views/DialogView.vue`
+  - `src/utils/platform-api.ts`
+
+### 内置插件增强
+
+这个仓库明确维护并增强了多种内置插件，而不只是“保留原样”：
+
+- **Web Search 插件**
+  - 基于 SearXNG 的联网搜索
+  - 基于 Jina 的网页抓取
+  - 支持并发搜索与并发抓取
+  - 文件：`src/utils/web-search-plugin.ts`
+
+- **Code Execution (Pyodide) 插件**
+  - 在客户端内直接进行 Python 执行
+  - 文件：`src/utils/code-exec-plugin.ts`
+
+- **File Operations 插件**
+  - 面向客户端的结构化文件操作能力
+  - 文件：`src/utils/file-ops-plugin.ts`
+
+- **Local FS Native 插件**
+  - 为打包客户端提供原生 / 本地文件系统访问路径
+  - 文件：
+    - `src/utils/local-fs-native-plugin.ts`
+    - `src/utils/local-fs-native.ts`
+    - `android/app/src/main/java/app/aiaw/LocalFsPlugin.java`
+
+- **Document Parse 插件维护**
+  - 文件：`src/utils/doc-parse-plugin.ts`
+
+也就是说，你说的“3 个内置插件”不仅应该写，而且实际上这里已经明确能写出 4 个主要条目。
+
+### 更新链路调试控制
+
+这个仓库还加入了专门面向调试的更新链路控制：
+
+- 调试 packaged client 的 UI 问题时，可以临时关闭启动时 live update
+- 否则本地前端改动可能在应用启动后立即被远程 bundle 覆盖
+- 相关文件：
+  - `src/App.vue`
+  - `src/utils/update.ts`
+
+### 原生壳与打包链维护
+
+相对上游，这个仓库还长期维护了原生壳和打包路径：
+
+- Android 原生壳改动与插件接线
+- iOS 源码打包路径在仓库内维护
+- iOS App Icon / Asset Catalog 恢复
+- iOS App 包内前端资源同步，保证设备验证时看到的真的是当前源码产物
+
+相关路径包括：
 - `android/app/*`
 - `android/capacitor.settings.gradle`
-- `android/gradlew`
 - `ios/App/App.xcodeproj/*`
-- `ios/App/App.xcworkspace/*`
-- `ios/App/AppDelegate.swift`
-- `ios/App/App/Info.plist`
 - `ios/App/App/Assets.xcassets/*`
-- `ios/capacitor-cordova-ios-plugins/*`
-- `capacitor.config.ts`
-
-实际改动方向包括：
-- Android 壳层与原生插件接线调整
-- iOS 源码打包链长期维护
-- iOS App Icon / Asset Catalog 恢复与同步
-- 从源码直出移动包，而不是只假设 Web/PWA 就等于最终客户端效果
-
-#### 2. 前端移动端聊天 / 对话界面
-涉及路径包括：
-- `src/App.vue`
-- `src/components/MessageItem.vue`
-- `src/views/DialogView.vue`
-- `src/css/app.scss`
-- `src/css/platform/android/index.scss`
-- `src/css/platform/ios/index.scss`
-- `src/layouts/MainLayout.vue`
-
-实际改动方向包括：
-- 移动端聊天布局排查与修复
-- composer 输入区样式调整
-- message spacing / preview 渲染链修复
-- message catalog rail 在窄屏上的占位逻辑调整
-- 调试包中临时关闭启动时 live update，避免远程 bundle 立刻覆盖本地前端
-
-#### 3. 插件 / provider / MCP 工作流
-涉及路径包括：
-- `src/stores/plugins.ts`
-- `src/stores/providers.ts`
-- `src/utils/plugins.ts`
-- `src/utils/platform-api.ts`
-- `src/utils/config.ts`
-- `src/utils/update.ts`
-- `src/utils/values.ts`
-- `src/components/AddMcpPluginDialog.vue`
-- `src/components/CustomProviders.vue`
-- `src/components/EnablePluginsItems.vue`
-- `src/components/EnablePluginsMenu.vue`
-- `src/components/InstalledPlugins.vue`
-- `src/components/ProviderInputItems.vue`
-- `src/components/TypesInput.vue`
-- `src/components/UnifiedInput.vue`
-- `src/components/GetModelList.vue`
-
-实际改动方向包括：
-- 自定义 provider 工作流变更
-- MCP/provider 设置项显式暴露到 UI
-- 插件启用/菜单行为修复
-- 面向移动端的插件展示优化
-- 面向打包客户端的更新链路调整
-
-#### 4. 本地优先 / 原生文件与执行能力
-涉及路径包括：
-- `src/utils/local-fs-native-plugin.ts`
-- `src/utils/local-fs-native.ts`
-- `src/utils/file-ops-plugin.ts`
-- `src/utils/code-exec-plugin.ts`
-- `android/app/src/main/java/app/aiaw/LocalFsPlugin.java`
-
-实际改动方向包括：
-- 为打包客户端暴露更强的本地文件系统能力
-- 面向设备侧的本地执行 / 文件处理适配
-- 更实用的 on-device 工作流支持
-
-#### 5. 内置数据 / 语言 / seed 行为
-涉及路径包括：
-- `src/utils/builtin-plugin-seed.ts`
-- `src/i18n/en-US/components.ts`
-- `src/i18n/en-US/composables.ts`
-- `src/i18n/en-US/views.ts`
-- `src/i18n/zh-CN/components.ts`
-- `src/i18n/zh-CN/composables.ts`
-- `src/i18n/zh-CN/views.ts`
-- `src/version.json`
-
-实际改动方向包括：
-- built-in plugin migration / seeding 逻辑
-- fork 特有流程下的 UI 文案变化
-- 与本仓库版本线绑定的客户端行为调整
-
-#### 6. Backend helper / 测试脚本 / 工程规则文档
-涉及路径包括：
-- `src-backend/app.py`
-- `src-backend/requirements.txt`
-- `scripts/test-export-import*.mjs`
-- `ACTIVE_RUNTIME_CONFIG.md`
-- `ARCHITECTURE_BOUNDARIES.md`
-- `DELIVERY_RULES.md`
-- `REGRESSION_CHECKLIST.md`
-- `RISK_REGISTER.md`
-
-实际改动方向包括：
-- 面向本仓库工作流的 backend helper
-- 项目特有的发布/调试规则
-- 回归 / 风险 / 交付文档化
-
-#### 7. iOS App 包内同步资源
-涉及路径包括：
 - `ios/App/App/public/*`
-
-这些不是逐个手写的新功能源码，而是 iOS 打包所携带的同步前端产物；但相对上游，它们确实也是当前仓库差异的一部分。
+- `capacitor.config.ts`
 
 ## 本仓库的工作假设
 
