@@ -1,81 +1,195 @@
 ![](docs/public/combine.en.webp)
 
-# AI as Workspace (Lingion Fork)
+# AI as Workspace
 
 ![](https://badge.mcpx.dev?type=client 'MCP Client') ![](https://badge.mcpx.dev?type=client&features=resources,prompts,tools 'MCP client with features')
 
-A maintained fork of AIaW focused on **mobile usability**, **source-first packaging**, and **practical on-device workflows**.
+> [!WARNING]
+>
+> This project is deprecated upstream and has been succeeded by [Nya AI](https://github.com/NitroRCr/nyaai), a rewrite with a new tech stack.
+>
+> This repository continues to maintain and package the current AIaW line, especially for practical mobile use, release iteration, and on-device fixes.
 
-## What this fork is optimizing for
+An elegant AI client.
 
-This fork is not trying to stay visually or structurally identical to upstream at all costs.
-It is optimized for:
+[Web Version](https://aiaw.app) - [Download Builds](https://github.com/lingion/AIaW/releases/latest) - [Docs](https://docs.aiaw.app/) - [简体中文](README.zh-CN.md)
 
-- better **mobile chat usability**
-- more reliable **Android/iOS packaging and release iteration**
-- safer **local-first** behavior
-- practical **plugin / assistant** workflows on constrained devices
-- source-controlled fixes that actually survive packaging
+<a href="https://apps.microsoft.com/detail/9NVMXSXJMWP8?referrer=appbadge&mode=direct">
+	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
+</a>
 
-## Current mobile status
+## Features Overview
 
-### Android
+### Consistent Experience Across All Platforms
 
-Android is currently the primary target.
+- Supported platforms: Windows, Linux, Mac OS, Android, Web (PWA)
+- Multiple AI providers: OpenAI, Anthropic, Google, DeepSeek, xAI, Azure, etc.
 
-Working areas actively maintained:
-- chat-first mobile UI
-- provider / assistant / plugin workflow fixes
-- attachment and file-handling improvements
-- plugin menu fixes (icons, scrolling, dialog behavior)
-- rounded composer / message layout tuning
-- release APKs published in GitHub Releases
+### Conversation Interface
 
-### iOS
+- User input preview
+- Modifications and regenerations presented as branches
+- Customizable keyboard shortcuts
+- Quick scrolling to the beginning/end of a message
 
-iOS is also being actively packaged and tested.
+<img src="https://fs.krytro.com/aiaw/dialog.webp" width="600">
 
-Current known-good direction:
-- source-built IPA packaging works
-- iOS app icon assets have been restored in-source
-- iOS packaged frontend is now explicitly synced from the current built web assets
-- chat UI parity with Android is being improved through source changes, not old shell patching
+**Current repository adjustments in this area:**
+- mobile-focused chat layout tuning continues here instead of only following upstream defaults
+- code-block copy / tool bubble icon rendering fixes for packaged mobile clients
+- message catalog rail display logic adjusted for narrow screens so it only occupies space when the screen is actually wide enough
+- startup live-update path can be disabled during debugging builds to ensure local frontend changes are what the user actually sees
 
-Important project lesson from this fork:
-- iOS behavior should be diagnosed from the **actual packaged source-built artifact**, not guessed from source files alone
+### Multiple Workspaces
 
-## Recent release line
+- Create multiple workspaces to separate conversations by themes
+- Group workspaces into folders; supports nesting
+- Create multiple assistants within a workspace or global assistants
 
-### v1.8.13
+<img src="docs/usage/res/workspace-list.en.png" width="378">
 
-This release line includes the latest mobile polish work from this fork, including:
+### Data Storage
 
-- iOS app icon restoration from source asset catalog
-- iOS packaged frontend synchronized to the same current frontend asset set used by Android
-- dialog composer input refinements
-- send button layout refinements
-- message spacing / alignment refinements
-- right-side message content catalog rail behavior for wider layouts
-- plugin dialog/menu fixes from earlier hotfixes
+- Data is stored locally first, accessible offline and loads instantly
+- Cloud synchronization available after login for cross-device syncing
+- Multi-window collaboration: open multiple tabs in the same browser with responsive data synchronization
 
-## Packaging philosophy in this fork
+### Design Details
 
-This fork now treats packaging as part of the feature itself.
+- Support for text files (code, csv, etc.) as attachments; AI can see file contents and names without occupying display space
+- For large text blocks, use Ctrl + V **outside the input box** to paste as an attachment; prevents large content from cluttering the display
+
+<img src="https://fs.krytro.com/aiaw/text-item.webp" width="600">
+
+- Quote content from previous messages to user inputs for targeted follow-up questions
+- Select multiple lines of message text to copy the original Markdown
+
+<img src="https://fs.krytro.com/aiaw/text-selection.webp" width="600">
+
+- Automatically wrap code pasted from VSCode in code blocks with language specification
+
+<img src="https://fs.krytro.com/aiaw/paste-code.webp" width="600">
+
+**Current repository adjustments in this area:**
+- packaged Android builds now include fixes for md-editor code action icon rendering (`content_copy`, `check`, etc.)
+- conversation layout debugging has been moved to source-first fixes instead of shell-level patching
+
+### [MCP Protocol](https://docs.aiaw.app/usage/mcp.html)
+
+- Support for MCP Tools, Prompts, Resources
+- STDIO and HTTP connection methods
+- Install MCP-type plugins from the plugin marketplace or manually add MCP servers
+
+### Web Search
+
+- Web search based on SearXNG, ready to use out of the box
+- Also provides the functionality to crawl web content via URL
+- Supports concurrent search and concurrent crawling
+
+### [Artifacts](https://docs.aiaw.app/usage/artifacts.html)
+
+- Convert any part of assistant responses into Artifacts
+- User-editable with version control and code highlighting
+- Control assistant read/write permissions for Artifacts
+- Open multiple Artifacts simultaneously
+
+<img src="https://fs.krytro.com/aiaw/convert-artifact.webp" width="600">
+
+### [Plugin System](https://docs.aiaw.app/usage/plugins.html)
+
+- Built-in calculator, [document parsing, video parsing](https://docs.aiaw.app/usage/file-parse.html), image generation plugins
+- Install additional plugins from the marketplace
+- Configure Gradio applications as plugins; compatible with some LobeChat plugins
+- Plugins are more than just tool calling
+
+![](docs/public/plugin-market.en.webp)
+
+### Lightweight and High Performance
+
+- Quick startup with no waiting
+- Smooth conversation switching
+
+<img src="https://fs.krytro.com/aiaw/switch-dialog.webp" width="600">
+
+**Current repository adjustments in this area:**
+- mobile release/debug workflow is maintained here as a first-class path
+- Android debug packaging is actively used for rapid UI verification
+- iOS source-built packaging is kept in sync with current frontend assets instead of relying on stale bundle assumptions
+
+### [Dynamic Prompts](https://docs.aiaw.app/usage/prompt-vars.html)
+
+- Create prompt variables using template syntax for dynamic, reusable prompts
+- Extract repetitive parts into workspace variables for prompt reusability
+
+<img src="docs/usage/res/assistant-prompt-vars.png" width="378">
+
+### Additional Features
+
+Assistant marketplace, dark mode, customizable theme colors, and more.
+
+## Repository-specific notes
+
+### Mobile debugging and release policy
+
+This repository treats mobile packaging as part of the feature itself.
 A UI fix is not considered complete until:
 
-1. the fix is present in source
-2. the built package actually contains the new assets/styles
-3. the user verifies the behavior on device
+1. the source change is present
+2. the packaged build actually contains the changed frontend assets
+3. the behavior is verified on-device
 
-## Build from source
+### Update path during debugging
+
+The Capacitor build includes `@capawesome/capacitor-live-update`.
+For debugging local UI issues, the startup update path may be temporarily disabled so that packaged local frontend assets are not immediately replaced by a remote bundle.
+
+### Recent source changes maintained here
+
+- mobile chat composer styling restoration (`dialog-main-input`, `dialog-composer-row`)
+- message catalog rail visibility restricted to layouts that really have enough space
+- md-editor code-action icon font styles restored
+- Android build path verified against Java 21
+- local source changes validated through packaged APK iterations instead of browser-only assumptions
+
+## LightHouse
+
+| Desktop | Mobile |
+| :-----: | :----: |
+| ![](docs/public/lighthouse_score_desktop.png) | ![](docs/public/lighthouse_score_mobile.png) |
+
+## Related Projects
+
+- [New API](https://github.com/Calcium-Ion/new-api): AI model interface management and distribution system, supporting various large models with OpenAI-compatible format
+
+## Install the dependencies
 
 ```bash
 pnpm i
-quasar dev
-quasar build
 ```
 
-### Android
+### Start the app in development mode (hot-code reloading, error reporting, etc.)
+
+```bash
+quasar dev
+```
+
+### Lint the files
+
+```bash
+pnpm lint
+```
+
+### Build the app for production
+
+```bash
+# SPA
+quasar build
+
+# PWA
+quasar build -m pwa
+```
+
+### Build Android locally
 
 ```bash
 pnpm build
@@ -84,40 +198,11 @@ cd android
 ./gradlew assembleDebug
 ```
 
-Note for this environment:
-- after `cap sync android`, Gradle files may need Java/Kotlin target correction back to 17 if the local machine is not on JDK 21
-
-### iOS
+### Build iOS locally
 
 ```bash
 pnpm build
 npx cap copy ios
 cd ios/App
-xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -sdk iphoneos \
-  -archivePath ios/build/App.xcarchive archive
-xcodebuild -exportArchive \
-  -archivePath ios/build/App.xcarchive \
-  -exportOptionsPlist ios/build-src/exportOptions-dev.plist \
-  -exportPath ios/build/export
+xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -archivePath ../build/App.xcarchive archive
 ```
-
-Notes:
-- for iOS frontend parity work, `npx cap copy ios` matters because the packaged `public/` assets must match the current built frontend
-- packaging validation should compare final packaged assets, not just local source edits
-
-## Releases
-
-Latest builds for this fork are published here:
-
-- https://github.com/lingion/AIaW/releases
-
-## Repository direction
-
-This fork currently prioritizes:
-- mobile chat usability
-- practical packaging reliability
-- real-world deployment iteration
-- direct user-verified fixes
-
-Release/update paths for this fork should always point to:
-- `lingion/AIaW`

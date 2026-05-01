@@ -6,13 +6,13 @@
 
 > [!WARNING]
 >
-> 此项目已弃用并被 [Nya AI](https://github.com/NitroRCr/nyaai) 取代。新项目使用新的技术栈重写，提供了此项目的大部分功能和一致的体验，并拥有许多新功能和优化。
+> 上游项目已弃用，并已由 [Nya AI](https://github.com/NitroRCr/nyaai) 接替，后者使用了新的技术栈重写。
 >
-> 对于现有用户，请参考[迁移至 Nya AI](https://docs.aiaw.app/zh/migration/)。
+> 这个仓库继续维护当前 AIaW 这一条线，重点放在移动端可用性、真实打包验证、以及设备侧可复现修复上。
 
-更好的 AI 客户端
+更好的 AI 客户端。
 
-[网站链接](https://aiaw.app) - [下载客户端](https://github.com/NitroRCr/AIaW/releases/latest) - [使用文档](https://docs.aiaw.app/zh/) - [自部署指南](https://docs.aiaw.app/self-host/)
+[网站链接](https://aiaw.app) - [下载构建包](https://github.com/lingion/AIaW/releases/latest) - [使用文档](https://docs.aiaw.app/zh/) - [English](README.md)
 
 <a href="https://apps.microsoft.com/detail/9NVMXSXJMWP8?referrer=appbadge&mode=direct">
 	<img src="https://get.microsoft.com/images/zh-cn%20dark.svg" width="200"/>
@@ -28,11 +28,17 @@
 ### 对话页面
 
 - 用户输入预览
-- 修改提问、重新生成 以分叉的形式呈现
+- 修改提问、重新生成以分叉的形式呈现
 - 自定义键盘快捷键
 - 对齐到消息开头/结尾的快速滚动
 
 <img src="https://fs.krytro.com/aiaw/dialog.webp" width="600">
+
+**本仓库在这一块的持续改动：**
+- 持续针对移动端聊天界面做源代码级修复，而不是只跟随上游默认布局
+- 修复打包后移动端里代码块复制按钮 / 工具气泡图标渲染问题
+- 调整 message catalog rail 的显示逻辑，避免在窄屏上错误占位
+- 调试包中可临时禁用启动时 live update，确保本地前端修改不会被远程 bundle 覆盖
 
 ### 多工作区
 
@@ -64,6 +70,10 @@
 
 <img src="https://fs.krytro.com/aiaw/paste-code.webp" width="600">
 
+**本仓库在这一块的持续改动：**
+- Android 打包产物里 md-editor 代码块复制图标（`content_copy` / `check` 等）已做设备侧修复
+- 聊天页面问题以源码为主线排查，而不是继续依赖壳层补丁或口头推断
+
 ### [MCP 协议](https://docs.aiaw.app/usage/mcp.html)
 
 - 支持 MCP Tools, Prompts, Resources
@@ -89,7 +99,7 @@
 
 - 内置计算器、[文档解析、视频解析](https://docs.aiaw.app/usage/file-parse.html)、图像生成等插件
 - 可在插件市场安装更多插件
-- 可将 Gradio 应用配置为插件；兼容部分 LobeChat 插件；
+- 可将 Gradio 应用配置为插件；兼容部分 LobeChat 插件
 - 插件不只是工具调用
 
 ![](docs/public/plugin-market.png)
@@ -101,6 +111,11 @@
 
 <img src="https://fs.krytro.com/aiaw/switch-dialog.webp" width="600">
 
+**本仓库在这一块的持续改动：**
+- 移动端打包与调试流程被当作一等路径维护
+- Android 调试 APK 用于快速验证真实 UI 效果
+- iOS 源码打包链会显式同步当前前端产物，而不是假设包内资源总是最新的
+
 ### [动态提示词](https://docs.aiaw.app/usage/prompt-vars.html)
 
 - 通过创建提示词变量，使用模板语法，构建动态可复用的提示词
@@ -110,7 +125,31 @@
 
 ### 其他功能
 
-助手市场、深色模式、自定义主题色等
+助手市场、深色模式、自定义主题色等。
+
+## 本仓库的额外说明
+
+### 移动端调试与发布口径
+
+这个仓库把“打包是否真的携带了前端修改”视为功能的一部分。
+一个 UI 修复不算完成，除非同时满足：
+
+1. 源码里已经有改动
+2. 最终安装包确实携带了新的前端资源
+3. 用户在设备上确认行为已经变化
+
+### 调试期间的更新策略
+
+当前 Capacitor 构建包含 `@capawesome/capacitor-live-update`。
+在调试本地 UI 问题时，可能需要暂时禁用启动时 live update，避免应用启动后被远程 bundle 覆盖，导致本地改动看不到效果。
+
+### 本仓库最近维护的方向
+
+- 恢复移动端聊天输入区圆角 / 撑满布局样式
+- 修正 message catalog rail 在窄屏上的占位逻辑
+- 修复 md-editor 代码块复制图标字体样式
+- Android Java 21 打包链验证
+- 用真实 APK 反复验证前端改动是否真的落地，而不是只在浏览器里观察
 
 ## LightHouse
 
@@ -120,28 +159,50 @@
 
 ## 相关项目
 
-- [New API](https://github.com/Calcium-Ion/new-api): AI模型接口管理与分发系统，支持将多种大模型转为OpenAI格式调用
+- [New API](https://github.com/Calcium-Ion/new-api): AI模型接口管理与分发系统，支持将多种大模型转为 OpenAI 兼容格式调用
 
-## Install the dependencies
+## 安装依赖
+
 ```bash
 pnpm i
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+### 开发模式启动
+
 ```bash
 quasar dev
 ```
 
-### Lint the files
+### Lint
+
 ```bash
 pnpm lint
 ```
 
-### Build the app for production
+### 构建生产版本
+
 ```bash
 # SPA
 quasar build
 
 # PWA
 quasar build -m pwa
+```
+
+### 本地构建 Android
+
+```bash
+pnpm build
+npx cap sync android
+cd android
+./gradlew assembleDebug
+```
+
+### 本地构建 iOS
+
+```bash
+pnpm build
+npx cap copy ios
+cd ios/App
+xcodebuild -workspace App.xcworkspace -scheme App -configuration Release -archivePath ../build/App.xcarchive archive
 ```

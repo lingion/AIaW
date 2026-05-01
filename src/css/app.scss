@@ -323,6 +323,28 @@ body {
         }
       }
     }
+
+    .md-editor-code-action {
+      user-select: none;
+
+      .md-editor-copy-button,
+      .md-editor-convert-artifact {
+        font-family: 'Material Symbols Outlined';
+        line-height: 32px;
+        font-size: 17px;
+      }
+
+      .md-editor-lang,
+      .md-editor-copy-button,
+      .md-editor-convert-artifact {
+        margin-right: 0 !important;
+        padding: 0 4px;
+      }
+
+      .md-editor-collapse-tips {
+        margin-right: 8px !important;
+      }
+    }
   }
 }
 
