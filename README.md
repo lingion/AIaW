@@ -108,122 +108,104 @@ Assistant marketplace, dark mode, customizable theme colors, and more.
 
 ## This Repository: `lingion/AIaW`
 
-This repository is not just a repackaging mirror. Compared with `NitroRCr/AIaW`, it contains substantial source changes focused on practical mobile delivery, local workflows, and debugging-on-device.
+This repository is not just a repackaging mirror. Compared with `NitroRCr/AIaW`, it contains substantial source changes focused on practical mobile delivery, local workflows, packaging verification, plugin workflows, and on-device debugging.
 
-### Major change areas compared with upstream
+## Explicit feature additions and improvements in this fork
 
-#### 1. Mobile app packaging and native shells
-Changed areas include:
-- `android/app/*`
-- `android/capacitor.settings.gradle`
-- `android/gradlew`
-- `ios/App/App.xcodeproj/*`
-- `ios/App/App.xcworkspace/*`
-- `ios/App/AppDelegate.swift`
-- `ios/App/App/Info.plist`
-- `ios/App/App/Assets.xcassets/*`
-- `ios/capacitor-cordova-ios-plugins/*`
-- `capacitor.config.ts`
+### Mobile chat / UI fixes
 
-What changed in practice:
-- Android shell adjustments and native plugin wiring
+This repository contains direct source-level fixes for packaged mobile clients, including:
+
+- restoration of the rounded full-width bottom composer layout (`dialog-main-input`, `dialog-composer-row`)
+- fixes for chat-page layout regressions that only appeared on packaged Android builds
+- message catalog rail visibility logic corrected so it only occupies space when the screen is actually wide enough
+- repeated device-side verification of user/assistant message rendering instead of relying on browser-only assumptions
+
+### Plugin management improvements
+
+This repository adds concrete plugin-management improvements, not just internal refactors:
+
+- **MCP plugin refresh button** in installed plugins UI
+  - users can refresh an MCP plugin’s dumped manifest/state without uninstalling and reinstalling it
+  - files involved include:
+    - `src/stores/plugins.ts`
+    - `src/components/InstalledPlugins.vue`
+- plugin menu / enable panel fixes for mobile usage
+- provider / plugin settings exposure improvements in the UI
+
+### Export / import improvements
+
+This repository includes explicit export/import improvements:
+
+- **lightweight export mode** for user data
+  - skips large binary fields such as attachment/image buffers
+  - reduces Android-side export failures / crashes on large datasets
+  - output filename distinguishes lightweight export from full export
+- **import compatibility notes** for lightweight exports
+  - lightweight export packages restore database structure and metadata, but do not restore binary attachment payloads
+- **runtime guard for missing binary payloads**
+  - conversation rendering skips missing `contentBuffer` entries gracefully instead of assuming full binary payloads always exist
+- files involved include:
+  - `src/components/ExportDataDialog.vue`
+  - `src/components/ImportDataDialog.vue`
+  - `src/views/DialogView.vue`
+  - `src/utils/platform-api.ts`
+
+### Built-in plugin additions / maintenance
+
+This repository explicitly maintains and ships additional built-in plugins in source.
+Notable built-in plugin work includes:
+
+- **Web Search plugin**
+  - SearXNG-based search
+  - Jina-based URL crawling
+  - concurrent search / crawl support
+  - file: `src/utils/web-search-plugin.ts`
+
+- **Code Execution (Pyodide) plugin**
+  - on-device Python execution in the client
+  - file: `src/utils/code-exec-plugin.ts`
+
+- **File Operations plugin**
+  - structured file operation workflow for the client
+  - file: `src/utils/file-ops-plugin.ts`
+
+- **Local FS Native plugin**
+  - native/local filesystem access path for packaged clients
+  - files:
+    - `src/utils/local-fs-native-plugin.ts`
+    - `src/utils/local-fs-native.ts`
+    - `android/app/src/main/java/app/aiaw/LocalFsPlugin.java`
+
+- **Document Parse plugin** maintenance and integration
+  - file: `src/utils/doc-parse-plugin.ts`
+
+### Update-path debugging control
+
+This repository also includes debugging-oriented update-path control:
+
+- startup live-update path can be temporarily disabled while debugging UI issues on packaged clients
+- this is important because remote bundles can otherwise override local frontend changes immediately after install
+- files involved include:
+  - `src/App.vue`
+  - `src/utils/update.ts`
+
+### Native shell and packaging changes
+
+Compared with upstream, this repo also contains significant shell/package-level changes:
+
+- Android native shell changes and native plugin wiring
 - iOS source-built packaging path maintained in-repo
 - iOS app icon and asset-catalog restoration
-- direct packaging iteration from source instead of only web/PWA assumptions
+- packaged frontend assets synchronized into iOS app bundle for real device verification
 
-#### 2. Frontend mobile chat / dialog behavior
-Changed areas include:
-- `src/App.vue`
-- `src/components/MessageItem.vue`
-- `src/views/DialogView.vue`
-- `src/css/app.scss`
-- `src/css/platform/android/index.scss`
-- `src/css/platform/ios/index.scss`
-- `src/layouts/MainLayout.vue`
-
-What changed in practice:
-- mobile chat layout debugging and fixes
-- composer styling adjustments
-- message spacing / preview rendering adjustments
-- message catalog rail behavior fixes for narrow screens
-- explicit disabling of startup live-update path during debugging builds so local frontend changes are not immediately overridden by remote bundles
-
-#### 3. Plugin / provider / MCP workflow changes
-Changed areas include:
-- `src/stores/plugins.ts`
-- `src/stores/providers.ts`
-- `src/utils/plugins.ts`
-- `src/utils/platform-api.ts`
-- `src/utils/config.ts`
-- `src/utils/update.ts`
-- `src/utils/values.ts`
-- `src/components/AddMcpPluginDialog.vue`
-- `src/components/CustomProviders.vue`
-- `src/components/EnablePluginsItems.vue`
-- `src/components/EnablePluginsMenu.vue`
-- `src/components/InstalledPlugins.vue`
-- `src/components/ProviderInputItems.vue`
-- `src/components/TypesInput.vue`
-- `src/components/UnifiedInput.vue`
-- `src/components/GetModelList.vue`
-
-What changed in practice:
-- custom provider workflow changes
-- MCP/provider settings exposure in UI
-- plugin enable/disable and menu behavior fixes
-- mobile-oriented plugin presentation improvements
-- update flow differences for packaged clients
-
-#### 4. Local-first / native file and execution support
-Changed areas include:
-- `src/utils/local-fs-native-plugin.ts`
-- `src/utils/local-fs-native.ts`
-- `src/utils/file-ops-plugin.ts`
-- `src/utils/code-exec-plugin.ts`
-- `android/app/src/main/java/app/aiaw/LocalFsPlugin.java`
-
-What changed in practice:
-- native/local filesystem capabilities exposed for packaged app workflows
-- mobile/local execution-oriented adaptations
-- more practical on-device file handling
-
-#### 5. Built-in data / language / seed behavior
-Changed areas include:
-- `src/utils/builtin-plugin-seed.ts`
-- `src/i18n/en-US/components.ts`
-- `src/i18n/en-US/composables.ts`
-- `src/i18n/en-US/views.ts`
-- `src/i18n/zh-CN/components.ts`
-- `src/i18n/zh-CN/composables.ts`
-- `src/i18n/zh-CN/views.ts`
-- `src/version.json`
-
-What changed in practice:
-- built-in plugin migration / seeding behavior
-- UI copy changes for fork-specific flows
-- packaged-client behavior tied to this repo’s version line
-
-#### 6. Backend helpers / test and process documents
-Changed areas include:
-- `src-backend/app.py`
-- `src-backend/requirements.txt`
-- `scripts/test-export-import*.mjs`
-- `ACTIVE_RUNTIME_CONFIG.md`
-- `ARCHITECTURE_BOUNDARIES.md`
-- `DELIVERY_RULES.md`
-- `REGRESSION_CHECKLIST.md`
-- `RISK_REGISTER.md`
-
-What changed in practice:
-- supporting backend helpers for this repo’s workflow
-- project-specific release/debug rules
-- repository-specific regression and delivery documentation
-
-#### 7. Synced built assets under iOS app bundle
-A large number of files under:
+Relevant paths include:
+- `android/app/*`
+- `android/capacitor.settings.gradle`
+- `ios/App/App.xcodeproj/*`
+- `ios/App/App/Assets.xcassets/*`
 - `ios/App/App/public/*`
-
-These are not hand-authored feature code one by one. They are the synced built frontend assets used by packaged iOS builds, but they are still part of the repository delta relative to upstream.
+- `capacitor.config.ts`
 
 ## Repository-specific working assumptions
 
@@ -234,7 +216,7 @@ A frontend fix is not considered complete until:
 2. the packaged build actually contains the changed assets
 3. the behavior is verified on device
 
-This matters because packaged clients may differ from browser behavior, and because update paths / native shells / bundled assets can hide or override what looks correct in source.
+That matters here because packaged clients can behave differently from browser runs, and because update paths / native shells / bundled assets can hide or override what looks correct in source.
 
 ## LightHouse
 
