@@ -6,11 +6,8 @@
 
 更好的 AI 客户端
 
-[网站链接](https://aiaw.app) - [下载客户端](https://github.com/lingion/AIaW/releases/latest) - [使用文档](https://docs.aiaw.app/zh/) - [自部署指南](https://docs.aiaw.app/self-host/)
+[GitHub 仓库](https://github.com/lingion/AIaW) - [最新 Release](https://github.com/lingion/AIaW/releases/latest)
 
-<a href="https://apps.microsoft.com/detail/9NVMXSXJMWP8?referrer=appbadge&mode=direct">
-	<img src="https://get.microsoft.com/images/zh-cn%20dark.svg" width="200"/>
-</a>
 
 ## 功能概览
 
