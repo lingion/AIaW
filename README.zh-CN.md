@@ -8,7 +8,6 @@
 
 [GitHub 仓库](https://github.com/lingion/AIaW) - [最新 Release](https://github.com/lingion/AIaW/releases/latest)
 
-
 ## 功能概览
 
 ### 全平台一致体验
@@ -91,15 +90,24 @@
 - 可在插件市场安装更多插件
 - 可将 Gradio 应用配置为插件；兼容部分 LobeChat 插件；
 - 插件不只是工具调用
-- 这个 fork 额外明确维护并增强了多项内置插件：
-  - **Web Search**
-  - **Code Execution (Pyodide)**
-  - **File Operations**
-  - **Local FS Native**
-  - **Document Parse** 持续维护
 - 同时也对插件菜单、插件启用面板、provider 相关插件工作流做了面向移动端的调整
 
 ![](docs/public/plugin-market.png)
+
+#### 这个 fork 重点强化的内置能力
+
+##### Code Execution (Pyodide)
+直接在客户端本地运行 Python，不依赖远程执行服务器。适合快速计算、数据处理、脚本验证和轻量分析，让 AI 助手在设备侧就能完成一部分实际工作。
+
+##### File Operations
+给 AI 提供结构化文件操作能力，让助手能读、写、检查、处理文件，而不是只停留在聊天输出层。这是把 AIaW 从“对话工具”推进到“工作台”的关键能力之一。
+
+##### Local FS Native
+面向打包客户端的原生本地文件系统接入层。让 AI 可以围绕设备上的真实目录和文件工作，突破普通浏览器文件能力的限制，是这个 fork 非常核心的差异化能力。
+
+##### 另外还在持续维护
+- Web Search 插件
+- Document Parse 集成
 
 ### 轻量，高性能
 
@@ -125,16 +133,6 @@
   - **轻量导出模式**：跳过图片/附件二进制大字段
   - **轻量导入兼容**：恢复数据库主数据，不强依赖二进制内容
   - **移动端原生文件导出能力**：让 packaged client 的导出链路更可靠
-
-## LightHouse
-
-| Desktop | Mobile |
-| :-----: | :----: |
-| ![](docs/public/lighthouse_score_desktop.png) | ![](docs/public/lighthouse_score_mobile.png) |
-
-## 相关项目
-
-- [New API](https://github.com/Calcium-Ion/new-api): AI模型接口管理与分发系统，支持将多种大模型转为OpenAI格式调用
 
 ## Install the dependencies
 ```bash
