@@ -8,7 +8,6 @@ An elegant AI client.
 
 [GitHub Repository](https://github.com/lingion/AIaW) - [Latest Release](https://github.com/lingion/AIaW/releases/latest) - [简体中文](README.zh-CN.md)
 
-
 ## Features Overview
 
 ### Consistent Experience Across All Platforms
@@ -91,15 +90,24 @@ An elegant AI client.
 - Install additional plugins from the marketplace
 - Configure Gradio applications as plugins; compatible with some LobeChat plugins
 - Plugins are more than just tool calling
-- This fork additionally ships and maintains concrete built-in plugin work such as:
-  - **Web Search** plugin
-  - **Code Execution (Pyodide)** plugin
-  - **File Operations** plugin
-  - **Local FS Native** plugin
-  - ongoing **Document Parse** integration maintenance
 - Plugin menu / enable panel / provider-facing workflow has also been adjusted for mobile packaged clients.
 
 ![](docs/public/plugin-market.en.webp)
+
+#### Built-in power tools emphasized in this fork
+
+##### Code Execution (Pyodide)
+Run Python locally inside the client without relying on a remote execution server. Useful for quick calculations, data transformation, scripting, and lightweight analysis directly on-device.
+
+##### File Operations
+A structured file tool layer for AI workflows. Lets the assistant read, write, inspect, and manipulate files as part of real tasks instead of only generating text answers.
+
+##### Local FS Native
+Native local filesystem integration for packaged clients. Enables directory-aware, device-side file workflows beyond normal browser limitations, making AIaW much closer to a real on-device workspace.
+
+##### Also maintained here
+- Web Search plugin
+- Document Parse integration
 
 ### Lightweight and High Performance
 
@@ -118,40 +126,33 @@ An elegant AI client.
 
 ### Additional Features
 
-- Assistant marketplace
-- Dark mode
-- Customizable theme colors
-- In this fork, export/import workflow is also strengthened with:
+Assistant marketplace, dark mode, customizable theme colors, and more.
+
+- This fork also strengthens export/import workflow with:
   - **lightweight export mode** that skips heavy binary buffers
   - import compatibility for lightweight export packages
   - explicit packaged-client file export support on mobile/native paths
 
-## LightHouse
-
-| Desktop | Mobile |
-| :-----: | :----: |
-| ![](docs/public/lighthouse_score_desktop.png) | ![](docs/public/lighthouse_score_mobile.png) |
-
-## Related Projects
-
-- [New API](https://github.com/Calcium-Ion/new-api): AI model interface management and distribution system, supporting various large models with OpenAI-compatible format
-
 ## Install the dependencies
+
 ```bash
 pnpm i
 ```
 
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
+### Start the app in development mode
+
 ```bash
 quasar dev
 ```
 
 ### Lint the files
+
 ```bash
 pnpm lint
 ```
 
 ### Build the app for production
+
 ```bash
 # SPA
 quasar build
