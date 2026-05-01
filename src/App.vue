@@ -9,7 +9,6 @@ import { useLoginDialogs } from './composables/login-dialogs'
 import { useSetTheme } from './composables/set-theme'
 import { useSubscriptionNotify } from './composables/subscription-notify'
 import { onMounted } from 'vue'
-import { checkUpdate, ready } from './utils/update'
 import { useMigrationAlert } from './composables/migration-alert'
 import { db } from './utils/db'
 import { reconcileAssistantBuiltinPlugins } from './utils/builtin-plugin-seed'
@@ -48,8 +47,8 @@ async function migrateBuiltinPluginsAtStartup() {
 }
 
 onMounted(() => {
-  ready()
-  checkUpdate()
+  // TEMP: disable live update startup path during UI debugging.
+  // Do not call ready() / checkUpdate() here, otherwise remote bundle may override local frontend.
   migrateBuiltinPluginsAtStartup()
 })
 

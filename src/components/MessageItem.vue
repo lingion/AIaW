@@ -30,16 +30,16 @@
         </div>
       </div>
     </div>
-    <div min-w-0>
+    <div min-w-0 flex-1>
       <div
         position-relative
-        :class="message.type === 'user' ? 'min-h-48px' : 'min-h-24px min-w-100px'"
+        :class="message.type === 'user' ? 'min-h-48px w-full' : 'min-h-24px min-w-100px'"
         class="group"
       >
         <div
           v-for="(content, index) in contents"
           :key="index"
-          :class="message.type === 'user' ? 'bg-sur-c-low' : 'bg-sur'"
+          :class="message.type === 'user' ? 'bg-sur-c-low w-full' : 'bg-sur'"
           rd-lg
         >
           <q-expansion-item
@@ -75,7 +75,7 @@
             v-if="(content.type === 'assistant-message' || content.type === 'user-message') && content.text"
           >
             <md-preview
-              :class="message.type === 'user' ? 'bg-sur-c-low' : 'bg-sur'"
+              :class="message.type === 'user' ? 'bg-sur-c-low user-message-preview' : 'bg-sur assistant-message-preview'"
               :id="mdId"
               rd-lg
               :model-value="content.text"
@@ -303,7 +303,7 @@
       </div>
     </div>
     <div
-      v-if="!colMode"
+      v-if="perfs.messageCatalog && scrollContainer && $q.screen.gt.xs && textContent.text"
       class="message-catalog-rail"
       shrink-0
     >
@@ -312,7 +312,6 @@
         top-0
         px-2
         pb-4
-        v-if="perfs.messageCatalog && scrollContainer && $q.screen.gt.xs && textContent.text"
         :editor-id="mdId"
         :scroll-element="scrollContainer"
         :md-heading-id="mdPreviewProps.mdHeadingId"
@@ -588,6 +587,34 @@ const { t } = useI18n()
 <style lang="scss">
 .md-editor-preview-wrapper {
   --at-apply: 'py-0';
+}
+
+.user-message-preview {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+
+  .md-editor-preview {
+    padding: 8px 12px !important;
+
+    > :first-child {
+      margin-top: 0 !important;
+    }
+
+    > :last-child {
+      margin-bottom: 0 !important;
+    }
+
+    p {
+      margin: 0.35em 0 !important;
+    }
+  }
+}
+
+.assistant-message-preview {
+  .md-editor-preview {
+    padding: 10px 20px !important;
+  }
 }
 
 .reasoning-content-header {

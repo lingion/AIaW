@@ -145,6 +145,7 @@
         grow
         bg-sur
         of-y-auto
+        of-x-hidden
         py-4
         ref="scrollContainer"
         pos-relative
