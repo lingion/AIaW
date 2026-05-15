@@ -22,7 +22,6 @@
       />
       <slot />
       <q-btn
-        v-if="!rightDrawerAbove"
         flat
         dense
         round
@@ -37,10 +36,8 @@
 <script setup lang="ts">
 import { useBack } from 'src/composables/back'
 import { useUiStateStore } from 'src/stores/ui-state'
-import { inject } from 'vue'
 
 const uiStore = useUiStateStore()
-const rightDrawerAbove = inject('rightDrawerAbove')
 
 defineEmits(['toggle-drawer', 'contextmenu'])
 

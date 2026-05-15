@@ -19,13 +19,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, provide, ref } from 'vue'
+import { provide, ref } from 'vue'
 import InstalledPlugins from 'src/components/InstalledPlugins.vue'
-import { useQuasar } from 'quasar'
 
 const drawerOpen = ref(false)
 const drawerBreakpoint = 960
-const $q = useQuasar()
-const rightDrawerAbove = computed(() => $q.screen.width > drawerBreakpoint)
+const rightDrawerAbove = ref(false)
 provide('rightDrawerAbove', rightDrawerAbove)
 </script>

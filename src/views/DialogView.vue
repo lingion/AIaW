@@ -137,56 +137,117 @@
     v-if="dialog"
   >
     <q-page
+      class="dialog-page"
       flex
       flex-col
+      pos-relative
       :style-fn="pageFhStyle"
     >
       <div
-        grow
-        bg-sur
-        of-y-auto
-        of-x-hidden
-        py-4
-        ref="scrollContainer"
-        pos-relative
-        :class="{ 'rd-r-lg': rightDrawerAbove }"
-        @scroll="onScroll"
+        class="dialog-content-shell"
+        :class="{ 'dialog-content-shell--with-catalog': showDesktopCatalog }"
       >
-        <template
-          v-for="(i, index) in chain"
-          :key="i"
+        <div
+          grow
+          bg-sur
+          of-y-auto
+          py-4
+          ref="scrollContainer"
+          pos-relative
+          :class="['dialog-scroll-container', { 'rd-r-lg': rightDrawerAbove }]"
+          @scroll="onScroll"
         >
-          <message-item
-            class="message-item"
-            v-if="messageMap[i] && i !== '$root'"
-            :model-value="dialog.msgRoute[index - 1] + 1"
-            :message="messageMap[i]"
-            :child-num="dialog.msgTree[chain[index - 1]].length"
-            :scroll-container
-            @update:model-value="switchChain(index - 1, $event - 1)"
-            @edit="edit(index)"
-            @regenerate="regenerate(index)"
-            @delete="deleteBranch(index)"
-            @quote="quote"
-            @extract-artifact="extractArtifact(messageMap[i], ...$event)"
-            @rendered="messageMap[i].generatingSession && lockBottom()"
-            pt-2
-            pb-4
+          <template
+            v-for="(i, index) in chain"
+            :key="i"
+          >
+            <message-item
+              class="message-item"
+              v-if="messageMap[i] && i !== '$root'"
+              :model-value="dialog.msgRoute[index - 1] + 1"
+              :message="messageMap[i]"
+              :child-num="dialog.msgTree[chain[index - 1]].length"
+              :scroll-container
+              @update:model-value="switchChain(index - 1, $event - 1)"
+              @edit="edit(index)"
+              @regenerate="regenerate(index)"
+              @delete="deleteBranch(index)"
+              @quote="quote"
+              @extract-artifact="extractArtifact(messageMap[i], ...$event)"
+              @rendered="messageMap[i].generatingSession && lockBottom()"
+              pt-2
+              pb-4
+            />
+          </template>
+          <div
+            class="dialog-composer-spacer"
+            :style="{ height: `${composerAreaHeight}px` }"
+            aria-hidden="true"
           />
-        </template>
+        </div>
+        <aside
+          v-if="showDesktopCatalog"
+          class="dialog-catalog-sidebar"
+        >
+          <div class="dialog-catalog-sidebar__inner pos-sticky top-0">
+            <div
+              v-if="activeBranchControl"
+              class="dialog-catalog-branch-shell"
+            >
+              <div class="dialog-catalog-branch-controls">
+                <q-pagination
+                  :model-value="activeBranchControl.current"
+                  :max="activeBranchControl.max"
+                  input
+                  :boundary-links="false"
+                  @update:model-value="switchChain(activeBranchControl.index, $event - 1)"
+                />
+                <q-btn
+                  v-if="activeBranchControl.deletable"
+                  icon="sym_o_delete"
+                  flat
+                  dense
+                  round
+                  text="sec xs hover:err"
+                  un-size="32px"
+                  :title="$t('messageItem.deleteBranch')"
+                  @click="deleteBranch(activeBranchControl.index + 1)"
+                />
+              </div>
+            </div>
+            <md-catalog
+              v-if="activeCatalogMessageId"
+              :key="activeCatalogMessageId"
+              px-2
+              pb-4
+              :editor-id="activeCatalogMessageId"
+              :scroll-element="scrollContainer"
+              :md-heading-id="mdPreviewProps.mdHeadingId"
+            />
+            <div
+              class="dialog-catalog-sidebar__spacer"
+              :style="{ height: `${composerAreaHeight}px` }"
+              aria-hidden="true"
+            />
+          </div>
+        </aside>
       </div>
       <div
-        bg-sur-c-low
-        p-2
-        pos-relative
+        ref="composerArea"
+        class="dialog-composer-area"
+        pos-absolute
+        left-0
+        right-0
+        bottom-0
+        z-5
       >
         <div
           v-if="inputMessageContent?.items?.length"
+          class="dialog-composer-attachments"
           pos-absolute
           z-3
           top-0
           left-0
-          translate-y="-100%"
           flex
           items-end
           p-2
@@ -214,213 +275,239 @@
         </div>
         <div
           v-if="isPlatformEnabled(perfs.dialogScrollBtn)"
-          pos-absolute
-          top--1
-          right-2
+          class="dialog-scroll-nav"
+          :class="{ 'dialog-scroll-nav--expanded': scrollNavMode }"
+          :style="{ right: scrollNavRightOffset }"
+          pos-fixed
+          top="50%"
           flex="~ col"
           text-sec
-          translate-y="-100%"
-          z-1
+          translate-y="-50%"
+          z-10
         >
-          <q-btn
-            flat
-            round
-            dense
-            icon="sym_o_first_page"
-            rotate-90
-            @click="scroll('top')"
-          />
-          <q-btn
-            flat
-            round
-            dense
-            icon="sym_o_keyboard_arrow_up"
-            @click="scroll('up')"
-          />
-          <q-btn
-            flat
-            round
-            dense
-            icon="sym_o_keyboard_arrow_down"
-            @click="scroll('down')"
-          />
-          <q-btn
-            flat
-            round
-            dense
-            icon="sym_o_last_page"
-            rotate-90
-            @click="scroll('bottom')"
-          />
+          <button
+            ref="scrollTopBtn"
+            type="button"
+            class="dialog-scroll-nav-btn dialog-scroll-nav-btn--top"
+            :class="{ 'dialog-scroll-nav-btn--visible': scrollNavMode }"
+          >
+            <i class="material-symbols-outlined dialog-scroll-nav-btn__icon dialog-scroll-nav-btn__icon--rotated">first_page</i>
+          </button>
+          <button
+            ref="scrollUpBtn"
+            type="button"
+            class="dialog-scroll-nav-btn"
+            :class="{ 'dialog-scroll-nav-btn--active': scrollNavHoverAction === 'up' }"
+          >
+            <i class="material-symbols-outlined dialog-scroll-nav-btn__icon">keyboard_arrow_up</i>
+          </button>
+          <button
+            ref="scrollDownBtn"
+            type="button"
+            class="dialog-scroll-nav-btn"
+            :class="{ 'dialog-scroll-nav-btn--active': scrollNavHoverAction === 'down' }"
+          >
+            <i class="material-symbols-outlined dialog-scroll-nav-btn__icon">keyboard_arrow_down</i>
+          </button>
+          <button
+            ref="scrollBottomBtn"
+            type="button"
+            class="dialog-scroll-nav-btn dialog-scroll-nav-btn--bottom"
+            :class="{ 'dialog-scroll-nav-btn--visible': scrollNavMode }"
+          >
+            <i class="material-symbols-outlined dialog-scroll-nav-btn__icon dialog-scroll-nav-btn__icon--rotated">last_page</i>
+          </button>
         </div>
         <div
-          flex
-          flex-wrap
-          justify-end
-          text-sec
-          items-center
-        >
-          <q-btn
-            flat
-            icon="sym_o_photo_camera"
-            :title="$t('dialogView.takePhoto')"
-            round
-            min-w="2.7em"
-            min-h="2.7em"
-            @click="takePhoto"
-          />
-          <q-btn
-            v-if="model && mimeTypeMatch('image/webp', model.inputTypes.user)"
-            flat
-            icon="sym_o_image"
-            :title="$t('dialogView.addImage')"
-            round
-            min-w="2.7em"
-            min-h="2.7em"
-            @click="imageInput.click()"
-          >
-            <input
-              ref="imageInput"
-              type="file"
-              multiple
-              accept="image/*"
-              @change="onInputFiles"
-              un-hidden
-            >
-          </q-btn>
-          <q-btn
-            flat
-            icon="sym_o_folder"
-            :title="$t('dialogView.addFile')"
-            round
-            min-w="2.7em"
-            min-h="2.7em"
-            @click="fileInput.click()"
-          >
-            <input
-              ref="fileInput"
-              type="file"
-              multiple
-              accept="*"
-              @change="onInputFiles"
-              un-hidden
-            >
-          </q-btn>
-          <q-btn
-            v-if="assistant?.promptVars.length"
-            flat
-            icon="sym_o_tune"
-            :title="showVars ? $t('dialogView.hideVars') : $t('dialogView.showVars')"
-            round
-            min-w="2.7em"
-            min-h="2.7em"
-            @click="showVars = !showVars"
-            :class="{ 'text-ter': showVars }"
-          />
-          <provider-options-btn
-            v-if="sdkModel"
-            :provider-name="sdkModel.provider"
-            :model-id="sdkModel.modelId"
-            v-model:provider-options="providerOptions"
-            v-model:tools="providerTools"
-            flat
-            round
-            min-w="2.7em"
-            min-h="2.7em"
-          />
-          <add-info-btn
-            v-if="assistant"
-            :plugins="activePlugins"
-            :assistant-plugins="assistant.plugins"
-            @add="addInputItems"
-            flat
-            round
-            min-w="2.7em"
-            min-h="2.7em"
-          />
-          <q-btn
-            v-if="assistant"
-            flat
-            :round="!activePlugins.length"
-            :class="{ 'px-2': activePlugins.length }"
-            min-w="2.7em"
-            min-h="2.7em"
-            icon="sym_o_extension"
-            :title="$t('dialogView.plugins')"
-          >
-            <code
-              v-if="activePlugins.length"
-              bg-sur-c-high
-              px="6px"
-            >{{ activePlugins.length }}</code>
-            <enable-plugins-menu :assistant-id="assistant.id" />
-          </q-btn>
-          <q-space />
-          <div
-            v-if="usage"
-            my-2
-            ml-2
-          >
-            <q-icon
-              name="sym_o_generating_tokens"
-              size="24px"
-            />
-            <code
-              bg-sur-c-high
-              px-2
-              py-1
-            >{{ usage.inputTokens }}+{{ usage.outputTokens }}</code>
-            <q-tooltip>
-              {{ $t('dialogView.messageTokens') }}<br>
-              {{ $t('dialogView.tokenPrompt') }}：{{ usage.inputTokens }}，{{ $t('dialogView.tokenCompletion') }}：{{ usage.outputTokens }}
-            </q-tooltip>
-          </div>
-        </div>
-        <div
+          class="dialog-composer-floating-wrap"
           flex
           items-end
-          gap-2
-          v-if="assistant"
-          v-show="showVars"
+          gap-3
         >
-          <prompt-var-input
-            class="mt-2 mr-2"
-            v-for="promptVar of assistant.promptVars"
-            :key="promptVar.id"
-            :prompt-var="promptVar"
-            v-model="dialog.inputVars[promptVar.name]"
-            :input-props="{
-              dense: true,
-              outlined: true
-            }"
-            component="input"
-          />
-        </div>
-        <div class="mt-2 dialog-composer-row" flex items-end gap-2>
-          <a-input
-            ref="messageInput"
-            class="dialog-main-input"
-            max-h-50vh
-            of-y-auto
-            :model-value="inputText"
-            @update:model-value="inputMessageContent && updateInputText($event ?? '')"
-            outlined
-            autogrow
-            clearable
-            :debounce="perfs.userInputDebounce"
-            :placeholder="''"
-            @keydown.enter="onEnter"
-            @paste="onTextPaste"
-          />
-          <abortable-btn
-            icon="sym_o_send"
-            :label="$t('dialogView.send')"
-            @click="send"
-            @abort="abortController?.abort()"
-            :loading="generating"
-            :disable="inputEmpty && !generating"
-            min-h="48px"
-          />
+          <div class="dialog-dock-shell">
+            <div
+              class="dialog-toolbar-row dialog-dock-toolbar"
+              flex
+              justify-end
+              text-sec
+              items-center
+            >
+              <q-btn
+                class="dialog-toolbar-btn"
+                flat
+                icon="sym_o_photo_camera"
+                :title="$t('dialogView.takePhoto')"
+                round
+                min-w="2.4em"
+                min-h="2.4em"
+                @click="takePhoto"
+              />
+              <q-btn
+                v-if="model && mimeTypeMatch('image/webp', model.inputTypes.user)"
+                class="dialog-toolbar-btn"
+                flat
+                icon="sym_o_image"
+                :title="$t('dialogView.addImage')"
+                round
+                min-w="2.4em"
+                min-h="2.4em"
+                @click="imageInput.click()"
+              >
+                <input
+                  ref="imageInput"
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  @change="onInputFiles"
+                  un-hidden
+                >
+              </q-btn>
+              <q-btn
+                class="dialog-toolbar-btn"
+                flat
+                icon="sym_o_folder"
+                :title="$t('dialogView.addFile')"
+                round
+                min-w="2.4em"
+                min-h="2.4em"
+                @click="fileInput.click()"
+              >
+                <input
+                  ref="fileInput"
+                  type="file"
+                  multiple
+                  accept="*"
+                  @change="onInputFiles"
+                  un-hidden
+                >
+              </q-btn>
+              <q-btn
+                v-if="assistant?.promptVars.length"
+                class="dialog-toolbar-btn"
+                flat
+                icon="sym_o_tune"
+                :title="showVars ? $t('dialogView.hideVars') : $t('dialogView.showVars')"
+                round
+                min-w="2.4em"
+                min-h="2.4em"
+                @click="showVars = !showVars"
+                :class="[{ 'text-ter': showVars }, 'dialog-toolbar-btn']"
+              />
+              <provider-options-btn
+                v-if="sdkModel"
+                class="dialog-toolbar-btn"
+                :provider-name="sdkModel.provider"
+                :model-id="sdkModel.modelId"
+                v-model:provider-options="providerOptions"
+                v-model:tools="providerTools"
+                flat
+                round
+                min-w="2.4em"
+                min-h="2.4em"
+              />
+              <add-info-btn
+                v-if="assistant"
+                class="dialog-toolbar-btn"
+                :plugins="activePlugins"
+                :assistant-plugins="assistant.plugins"
+                @add="addInputItems"
+                flat
+                round
+                min-w="2.4em"
+                min-h="2.4em"
+              />
+              <q-btn
+                v-if="assistant"
+                class="dialog-toolbar-btn dialog-toolbar-plugin-btn"
+                flat
+                :round="!activePlugins.length"
+                :class="{ 'px-2': activePlugins.length }"
+                min-w="2.4em"
+                min-h="2.4em"
+                icon="sym_o_extension"
+                :title="$t('dialogView.plugins')"
+              >
+                <code
+                  v-if="activePlugins.length"
+                  class="dialog-toolbar-plugin-count"
+                  bg-sur-c-high
+                  px="4px"
+                >{{ activePlugins.length }}</code>
+                <enable-plugins-menu :assistant-id="assistant.id" />
+              </q-btn>
+              <q-space />
+              <div
+                v-if="usage"
+                class="dialog-usage-chip"
+                ml-2
+              >
+                <q-icon
+                  name="sym_o_generating_tokens"
+                  size="16px"
+                />
+                <code
+                  class="dialog-usage-chip__code"
+                  bg-sur-c-high
+                  px="6px"
+                  py="2px"
+                >{{ usage.inputTokens }}+{{ usage.outputTokens }}</code>
+                <q-tooltip>
+                  {{ $t('dialogView.messageTokens') }}<br>
+                  {{ $t('dialogView.tokenPrompt') }}：{{ usage.inputTokens }}，{{ $t('dialogView.tokenCompletion') }}：{{ usage.outputTokens }}
+                </q-tooltip>
+              </div>
+            </div>
+            <div
+              class="dialog-dock-vars"
+              flex
+              items-end
+              gap-2
+              v-if="assistant"
+              v-show="showVars"
+            >
+              <prompt-var-input
+                class="mt-2 mr-2"
+                v-for="promptVar of assistant.promptVars"
+                :key="promptVar.id"
+                :prompt-var="promptVar"
+                v-model="dialog.inputVars[promptVar.name]"
+                :input-props="{
+                  dense: true,
+                  outlined: true
+                }"
+                component="input"
+              />
+            </div>
+            <div class="dialog-composer-row dialog-dock-input-row" flex items-end>
+              <a-input
+                ref="messageInput"
+                class="dialog-main-input"
+                max-h-50vh
+                of-y-auto
+                :model-value="inputText"
+                @update:model-value="inputMessageContent && updateInputText($event ?? '')"
+                outlined
+                autogrow
+                clearable
+                :debounce="perfs.userInputDebounce"
+                :placeholder="''"
+                @keydown.enter="onEnter"
+                @paste="onTextPaste"
+              />
+            </div>
+          </div>
+          <div class="dialog-send-shell">
+            <abortable-btn
+              class="dialog-send-fab"
+              icon="sym_o_send"
+              :label="$t('dialogView.send')"
+              @click="send"
+              @abort="abortController?.abort()"
+              :loading="generating"
+              :disable="inputEmpty && !generating"
+              min-h="48px"
+            />
+          </div>
         </div>
       </div>
     </q-page>
@@ -429,7 +516,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onUnmounted, provide, ref, Ref, toRaw, toRef, watch, nextTick } from 'vue'
+import { computed, inject, onUnmounted, provide, ref, Ref, toRaw, toRef, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { db } from 'src/utils/db'
 import { useLiveQueryWithDeps } from 'src/composables/live-query'
 import { almostEqual, displayLength, genId, inputValueEmpty, isPlatformEnabled, isTextFile, JSONEqual, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode, wrapQuote } from 'src/utils/functions'
@@ -469,14 +556,14 @@ import providerOptionsBtn from 'src/components/ProviderOptionsBtn.vue'
 import AddInfoBtn from 'src/components/AddInfoBtn.vue'
 import { useI18n } from 'vue-i18n'
 import Mark from 'mark.js'
+import { MdCatalog } from 'md-editor-v3'
 import { useCreateDialog } from 'src/composables/create-dialog'
 import EnablePluginsMenu from 'src/components/EnablePluginsMenu.vue'
 import { useGetModel } from 'src/composables/get-model'
 import { useUiStateStore } from 'src/stores/ui-state'
 import AutocompleteInput from 'src/components/AutocompleteInput.vue'
 import { useProvidersStore } from 'src/stores/providers'
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
-import { Capacitor } from '@capacitor/core'
+import { useMdPreviewProps } from 'src/composables/md-preview-props'
 
 const { t, locale } = useI18n()
 
@@ -514,29 +601,38 @@ provide('dialog', dialog)
 const chain = computed<string[]>(() => liveData.value.dialog ? getChain('$root', liveData.value.dialog.msgRoute)[0] : [])
 const historyChain = ref<string[]>([])
 function switchChain(index, value) {
+  if (!dialog.value?.msgRoute) return
   const route = [...dialog.value.msgRoute.slice(0, index), value]
   updateChain(route)
 }
 function updateChain(route) {
+  if (!dialog.value?.id || !liveData.value.dialog?.msgTree?.$root) return
   const res = getChain('$root', route)
   historyChain.value = res[0]
   db.dialogs.update(dialog.value.id, { msgRoute: res[1] })
 }
 watch([() => liveData.value.messages.length, () => liveData.value.dialog?.id], () => {
-  liveData.value.dialog && updateChain(liveData.value.dialog.msgRoute)
+  if (!liveData.value.dialog?.msgTree?.$root || !liveData.value.dialog?.msgRoute) return
+  updateChain(liveData.value.dialog.msgRoute)
 })
 function getChain(node, route: number[]) {
-  const children = liveData.value.dialog.msgTree[node]
+  const tree = liveData.value.dialog?.msgTree || {}
+  const children = tree[node]
   const r = route.at(0) || 0
-  if (children[r]) {
-    const [restChain, restRoute] = getChain(children[r], route.slice(1))
+  if (!Array.isArray(children) || children.length === 0) {
+    return [[node], [r]]
+  }
+  const nextNode = children[r]
+  if (nextNode) {
+    const [restChain, restRoute] = getChain(nextNode, route.slice(1))
     return [[node, ...restChain], [r, ...restRoute]]
   } else {
-    return [[node], [r]]
+    return [[node], [Math.min(Math.max(r, 0), children.length - 1)]]
   }
 }
 
 const messageInput = ref()
+
 function focusInput() {
   isPlatformEnabled(perfs.autoFocusDialogInput) && messageInput.value?.focus()
 }
@@ -1431,11 +1527,133 @@ function onEnter(ev) {
 const showVars = ref(true)
 
 const scrollContainer = ref<HTMLElement>()
+const composerArea = ref<HTMLElement>()
+const mdPreviewProps = useMdPreviewProps()
+const activeCatalogMessageId = ref('')
+const desktopCatalogMinWidth = 1180
+const desktopCatalogWidth = 220
+const dialogContentGap = 8
+const scrollNavScreenPadding = 8
+const showDesktopCatalog = computed(() =>
+  perfs.messageCatalog
+  && $q.screen.gt.sm
+  && !rightDrawerAbove?.value
+  && $q.screen.width >= desktopCatalogMinWidth
+  && !!activeCatalogMessageId.value
+)
+const scrollNavRightOffset = computed(() => {
+  if (!showDesktopCatalog.value) return `${scrollNavScreenPadding}px`
+  return `${desktopCatalogWidth + dialogContentGap + scrollNavScreenPadding}px`
+})
+const activeBranchControl = computed(() => {
+  const catalogId = activeCatalogMessageId.value.replace(/^md-/, '')
+  if (!catalogId || !dialog.value?.msgTree || !Array.isArray(chain.value) || chain.value.length < 2) return null
+
+  const chainIndex = chain.value.findIndex(id => id === catalogId)
+  if (chainIndex <= 0) return null
+
+  const parentId = chain.value[chainIndex - 1]
+  const branches = dialog.value.msgTree[parentId]
+  if (!Array.isArray(branches) || branches.length <= 1) return null
+
+  const message = messageMap.value[catalogId]
+  const currentRoute = dialog.value.msgRoute?.[chainIndex - 1]
+  if (typeof currentRoute !== 'number') return null
+
+  return {
+    index: chainIndex - 1,
+    current: currentRoute + 1,
+    max: branches.length,
+    deletable: !!message && !['pending', 'streaming'].includes(message.status)
+  }
+})
+
+function updateActiveCatalogMessage() {
+  const container = scrollContainer.value
+  if (!container || !dialog.value) {
+    activeCatalogMessageId.value = ''
+    return
+  }
+
+  const assistantIds = chain.value
+    .slice(1)
+    .filter(id => messageMap.value[id]?.type === 'assistant')
+
+  if (!assistantIds.length) {
+    activeCatalogMessageId.value = ''
+    return
+  }
+
+  const candidates = assistantIds
+    .map(id => {
+      const el = container.querySelector<HTMLElement>(`.dialog-message-shell[data-md-id="md-${id}"]`)
+      const rect = el?.getBoundingClientRect()
+      return {
+        id: el?.dataset.mdId || `md-${id}`,
+        top: rect?.top ?? Number.POSITIVE_INFINITY,
+        bottom: rect?.bottom ?? Number.NEGATIVE_INFINITY
+      }
+    })
+
+  const viewportTop = container.getBoundingClientRect().top + 24
+  const visible = candidates.find(item => item.bottom > viewportTop)
+  activeCatalogMessageId.value = visible?.id || candidates.at(-1)?.id || ''
+}
+const composerAreaHeight = ref(164)
+const composerSpacerOffset = 14
+let composerResizeObserver: ResizeObserver | null = null
+const scrollUpBtn = ref()
+const scrollDownBtn = ref()
+const scrollTopBtn = ref()
+const scrollBottomBtn = ref()
+type ScrollNavDirection = 'up' | 'down'
+type ScrollNavAction = 'up' | 'down' | 'top' | 'bottom'
+const scrollNavMode = ref<ScrollNavDirection | null>(null)
+const scrollNavHoverAction = ref<ScrollNavAction | null>(null)
+let scrollNavPointerId: number | null = null
+let scrollNavPointerType = ''
+let scrollNavCleanup: (() => void) | null = null
+watch(scrollUpBtn, el => {
+  el?.addEventListener('mousedown', ev => startScrollNavHold('up', ev))
+  el?.addEventListener('touchstart', ev => startScrollNavHold('up', ev), { passive: false })
+})
+watch(scrollDownBtn, el => {
+  el?.addEventListener('mousedown', ev => startScrollNavHold('down', ev))
+  el?.addEventListener('touchstart', ev => startScrollNavHold('down', ev), { passive: false })
+})
+
 function getEls() {
   const container = scrollContainer.value
   const items: HTMLElement[] = Array.from(document.querySelectorAll('.message-item'))
   return { container, items }
 }
+function updateComposerAreaHeight() {
+  const areaHeight = composerArea.value?.getBoundingClientRect().height ?? 0
+  composerAreaHeight.value = Math.max(96, Math.ceil(areaHeight + composerSpacerOffset))
+}
+watch([composerArea, showVars, generating], () => {
+  nextTick(() => updateComposerAreaHeight())
+}, { immediate: true })
+watch(() => inputText.value, () => {
+  nextTick(() => updateComposerAreaHeight())
+})
+watch(() => inputMessageContent.value?.items?.length, () => {
+  nextTick(() => updateComposerAreaHeight())
+})
+watch(() => assistant.value?.promptVars?.length, () => {
+  nextTick(() => updateComposerAreaHeight())
+})
+watch(() => dialog.value?.id, () => {
+  nextTick(() => updateComposerAreaHeight())
+}, { immediate: true })
+watch(composerArea, el => {
+  composerResizeObserver?.disconnect()
+  composerResizeObserver = null
+  if (!el) return
+  composerResizeObserver = new ResizeObserver(() => updateComposerAreaHeight())
+  composerResizeObserver.observe(el)
+  nextTick(() => updateComposerAreaHeight())
+}, { immediate: true })
 function itemInView(item: HTMLElement, container: HTMLElement) {
   return item.offsetTop <= container.scrollTop + container.clientHeight &&
   item.offsetTop + item.clientHeight > container.scrollTop
@@ -1463,6 +1681,202 @@ function switchTo(target: 'prev' | 'next' | 'first' | 'last') {
   }
   if (to < 0 || to >= num || to === curr) return
   switchChain(index, to)
+}
+function stopScrollNavHold() {
+  scrollNavCleanup?.()
+}
+function getScrollNavAction(clientY: number): ScrollNavAction | null {
+  const anchors: { action: ScrollNavAction, el: HTMLElement | null }[] = [
+    { action: 'top', el: scrollTopBtn.value as HTMLElement | null },
+    { action: 'up', el: scrollUpBtn.value as HTMLElement | null },
+    { action: 'down', el: scrollDownBtn.value as HTMLElement | null },
+    { action: 'bottom', el: scrollBottomBtn.value as HTMLElement | null }
+  ]
+  let nearest: { action: ScrollNavAction, distance: number } | null = null
+  for (const { action, el } of anchors) {
+    if (!el) continue
+    const rect = el.getBoundingClientRect()
+    const centerY = rect.top + rect.height / 2
+    const distance = Math.abs(clientY - centerY)
+    if (!nearest || distance < nearest.distance) {
+      nearest = { action, distance }
+    }
+  }
+  return nearest?.action ?? null
+}
+function startScrollNavHold(direction: ScrollNavDirection, ev: MouseEvent | TouchEvent) {
+  const target = ev.currentTarget as HTMLElement | null
+  if (!target) return
+
+  const isTouch = ev.type.startsWith('touch')
+  const touch = isTouch ? (ev as TouchEvent).touches[0] || (ev as TouchEvent).changedTouches[0] : null
+  const startClientY = touch ? touch.clientY : (ev as MouseEvent).clientY
+  const startClientX = touch ? touch.clientX : (ev as MouseEvent).clientX
+  const activationDistance = isTouch ? 18 : 6
+  const activationDelay = isTouch ? 160 : 0
+  let activated = false
+  let activationTimer: ReturnType<typeof setTimeout> | null = null
+
+  const updateHover = (nextClientY: number) => {
+    scrollNavHoverAction.value = getScrollNavAction(nextClientY)
+  }
+
+  const clearState = () => {
+    scrollNavMode.value = null
+    scrollNavHoverAction.value = null
+    scrollNavPointerId = null
+    scrollNavPointerType = ''
+    scrollNavCleanup = null
+  }
+
+  const clearActivationTimer = () => {
+    if (activationTimer) {
+      clearTimeout(activationTimer)
+      activationTimer = null
+    }
+  }
+
+  const cancelPending = () => {
+    clearActivationTimer()
+    window.removeEventListener('mousemove', onPendingMouseMove)
+    window.removeEventListener('mouseup', onPendingMouseUp)
+    window.removeEventListener('touchmove', onPendingTouchMove)
+    window.removeEventListener('touchend', onPendingTouchEnd)
+    window.removeEventListener('touchcancel', onPendingTouchCancel)
+    window.removeEventListener('blur', onPendingWindowBlur)
+    document.removeEventListener('visibilitychange', onPendingVisibilityChange)
+  }
+
+  const finish = (trigger: boolean) => {
+    const action = scrollNavHoverAction.value
+    cancelPending()
+    scrollNavCleanup?.()
+    if (trigger && action && activated) {
+      scroll(action)
+    }
+  }
+
+  const startHold = () => {
+    if (activated) return
+    activated = true
+    stopScrollNavHold()
+    scrollNavMode.value = direction
+    scrollNavPointerId = isTouch ? 0 : 1
+    scrollNavPointerType = isTouch ? 'touch' : 'mouse'
+    updateHover(startClientY)
+    bindActiveListeners()
+  }
+
+  const bindActiveListeners = () => {
+    const onMouseMove = (moveEv: MouseEvent) => {
+      updateHover(moveEv.clientY)
+    }
+    const onMouseUp = () => {
+      finish(true)
+    }
+    const onTouchMove = (moveEv: TouchEvent) => {
+      const nextTouch = moveEv.touches[0] || moveEv.changedTouches[0]
+      if (!nextTouch) return
+      updateHover(nextTouch.clientY)
+      moveEv.preventDefault()
+    }
+    const onTouchEnd = () => {
+      finish(true)
+    }
+    const onTouchCancel = () => {
+      finish(false)
+    }
+    const onWindowBlur = () => finish(false)
+    const onVisibilityChange = () => {
+      if (document.hidden) finish(false)
+    }
+
+    if (scrollNavPointerType === 'touch') {
+      window.addEventListener('touchmove', onTouchMove, { passive: false })
+      window.addEventListener('touchend', onTouchEnd)
+      window.addEventListener('touchcancel', onTouchCancel)
+      scrollNavCleanup = () => {
+        window.removeEventListener('touchmove', onTouchMove)
+        window.removeEventListener('touchend', onTouchEnd)
+        window.removeEventListener('touchcancel', onTouchCancel)
+        window.removeEventListener('blur', onWindowBlur)
+        document.removeEventListener('visibilitychange', onVisibilityChange)
+        clearState()
+      }
+    } else {
+      window.addEventListener('mousemove', onMouseMove)
+      window.addEventListener('mouseup', onMouseUp)
+      scrollNavCleanup = () => {
+        window.removeEventListener('mousemove', onMouseMove)
+        window.removeEventListener('mouseup', onMouseUp)
+        window.removeEventListener('blur', onWindowBlur)
+        document.removeEventListener('visibilitychange', onVisibilityChange)
+        clearState()
+      }
+    }
+
+    window.addEventListener('blur', onWindowBlur)
+    document.addEventListener('visibilitychange', onVisibilityChange)
+  }
+
+  const activate = () => {
+    cancelPending()
+    startHold()
+  }
+
+  const exceedsThreshold = (clientX: number, clientY: number) => {
+    return Math.hypot(clientX - startClientX, clientY - startClientY) > activationDistance
+  }
+
+  const onPendingMouseMove = (moveEv: MouseEvent) => {
+    if (activated) return
+    if (exceedsThreshold(moveEv.clientX, moveEv.clientY)) {
+      cancelPending()
+    }
+  }
+  const onPendingMouseUp = () => {
+    finish(true)
+  }
+  const onPendingTouchMove = (moveEv: TouchEvent) => {
+    if (activated) return
+    const nextTouch = moveEv.touches[0] || moveEv.changedTouches[0]
+    if (!nextTouch) return
+    if (exceedsThreshold(nextTouch.clientX, nextTouch.clientY)) {
+      cancelPending()
+    }
+  }
+  const onPendingTouchEnd = () => {
+    finish(true)
+  }
+  const onPendingTouchCancel = () => {
+    finish(false)
+  }
+  const onPendingWindowBlur = () => {
+    finish(false)
+  }
+  const onPendingVisibilityChange = () => {
+    if (document.hidden) finish(false)
+  }
+
+  if (isTouch) {
+    window.addEventListener('touchmove', onPendingTouchMove, { passive: false })
+    window.addEventListener('touchend', onPendingTouchEnd)
+    window.addEventListener('touchcancel', onPendingTouchCancel)
+  } else {
+    window.addEventListener('mousemove', onPendingMouseMove)
+    window.addEventListener('mouseup', onPendingMouseUp)
+  }
+  window.addEventListener('blur', onPendingWindowBlur)
+  document.addEventListener('visibilitychange', onPendingVisibilityChange)
+
+  if (activationDelay > 0) {
+    activationTimer = setTimeout(() => {
+      activationTimer = null
+      startHold()
+    }, activationDelay)
+  } else {
+    startHold()
+  }
 }
 function scroll(action: 'up' | 'down' | 'top' | 'bottom', behavior: 'smooth' | 'auto' = 'smooth') {
   const { container, items } = getEls()
@@ -1620,12 +2034,42 @@ const uiStateStore = useUiStateStore()
 const scrollTops = uiStateStore.dialogScrollTops
 function onScroll(ev) {
   scrollTops[props.id] = ev.target.scrollTop
+  updateActiveCatalogMessage()
 }
 watch(() => liveData.value.dialog?.id, id => {
+  activeCatalogMessageId.value = ''
   if (!id) return
   nextTick(() => {
     scrollContainer.value?.scrollTo({ top: scrollTops[id] ?? 0 })
+    updateActiveCatalogMessage()
   })
+})
+
+watch(() => props.id, () => {
+  activeCatalogMessageId.value = ''
+  nextTick(() => updateActiveCatalogMessage())
+})
+
+watch(chain, () => {
+  nextTick(() => updateActiveCatalogMessage())
+}, { immediate: true })
+
+watch(showDesktopCatalog, () => {
+  nextTick(() => updateActiveCatalogMessage())
+})
+
+onMounted(() => {
+  window.addEventListener('resize', updateActiveCatalogMessage)
+  nextTick(() => updateActiveCatalogMessage())
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateActiveCatalogMessage)
+})
+
+onUnmounted(() => {
+  composerResizeObserver?.disconnect()
+  stopScrollNavHold()
 })
 
 function setModel(name: string) {
