@@ -414,7 +414,8 @@ export default createComponent({
           ref: inputRef,
           class: [
             'q-field__native q-placeholder',
-            props.inputClass
+            props.inputClass,
+            isTextarea.value === true ? 'dialog-wide-input-native' : ''
           ],
           style: props.inputStyle,
           ...inputAttrs.value,

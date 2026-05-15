@@ -7,6 +7,88 @@ import LinkAttr from 'markdown-it-link-attributes'
 import Footnote from 'markdown-it-footnote'
 import 'md-editor-v3/lib/preview.css'
 
+function normalizeMathMiddleDot(mathContent: string) {
+  let result = ''
+  let index = 0
+
+  while (index < mathContent.length) {
+    if (mathContent.startsWith('\\text{', index)) {
+      const textStart = index + 6
+      let cursor = textStart
+      let depth = 1
+
+      while (cursor < mathContent.length && depth > 0) {
+        const current = mathContent[cursor]
+        if (current === '{') {
+          depth += 1
+        } else if (current === '}') {
+          depth -= 1
+        }
+        cursor += 1
+      }
+
+      if (depth > 0) {
+        result += mathContent.slice(index)
+        break
+      }
+
+      const textContent = mathContent.slice(textStart, cursor - 1)
+      result += textContent
+        .split('·')
+        .map(segment => `\\text{${segment}}`)
+        .join('\\cdot ')
+      index = cursor
+      continue
+    }
+
+    const current = mathContent[index]
+    if (current === '·') {
+      result += '\\cdot '
+      index += 1
+      continue
+    }
+
+    result += current
+    index += 1
+  }
+
+  return result
+}
+
+function replaceMathMiddleDot(source: string) {
+  let result = ''
+  let index = 0
+  const patterns = [
+    { open: '$$', close: '$$' },
+    { open: '\\[', close: '\\]' },
+    { open: '\\(', close: '\\)' },
+    { open: '$', close: '$' }
+  ]
+
+  while (index < source.length) {
+    const matched = patterns.find(({ open }) => source.startsWith(open, index))
+    if (!matched) {
+      result += source[index]
+      index += 1
+      continue
+    }
+
+    const { open, close } = matched
+    const end = source.indexOf(close, index + open.length)
+    if (end === -1) {
+      result += source[index]
+      index += 1
+      continue
+    }
+
+    const mathContent = normalizeMathMiddleDot(source.slice(index + open.length, end))
+    result += `${open}${mathContent}${close}`
+    index = end + close.length
+  }
+
+  return result
+}
+
 config({
   editorConfig: {
     languageUserDefined: {
@@ -16,6 +98,21 @@ config({
           successTips: 'check',
           failTips: 'error'
         }
+      }
+    }
+  },
+  markdownItConfig(md) {
+    const originalRender = md.render.bind(md)
+    md.render = (source, env) => originalRender(replaceMathMiddleDot(source), env)
+  },
+  katexConfig(baseConfig) {
+    return {
+      ...baseConfig,
+      strict(errorCode) {
+        if (errorCode === 'unicodeTextInMathMode') {
+          return 'ignore'
+        }
+        return 'warn'
       }
     }
   },

@@ -8,6 +8,7 @@
       :breakpoint="drawerBreakpoint"
       side="right"
       v-model="drawerOpen"
+      content-class="workspace-drawer-content"
       flex
     >
       <dragable-separator
@@ -82,8 +83,8 @@
         />
       </div>
       <div
+        :class="['workspace-sidebar', { 'workspace-sidebar--expanded': workspace.listOpen.dialogs }]"
         w="250px"
-        h-full
         flex="~ col"
       >
         <div
@@ -97,19 +98,19 @@
             flat
             dense
             round
-            icon="sym_o_home"
-            :to="`/workspaces/${id}`"
-            :class="{'route-active': $route.path === `/workspaces/${id}`}"
+            :icon="homeButtonIcon"
+            :class="{ 'route-active': homeButtonActive }"
             :title="$t('workspacePage.workspaceHome')"
+            @click="onHomeClick"
           />
           <q-btn
             flat
             dense
             round
-            icon="sym_o_settings"
-            :to="`/workspaces/${id}/settings`"
-            :class="{'route-active': $route.path === `/workspaces/${id}/settings`}"
+            :icon="settingsButtonIcon"
+            :class="{ 'route-active': settingsButtonActive }"
             :title="$t('workspacePage.workspaceSettings')"
+            @click="onSettingsClick"
           />
         </div>
         <assistants-expansion
@@ -132,8 +133,7 @@
           :workspace-id="workspace.id"
           :model-value="workspace.listOpen.dialogs"
           @update:model-value="setListOpen('dialogs', $event)"
-          flex-1
-          of-y-auto
+          :class="workspace.listOpen.dialogs ? 'flex-1 of-y-auto' : ''"
         />
       </div>
     </q-drawer>
@@ -186,10 +186,70 @@ const openedArtifacts = computed(() => artifacts.value.filter(a => a.open))
 const showArtifacts = computed(() => $q.screen.width > drawerBreakpoint && openedArtifacts.value.length)
 provide('showArtifacts', showArtifacts)
 const route = useRoute()
+const { perfs } = useUserPerfsStore()
 const focusedArtifact = computed(() =>
   openedArtifacts.value.find(a => a.id === route.query.artifactId) || openedArtifacts.value.at(-1)
 )
 const router = useRouter()
+const workspaceHomePath = computed(() => `/workspaces/${props.id}`)
+const workspaceSettingsPath = computed(() => `${workspaceHomePath.value}/settings`)
+const homeReturnTo = ref<string | null>(null)
+const settingsReturnTo = ref<string | null>(null)
+
+const isWorkspaceRoute = computed(() => route.path === workspaceHomePath.value || route.path.startsWith(`${workspaceHomePath.value}/`))
+const isWorkspaceHome = computed(() => route.path === workspaceHomePath.value)
+const isWorkspaceSettings = computed(() => route.path === workspaceSettingsPath.value)
+
+const homeButtonActive = computed(() => isWorkspaceHome.value)
+const settingsButtonActive = computed(() => isWorkspaceSettings.value)
+const homeButtonIcon = computed(() => isWorkspaceHome.value && homeReturnTo.value ? 'sym_o_arrow_back' : 'sym_o_home')
+const settingsButtonIcon = computed(() => isWorkspaceSettings.value && settingsReturnTo.value ? 'sym_o_arrow_back' : 'sym_o_settings')
+
+function rememberReturnTarget(target: 'home' | 'settings') {
+  if (!isWorkspaceRoute.value) {
+    return
+  }
+  const currentPath = route.fullPath
+  if (target === 'home') {
+    currentPath !== workspaceHomePath.value && (homeReturnTo.value = currentPath)
+    return
+  }
+  currentPath !== workspaceSettingsPath.value && (settingsReturnTo.value = currentPath)
+}
+
+function onHomeClick() {
+  if (isWorkspaceHome.value) {
+    if (homeReturnTo.value) {
+      const target = homeReturnTo.value
+      homeReturnTo.value = null
+      router.push(target)
+    }
+    return
+  }
+  rememberReturnTarget('home')
+  router.push(workspaceHomePath.value)
+}
+
+function onSettingsClick() {
+  if (isWorkspaceSettings.value) {
+    if (settingsReturnTo.value) {
+      const target = settingsReturnTo.value
+      settingsReturnTo.value = null
+      router.push(target)
+    }
+    return
+  }
+  rememberReturnTarget('settings')
+  router.push(workspaceSettingsPath.value)
+}
+
+watch(() => route.path, path => {
+  if (!path.startsWith(workspaceHomePath.value)) {
+    homeReturnTo.value = null
+    settingsReturnTo.value = null
+  }
+})
+
 watch(focusedArtifact, val => {
   if (val) {
     val.id !== route.query.artifactId && router.replace({ query: { artifactId: val.id } })
@@ -225,11 +285,9 @@ watch(workspace, val => {
 
 const drawerOpen = ref(false)
 
-const rightDrawerAbove = computed(() => $q.screen.width > drawerBreakpoint)
+const rightDrawerAbove = ref(false)
 provide('rightDrawerAbove', rightDrawerAbove)
 provide('workspace', workspace)
-
-const { perfs } = useUserPerfsStore()
 
 function setListOpen(key: keyof Workspace['listOpen'], value: boolean) {
   db.workspaces.update(workspace.value.id, {
@@ -237,3 +295,23 @@ function setListOpen(key: keyof Workspace['listOpen'], value: boolean) {
   } as Partial<Workspace>)
 }
 </script>
+
+<style scoped>
+:deep(.workspace-drawer-content) {
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workspace-sidebar {
+  display: flex;
+  flex: 0 0 250px;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.workspace-sidebar--expanded {
+  height: 100%;
+}
+</style>

@@ -2,6 +2,7 @@
   <div
     flex
     :class="{ 'flex-row-reverse': message.type === 'user', 'flex-col': colMode }"
+    :data-md-id="!colMode && message.type === 'assistant' && textContent.text ? mdId : null"
     relative
     class="dialog-message-shell px-3 sm:px-4"
   >
@@ -30,16 +31,18 @@
         </div>
       </div>
     </div>
-    <div min-w-0 flex-1>
+    <div
+      :class="message.type === 'user' ? 'min-w-0 flex flex-1 flex-col items-end' : 'min-w-0 flex-1'"
+    >
       <div
         position-relative
-        :class="message.type === 'user' ? 'min-h-48px w-full' : 'min-h-24px min-w-100px'"
+        :class="message.type === 'user' ? 'message-user-group min-h-48px' : 'min-h-24px min-w-100px'"
         class="group"
       >
         <div
           v-for="(content, index) in contents"
           :key="index"
-          :class="message.type === 'user' ? 'bg-sur-c-low w-full' : 'bg-sur'"
+          :class="message.type === 'user' ? 'bg-sur-c-low message-user-bubble' : 'bg-sur'"
           rd-lg
         >
           <q-expansion-item
@@ -72,10 +75,13 @@
             @touchend="onSelect('touch')"
             pos-relative
             overflow-visible
+            class="message-markdown-wrap"
             v-if="(content.type === 'assistant-message' || content.type === 'user-message') && content.text"
           >
             <md-preview
-              :class="message.type === 'user' ? 'bg-sur-c-low user-message-preview' : 'bg-sur assistant-message-preview'"
+              :class="message.type === 'user'
+                ? 'bg-sur-c-low user-message-preview message-markdown-preview'
+                : 'bg-sur assistant-message-preview message-markdown-preview'"
               :id="mdId"
               rd-lg
               :model-value="content.text"
@@ -212,25 +218,6 @@
         flex
         items-center
       >
-        <template v-if="childNum > 1">
-          <q-pagination
-            v-model="model"
-            :max="childNum"
-            input
-            :boundary-links="false"
-          />
-          <q-btn
-            icon="sym_o_delete"
-            v-if="!['pending', 'streaming'].includes(message.status)"
-            flat
-            dense
-            round
-            text="sec xs hover:err"
-            un-size="32px"
-            :title="$t('messageItem.deleteBranch')"
-            @click="deleteBranch"
-          />
-        </template>
         <template
           v-if="['default', 'failed'].includes(message.status)"
         >
@@ -303,7 +290,7 @@
       </div>
     </div>
     <div
-      v-if="perfs.messageCatalog && scrollContainer && $q.screen.gt.xs && textContent.text"
+      v-if="false"
       class="message-catalog-rail"
       shrink-0
     >
@@ -351,7 +338,7 @@ const props = defineProps<{
   scrollContainer: HTMLElement
 }>()
 
-const mdId = `md-${genId()}`
+const mdId = `md-${props.message.id}`
 
 const $q = useQuasar()
 function moreInfo() {
@@ -554,7 +541,112 @@ function selectedConvertArtifact() {
 function onHtmlChanged(inject = false) {
   nextTick(() => {
     inject && injectConvertArtifact()
+    injectDisplayMathScroll()
     emit('rendered')
+  })
+}
+
+function clearDisplayMathScroll(root: HTMLElement) {
+  root.querySelectorAll('.message-display-math-content').forEach(node => {
+    node.classList.remove('message-display-math-content')
+  })
+  root.querySelectorAll('.message-display-math-inner').forEach(node => {
+    node.classList.remove('message-display-math-inner')
+  })
+  root.querySelectorAll('.message-display-math-scroll').forEach(wrapper => {
+    const parent = wrapper.parentElement
+    while (wrapper.firstChild) {
+      parent.insertBefore(wrapper.firstChild, wrapper)
+    }
+    wrapper.remove()
+  })
+}
+
+function clearTableScroll(root: HTMLElement) {
+  root.querySelectorAll('.message-table-scroll').forEach(wrapper => {
+    const parent = wrapper.parentElement
+    while (wrapper.firstChild) {
+      parent.insertBefore(wrapper.firstChild, wrapper)
+    }
+    wrapper.remove()
+  })
+}
+
+function wrapTable(table: HTMLTableElement) {
+  const parent = table.parentElement
+  if (!parent || parent.classList.contains('message-table-scroll')) return
+
+  const wrapper = document.createElement('div')
+  wrapper.classList.add('message-table-scroll')
+  table.replaceWith(wrapper)
+  wrapper.appendChild(table)
+}
+
+function wrapDisplayMathBlock(displayMath: HTMLElement) {
+  const block = displayMath.closest<HTMLElement>('.md-editor-katex-block, .katex-display')
+  const target = block?.classList.contains('katex-display') ? block.parentElement as HTMLElement : block
+  const parent = target?.parentElement
+  if (!target || !parent || parent.classList.contains('message-display-math-scroll')) return
+
+  const wrapper = document.createElement('div')
+  wrapper.classList.add('message-display-math-scroll')
+  target.replaceWith(wrapper)
+  wrapper.appendChild(target)
+  target.classList.add('message-display-math-content')
+  target.querySelectorAll<HTMLElement>('.katex-display, .katex').forEach(node => {
+    node.classList.add('message-display-math-inner')
+  })
+}
+
+function wrapInlineMath(displayMath: HTMLElement, asBlock = false) {
+  const parent = displayMath.parentElement
+  if (!parent || parent.classList.contains('message-display-math-scroll')) return
+
+  const wrapper = document.createElement(asBlock ? 'div' : 'span')
+  wrapper.classList.add('message-display-math-scroll', 'message-inline-math-scroll')
+  if (asBlock) wrapper.classList.add('message-inline-math-block-scroll')
+  displayMath.replaceWith(wrapper)
+  wrapper.appendChild(displayMath)
+  displayMath.classList.add('message-display-math-content')
+  displayMath.querySelectorAll<HTMLElement>('.katex, .katex-html').forEach(node => {
+    node.classList.add('message-display-math-inner')
+  })
+}
+
+function shouldPromoteInlineMath(inlineMath: HTMLElement) {
+  const annotation = inlineMath.querySelector('annotation')?.textContent || ''
+  if (/\\boxed\s*\{/.test(annotation)) return true
+
+  const parentWidth = Math.floor(inlineMath.parentElement?.getBoundingClientRect().width || 0)
+  const contentWidth = Math.ceil(inlineMath.querySelector<HTMLElement>('.katex-html')?.getBoundingClientRect().width
+    || inlineMath.querySelector<HTMLElement>('.katex')?.getBoundingClientRect().width
+    || inlineMath.getBoundingClientRect().width)
+  return contentWidth > parentWidth && parentWidth > 0
+}
+
+function injectDisplayMathScroll() {
+  const el: HTMLElement = textDiv.value[0]
+  if (!el) return
+
+  clearDisplayMathScroll(el)
+  clearTableScroll(el)
+
+  el.querySelectorAll<HTMLTableElement>('table').forEach(table => {
+    if (!table.closest('pre')) wrapTable(table)
+  })
+
+  el.querySelectorAll<HTMLElement>('.katex-display').forEach(displayMath => {
+    if (!displayMath.offsetParent) return
+    wrapDisplayMathBlock(displayMath)
+  })
+
+  el.querySelectorAll<HTMLElement>('.md-editor-katex-inline').forEach(inlineMath => {
+    if (!inlineMath.offsetParent) return
+    const annotation = inlineMath.querySelector('annotation')?.textContent || ''
+    wrapInlineMath(inlineMath, shouldPromoteInlineMath(inlineMath))
+    if (/\\boxed\s*\{/.test(annotation)) {
+      inlineMath.classList.add('message-boxed-inline-math')
+    }
   })
 }
 function injectConvertArtifact() {
@@ -590,12 +682,64 @@ const { t } = useI18n()
 }
 
 .user-message-preview {
+  display: inline-block;
+  width: fit-content;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  padding: 8px 12px !important;
+
+  .md-editor-preview-wrapper,
+  .md-editor-preview {
+    width: auto;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .md-editor-preview {
+    padding: 0 !important;
+  }
+
+  > :first-child {
+    margin-top: 0 !important;
+  }
+
+  > :last-child {
+    margin-bottom: 0 !important;
+  }
+
+  p {
+    margin: 0.35em 0 !important;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  :not(pre) > code,
+  a,
+  span,
+  li,
+  blockquote {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+}
+
+.assistant-message-preview {
   display: block;
   width: 100%;
   max-width: 100%;
+  overflow: visible;
+
+  .md-editor-preview-wrapper,
+  .md-editor-preview {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: visible;
+  }
 
   .md-editor-preview {
-    padding: 8px 12px !important;
+    padding: 10px 20px !important;
 
     > :first-child {
       margin-top: 0 !important;
@@ -605,15 +749,29 @@ const { t } = useI18n()
       margin-bottom: 0 !important;
     }
 
-    p {
-      margin: 0.35em 0 !important;
+    > * {
+      max-width: 100%;
+      min-width: 0;
     }
   }
-}
 
-.assistant-message-preview {
-  .md-editor-preview {
-    padding: 10px 20px !important;
+  .message-table-scroll,
+  pre,
+  blockquote {
+    display: block;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+  }
+
+  .message-table-scroll > table,
+  pre > code {
+    display: inline-block;
+    min-width: max-content;
   }
 }
 
@@ -623,3 +781,4 @@ const { t } = useI18n()
   }
 }
 </style>
+

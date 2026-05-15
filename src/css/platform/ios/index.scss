@@ -76,7 +76,7 @@ body.platform-ios {
   .q-expansion-item {
     margin: 6px 8px;
     border-radius: 22px;
-    overflow: hidden;
+    overflow: visible;
     background: var(--a-sur-c-low);
     border: 1px solid color-mix(in srgb, var(--a-out-var) 50%, transparent);
   }
