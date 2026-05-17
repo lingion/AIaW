@@ -14,7 +14,7 @@
         min-h-0
       />
       <q-menu>
-        <q-list>
+        <q-list class="dialog-header-assistant-menu">
           <assistant-item
             clickable
             v-for="a in assistants"
@@ -164,6 +164,8 @@
             <message-item
               class="message-item"
               v-if="messageMap[i] && i !== '$root'"
+              :data-message-id="i"
+              :data-render-index="index - 1"
               :model-value="dialog.msgRoute[index - 1] + 1"
               :message="messageMap[i]"
               :child-num="dialog.msgTree[chain[index - 1]].length"
@@ -190,31 +192,6 @@
           class="dialog-catalog-sidebar"
         >
           <div class="dialog-catalog-sidebar__inner pos-sticky top-0">
-            <div
-              v-if="activeBranchControl"
-              class="dialog-catalog-branch-shell"
-            >
-              <div class="dialog-catalog-branch-controls">
-                <q-pagination
-                  :model-value="activeBranchControl.current"
-                  :max="activeBranchControl.max"
-                  input
-                  :boundary-links="false"
-                  @update:model-value="switchChain(activeBranchControl.index, $event - 1)"
-                />
-                <q-btn
-                  v-if="activeBranchControl.deletable"
-                  icon="sym_o_delete"
-                  flat
-                  dense
-                  round
-                  text="sec xs hover:err"
-                  un-size="32px"
-                  :title="$t('messageItem.deleteBranch')"
-                  @click="deleteBranch(activeBranchControl.index + 1)"
-                />
-              </div>
-            </div>
             <md-catalog
               v-if="activeCatalogMessageId"
               :key="activeCatalogMessageId"
@@ -332,6 +309,29 @@
               text-sec
               items-center
             >
+              <div
+                v-if="activeBranchControl"
+                class="dialog-catalog-branch-controls mr-2"
+              >
+                <q-pagination
+                  :model-value="activeBranchControl.current"
+                  :max="activeBranchControl.max"
+                  input
+                  :boundary-links="false"
+                  @update:model-value="switchChain(activeBranchControl.index, $event - 1)"
+                />
+                <q-btn
+                  v-if="activeBranchControl.deletable"
+                  icon="sym_o_delete"
+                  flat
+                  dense
+                  round
+                  text="sec xs hover:err"
+                  un-size="32px"
+                  :title="$t('messageItem.deleteBranch')"
+                  @click="deleteBranch(activeBranchControl.index + 1)"
+                />
+              </div>
               <q-btn
                 class="dialog-toolbar-btn"
                 flat
@@ -613,6 +613,9 @@ function updateChain(route) {
 }
 watch([() => liveData.value.messages.length, () => liveData.value.dialog?.id], () => {
   if (!liveData.value.dialog?.msgTree?.$root || !liveData.value.dialog?.msgRoute) return
+  if (editingDraftState.value && !messageMap.value[editingDraftState.value.draftId]) {
+    editingDraftState.value = null
+  }
   updateChain(liveData.value.dialog.msgRoute)
 })
 function getChain(node, route: number[]) {
@@ -632,23 +635,57 @@ function getChain(node, route: number[]) {
 }
 
 const messageInput = ref()
+const editingDraftState = ref<{ parentId: string, draftId: string } | null>(null)
+const activeInputMessageId = computed(() => editingDraftState.value?.draftId || chain.value.at(-1))
+
+async function discardEditingDraftIfEmpty() {
+  const state = editingDraftState.value
+  if (!state) return false
+  const draft = messageMap.value[state.draftId]
+  if (!draft) {
+    editingDraftState.value = null
+    return false
+  }
+  const content = draft.contents[0] as UserMessageContent
+  if (content?.text || content?.items?.length) return false
+  await deleteMessageBranch(state.parentId, state.draftId)
+  editingDraftState.value = null
+  inputText.value = ''
+  return true
+}
 
 function focusInput() {
   isPlatformEnabled(perfs.autoFocusDialogInput) && messageInput.value?.focus()
 }
 async function edit(index) {
   const target = chain.value[index - 1]
-  const { type, contents } = messageMap.value[chain.value[index]]
-  switchChain(index - 1, dialog.value.msgTree[target].length)
-  await db.transaction('rw', db.dialogs, db.messages, db.items, () => {
-    appendMessage(target, {
-      type,
-      contents,
-      status: 'inputing'
-    })
-    const content = contents[0] as UserMessageContent
+  const currentId = chain.value[index]
+  const currentMessage = messageMap.value[currentId]
+  const existingDraftId = dialog.value.msgTree[target].find(id => messageMap.value[id]?.status === 'inputing')
+
+  if (existingDraftId) {
+    editingDraftState.value = {
+      parentId: target,
+      draftId: existingDraftId
+    }
+    await nextTick()
+    focusInput()
+    return
+  }
+
+  const draftId = await appendMessage(target, {
+    type: currentMessage.type,
+    contents: currentMessage.contents,
+    status: 'inputing'
+  })
+  await db.transaction('rw', db.items, () => {
+    const content = currentMessage.contents[0] as UserMessageContent
     saveItems(content.items.map(id => itemMap.value[id]))
   })
+  editingDraftState.value = {
+    parentId: target,
+    draftId
+  }
   await nextTick()
   focusInput()
 }
@@ -666,11 +703,7 @@ async function regenerate(index) {
   switchChain(index - 1, dialog.value.msgTree[target].length)
   await stream(target, false)
 }
-async function deleteBranch(index) {
-  const parent = chain.value[index - 1]
-  const anchor = chain.value[index]
-  const branch = dialog.value.msgRoute[index - 1]
-  branch === dialog.value.msgTree[parent].length - 1 && switchChain(index - 1, branch - 1)
+async function deleteMessageBranch(parent: string, anchor: string) {
   const ids = expandMessageTree(anchor)
   const itemIds = ids.flatMap(id => messageMap.value[id].contents).flatMap(c => {
     if (c.type === 'user-message') return c.items
@@ -691,6 +724,14 @@ async function deleteBranch(index) {
     })
     db.dialogs.update(props.id, { msgTree })
   })
+}
+
+async function deleteBranch(index) {
+  const parent = chain.value[index - 1]
+  const anchor = chain.value[index]
+  const branch = dialog.value.msgRoute[index - 1]
+  branch === dialog.value.msgTree[parent].length - 1 && switchChain(index - 1, branch - 1)
+  await deleteMessageBranch(parent, anchor)
 }
 
 async function appendMessage(target, info: Partial<Message>, insert = false) {
@@ -721,7 +762,7 @@ function expandMessageTree(root): string[] {
   return [root, ...dialog.value.msgTree[root].flatMap(id => expandMessageTree(id))]
 }
 
-const inputMessageContent = computed(() => messageMap.value[chain.value.at(-1)]?.contents[0] as UserMessageContent)
+const inputMessageContent = computed(() => messageMap.value[activeInputMessageId.value]?.contents[0] as UserMessageContent)
 const inputContentItems = computed(() => inputMessageContent.value.items.map(id => itemMap.value[id]).filter(x => x))
 const messageMap = computed<Record<string, Message>>(() => {
   const map = {}
@@ -748,20 +789,38 @@ async function updateInputText(text) {
   pendingTimeout = window.setTimeout(() => {
     pendingTexts.splice(0)
   }, 200)
-  await db.messages.update(chain.value.at(-1), {
+  const messageId = activeInputMessageId.value
+  await db.messages.update(messageId, {
     // use shallow keyPath to avoid dexie's sync bug
     contents: [{
       ...inputMessageContent.value,
       text
     }]
   })
+  if (!text && editingDraftState.value?.draftId === messageId && !inputMessageContent.value?.items?.length) {
+    await discardEditingDraftIfEmpty()
+  }
 }
 watch(() => inputMessageContent.value?.text, val => {
   const index = pendingTexts.indexOf(val)
   if (index !== -1) {
     pendingTexts.splice(0, index + 1)
   } else {
-    inputText.value = val
+    inputText.value = val ?? ''
+  }
+})
+
+watch(activeInputMessageId, id => {
+  if (!id) {
+    inputText.value = ''
+    return
+  }
+  inputText.value = inputMessageContent.value?.text ?? ''
+})
+
+watch(editingDraftState, state => {
+  if (!state) {
+    inputText.value = inputMessageContent.value?.text ?? ''
   }
 })
 
@@ -846,7 +905,7 @@ async function removeItem({ id, references }: StoredItem) {
   const items = [...inputMessageContent.value.items]
   items.splice(items.indexOf(id), 1)
   await db.transaction('rw', db.messages, db.items, () => {
-    db.messages.update(chain.value.at(-1), {
+    db.messages.update(activeInputMessageId.value, {
       contents: [{
         ...inputMessageContent.value,
         items
@@ -911,7 +970,7 @@ async function addInputItems(items: ApiResultItem[]) {
   const storedItems = items.map(i => ({ ...i, id: genId(), dialogId: props.id, references: 0 }))
   const ids = storedItems.map(i => i.id)
   await db.transaction('rw', db.messages, db.items, () => {
-    db.messages.update(chain.value.at(-1), {
+    db.messages.update(activeInputMessageId.value, {
       // use shallow keyPath to avoid dexie's sync bug
       contents: [{
         ...inputMessageContent.value,
@@ -1108,6 +1167,19 @@ async function send() {
     return
   }
   showVars.value = false
+
+  if (editingDraftState.value) {
+    const { parentId, draftId } = editingDraftState.value
+    const draftIndex = dialog.value.msgTree[parentId]?.indexOf(draftId)
+    if (draftIndex == null || draftIndex < 0) {
+      editingDraftState.value = null
+      return
+    }
+    switchChain(chain.value.findIndex(id => id === parentId), draftIndex)
+    editingDraftState.value = null
+    await until(chain).changed()
+  }
+
   const target = chain.value.at(-1)
   await db.messages.update(target, { status: 'default' })
   until(chain).changed().then(() => {
@@ -1541,10 +1613,21 @@ const showDesktopCatalog = computed(() =>
   && $q.screen.width >= desktopCatalogMinWidth
   && !!activeCatalogMessageId.value
 )
-const scrollNavRightOffset = computed(() => {
-  if (!showDesktopCatalog.value) return `${scrollNavScreenPadding}px`
-  return `${desktopCatalogWidth + dialogContentGap + scrollNavScreenPadding}px`
-})
+const scrollNavRightOffset = ref(`${scrollNavScreenPadding}px`)
+
+function getScrollNavRightOffset() {
+  const container = scrollContainer.value
+  if (!container) return `${scrollNavScreenPadding}px`
+
+  const contentRect = container.getBoundingClientRect()
+  const right = Math.max(scrollNavScreenPadding, window.innerWidth - contentRect.right + scrollNavScreenPadding)
+  return `${Math.round(right)}px`
+}
+
+function updateScrollNavRightOffset() {
+  scrollNavRightOffset.value = getScrollNavRightOffset()
+}
+
 const activeBranchControl = computed(() => {
   const catalogId = activeCatalogMessageId.value.replace(/^md-/, '')
   if (!catalogId || !dialog.value?.msgTree || !Array.isArray(chain.value) || chain.value.length < 2) return null
@@ -1659,11 +1742,24 @@ function itemInView(item: HTMLElement, container: HTMLElement) {
   item.offsetTop + item.clientHeight > container.scrollTop
 }
 function switchTo(target: 'prev' | 'next' | 'first' | 'last') {
-  const { container, items } = getEls()
-  const index = items.findIndex((item, i) =>
-    itemInView(item, container) &&
-    dialog.value.msgTree[chain.value[i]].length > 1
-  )
+  const catalogId = activeCatalogMessageId.value.replace(/^md-/, '')
+  let index = -1
+
+  if (catalogId) {
+    const chainIndex = chain.value.findIndex(id => id === catalogId)
+    if (chainIndex > 0 && dialog.value.msgTree[chain.value[chainIndex - 1]]?.length > 1) {
+      index = chainIndex - 1
+    }
+  }
+
+  if (index === -1) {
+    const { container, items } = getEls()
+    index = items.findIndex((item, i) =>
+      itemInView(item, container) &&
+      dialog.value.msgTree[chain.value[i]].length > 1
+    )
+  }
+
   if (index === -1) return
 
   const id = chain.value[index]
@@ -2035,6 +2131,7 @@ const scrollTops = uiStateStore.dialogScrollTops
 function onScroll(ev) {
   scrollTops[props.id] = ev.target.scrollTop
   updateActiveCatalogMessage()
+  updateScrollNavRightOffset()
 }
 watch(() => liveData.value.dialog?.id, id => {
   activeCatalogMessageId.value = ''
@@ -2042,29 +2139,44 @@ watch(() => liveData.value.dialog?.id, id => {
   nextTick(() => {
     scrollContainer.value?.scrollTo({ top: scrollTops[id] ?? 0 })
     updateActiveCatalogMessage()
+    updateScrollNavRightOffset()
   })
 })
 
 watch(() => props.id, () => {
   activeCatalogMessageId.value = ''
-  nextTick(() => updateActiveCatalogMessage())
+  nextTick(() => {
+    updateActiveCatalogMessage()
+    updateScrollNavRightOffset()
+  })
 })
 
 watch(chain, () => {
-  nextTick(() => updateActiveCatalogMessage())
+  nextTick(() => {
+    updateActiveCatalogMessage()
+    updateScrollNavRightOffset()
+  })
 }, { immediate: true })
 
 watch(showDesktopCatalog, () => {
-  nextTick(() => updateActiveCatalogMessage())
+  nextTick(() => {
+    updateActiveCatalogMessage()
+    updateScrollNavRightOffset()
+  })
 })
 
 onMounted(() => {
   window.addEventListener('resize', updateActiveCatalogMessage)
-  nextTick(() => updateActiveCatalogMessage())
+  window.addEventListener('resize', updateScrollNavRightOffset)
+  nextTick(() => {
+    updateActiveCatalogMessage()
+    updateScrollNavRightOffset()
+  })
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', updateActiveCatalogMessage)
+  window.removeEventListener('resize', updateScrollNavRightOffset)
 })
 
 onUnmounted(() => {
