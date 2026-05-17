@@ -14,17 +14,19 @@ const FormattingModels = ['o1', 'o3-mini', 'o3-mini-2025-01-31']
 
 function wrapMiddlewares(model: LanguageModelV2) {
   const middlewares = [extractReasoningMiddleware({ tagName: 'think' })]
-  FormattingModels.includes(model.modelId) && middlewares.push(FormattingReenabled)
-  model.modelId.startsWith('gpt-5') && middlewares.push(MarkdownFormatting)
-  model.provider.startsWith('anthropic.') && middlewares.push(AuthropicCors)
+  const modelId = model.modelId || ''
+  const provider = model.provider || ''
+  FormattingModels.includes(modelId) && middlewares.push(FormattingReenabled)
+  modelId.startsWith('gpt-5') && middlewares.push(MarkdownFormatting)
+  provider.startsWith('anthropic.') && middlewares.push(AuthropicCors)
   return middlewares.length ? wrapLanguageModel({ model, middleware: middlewares }) : model
 }
 export function useGetModel() {
   const user = DexieDBURL ? useObservable(db.cloud.currentUser) : null
-  const defaultProvider = computed(() => user?.value.isLoggedIn ? {
+  const defaultProvider = computed(() => user?.value?.isLoggedIn ? {
     type: 'openai-compatible',
     settings: {
-      apiKey: user.value.data.apiKey,
+      apiKey: user.value?.data?.apiKey,
       baseURL: new URL(LitellmBaseURL, location.origin).toString()
     }
   } : null)

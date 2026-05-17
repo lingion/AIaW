@@ -169,6 +169,7 @@
               :model-value="dialog.msgRoute[index - 1] + 1"
               :message="messageMap[i]"
               :child-num="dialog.msgTree[chain[index - 1]].length"
+              :branch-control="getMessageBranchControl(index)"
               :scroll-container
               @update:model-value="switchChain(index - 1, $event - 1)"
               @edit="edit(index)"
@@ -309,29 +310,6 @@
               text-sec
               items-center
             >
-              <div
-                v-if="activeBranchControl"
-                class="dialog-catalog-branch-controls mr-2"
-              >
-                <q-pagination
-                  :model-value="activeBranchControl.current"
-                  :max="activeBranchControl.max"
-                  input
-                  :boundary-links="false"
-                  @update:model-value="switchChain(activeBranchControl.index, $event - 1)"
-                />
-                <q-btn
-                  v-if="activeBranchControl.deletable"
-                  icon="sym_o_delete"
-                  flat
-                  dense
-                  round
-                  text="sec xs hover:err"
-                  un-size="32px"
-                  :title="$t('messageItem.deleteBranch')"
-                  @click="deleteBranch(activeBranchControl.index + 1)"
-                />
-              </div>
               <q-btn
                 class="dialog-toolbar-btn"
                 flat
@@ -700,8 +678,9 @@ async function regenerate(index) {
     return
   }
   const target = chain.value[index - 1]
-  switchChain(index - 1, dialog.value.msgTree[target].length)
-  await stream(target, false)
+  await stream(target, false, ({ branchIndex }) => {
+    switchChain(index - 1, branchIndex)
+  })
 }
 async function deleteMessageBranch(parent: string, anchor: string) {
   const ids = expandMessageTree(anchor)
@@ -1193,7 +1172,7 @@ async function send() {
 
 const artifacts = inject<Ref<Artifact[]>>('artifacts')
 const abortController = ref<AbortController>()
-async function stream(target, insert = false) {
+async function stream(target, insert = false, onPendingBranch?: (info: { assistantId: string, branchIndex: number, draftId?: string }) => void) {
   const settings: Partial<ModelSettings> = {}
   for (const key in assistant.value.modelSettings) {
     const val = assistant.value.modelSettings[key]
@@ -1225,7 +1204,11 @@ async function stream(target, insert = false) {
   }
   const contents: MessageContent[] = [messageContent]
   let id
+  let branchIndex = -1
+  let draftId: string | undefined
   await db.transaction('rw', db.dialogs, db.messages, async () => {
+    const currentDialog = await db.dialogs.get(props.id)
+    branchIndex = currentDialog.msgTree[target].length
     id = await appendMessage(target, {
       type: 'assistant',
       assistantId: assistant.value.id,
@@ -1234,16 +1217,19 @@ async function stream(target, insert = false) {
       generatingSession: sessions.id,
       modelName: model.value.name
     }, insert)
-    !insert && await appendMessage(id, {
-      type: 'user',
-      contents: [{
-        type: 'user-message',
-        text: '',
-        items: []
-      }],
-      status: 'inputing'
-    })
+    if (!insert) {
+      draftId = await appendMessage(id, {
+        type: 'user',
+        contents: [{
+          type: 'user-message',
+          text: '',
+          items: []
+        }],
+        status: 'inputing'
+      })
+    }
   })
+  onPendingBranch?.({ assistantId: id, branchIndex, draftId })
 
   const update = throttle(() => db.messages.update(id, { contents }), 50)
   async function callTool(plugin: Plugin, api: PluginApi, args) {
@@ -1603,15 +1589,13 @@ const composerArea = ref<HTMLElement>()
 const mdPreviewProps = useMdPreviewProps()
 const activeCatalogMessageId = ref('')
 const desktopCatalogMinWidth = 1180
-const desktopCatalogWidth = 220
-const dialogContentGap = 8
 const scrollNavScreenPadding = 8
 const showDesktopCatalog = computed(() =>
-  perfs.messageCatalog
-  && $q.screen.gt.sm
-  && !rightDrawerAbove?.value
-  && $q.screen.width >= desktopCatalogMinWidth
-  && !!activeCatalogMessageId.value
+  perfs.messageCatalog &&
+  $q.screen.gt.sm &&
+  !rightDrawerAbove?.value &&
+  $q.screen.width >= desktopCatalogMinWidth &&
+  !!activeCatalogMessageId.value
 )
 const scrollNavRightOffset = ref(`${scrollNavScreenPadding}px`)
 
@@ -1628,28 +1612,24 @@ function updateScrollNavRightOffset() {
   scrollNavRightOffset.value = getScrollNavRightOffset()
 }
 
-const activeBranchControl = computed(() => {
-  const catalogId = activeCatalogMessageId.value.replace(/^md-/, '')
-  if (!catalogId || !dialog.value?.msgTree || !Array.isArray(chain.value) || chain.value.length < 2) return null
+function getMessageBranchControl(index: number) {
+  if (!dialog.value?.msgTree || !Array.isArray(chain.value) || index <= 0 || index >= chain.value.length) return null
 
-  const chainIndex = chain.value.findIndex(id => id === catalogId)
-  if (chainIndex <= 0) return null
-
-  const parentId = chain.value[chainIndex - 1]
+  const parentId = chain.value[index - 1]
+  const messageId = chain.value[index]
   const branches = dialog.value.msgTree[parentId]
   if (!Array.isArray(branches) || branches.length <= 1) return null
 
-  const message = messageMap.value[catalogId]
-  const currentRoute = dialog.value.msgRoute?.[chainIndex - 1]
+  const message = messageMap.value[messageId]
+  const currentRoute = dialog.value.msgRoute?.[index - 1]
   if (typeof currentRoute !== 'number') return null
 
   return {
-    index: chainIndex - 1,
     current: currentRoute + 1,
     max: branches.length,
     deletable: !!message && !['pending', 'streaming'].includes(message.status)
   }
-})
+}
 
 function updateActiveCatalogMessage() {
   const container = scrollContainer.value
@@ -1707,8 +1687,27 @@ watch(scrollDownBtn, el => {
 
 function getEls() {
   const container = scrollContainer.value
-  const items: HTMLElement[] = Array.from(document.querySelectorAll('.message-item'))
+  const items: HTMLElement[] = Array.from(container?.querySelectorAll('.message-item') || [])
   return { container, items }
+}
+function getItemRenderIndex(item: HTMLElement) {
+  const value = Number(item.dataset.renderIndex)
+  return Number.isInteger(value) && value >= 0 ? value : -1
+}
+function getItemChainIndex(item: HTMLElement) {
+  const renderIndex = getItemRenderIndex(item)
+  return renderIndex >= 0 ? renderIndex + 1 : -1
+}
+function getVisibleChainIndex(predicate: (chainIndex: number, item: HTMLElement) => boolean) {
+  const { container, items } = getEls()
+  if (!container) return -1
+  for (const item of items) {
+    if (!itemInView(item, container)) continue
+    const chainIndex = getItemChainIndex(item)
+    if (chainIndex <= 0) continue
+    if (predicate(chainIndex, item)) return chainIndex
+  }
+  return -1
 }
 function updateComposerAreaHeight() {
   const areaHeight = composerArea.value?.getBoundingClientRect().height ?? 0
@@ -1753,11 +1752,13 @@ function switchTo(target: 'prev' | 'next' | 'first' | 'last') {
   }
 
   if (index === -1) {
-    const { container, items } = getEls()
-    index = items.findIndex((item, i) =>
-      itemInView(item, container) &&
-      dialog.value.msgTree[chain.value[i]].length > 1
-    )
+    const chainIndex = getVisibleChainIndex(chainIndex => {
+      const parentId = chain.value[chainIndex - 1]
+      return !!dialog.value.msgTree[parentId] && dialog.value.msgTree[parentId].length > 1
+    })
+    if (chainIndex !== -1) {
+      index = chainIndex - 1
+    }
   }
 
   if (index === -1) return
@@ -2048,20 +2049,14 @@ function scroll(action: 'up' | 'down' | 'top' | 'bottom', behavior: 'smooth' | '
   container.scrollTo({ top: top + 2, behavior: 'smooth' })
 }
 function regenerateCurr() {
-  const { container, items } = getEls()
-  const index = items.findIndex(
-    (item, i) => itemInView(item, container) && messageMap.value[chain.value[i + 1]].type === 'assistant'
-  )
-  if (index === -1) return
-  regenerate(index + 1)
+  const chainIndex = getVisibleChainIndex(chainIndex => messageMap.value[chain.value[chainIndex]]?.type === 'assistant')
+  if (chainIndex === -1) return
+  regenerate(chainIndex)
 }
 function editCurr() {
-  const { container, items } = getEls()
-  const index = items.findIndex(
-    (item, i) => itemInView(item, container) && messageMap.value[chain.value[i + 1]].type === 'user'
-  )
-  if (index === -1) return
-  edit(index + 1)
+  const chainIndex = getVisibleChainIndex(chainIndex => messageMap.value[chain.value[chainIndex]]?.type === 'user')
+  if (chainIndex === -1) return
+  edit(chainIndex)
 }
 const { perfs } = useUserPerfsStore()
 if (isPlatformEnabled(perfs.enableShortcutKey)) {

@@ -172,9 +172,13 @@ import { useI18n } from 'vue-i18n'
 import ModelItem from 'src/components/ModelItem.vue'
 
 const user = useObservable(db.cloud.currentUser)
+const currentUser = computed(() => user.value ?? null)
+const isLoggedIn = computed(() => !!currentUser.value?.isLoggedIn)
+const apiKey = computed(() => currentUser.value?.data?.apiKey || '')
+
 const router = useRouter()
 db.on('ready', () => {
-  if (!user.value.isLoggedIn) {
+  if (!isLoggedIn.value) {
     router.replace('/')
     db.cloud.login()
   } else {
@@ -220,11 +224,12 @@ const modelPrices = computed(() => modelInfo.value.map(x => {
 const $q = useQuasar()
 const modelInfo = ref(null)
 async function loadModels() {
+  if (!apiKey.value) return
   try {
     const resp = await fetch(`${LitellmBaseURL}/model/info`, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${user.value.data.apiKey}`
+        Authorization: `Bearer ${apiKey.value}`
       }
     })
     if (!resp.ok) {
