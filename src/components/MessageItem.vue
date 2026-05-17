@@ -218,6 +218,29 @@
         flex
         items-center
       >
+        <div
+          v-if="branchControl"
+          class="dialog-catalog-branch-controls mr-2"
+        >
+          <q-pagination
+            :model-value="branchControl.current"
+            :max="branchControl.max"
+            input
+            :boundary-links="false"
+            @update:model-value="model = $event"
+          />
+          <q-btn
+            v-if="branchControl.deletable"
+            icon="sym_o_delete"
+            flat
+            dense
+            round
+            text="sec xs hover:err"
+            un-size="32px"
+            :title="$t('messageItem.deleteBranch')"
+            @click="deleteBranch"
+          />
+        </div>
         <template
           v-if="['default', 'failed'].includes(message.status)"
         >
@@ -323,7 +346,7 @@ import { copyToClipboard, useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import PickAvatarDialog from './PickAvatarDialog.vue'
 import MessageFile from './MessageFile.vue'
-import { escapeRegex, genId, idDateString, isPlatformEnabled, textBeginning, wrapCode } from 'src/utils/functions'
+import { escapeRegex, idDateString, isPlatformEnabled, textBeginning, wrapCode } from 'src/utils/functions'
 import MenuItem from './MenuItem.vue'
 import MessageInfoDialog from './MessageInfoDialog.vue'
 import TextareaDialog from './TextareaDialog.vue'
@@ -335,7 +358,12 @@ import { dialogOptions } from 'src/utils/values'
 const props = defineProps<{
   message: Message,
   childNum: number,
-  scrollContainer: HTMLElement
+  scrollContainer: HTMLElement,
+  branchControl?: {
+    current: number,
+    max: number,
+    deletable: boolean
+  } | null
 }>()
 
 const mdId = `md-${props.message.id}`
@@ -618,9 +646,11 @@ function shouldPromoteInlineMath(inlineMath: HTMLElement) {
   if (/\\boxed\s*\{/.test(annotation)) return true
 
   const parentWidth = Math.floor(inlineMath.parentElement?.getBoundingClientRect().width || 0)
-  const contentWidth = Math.ceil(inlineMath.querySelector<HTMLElement>('.katex-html')?.getBoundingClientRect().width
-    || inlineMath.querySelector<HTMLElement>('.katex')?.getBoundingClientRect().width
-    || inlineMath.getBoundingClientRect().width)
+  const contentWidth = Math.ceil(
+    inlineMath.querySelector<HTMLElement>('.katex-html')?.getBoundingClientRect().width ||
+    inlineMath.querySelector<HTMLElement>('.katex')?.getBoundingClientRect().width ||
+    inlineMath.getBoundingClientRect().width
+  )
   return contentWidth > parentWidth && parentWidth > 0
 }
 
@@ -781,4 +811,3 @@ const { t } = useI18n()
   }
 }
 </style>
-

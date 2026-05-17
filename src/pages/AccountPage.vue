@@ -20,7 +20,7 @@
     <q-page :style-fn="pageFhStyle">
       <q-list
         pb-2
-        v-if="user.license"
+        v-if="license"
         max-w="1000px"
         mx-a
       >
@@ -32,7 +32,7 @@
             {{ $t('accountPage.emailLabel') }}
           </q-item-section>
           <q-item-section side>
-            {{ user.email }}
+            {{ currentUser?.email || '-' }}
           </q-item-section>
         </q-item>
         <q-separator spaced />
@@ -57,13 +57,13 @@
             </q-item-label>
           </q-item-section>
         </q-item>
-        <q-item v-if="user.license.type === 'eval'">
+        <q-item v-if="license?.type === 'eval'">
           <q-item-section>
             <q-item-label>
               {{ $t('accountPage.evalLabel') }}
             </q-item-label>
             <q-item-label caption>
-              {{ $t('accountPage.evalDaysLeft', { days: user.license.evalDaysLeft }) }}
+              {{ $t('accountPage.evalDaysLeft', { days: license?.evalDaysLeft }) }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -77,13 +77,13 @@
             />
           </q-item-section>
         </q-item>
-        <q-item v-else-if="user.license.type === 'prod'">
+        <q-item v-else-if="license?.type === 'prod'">
           <q-item-section>
             <q-item-label>
               {{ $t('accountPage.subscribedLabel') }}
             </q-item-label>
             <q-item-label caption>
-              {{ $t('accountPage.validUntil', { date: user.license.validUntil.toLocaleString() }) }}
+              {{ $t('accountPage.validUntil', { date: license?.validUntil?.toLocaleString?.() }) }}
             </q-item-label>
           </q-item-section>
           <q-item-section side>
@@ -123,7 +123,7 @@
                 {{ $t('accountPage.statusLabel') }}
               </q-item-label>
               <q-item-label caption>
-                {{ !perfs.provider && user.isLoggedIn ? $t('accountPage.usingDefaultService') : $t('accountPage.customService') }}
+                {{ !perfs.provider && isLoggedIn ? $t('accountPage.usingDefaultService') : $t('accountPage.customService') }}
               </q-item-label>
             </q-item-section>
           </q-item>
@@ -150,7 +150,7 @@
             </q-item-section>
           </q-item>
         </template>
-        <template v-if="user.data.orderHistory?.length">
+        <template v-if="orderHistory.length">
           <q-separator spaced />
           <q-item-label header>
             {{ $t('accountPage.orderHistoryHeader') }}
@@ -159,10 +159,10 @@
             flat
             card-class="bg-sur"
             hide-bottom
-            :rows="[...user.data.orderHistory].reverse()"
+            :rows="[...orderHistory].reverse()"
             :columns="orderHistoryColumns"
             :pagination="{ rowsPerPage: Infinity }"
-            v-if="user.data.orderHistory?.length"
+            v-if="orderHistory.length"
           />
         </template>
 
@@ -214,9 +214,15 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const user = useObservable(db.cloud.currentUser)
+const currentUser = computed(() => user.value ?? null)
+const isLoggedIn = computed(() => !!currentUser.value?.isLoggedIn)
+const license = computed(() => currentUser.value?.license ?? null)
+const orderHistory = computed(() => currentUser.value?.data?.orderHistory ?? [])
+const apiKey = computed(() => currentUser.value?.data?.apiKey || '')
+
 const router = useRouter()
 db.on('ready', () => {
-  if (!user.value.isLoggedIn) {
+  if (!isLoggedIn.value) {
     router.replace('/')
     db.cloud.login()
   } else {
@@ -224,7 +230,7 @@ db.on('ready', () => {
   }
 })
 const licenseStatus = computed(() => {
-  switch (user.value.license.status) {
+  switch (license.value?.status) {
     case 'ok': return t('accountPage.licenseOk')
     case 'expired': return t('accountPage.licenseExpired')
     case 'deactivated': return t('accountPage.licenseDeactivated')
@@ -273,11 +279,11 @@ async function logout() {
 
 const llmBalance = ref(null)
 async function refreshLlmBalance() {
-  if (!LitellmBaseURL) return
+  if (!LitellmBaseURL || !apiKey.value) return
   const resp = await fetch(`${LitellmBaseURL}/key/info`, {
     method: 'GET',
     headers: {
-      Authorization: `Bearer ${user.value.data.apiKey}`
+      Authorization: `Bearer ${apiKey.value}`
     }
   })
   const { info, error } = await resp.json()
