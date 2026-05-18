@@ -177,7 +177,7 @@
               @delete="deleteBranch(index)"
               @quote="quote"
               @extract-artifact="extractArtifact(messageMap[i], ...$event)"
-              @rendered="messageMap[i].generatingSession && lockBottom()"
+              @rendered="onMessageRendered(messageMap[i])"
               pt-2
               pb-4
             />
@@ -477,12 +477,12 @@
           <div class="dialog-send-shell">
             <abortable-btn
               class="dialog-send-fab"
-              icon="sym_o_send"
-              :label="$t('dialogView.send')"
-              @click="send"
+              :icon="composerActionIcon"
+              :label="composerActionLabel"
+              @click="onComposerAction"
               @abort="abortController?.abort()"
               :loading="generating"
-              :disable="inputEmpty && !generating"
+              :disable="composerActionDisabled"
               min-h="48px"
             />
           </div>
@@ -494,7 +494,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onUnmounted, provide, ref, Ref, toRaw, toRef, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
+import { computed, inject, onUnmounted, provide, ref, Ref, shallowRef, toRaw, toRef, watch, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import { db } from 'src/utils/db'
 import { useLiveQueryWithDeps } from 'src/composables/live-query'
 import { almostEqual, displayLength, genId, inputValueEmpty, isPlatformEnabled, isTextFile, JSONEqual, mimeTypeMatch, pageFhStyle, textBeginning, wrapCode, wrapQuote } from 'src/utils/functions'
@@ -552,16 +552,17 @@ const props = defineProps<{
 const rightDrawerAbove = inject('rightDrawerAbove')
 
 const dialogs: Ref<Dialog[]> = inject('dialogs')
-const liveData = useLiveQueryWithDeps(() => props.id, async () => {
-  const [dialog, messages, items] = await Promise.all([
-    db.dialogs.get(props.id),
-    db.messages.where('dialogId').equals(props.id).toArray(),
-    db.items.where('dialogId').equals(props.id).toArray()
-  ])
-  return { dialog, messages, items }
-}, { initialValue: { dialog: null, messages: [], items: [] } as { dialog: Dialog, messages: Message[], items: StoredItem[] } })
+const liveDialog = useLiveQueryWithDeps(() => props.id, () => db.dialogs.get(props.id), {
+  initialValue: null as Dialog | null
+})
+const liveMessages = useLiveQueryWithDeps(() => props.id, () => db.messages.where('dialogId').equals(props.id).toArray(), {
+  initialValue: [] as Message[]
+})
+const liveItems = useLiveQueryWithDeps(() => props.id, () => db.items.where('dialogId').equals(props.id).toArray(), {
+  initialValue: [] as StoredItem[]
+})
 const dialog = syncRef<Dialog>(
-  () => liveData.value.dialog,
+  () => liveDialog.value,
   val => { db.dialogs.put(toRaw(val)) },
   { valueDeep: true }
 )
@@ -576,28 +577,36 @@ const assistant = computed(() => {
 })
 provide('dialog', dialog)
 
-const chain = computed<string[]>(() => liveData.value.dialog ? getChain('$root', liveData.value.dialog.msgRoute)[0] : [])
+const chain = computed<string[]>(() => liveDialog.value ? getChain('$root', liveDialog.value.msgRoute)[0] : [])
+const normalizedRoute = computed<number[]>(() => liveDialog.value ? getChain('$root', liveDialog.value.msgRoute)[1] : [])
 const historyChain = ref<string[]>([])
 function switchChain(index, value) {
   if (!dialog.value?.msgRoute) return
   const route = [...dialog.value.msgRoute.slice(0, index), value]
   updateChain(route)
 }
+function setRoute(route: number[]) {
+  if (!dialog.value?.id) return
+  db.dialogs.update(dialog.value.id, { msgRoute: route })
+}
 function updateChain(route) {
-  if (!dialog.value?.id || !liveData.value.dialog?.msgTree?.$root) return
+  if (!dialog.value?.id || !liveDialog.value?.msgTree?.$root) return
   const res = getChain('$root', route)
   historyChain.value = res[0]
   db.dialogs.update(dialog.value.id, { msgRoute: res[1] })
 }
-watch([() => liveData.value.messages.length, () => liveData.value.dialog?.id], () => {
-  if (!liveData.value.dialog?.msgTree?.$root || !liveData.value.dialog?.msgRoute) return
+watch([() => liveMessages.value.length, () => liveDialog.value?.id], () => {
+  if (!liveDialog.value?.msgTree?.$root || !liveDialog.value?.msgRoute) return
   if (editingDraftState.value && !messageMap.value[editingDraftState.value.draftId]) {
     editingDraftState.value = null
   }
-  updateChain(liveData.value.dialog.msgRoute)
+  const route = normalizedRoute.value
+  if (!JSONEqual(route, liveDialog.value.msgRoute)) {
+    db.dialogs.update(liveDialog.value.id, { msgRoute: route })
+  }
 })
 function getChain(node, route: number[]) {
-  const tree = liveData.value.dialog?.msgTree || {}
+  const tree = liveDialog.value?.msgTree || {}
   const children = tree[node]
   const r = route.at(0) || 0
   if (!Array.isArray(children) || children.length === 0) {
@@ -632,6 +641,30 @@ async function discardEditingDraftIfEmpty() {
   return true
 }
 
+async function exitEditingMode() {
+  const state = editingDraftState.value
+  if (!state) return
+  const draft = messageMap.value[state.draftId]
+  editingDraftState.value = null
+  if (!draft) {
+    inputText.value = ''
+    return
+  }
+  const content = draft.contents[0] as UserMessageContent
+  if (content?.text || content?.items?.length) {
+    await deleteMessageBranch(state.parentId, state.draftId)
+  }
+  inputText.value = ''
+}
+
+async function onComposerAction() {
+  if (editingDraftEmpty.value) {
+    await exitEditingMode()
+    return
+  }
+  await send()
+}
+
 function focusInput() {
   isPlatformEnabled(perfs.autoFocusDialogInput) && messageInput.value?.focus()
 }
@@ -639,6 +672,7 @@ async function edit(index) {
   const target = chain.value[index - 1]
   const currentId = chain.value[index]
   const currentMessage = messageMap.value[currentId]
+  if (currentMessage?.type !== 'user') return
   const existingDraftId = dialog.value.msgTree[target].find(id => messageMap.value[id]?.status === 'inputing')
 
   if (existingDraftId) {
@@ -651,14 +685,17 @@ async function edit(index) {
     return
   }
 
+  const content = currentMessage.contents[0] as UserMessageContent
   const draftId = await appendMessage(target, {
-    type: currentMessage.type,
-    contents: currentMessage.contents,
+    type: 'user',
+    contents: [{
+      ...content,
+      items: [...(content.items || [])]
+    }],
     status: 'inputing'
   })
   await db.transaction('rw', db.items, () => {
-    const content = currentMessage.contents[0] as UserMessageContent
-    saveItems(content.items.map(id => itemMap.value[id]))
+    saveItems((content.items || []).map(id => itemMap.value[id]).filter(Boolean))
   })
   editingDraftState.value = {
     parentId: target,
@@ -679,7 +716,8 @@ async function regenerate(index) {
   }
   const target = chain.value[index - 1]
   await stream(target, false, ({ branchIndex }) => {
-    switchChain(index - 1, branchIndex)
+    const nextRoute = [...(dialog.value?.msgRoute || []).slice(0, index - 1), branchIndex, 0]
+    setRoute(nextRoute)
   })
 }
 async function deleteMessageBranch(parent: string, anchor: string) {
@@ -743,20 +781,37 @@ function expandMessageTree(root): string[] {
 
 const inputMessageContent = computed(() => messageMap.value[activeInputMessageId.value]?.contents[0] as UserMessageContent)
 const inputContentItems = computed(() => inputMessageContent.value.items.map(id => itemMap.value[id]).filter(x => x))
-const messageMap = computed<Record<string, Message>>(() => {
-  const map = {}
-  liveData.value.messages.forEach(m => { map[m.id] = m })
-  return map
-})
-const itemMap = computed<Record<string, StoredItem>>(() => {
-  const map = {}
-  liveData.value.items.forEach(i => { map[i.id] = i })
-  return map
-})
+const messageMap = shallowRef<Record<string, Message>>({})
+const itemMap = shallowRef<Record<string, StoredItem>>({})
+
+watch(liveMessages, messages => {
+  const prev = messageMap.value
+  const next: Record<string, Message> = {}
+  messages.forEach(message => {
+    next[message.id] = prev[message.id] === message ? prev[message.id] : message
+  })
+  messageMap.value = next
+  if (editingDraftState.value && !next[editingDraftState.value.draftId]) {
+    editingDraftState.value = null
+  }
+}, { immediate: true })
+
+watch(liveItems, items => {
+  const prev = itemMap.value
+  const next: Record<string, StoredItem> = {}
+  items.forEach(item => {
+    next[item.id] = prev[item.id] === item ? prev[item.id] : item
+  })
+  itemMap.value = next
+}, { immediate: true })
 provide('messageMap', messageMap)
 provide('itemMap', itemMap)
 const generating = computed(() => !!messageMap.value[chain.value.at(-2)]?.generatingSession)
-const inputEmpty = computed(() => !inputMessageContent.value?.text && !inputMessageContent.value?.items?.length)
+const inputEmpty = computed(() => !inputText.value && !inputMessageContent.value?.items?.length)
+const editingDraftEmpty = computed(() => !!editingDraftState.value && inputEmpty.value)
+const composerActionIcon = computed(() => editingDraftEmpty.value ? 'sym_o_close' : 'sym_o_send')
+const composerActionLabel = computed(() => editingDraftEmpty.value ? t('common.cancel') : t('dialogView.send'))
+const composerActionDisabled = computed(() => !generating.value && !editingDraftState.value && inputEmpty.value)
 
 const inputText = ref('')
 const pendingTexts = []
@@ -769,24 +824,28 @@ async function updateInputText(text) {
     pendingTexts.splice(0)
   }, 200)
   const messageId = activeInputMessageId.value
+  const baseContent = inputMessageContent.value
   await db.messages.update(messageId, {
     // use shallow keyPath to avoid dexie's sync bug
     contents: [{
-      ...inputMessageContent.value,
+      ...baseContent,
       text
     }]
   })
-  if (!text && editingDraftState.value?.draftId === messageId && !inputMessageContent.value?.items?.length) {
-    await discardEditingDraftIfEmpty()
+  if (editingDraftState.value?.draftId === messageId) {
+    const latestContent = messageMap.value[messageId]?.contents?.[0] as UserMessageContent | undefined
+    if ((latestContent?.text ?? '') === text) {
+      inputText.value = text
+    }
   }
 }
 watch(() => inputMessageContent.value?.text, val => {
   const index = pendingTexts.indexOf(val)
   if (index !== -1) {
     pendingTexts.splice(0, index + 1)
-  } else {
-    inputText.value = val ?? ''
+    return
   }
+  inputText.value = val ?? ''
 })
 
 watch(activeInputMessageId, id => {
@@ -794,14 +853,17 @@ watch(activeInputMessageId, id => {
     inputText.value = ''
     return
   }
+  if (editingDraftState.value && id === chain.value.at(-1)) return
   inputText.value = inputMessageContent.value?.text ?? ''
-})
+}, { immediate: true })
 
 watch(editingDraftState, state => {
   if (!state) {
-    inputText.value = inputMessageContent.value?.text ?? ''
+    inputText.value = ''
+    return
   }
-})
+  inputText.value = inputMessageContent.value?.text ?? ''
+}, { immediate: true })
 
 function onTextPaste(ev: ClipboardEvent) {
   if (!perfs.codePasteOptimize) return
@@ -1155,8 +1217,8 @@ async function send() {
       return
     }
     switchChain(chain.value.findIndex(id => id === parentId), draftIndex)
-    editingDraftState.value = null
     await until(chain).changed()
+    editingDraftState.value = null
   }
 
   const target = chain.value.at(-1)
@@ -1491,7 +1553,21 @@ function scrollListener() {
 function lockBottom() {
   lockingBottom.value && scroll('bottom', 'auto')
 }
+
+let pendingLockBottomFrame = 0
+function onMessageRendered(message: Message | undefined) {
+  if (!message?.generatingSession || !lockingBottom.value || pendingLockBottomFrame) return
+  pendingLockBottomFrame = window.requestAnimationFrame(() => {
+    pendingLockBottomFrame = 0
+    lockBottom()
+  })
+}
+
 watch(lockingBottom, val => {
+  if (!val && pendingLockBottomFrame) {
+    window.cancelAnimationFrame(pendingLockBottomFrame)
+    pendingLockBottomFrame = 0
+  }
   if (val) {
     lastScrollTop = scrollContainer.value.scrollTop
     scrollContainer.value.addEventListener('scroll', scrollListener)
@@ -1550,15 +1626,17 @@ watch(route, to => {
         await until(chain).changed()
       }
       await nextTick()
-      const { items } = getEls()
       if (route.length) {
-        const item = items[route.length - 1]
-        if (highlight) {
-          const mark = new Mark(item)
-          mark.unmark()
-          mark.mark(highlight)
+        const renderIndex = route.length - 1
+        const item = getMountedItemByRenderIndex(renderIndex)
+        if (item) {
+          if (highlight) {
+            const mark = new Mark(item)
+            mark.unmark()
+            mark.mark(highlight)
+          }
+          item.querySelector('mark[data-markjs]')?.scrollIntoView()
         }
-        item.querySelector('mark[data-markjs]')?.scrollIntoView()
       }
       router.replace({ query: {} })
     }
@@ -1638,29 +1716,47 @@ function updateActiveCatalogMessage() {
     return
   }
 
-  const assistantIds = chain.value
+  const assistantEntries = chain.value
     .slice(1)
-    .filter(id => messageMap.value[id]?.type === 'assistant')
+    .map((messageId, index) => ({ messageId, renderIndex: index + 1 }))
+    .filter(entry => messageMap.value[entry.messageId]?.type === 'assistant')
 
-  if (!assistantIds.length) {
+  if (!assistantEntries.length) {
     activeCatalogMessageId.value = ''
     return
   }
 
-  const candidates = assistantIds
-    .map(id => {
-      const el = container.querySelector<HTMLElement>(`.dialog-message-shell[data-md-id="md-${id}"]`)
-      const rect = el?.getBoundingClientRect()
-      return {
-        id: el?.dataset.mdId || `md-${id}`,
-        top: rect?.top ?? Number.POSITIVE_INFINITY,
-        bottom: rect?.bottom ?? Number.NEGATIVE_INFINITY
-      }
-    })
-
   const viewportTop = container.getBoundingClientRect().top + 24
-  const visible = candidates.find(item => item.bottom > viewportTop)
-  activeCatalogMessageId.value = visible?.id || candidates.at(-1)?.id || ''
+  let nextActiveId = ''
+
+  for (const entry of assistantEntries) {
+    const shell = getMountedItemByMessageId(entry.messageId)
+    if (!shell) continue
+    const content = shell.querySelector<HTMLElement>(`.dialog-message-shell[data-md-id="md-${entry.messageId}"]`)
+    if (!content) continue
+    const rect = content.getBoundingClientRect()
+    if (rect.bottom > viewportTop) {
+      nextActiveId = `md-${entry.messageId}`
+      break
+    }
+  }
+
+  if (!nextActiveId) {
+    const mountedAssistantItems = assistantEntries
+      .map(entry => ({ entry, shell: getMountedItemByMessageId(entry.messageId) }))
+      .filter((candidate): candidate is { entry: typeof assistantEntries[number], shell: HTMLElement } => !!candidate.shell)
+
+    if (mountedAssistantItems.length) {
+      const lastMounted = mountedAssistantItems[mountedAssistantItems.length - 1]
+      const lastMountedRenderIndex = getItemRenderIndex(lastMounted.shell)
+      const fallbackEntry = assistantEntries
+        .filter(entry => entry.renderIndex <= lastMountedRenderIndex + 1)
+        .at(-1)
+      nextActiveId = fallbackEntry ? `md-${fallbackEntry.messageId}` : `md-${lastMounted.entry.messageId}`
+    }
+  }
+
+  activeCatalogMessageId.value = nextActiveId
 }
 const composerAreaHeight = ref(164)
 const composerSpacerOffset = 14
@@ -1698,14 +1794,42 @@ function getItemChainIndex(item: HTMLElement) {
   const renderIndex = getItemRenderIndex(item)
   return renderIndex >= 0 ? renderIndex + 1 : -1
 }
-function getVisibleChainIndex(predicate: (chainIndex: number, item: HTMLElement) => boolean) {
+function getItemMessageId(item: HTMLElement) {
+  return item.dataset.messageId || ''
+}
+function getMountedItemByRenderIndex(renderIndex: number) {
+  if (renderIndex < 0) return null
+  const { items } = getEls()
+  return items.find(item => getItemRenderIndex(item) === renderIndex) || null
+}
+function getMountedItemByMessageId(messageId: string) {
+  if (!messageId) return null
+  const { items } = getEls()
+  return items.find(item => getItemMessageId(item) === messageId) || null
+}
+function getRenderEntryAtChainIndex(chainIndex: number) {
+  if (chainIndex <= 0 || chainIndex >= chain.value.length) return null
+  const messageId = chain.value[chainIndex]
+  const message = messageMap.value[messageId]
+  if (!message) return null
+  return {
+    chainIndex,
+    renderIndex: chainIndex - 1,
+    messageId,
+    message
+  }
+}
+function getRenderEntryFromItem(item: HTMLElement) {
+  return getRenderEntryAtChainIndex(getItemChainIndex(item))
+}
+function getVisibleChainIndex(predicate: (entry: NonNullable<ReturnType<typeof getRenderEntryAtChainIndex>>, item: HTMLElement) => boolean) {
   const { container, items } = getEls()
   if (!container) return -1
   for (const item of items) {
     if (!itemInView(item, container)) continue
-    const chainIndex = getItemChainIndex(item)
-    if (chainIndex <= 0) continue
-    if (predicate(chainIndex, item)) return chainIndex
+    const entry = getRenderEntryFromItem(item)
+    if (!entry) continue
+    if (predicate(entry, item)) return entry.chainIndex
   }
   return -1
 }
@@ -1752,8 +1876,8 @@ function switchTo(target: 'prev' | 'next' | 'first' | 'last') {
   }
 
   if (index === -1) {
-    const chainIndex = getVisibleChainIndex(chainIndex => {
-      const parentId = chain.value[chainIndex - 1]
+    const chainIndex = getVisibleChainIndex(entry => {
+      const parentId = chain.value[entry.chainIndex - 1]
       return !!dialog.value.msgTree[parentId] && dialog.value.msgTree[parentId].length > 1
     })
     if (chainIndex !== -1) {
@@ -2049,12 +2173,12 @@ function scroll(action: 'up' | 'down' | 'top' | 'bottom', behavior: 'smooth' | '
   container.scrollTo({ top: top + 2, behavior: 'smooth' })
 }
 function regenerateCurr() {
-  const chainIndex = getVisibleChainIndex(chainIndex => messageMap.value[chain.value[chainIndex]]?.type === 'assistant')
+  const chainIndex = getVisibleChainIndex(entry => entry.message.type === 'assistant')
   if (chainIndex === -1) return
   regenerate(chainIndex)
 }
 function editCurr() {
-  const chainIndex = getVisibleChainIndex(chainIndex => messageMap.value[chain.value[chainIndex]]?.type === 'user')
+  const chainIndex = getVisibleChainIndex(entry => entry.message.type === 'user')
   if (chainIndex === -1) return
   edit(chainIndex)
 }
@@ -2128,7 +2252,7 @@ function onScroll(ev) {
   updateActiveCatalogMessage()
   updateScrollNavRightOffset()
 }
-watch(() => liveData.value.dialog?.id, id => {
+watch(() => liveDialog.value?.id, id => {
   activeCatalogMessageId.value = ''
   if (!id) return
   nextTick(() => {

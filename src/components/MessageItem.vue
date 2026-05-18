@@ -78,7 +78,18 @@
             class="message-markdown-wrap"
             v-if="(content.type === 'assistant-message' || content.type === 'user-message') && content.text"
           >
+            <div
+              v-if="isStreamingAssistantText(content)"
+              :class="message.type === 'user'
+                ? 'bg-sur-c-low user-message-preview message-markdown-preview message-streaming-plain-text'
+                : 'bg-sur assistant-message-preview message-markdown-preview message-streaming-plain-text'"
+              rd-lg
+              @vue:updated="emit('rendered')"
+            >
+              {{ getStreamingPlainText() }}
+            </div>
             <md-preview
+              v-else
               :class="message.type === 'user'
                 ? 'bg-sur-c-low user-message-preview message-markdown-preview'
                 : 'bg-sur assistant-message-preview message-markdown-preview'"
@@ -333,7 +344,7 @@
 <script setup lang="ts">
 import { MdPreview, MdCatalog } from 'md-editor-v3'
 import { db } from 'src/utils/db'
-import { computed, ComputedRef, inject, nextTick, onUnmounted, reactive, ref, watchEffect } from 'vue'
+import { computed, ComputedRef, inject, nextTick, onUnmounted, reactive, ref, watch, watchEffect } from 'vue'
 import sessions from 'src/utils/sessions'
 import { MessageContent, Message, ApiResultItem, UserMessageContent, AssistantMessageContent, ConvertArtifactOptions } from 'src/utils/types'
 import CopyBtn from './CopyBtn.vue'
@@ -463,6 +474,26 @@ const selected = reactive({
   text: null,
   original: false
 })
+
+const streamingPlainText = ref('')
+
+watchEffect(() => {
+  const content = textContent.value
+  if (content?.type === 'assistant-message' && props.message.status === 'streaming') {
+    streamingPlainText.value = content.text
+  } else {
+    streamingPlainText.value = ''
+  }
+})
+
+function isStreamingAssistantText(content: MessageContent) {
+  return content.type === 'assistant-message' && props.message.status === 'streaming'
+}
+
+function getStreamingPlainText() {
+  return streamingPlainText.value
+}
+
 function getDataLine(node: Node, ttl = 3) {
   if (ttl === 0) return -1
   if (node.nodeType !== Node.ELEMENT_NODE) return getDataLine(node.parentElement, ttl - 1)
