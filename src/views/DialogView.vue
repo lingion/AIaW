@@ -542,7 +542,7 @@ import { useUiStateStore } from 'src/stores/ui-state'
 import AutocompleteInput from 'src/components/AutocompleteInput.vue'
 import { useProvidersStore } from 'src/stores/providers'
 import { useMdPreviewProps } from 'src/composables/md-preview-props'
-import { collectChainMessageContents, collectConversationMessageContents, collectDialogContents, collectReferencedItemIds, getMessageRecord } from 'src/utils/dialog-message-map'
+import { collectChainMessageContents, collectConversationMessageContents, collectDialogContents, collectExistingItems, collectReferencedItemIds, getMessageRecord } from 'src/utils/dialog-message-map'
 
 const { t, locale } = useI18n()
 
@@ -777,7 +777,7 @@ function expandMessageTree(root): string[] {
 }
 
 const inputMessageContent = computed(() => messageMap.value[activeInputMessageId.value]?.contents[0] as UserMessageContent)
-const inputContentItems = computed(() => inputMessageContent.value.items.map(id => itemMap.value[id]).filter(x => x))
+const inputContentItems = computed(() => collectExistingItems(inputMessageContent.value.items, itemMap.value))
 const messageMap = shallowRef<Record<string, Message>>({})
 const itemMap = shallowRef<Record<string, StoredItem>>({})
 
@@ -1035,7 +1035,7 @@ function getChainMessages() {
           role: 'user',
           content: [
             { type: 'text', text: content.text },
-            ...content.items.map(id => itemMap.value[id]).map(i => {
+            ...collectExistingItems(content.items, itemMap.value).map(i => {
               if (i.contentText != null) {
                 if (i.type === 'file') {
                   return { type: 'text' as const, text: `<file_content filename="${i.name}">\n${i.contentText}\n</file_content>` }
@@ -1086,7 +1086,7 @@ function getChainMessages() {
             type: 'tool-result',
             toolName: `${pluginId}-${name}`,
             toolCallId: id,
-            output: toToolResultContent(result.map(id => itemMap.value[id]))
+            output: toToolResultContent(collectExistingItems(result, itemMap.value))
           }]
         })
       }
@@ -1298,7 +1298,7 @@ async function stream(target, insert = false, onPendingBranch?: (info: { assista
     update()
     const { result: apiResult, error } = await callApi(plugin, api, args)
     const result: StoredItem[] = apiResult.map(r => ({ ...r, id: genId(), dialogId: props.id, references: 0 }))
-    saveItems(result)
+    await saveItems(result)
     if (error) {
       content.status = 'failed'
       content.error = error
