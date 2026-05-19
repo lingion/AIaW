@@ -542,6 +542,7 @@ import { useUiStateStore } from 'src/stores/ui-state'
 import AutocompleteInput from 'src/components/AutocompleteInput.vue'
 import { useProvidersStore } from 'src/stores/providers'
 import { useMdPreviewProps } from 'src/composables/md-preview-props'
+import { collectChainMessageContents, collectConversationMessageContents, collectDialogContents, collectReferencedItemIds, getMessageRecord } from 'src/utils/dialog-message-map'
 
 const { t, locale } = useI18n()
 
@@ -722,11 +723,7 @@ async function regenerate(index) {
 }
 async function deleteMessageBranch(parent: string, anchor: string) {
   const ids = expandMessageTree(anchor)
-  const itemIds = ids.flatMap(id => messageMap.value[id].contents).flatMap(c => {
-    if (c.type === 'user-message') return c.items
-    else if (c.type === 'assistant-tool') return c.result || []
-    else return []
-  })
+  const itemIds = collectReferencedItemIds(ids, messageMap.value)
   await db.transaction('rw', db.dialogs, db.messages, db.items, () => {
     db.messages.bulkDelete(ids)
     itemIds.forEach(id => {
@@ -1031,12 +1028,7 @@ async function saveItems(items: StoredItem[]) {
 
 function getChainMessages() {
   const val: ModelMessage[] = []
-  historyChain.value
-    .slice(1)
-    .slice(-assistant.value.contextNum || 0)
-    .filter(id => messageMap.value[id].status !== 'inputing')
-    .map(id => messageMap.value[id].contents)
-    .flat()
+  collectConversationMessageContents(historyChain.value, chain.value, assistant.value.contextNum, messageMap.value)
     .forEach(content => {
       if (content.type === 'user-message') {
         val.push({
@@ -1581,7 +1573,7 @@ const usage = computed(() => messageMap.value[chain.value.at(-2)]?.usage)
 
 const systemSdkModel = computed(() => getSdkModel(perfs.systemProvider, perfs.systemModel))
 function getDialogContents() {
-  return chain.value.slice(1, -1).map(id => messageMap.value[id].contents).flat()
+  return collectDialogContents(chain.value, messageMap.value)
 }
 async function genTitle() {
   try {
@@ -2229,7 +2221,7 @@ async function autoExtractArtifact() {
   const { text } = await generateText({
     model: systemSdkModel.value,
     prompt: engine.parseAndRenderSync(ExtractArtifactPrompt, {
-      contents: chain.value.slice(-3, -1).map(id => messageMap.value[id].contents).flat()
+      contents: collectDialogContents(chain.value.slice(-3), messageMap.value)
     })
   })
   const object: ExtractArtifactResult = JSON.parse(text)

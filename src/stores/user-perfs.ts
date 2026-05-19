@@ -45,6 +45,7 @@ interface Perfs {
   mdNoMermaid: MdPreviewProps['noMermaid']
   mdAutoFoldThreshold?: MdPreviewProps['autoFoldThreshold']
   streamingLockBottom: boolean
+  streamRenderLevel: 0 | 25 | 50 | 75 | 100
   messageCatalog: boolean
   showWarnings: boolean
   userInputDebounce: number
@@ -105,6 +106,7 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     mdNoMermaid: false,
     mdAutoFoldThreshold: null,
     streamingLockBottom: true,
+    streamRenderLevel: 100,
     messageCatalog: true,
     showWarnings: false,
     userInputDebounce: 30,

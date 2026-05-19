@@ -192,6 +192,8 @@ export default {
     quickScrollCaption: 'Display a quick scroll button in the lower right corner of the conversation. After closing, you can still use keyboard shortcuts to scroll',
     autoFocusInput: 'Automatically Focus Conversation Input Box',
     autoLockBottom: 'Automatically Lock Bottom When Generating',
+    streamRenderLevel: 'Streaming Render Intensity',
+    streamRenderLevelCaption: 'Lower levels reduce live rich rendering while generating and always switch to full rendering after completion',
     messageContentCatalog: 'Message Content Catalog',
     messageContentCatalogCaption: 'Display the catalog next to the message when there is enough space',
     artifactsSettings: 'Artifacts Settings',

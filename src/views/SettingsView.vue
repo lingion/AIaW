@@ -209,6 +209,27 @@
         <q-item>
           <q-item-section>
             <q-item-label>
+              {{ $t('settingsView.streamRenderLevel') }}
+            </q-item-label>
+            <q-item-label caption>
+              {{ $t('settingsView.streamRenderLevelCaption') }}
+            </q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-select
+              class="w-120px"
+              v-model="perfs.streamRenderLevel"
+              :options="streamRenderLevelOptions"
+              filled
+              dense
+              emit-value
+              map-options
+            />
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label>
               {{ $t('settingsView.messageContentCatalog') }}
             </q-item-label>
             <q-item-label caption>
@@ -574,6 +595,13 @@ const darkModeOptions = [
   { label: t('settingsView.followSystem'), value: 'auto' },
   { label: t('settingsView.light'), value: false },
   { label: t('settingsView.dark'), value: true }
+]
+const streamRenderLevelOptions = [
+  { label: '0%', value: 0 },
+  { label: '25%', value: 25 },
+  { label: '50%', value: 50 },
+  { label: '75%', value: 75 },
+  { label: '100%', value: 100 }
 ]
 
 const $q = useQuasar()
