@@ -96,6 +96,68 @@ test('collectConversationMessageContents ignores stale history chain after norma
   )
 })
 
+test('collectConversationMessageContents prefers current shorter branch over longer stale history after switch settles', async () => {
+  const { collectConversationMessageContents } = await loadHelpers()
+
+  const messageMap = {
+    user1: {
+      id: 'user1',
+      status: 'default',
+      contents: [{ type: 'user-message', text: 'root question', items: [] }]
+    },
+    assistant1: {
+      id: 'assistant1',
+      status: 'default',
+      contents: [{ type: 'assistant-message', text: 'root answer' }]
+    },
+    user2: {
+      id: 'user2',
+      status: 'default',
+      contents: [{ type: 'user-message', text: 'old branch follow-up', items: [] }]
+    },
+    assistant2: {
+      id: 'assistant2',
+      status: 'default',
+      contents: [{ type: 'assistant-message', text: 'old branch answer' }]
+    },
+    draft1: {
+      id: 'draft1',
+      status: 'inputing',
+      contents: [{ type: 'user-message', text: '', items: [] }]
+    }
+  }
+
+  assert.deepEqual(
+    collectConversationMessageContents(
+      ['$root', 'user1', 'assistant1', 'user2', 'assistant2'],
+      ['$root', 'user1', 'assistant1', 'draft1'],
+      10,
+      messageMap
+    ),
+    [
+      { type: 'user-message', text: 'root question', items: [] },
+      { type: 'assistant-message', text: 'root answer' }
+    ]
+  )
+})
+
+test('collectExistingItems skips missing item ids', async () => {
+  const { collectExistingItems } = await loadHelpers()
+
+  const itemMap = {
+    'item-a': { id: 'item-a', type: 'text', name: 'A', contentText: 'alpha' },
+    'item-c': { id: 'item-c', type: 'text', name: 'C', contentText: 'gamma' }
+  }
+
+  assert.deepEqual(
+    collectExistingItems(['item-a', 'missing-item', 'item-c'], itemMap),
+    [
+      { id: 'item-a', type: 'text', name: 'A', contentText: 'alpha' },
+      { id: 'item-c', type: 'text', name: 'C', contentText: 'gamma' }
+    ]
+  )
+})
+
 test('collectDialogContents skips missing messages inside the visible chain', async () => {
   const { collectDialogContents } = await loadHelpers()
 

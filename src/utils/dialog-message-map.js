@@ -3,6 +3,12 @@ export function getMessageRecord(messageMap, id) {
   return messageMap[id]
 }
 
+export function collectExistingItems(ids, itemMap) {
+  return ids
+    .map(id => itemMap[id])
+    .filter(Boolean)
+}
+
 export function collectChainMessageContents(historyChain, contextNum, messageMap) {
   const scopedIds = historyChain
     .slice(1)
@@ -23,11 +29,8 @@ export function collectExistingMessageContents(ids, messageMap) {
 
 export function collectConversationMessageContents(historyChain, chain, contextNum, messageMap) {
   const currentChainContents = collectChainMessageContents(chain, contextNum, messageMap)
-  const historyChainContents = collectChainMessageContents(historyChain, contextNum, messageMap)
-
-  return currentChainContents.length >= historyChainContents.length
-    ? currentChainContents
-    : historyChainContents
+  if (currentChainContents.length > 0) return currentChainContents
+  return collectChainMessageContents(historyChain, contextNum, messageMap)
 }
 
 export function collectReferencedItemIds(ids, messageMap) {
