@@ -55,6 +55,47 @@ test('collectConversationMessageContents prefers history chain during branch tra
   )
 })
 
+test('collectConversationMessageContents ignores stale history chain after normal sends continue on current chain', async () => {
+  const { collectConversationMessageContents } = await loadHelpers()
+
+  const messageMap = {
+    user1: {
+      id: 'user1',
+      status: 'default',
+      contents: [{ type: 'user-message', text: 'first question', items: [] }]
+    },
+    assistant1: {
+      id: 'assistant1',
+      status: 'default',
+      contents: [{ type: 'assistant-message', text: 'first answer' }]
+    },
+    user2: {
+      id: 'user2',
+      status: 'default',
+      contents: [{ type: 'user-message', text: '587883', items: [] }]
+    },
+    draft2: {
+      id: 'draft2',
+      status: 'inputing',
+      contents: [{ type: 'user-message', text: '', items: [] }]
+    }
+  }
+
+  assert.deepEqual(
+    collectConversationMessageContents(
+      ['$root', 'user1'],
+      ['$root', 'user1', 'assistant1', 'user2', 'draft2'],
+      10,
+      messageMap
+    ),
+    [
+      { type: 'user-message', text: 'first question', items: [] },
+      { type: 'assistant-message', text: 'first answer' },
+      { type: 'user-message', text: '587883', items: [] }
+    ]
+  )
+})
+
 test('collectDialogContents skips missing messages inside the visible chain', async () => {
   const { collectDialogContents } = await loadHelpers()
 
