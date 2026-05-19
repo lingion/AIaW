@@ -79,15 +79,26 @@
             v-if="(content.type === 'assistant-message' || content.type === 'user-message') && content.text"
           >
             <div
-              v-if="isStreamingAssistantText(content)"
+              v-if="getStreamingRenderState(content).mode === 'plain-text'"
               :class="message.type === 'user'
                 ? 'bg-sur-c-low user-message-preview message-markdown-preview message-streaming-plain-text'
                 : 'bg-sur assistant-message-preview message-markdown-preview message-streaming-plain-text'"
               rd-lg
               @vue:updated="emit('rendered')"
             >
-              {{ getStreamingPlainText() }}
+              {{ getStreamingRenderState(content).text }}
             </div>
+            <md-preview
+              v-else-if="getStreamingRenderState(content).mode === 'markdown'"
+              :class="message.type === 'user'
+                ? 'bg-sur-c-low user-message-preview message-markdown-preview'
+                : 'bg-sur assistant-message-preview message-markdown-preview'"
+              :id="mdId"
+              rd-lg
+              :model-value="getStreamingRenderState(content).text"
+              v-bind="mdPreviewProps"
+              @on-html-changed="onHtmlChanged(true)"
+            />
             <md-preview
               v-else
               :class="message.type === 'user'
@@ -344,7 +355,7 @@
 <script setup lang="ts">
 import { MdPreview, MdCatalog } from 'md-editor-v3'
 import { db } from 'src/utils/db'
-import { computed, ComputedRef, inject, nextTick, onUnmounted, reactive, ref, watch, watchEffect } from 'vue'
+import { computed, ComputedRef, inject, nextTick, onUnmounted, reactive, ref, watchEffect } from 'vue'
 import sessions from 'src/utils/sessions'
 import { MessageContent, Message, ApiResultItem, UserMessageContent, AssistantMessageContent, ConvertArtifactOptions } from 'src/utils/types'
 import CopyBtn from './CopyBtn.vue'
@@ -475,23 +486,81 @@ const selected = reactive({
   original: false
 })
 
-const streamingPlainText = ref('')
-
-watchEffect(() => {
+const streamingRenderState = computed(() => {
   const content = textContent.value
-  if (content?.type === 'assistant-message' && props.message.status === 'streaming') {
-    streamingPlainText.value = content.text
-  } else {
-    streamingPlainText.value = ''
+  if (content?.type !== 'assistant-message' || props.message.status !== 'streaming') {
+    return { mode: 'final' as const, text: '' }
   }
+  return buildStreamingRenderState(content.text, perfs.streamRenderLevel)
 })
 
 function isStreamingAssistantText(content: MessageContent) {
   return content.type === 'assistant-message' && props.message.status === 'streaming'
 }
 
-function getStreamingPlainText() {
-  return streamingPlainText.value
+function getStreamingRenderState(content: MessageContent) {
+  if (isStreamingAssistantText(content)) return streamingRenderState.value
+  if (content.type === 'assistant-message' || content.type === 'user-message') {
+    return { mode: 'final' as const, text: content.text }
+  }
+  return { mode: 'final' as const, text: '' }
+}
+
+function buildStreamingRenderState(text: string, level: 0 | 25 | 50 | 75 | 100) {
+  if (level === 0) return { mode: 'plain-text' as const, text }
+  if (level === 100) return { mode: 'markdown' as const, text }
+
+  let nextText = degradeBlockFormulas(text)
+  if (level < 75) nextText = degradeInlineFormulas(nextText)
+  if (level < 50) nextText = degradeImages(nextText)
+  if (level < 50) nextText = degradeTables(nextText)
+  if (level < 25) nextText = degradeBasicMarkdown(nextText)
+
+  return { mode: 'markdown' as const, text: nextText }
+}
+
+function degradeBasicMarkdown(text: string) {
+  return text
+    .replace(/^(#{1,6})\s+/gm, (_, hashes: string) => `${'\\'.repeat(hashes.length)}${hashes} `)
+    .replace(/\*\*(.+?)\*\*/g, (_, inner: string) => `\\*\\*${inner}\\*\\*`)
+    .replace(/__(.+?)__/g, (_, inner: string) => `\\_\\_${inner}\\_\\_`)
+}
+
+function degradeTables(text: string) {
+  const lines = text.split('\n')
+  const keep = new Set<number>()
+
+  const isRow = (line: string) => /^\s*\|.*\|\s*$/.test(line)
+  const isSeparator = (line: string) => /^\s*\|(?:\s*:?-+:?\s*\|)+\s*$/.test(line)
+
+  for (let i = 0; i < lines.length - 1; i++) {
+    if (!isRow(lines[i]) || !isSeparator(lines[i + 1])) continue
+    keep.add(i)
+    keep.add(i + 1)
+    let j = i + 2
+    while (j < lines.length && isRow(lines[j])) {
+      keep.add(j)
+      j++
+    }
+    i = j - 1
+  }
+
+  return lines.map((line, index) => {
+    if (!isRow(line) || !keep.has(index)) return line
+    return line.replace(/\|/g, '&#124;')
+  }).join('\n')
+}
+
+function degradeImages(text: string) {
+  return text.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_match: string, alt: string, src: string) => `\\![${alt}](${src})`)
+}
+
+function degradeBlockFormulas(text: string) {
+  return text.replace(/\$\$[\s\S]*?\$\$/g, (match: string) => match.replace(/\$/g, '\\$'))
+}
+
+function degradeInlineFormulas(text: string) {
+  return text.replace(/\$(?!\$)([^\n$]{1,80})\$/g, (_match: string, body: string) => `\\${body.replace(/\\/g, '\\\\').replace(/([*_`#[\]{}()+\-.!|])/g, '\\$1')}`)
 }
 
 function getDataLine(node: Node, ttl = 3) {

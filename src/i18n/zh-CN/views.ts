@@ -192,6 +192,8 @@ export default {
     quickScrollCaption: '在对话右下角显示快速滚动按钮。关闭后，你仍然可以使用键盘快捷键滚动',
     autoFocusInput: '自动聚焦对话输入框',
     autoLockBottom: '生成时自动锁定底部',
+    streamRenderLevel: '流式渲染强度',
+    streamRenderLevelCaption: '较低档位会减少生成时的富文本实时渲染，并在完成后始终切换为完整渲染',
     messageContentCatalog: '消息内容目录',
     messageContentCatalogCaption: '空间足够时，在消息旁边显示目录',
     artifactsSettings: 'Artifacts 设置',
