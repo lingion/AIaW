@@ -586,9 +586,9 @@ function switchChain(index, value) {
   const route = [...dialog.value.msgRoute.slice(0, index), value]
   updateChain(route)
 }
-function setRoute(route: number[]) {
+async function setRoute(route: number[]) {
   if (!dialog.value?.id) return
-  db.dialogs.update(dialog.value.id, { msgRoute: route })
+  await db.dialogs.update(dialog.value.id, { msgRoute: route })
 }
 function updateChain(route) {
   if (!dialog.value?.id || !liveDialog.value?.msgTree?.$root) return
@@ -716,9 +716,13 @@ async function regenerate(index) {
     return
   }
   const target = chain.value[index - 1]
-  await stream(target, false, ({ branchIndex }) => {
+  const pendingBranchIndex = dialog.value?.msgTree?.[target]?.length ?? 0
+  switchChain(index - 1, pendingBranchIndex)
+  await stream(target, false, async ({ branchIndex }) => {
     const nextRoute = [...(dialog.value?.msgRoute || []).slice(0, index - 1), branchIndex, 0]
-    setRoute(nextRoute)
+    await setRoute(nextRoute)
+    await nextTick()
+    switchChain(index - 1, branchIndex)
   })
 }
 async function deleteMessageBranch(parent: string, anchor: string) {
@@ -1226,7 +1230,7 @@ async function send() {
 
 const artifacts = inject<Ref<Artifact[]>>('artifacts')
 const abortController = ref<AbortController>()
-async function stream(target, insert = false, onPendingBranch?: (info: { assistantId: string, branchIndex: number, draftId?: string }) => void) {
+async function stream(target, insert = false, onPendingBranch?: (info: { assistantId: string, branchIndex: number, draftId?: string }) => void | Promise<void>) {
   const settings: Partial<ModelSettings> = {}
   for (const key in assistant.value.modelSettings) {
     const val = assistant.value.modelSettings[key]
@@ -1283,7 +1287,7 @@ async function stream(target, insert = false, onPendingBranch?: (info: { assista
       })
     }
   })
-  onPendingBranch?.({ assistantId: id, branchIndex, draftId })
+  await onPendingBranch?.({ assistantId: id, branchIndex, draftId })
 
   const update = throttle(() => db.messages.update(id, { contents }), 50)
   async function callTool(plugin: Plugin, api: PluginApi, args) {
