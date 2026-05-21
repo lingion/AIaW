@@ -852,7 +852,6 @@ const { t } = useI18n()
   }
 
   p {
-    white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
 
