@@ -817,7 +817,7 @@ const { t } = useI18n()
   max-width: 100%;
   min-width: 0;
   overflow: hidden;
-  padding: 8px 12px !important;
+  padding: 6px 10px !important;
 
   .md-editor-preview-wrapper,
   .md-editor-preview {
@@ -839,7 +839,7 @@ const { t } = useI18n()
   }
 
   p {
-    margin: 0.35em 0 !important;
+    margin: 0 !important;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
