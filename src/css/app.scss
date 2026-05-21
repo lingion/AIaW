@@ -290,9 +290,9 @@ body.body--light {
   gap: 3px;
   height: 36px;
   min-height: 36px;
-  min-width: 92px;
-  max-width: 92px;
-  flex: 0 0 92px;
+  min-width: 0;
+  max-width: 50%;
+  flex: 0 1 auto;
   white-space: nowrap;
   font-size: 10px;
   line-height: 1;
@@ -310,7 +310,7 @@ body.body--light {
   overflow: hidden;
   text-overflow: clip;
   white-space: nowrap;
-  font-size: 10px;
+  font-size: clamp(7px, 2.5vw, 10px);
   line-height: 1.1;
   margin: 0;
 }
@@ -581,6 +581,22 @@ body.body--light {
     width: fit-content;
     max-width: 100%;
     min-width: 0;
+
+    .message-markdown-wrap {
+      display: flex;
+    }
+  }
+
+  // Override global md-editor-preview 16px margin for user bubbles
+  .user-message-preview {
+    .md-editor-preview {
+      > :first-child {
+        margin-top: 0 !important;
+      }
+      > :last-child {
+        margin-bottom: 0 !important;
+      }
+    }
   }
 }
 
