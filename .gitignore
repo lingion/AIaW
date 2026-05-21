@@ -53,3 +53,7 @@ ios/App/App.entitlements
 *.xcuserdatad
 xcuserdata/
 DerivedData/
+ios/build-src/
+src-capacitor/
+ios/build-src-v4/
+ios/

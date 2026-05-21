@@ -832,7 +832,7 @@ const { t } = useI18n()
   .md-editor-preview h1,
   .md-editor-preview h2,
   .md-editor-preview h3 {
-    line-height: 1.35 !important;
+    line-height: 1.15 !important;
   }
 
   .md-editor-preview {
@@ -841,8 +841,13 @@ const { t } = useI18n()
     flex-direction: column !important;
     gap: 0 !important;
 
+    > * {
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+    }
+
     > * + * {
-      margin-top: 21.6px !important;
+      margin-top: 18.4px !important;
     }
   }
 
