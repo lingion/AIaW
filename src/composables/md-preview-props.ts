@@ -102,6 +102,7 @@ config({
     }
   },
   markdownItConfig(md) {
+    md.set({ breaks: true })
     const originalRender = md.render.bind(md)
     md.render = (source, env) => originalRender(replaceMathMiddleDot(source), env)
   },
