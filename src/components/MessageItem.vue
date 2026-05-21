@@ -828,18 +828,24 @@ const { t } = useI18n()
 
   .md-editor-preview {
     padding: 0 !important;
-  }
+    display: flex !important;
+    flex-direction: column !important;
 
-  > :first-child {
-    margin-top: 0 !important;
-  }
+    > * {
+      margin-top: 3.3px !important;
+      margin-bottom: 3.3px !important;
+    }
 
-  > :last-child {
-    margin-bottom: 0 !important;
+    > :first-child {
+      margin-top: 0 !important;
+    }
+
+    > :last-child {
+      margin-bottom: 0 !important;
+    }
   }
 
   p {
-    margin: 0 !important;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
