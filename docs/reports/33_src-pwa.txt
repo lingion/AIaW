@@ -1,0 +1,36 @@
+模块名称：src-pwa/ — PWA 配置
+文件路径：src-pwa/
+
+功能概述
+PWA（渐进式 Web 应用）配置。包含 Web App Manifest、Service Worker 注册和自定义 Service Worker。实现离线缓存、自动更新（强制更新版本检测）和 SPA 路由回退。
+
+包含文件
+
+1. manifest.json — Web App Manifest
+   - name: "AI as Workspace", short_name: "AIaW"
+   - orientation: portrait
+   - background_color: "#fdf8fd"
+   - 5 个尺寸的图标（128-512px）
+
+2. register-service-worker.js — Service Worker 注册与更新逻辑
+   - 注册由 Quasar 构建系统生成的 Service Worker
+   - updatefound 事件：获取 /version.json，检查 versionCode 是否需要强制更新
+   - updated 事件：如果需要强制更新，5 秒防抖后自动 reload
+   - 使用 Loading.show() 显示更新进度
+
+3. custom-service-worker.js — 自定义 Service Worker（InjectManifest 模式）
+   - skipWaiting + clientsClaim：立即激活新 SW
+   - precacheAndRoute：预缓存所有构建资源（__WB_MANIFEST）
+   - cleanupOutdatedCaches：清理旧缓存
+   - NavigationRoute：SPA 路由回退到 index.html
+
+核心数据流
+1. Quasar 构建 → 生成 SW（注入 __WB_MANIFEST）
+2. 页面加载 → register-service-worker.js 注册 SW
+3. 新版本部署 → SW 检测更新 → updatefound → 获取 version.json
+4. versionCode ≤ forceUpdateFrom → Loading.show → reload
+
+与其他模块的交互
+- src/version.json：构建时注入的版本号和 forceUpdateFrom
+- utils/local-data.ts：lastReloadTimestamp 防止无限 reload
+- utils/update.ts：更新检查逻辑

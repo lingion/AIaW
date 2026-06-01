@@ -1,0 +1,44 @@
+模块名称：组件层 — 设置与配置组件
+文件路径：src/components/
+
+功能概述
+本组组件负责各种设置表单、输入控件、对话框等 UI 构建。大部分是通用的表单组件，被多个视图复用。
+
+核心组件
+
+1. TypesInput.vue（256行）— 通用类型输入
+   - 根据 JSON Schema type 渲染对应控件：string→Input/Select, number→Input(type=number), boolean→Checkbox, array→ListInput, object→JsonInput
+   - 是 JsonInput 和 PluginSettings 的基础渲染引擎
+
+2. JsonInput.vue（64行）— JSON Schema 驱动表单
+   - 遍历 schema.properties，为每个属性渲染 TypesInput
+   - component prop 控制外层包装（item 或 input）
+
+3. ModelsInput.vue（33行）— 模型选择器
+   - Quasar Select + useFilterOptions，支持搜索和新建自定义模型
+
+4. ProviderInputItems.vue（159行）— 提供商选择
+   - 提供商类型选择 + API Key/Base URL 配置
+   - 集成 GetModelList 获取远程模型列表
+
+5. SubproviderInput.vue（44行）— 子提供商编辑
+   - 提供商选择 + modelMap 编辑（源模型→目标模型映射）
+
+6. CustomProviders.vue（101行）— 自定义提供商列表
+   - 展示所有自定义提供商，支持添加/删除/编辑
+
+7. GetModelList.vue（108行）— 远程模型列表获取
+   - 调用 providersStore.getModelList 获取提供商支持的模型
+
+8. PickAvatarDialog.vue（261行）— 头像选择弹窗
+   - 支持三种头像类型：文字、图标、图片上传
+   - 图标选择器带分类和搜索；Hue 滑块调色
+
+辅助组件
+- LazyInput：延迟更新（@change 而非 @input）
+- ListInput：列表编辑（Quasar Select with add-unique）
+- VarsInput：键值对变量编辑
+- PromptVarInput/PromptVarItem：插件提示词变量编辑
+- AutocompleteInput：自动补全输入
+- ShortcutKeyInput：快捷键录制输入
+- PlatformEnabledInput：平台开关（always/desktop-only/never）

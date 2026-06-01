@@ -186,6 +186,7 @@ export function useMdPreviewProps() {
     codeTheme: perfs.mdCodeTheme,
     autoFoldThreshold: perfs.mdAutoFoldThreshold ?? Infinity,
     noMermaid: perfs.mdNoMermaid,
-    mdHeadingId: (text, level, index) => `${text}-${level}-${index}`
+    mdHeadingId: (text, level, index) => `${text}-${level}-${index}`,
+    noImgZoomIn: true
   }))
 }

@@ -1,0 +1,32 @@
+模块名称：PluginSettings.vue（插件全局设置）
+文件路径：src/views/PluginSettings.vue
+
+功能概述
+单个插件的全局配置页面。展示插件信息（名称、描述、作者、主页），提供图标设置、文件解析器的 MIME 类型配置和启用/禁用、以及基于 JSON Schema 的自定义设置表单。
+
+入口与路由
+- 路由：/plugins/:pluginId（prop: id）
+- 通过 PluginsPage 子路由访问
+
+核心数据流
+1. props.id → pluginsStore.plugins.find() → computed plugin
+2. pluginsStore.data[id] → reactive 插件数据（通过 persistentReactive）
+3. 用户修改 → data[id] 自动持久化（persistentReactive watch）
+
+依赖关系
+- stores/plugins：插件数据和已安装列表
+- composables/set-title：页面标题
+- components/JsonInput：JSON Schema 驱动的设置表单
+- components/ListInput：MIME 类型列表编辑
+- components/PickAvatarDialog：图标选择
+
+关键实现细节
+- L48-50：plugin computed 通过 id 查找已安装插件，找不到则显示 ErrorNotFound
+- L56-63：pickAvatar() 修改 data[id].avatar
+- L39-44：文件解析器配置 — 每个 fileparser 有独立的 enabled 和 mimeTypes 设置
+- L51：JsonInput 使用 plugin.settings 作为 JSON Schema 驱动表单
+
+与其他模块的交互
+- PluginsStore：读取插件元信息和 data（persistentReactive）
+- JsonInput：通用 JSON Schema 表单组件
+- ErrorNotFound：插件不存在时的 404 页面

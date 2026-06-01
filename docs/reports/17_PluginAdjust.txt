@@ -1,0 +1,35 @@
+模块名称：PluginAdjust.vue（助手级插件调整）
+文件路径：src/views/PluginAdjust.vue
+
+功能概述
+针对某个助手（Assistant）的特定插件配置页面。允许用户为每个插件独立控制：信息提供者（infos）的参数和启用、工具调用（tools）的启用、插件变量（promptVars）的值。实现同一插件在不同助手中的差异化配置。
+
+入口与路由
+- 路由：/workspaces/:workspaceId/assistants/:assistantId/plugins/:pluginId
+- 也可从 /assistants/:assistantId/plugins/:pluginId 访问
+- props: { id: string, assistantId: string }
+
+核心数据流
+1. props.assistantId → assistantsStore.assistants.find() → syncRef → assistant
+2. props.id → pluginsStore.plugins.find() → computed plugin
+3. assistant.plugins[props.id] → computed assistantPlugin → UI 绑定
+4. plugin.apis → computed apiMap → 参数 Schema 和描述
+
+依赖关系
+- stores/assistants：助手数据，通过 syncRef 双向绑定
+- stores/plugins：插件元信息（API 列表、参数 Schema）
+- composables/sync-ref：助手对象双向绑定
+- composables/set-title：页面标题
+- components/JsonInput：API 参数表单
+- components/PromptVarInput：提示词变量输入
+
+关键实现细节
+- L60-66：syncRef 绑定助手数据，valueDeep: true 确保插件配置变更自动持久化
+- L70-74：apiMap 将 plugin.apis 数组转为 name→api 的 Map，用于查找参数 Schema
+- L12-27（模板）：infos 列表展示参数表单和启用开关
+- L38-46：promptVars 渲染插件定义的变量输入
+
+与其他模块的交互
+- AssistantsStore：读取和修改助手的 plugins 字段
+- PluginsStore：读取插件的 API 定义和 promptVars
+- PluginSettings（提示链接）：引导用户到全局插件设置页面

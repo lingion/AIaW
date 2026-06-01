@@ -1,0 +1,58 @@
+模块名称：Composables 层 — UI交互与辅助
+文件路径：src/composables/
+
+功能概述
+本组 composable 负责 UI 相关的响应式逻辑，包括主题、快捷键、登录、订阅通知、Markdown 预览配置等。
+
+包含的 Composable
+
+1. set-theme.ts — Material You 主题系统
+   - useSetTheme()：watchEffect 内根据 themeHue + Dark.isActive 生成完整颜色方案
+   - 使用 @material/material-color-utilities 的 Hct、TonalPalette、themeFromSourceColor
+   - 生成 50+ CSS 变量（--a-pri, --a-sur, --a-on-sur 等）
+   - Capacitor: StatusBar 样式 + EdgeToEdge 背景色同步
+   - 同时在 body 上添加 platform-android / platform-ios class
+
+2. listen-key.ts — 快捷键监听
+   - useListenKey(shortcutKey, callback, prevent)：注册/注销 keydown 监听
+   - 自动处理 onMounted/onUnmounted + onActivated/onDeactivated（keep-alive 兼容）
+   - 匹配 key + ctrl/shift/alt/meta 组合
+
+3. login-dialogs.ts — 登录流程对话框
+   - useLoginDialogs()：监听 Dexie Cloud 的 userInteraction
+   - 处理 email 输入 → OTP 验证 → 登出确认 → 消息提醒的完整流程
+   - 仅在 DexieDBURL 配置时激活
+
+4. subscription-notify.ts — 订阅过期通知
+   - useSubscriptionNotify()：检查用户许可证状态
+   - eval 类型：到期前 1 天提醒 / 到期后通知
+   - prod 类型：到期前 2 天提醒 / 到期后通知
+   - 使用 until(store.ready) 等待数据加载
+
+5. open-last-workspace.ts — 恢复上次工作区
+   - useOpenLastWorkspace()：读取 userData.lastWorkspaceId → router.push
+   - 使用 until 等待 userData 和 workspaces 就绪
+
+6. md-preview-props.ts — Markdown 预览配置
+   - useMdPreviewProps()：返回 computed 配置（主题、代码高亮、Mermaid 开关、自动折叠阈值）
+   - 全局配置：XSS 过滤、链接新窗口打开、脚注支持、KaTeX 数学公式、数学点号替换（· → \cdot）
+   - 自定义 router-link Web Component 处理 Markdown 内链接
+
+7. 其他辅助 composable：
+   - back.ts：useBack(defaultTo) — 返回上一页，无历史时 replace 到默认路径
+   - filter-options.ts：useFilterOptions — Quasar Select 过滤函数
+   - file-url.ts：useFileURL — StoredItem/AvatarImage 的 ObjectURL 管理（引用计数）
+   - avatar-image.ts：useAvatarImage — 从 db 加载头像图并创建 URL
+   - set-title.ts：useSetTitle — watchEffect 设置 document.title
+   - first-visit.ts：useFirstVisit — 首次访问引导
+   - locate-id.ts：useLocateId — 数据就绪后滚动到 hash 位置
+   - migration-alert.ts：useMigrationAlert — 空实现（fork 中禁用）
+   - order.ts：useOrder — 订阅购买流程（微信/Stripe）
+   - key-composition.ts：IME 输入法兼容处理
+
+与其他模块的交互
+- set-theme：App.vue 初始化
+- listen-key：DialogView 注册快捷键
+- login-dialogs/subscription-notify：App.vue 初始化
+- open-last-workspace：App.vue 初始化
+- md-preview-props：WorkspaceIndex、DialogView

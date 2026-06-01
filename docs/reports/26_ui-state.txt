@@ -1,0 +1,25 @@
+模块名称：stores/ui-state.ts（UI 状态管理）
+文件路径：src/stores/ui-state.ts
+
+功能概述
+管理非持久化的 UI 运行时状态。包括主抽屉开关状态、动态主题颜色缓存、对话页滚动位置记录。这些状态不需要持久化，仅用于组件间通信。
+
+入口与路由
+- 全局 store
+
+核心数据流
+- 直接 ref/reactive，无持久化
+
+依赖关系
+- 无外部依赖，仅使用 pinia defineStore 和 vue ref
+
+关键实现细节
+- L5：mainDrawerOpen：主侧边栏抽屉开关
+- L6-8：toggleMainDrawer：切换抽屉
+- L9：colors：缓存当前主题颜色（Material You 色值映射），供 useSetTheme 写入
+- L10：dialogScrollTops：记录每个对话页的滚动位置（Record<dialogId, scrollTop>），用于 keep-alive 恢复
+
+与其他模块的交互
+- MainLayout：读取 mainDrawerOpen
+- useSetTheme：写入 colors
+- DialogView：读写 dialogScrollTops

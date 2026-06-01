@@ -1,0 +1,50 @@
+模块名称：Composables 层 — API调用与插件交互
+文件路径：src/composables/
+
+功能概述
+本组 composable 负责插件 API 调用、模型获取、插件安装、对话创建、Artifact 管理等核心业务逻辑。
+
+包含的 Composable
+
+1. call-api.ts — 插件 API 调用
+   - useCallApi({ workspace, dialog })：返回 getPluginSettings 和 callApi
+   - getPluginSettings：读取插件设置，注入 _workspaceId / _dialogId，用 JSON Schema 校验
+   - callApi：先校验参数 Schema → 校验设置 Schema → 调用 api.execute(args, settings)
+   - 被 DialogView 的消息处理逻辑使用
+
+2. get-model.ts — 模型获取与中间件
+   - useGetModel()：返回 getProvider, getModel, getSdkProvider, getSdkModel
+   - getSdkModel：provider → sdkProvider → model → wrapMiddlewares
+   - wrapMiddlewares：注入 extractReasoning、FormattingReenabled（o1/o3）、MarkdownFormatting（gpt-5）、AuthropicCors（anthropic）
+   - 支持登录用户的默认 provider（Dexie Cloud + Litellm）
+
+3. install-plugin.ts — 统一插件安装
+   - useInstallPlugin()：返回 install(source)
+   - 支持来源：URL（fetch → JSON）、JSON 字符串、对象
+   - 使用 JSON Schema 校验器自动识别类型：GradioPluginManifestSchema → HuggingPluginManifestSchema → LobePluginManifestSchema → McpPluginManifestSchema
+   - MCP 插件额外校验平台兼容性（STDIO 需要 Tauri，iOS 不支持 STDIO）
+
+4. create-dialog.ts — 对话创建
+   - useCreateDialog(workspace)：返回 createDialog
+   - 创建对话 + 初始空用户消息，在一个 Dexie 事务中完成
+   - 创建后 router.push 到新对话页面
+
+5. create-artifact.ts — Artifact 创建
+   - useCreateArtifact(workspace)：返回 createArtifact
+   - 创建 Artifact 并通过 router.push({ query: { artifactId } }) 打开
+
+6. close-artifact.ts — Artifact 关闭
+   - useCloseArtifact()：返回 closeArtifact
+   - 检测未保存变更，弹出 SaveDialog，根据用户选择保存或恢复
+
+7. workspace-actions.ts — 工作区操作集
+   - useWorkspaceActions()：返回 addWorkspace, addFolder, renameItem, changeAvatar, moveItem, deleteItem
+   - addWorkspace 在事务中同时创建工作区和默认助手
+   - deleteItem 调用 store 的级联删除
+
+与其他模块的交互
+- call-api：DialogView 消息处理
+- get-model：DialogView 发送消息、AssistantView 模型选择
+- install-plugin：PluginsMarket
+- create-dialog/close-artifact：DialogView 工具栏
+- workspace-actions：WorkspaceNav 右键菜单

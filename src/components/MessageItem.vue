@@ -1,5 +1,6 @@
 <template>
   <div
+    ref="messageShell"
     flex
     :class="{ 'flex-row-reverse': message.type === 'user', 'flex-col': colMode }"
     :data-md-id="!colMode && message.type === 'assistant' && textContent.text ? mdId : null"
@@ -328,6 +329,11 @@
                   :label="$t('messageItem.moreInfo')"
                   @click="moreInfo"
                 />
+                <menu-item
+                  icon="sym_o_picture_as_pdf"
+                  :label="$t('messageItem.exportPDF')"
+                  @click="exportRoundPDF"
+                />
               </q-list>
             </q-menu>
           </q-btn>
@@ -376,6 +382,7 @@ import { useMdPreviewProps } from 'src/composables/md-preview-props'
 import ConvertArtifactDialog from './ConvertArtifactDialog.vue'
 import { useI18n } from 'vue-i18n'
 import { dialogOptions } from 'src/utils/values'
+import { useExportPDF } from 'src/composables/export-pdf'
 
 const props = defineProps<{
   message: Message,
@@ -389,6 +396,13 @@ const props = defineProps<{
 }>()
 
 const mdId = `md-${props.message.id}`
+
+const messageShell = ref<HTMLElement>()
+const { exportToPDF } = useExportPDF()
+function exportRoundPDF() {
+  if (!messageShell.value) return
+  exportToPDF(messageShell.value, `message-${props.message.id}.pdf`)
+}
 
 const $q = useQuasar()
 function moreInfo() {
@@ -673,6 +687,9 @@ function onHtmlChanged(inject = false) {
     emit('rendered')
   })
 }
+
+// injectImagePreview REMOVED: md-editor-v3 has built-in medium-zoom image preview.
+// Image long-press save handled by native WebView via CSS -webkit-touch-callout
 
 function clearDisplayMathScroll(root: HTMLElement) {
   root.querySelectorAll('.message-display-math-content').forEach(node => {

@@ -1,0 +1,33 @@
+模块名称：stores/assistants.ts（助手状态管理）
+文件路径：src/stores/assistants.ts
+
+功能概述
+助手（Assistant）的 Pinia store。使用 Dexie LiveQuery 提供响应式助手列表。提供助手的增删改查操作，新助手带有完整的默认值（提示词模板、模型设置、插件等）。
+
+入口与路由
+- 全局 store，在 AssistantView、WorkspaceSettings、AssistantsMarket 等多处使用
+
+核心数据流
+1. db.assistants.toArray() → useLiveQuery → assistants（响应式数组）
+2. add(props) → db.assistants.add（合并默认值）
+3. update(id, changes) → db.assistants.update
+4. put(assistant) → db.assistants.put
+5. delete_(id) → db.assistants.delete
+
+依赖关系
+- composables/live-query：响应式查询
+- utils/db：Dexie 数据库、defaultModelSettings
+- utils/types：Assistant 类型
+- utils/templates：AssistantDefaultPrompt
+- utils/functions：genId, defaultAvatar
+
+关键实现细节
+- L8-21：add() 创建助手时设置完整默认值：name、avatar（文字头像）、workspaceId='$root'、promptTemplate=AssistantDefaultPrompt、modelSettings 展开默认值、plugins={}、stream=true
+- 支持通过 props 参数覆盖任何默认值
+
+与其他模块的交互
+- WorkspaceSettings：选择默认助手
+- AssistantsMarket：添加助手模板
+- AssistantView：编辑助手配置
+- PluginAdjust：修改助手的插件配置
+- useWorkspaceActions：创建工作区时同时创建默认助手

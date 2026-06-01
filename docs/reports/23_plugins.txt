@@ -1,0 +1,35 @@
+模块名称：stores/plugins.ts（插件状态管理）
+文件路径：src/stores/plugins.ts
+
+功能概述
+插件系统的核心 store。管理内置插件和已安装插件。支持三种插件类型：LobeChat、Gradio、MCP。通过 persistentReactive 持久化插件数据（设置、头像、文件解析器配置等）。提供插件的安装、卸载、MCP 刷新操作。
+
+入口与路由
+- 全局 store，在 PluginSettings、PluginAdjust、DialogView、call-api 等多处使用
+
+核心数据流
+1. db.installedPluginsV2.toArray() → useLiveQuery → installed（已安装列表）
+2. persistentReactive('#plugins-data', defaultData) → data（插件运行时数据）
+3. installed + 内置插件 → computed plugins（完整插件列表）
+4. installLobePlugin/installGradioPlugin/installMcpPlugin → db 事务（写入 + 初始化 data）
+
+依赖关系
+- composables/live-query：已安装列表响应式查询
+- composables/persistent-reactive：插件数据持久化
+- utils/plugins：构建插件的工具函数（buildLobePlugin, buildGradioPlugin, buildMcpPlugin 等）
+- utils/db：Dexie 数据库
+- 内置插件模块：web-search-plugin, doc-parse-plugin, artifacts-plugin, code-exec-plugin, file-ops-plugin, local-fs-native-plugin 等
+
+关键实现细节
+- L17-19：installed 使用 useLiveQuery 响应式追踪
+- L20：data 使用 persistentReactive 持久化到 db.reactives
+- L21-35：plugins computed 合并 14 个内置插件 + installed 中的用户插件
+- L37-47：installLobePlugin 在事务中写入 installedPluginsV2 和初始化 data
+- L65-82：installMcpPlugin 先 dumpMcpPlugin（连接 MCP 服务器获取 API 列表），再写入数据库；支持 STDIO/HTTP/SSE 传输
+- L84-89：uninstall 标记 available=false 并清除所有助手中的该插件配置
+
+与其他模块的交互
+- useInstallPlugin：调用安装方法
+- useCallApi：读取插件设置并调用 API
+- PluginSettings/PluginAdjust：读取和修改插件数据
+- DialogView：使用插件的 tools 和 infos 进行对话增强

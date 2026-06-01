@@ -1,0 +1,50 @@
+================================================================================
+SettingsView — 设置视图（全局配置）
+================================================================================
+文件路径: src/views/SettingsView.vue
+
+1. 功能概述
+应用的全局配置中心，涵盖 Provider、模型、系统助手、功能开关、操作设置、UI 主题、数据管理。
+
+2. 入口与路由
+- URL: /settings/
+- 位于 SettingsPage 的 router-view 中
+
+3. 核心数据流
+1. useUserPerfsStore() 获取 perfs 响应式对象
+2. 所有设置项 v-model 直接绑定 perfs 属性
+3. persistentReactive 自动持久化到 Dexie reactives 表 ('#user-perfs' key)
+4. Provider 设置变化影响 DialogView 的模型解析链
+
+4. 依赖关系
+- Stores: useUserPerfsStore
+- Composables: useLocateId, useGetModel
+- Components: ProviderInputItems, ModelInputItems, ModelsInput, GetModelList,
+  PlatformEnabledInput, HctPreviewCircle, CopyBtn, AAvatar, ImportDataDialog, ExportDataDialog
+- 外部: @vueuse/rxjs (useObservable for db.cloud.currentUser)
+
+5. 关键实现细节
+
+配置分区:
+- 默认 Provider (perfs.provider) + 分享链接生成
+- 默认模型 (perfs.model) + 常用模型列表 (perfs.commonModelOptions，可拖拽排序)
+- 系统助手 (perfs.systemProvider + perfs.systemModel) — 用于自动标题等
+- 功能: autoGenTitle, messageSelectionBtn, codePasteOptimize, dialogScrollBtn,
+  autoFocusDialogInput, streamingLockBottom, streamRenderLevel, messageCatalog
+- Artifacts: artifactsEnabled (platform-enabled), artifactsAutoExtract, artifactsAutoName, artifactsReserveOriginal
+- 操作: sendKey, 快捷键链接, userInputDebounce, expandReasoningContent
+- UI: darkMode, themeHue, userAvatar, showWarnings, language, markdown 渲染主题
+- 数据: 导入/导出, 恢复默认设置
+
+Provider 分享链接:
+- computed providerLink → ${PublicOrigin}/set-provider?provider=${encoded JSON}
+- 通过 SetProvider 页面 URL scheme 设置
+
+PlatformEnabled 类型: 'always' | 'desktop-only' | 'mobile-only' | 'never'
+- 对话滚动按钮、快捷键、自动聚焦、Artifacts 等支持此类型
+
+6. 与其他模块交互
+- perfs 被 DialogView 大量消费 (provider/model/sendKey/streamRenderLevel 等)
+- providersStore 被引用获取 modelOptions
+- importData/exportData 使用 ImportDataDialog/ExportDataDialog 组件
+- 快捷键配置被 listen-key composable 消费

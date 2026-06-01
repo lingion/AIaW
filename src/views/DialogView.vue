@@ -519,6 +519,8 @@ import { useUserPerfsStore } from 'src/stores/user-perfs'
 import ModelItem from 'src/components/ModelItem.vue'
 import ParseFilesDialog from 'src/components/ParseFilesDialog.vue'
 import MessageFile from 'src/components/MessageFile.vue'
+import { Capacitor } from '@capacitor/core'
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
 import { dialogOptions, InputTypes, models } from 'src/utils/values'
 import { useUserDataStore } from 'src/stores/user-data'
 import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
@@ -896,13 +898,21 @@ async function takePhoto() {
         resultType: CameraResultType.DataUrl,
         source: CameraSource.Camera
       })
+      if (!photo?.dataUrl) {
+        throw new Error('Camera returned empty photo data')
+      }
       const res = await fetch(photo.dataUrl)
       const blob = await res.blob()
-      const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' })
+      const file = new File([blob], `photo_${Date.now()}.jpg`, { type: photo.format ? `image/${photo.format}` : 'image/jpeg' })
       parseFiles([file])
     } catch (e) {
-      if (e.message !== 'User cancelled photos app') {
-        $q.notify({ message: `Camera error: ${e.message}`, color: 'negative' })
+      const message = e instanceof Error ? e.message : String(e)
+      if (
+        message !== 'User cancelled photos app' &&
+        message !== 'User cancelled' &&
+        !message.toLowerCase().includes('cancel')
+      ) {
+        $q.notify({ message: `Camera error: ${message}`, color: 'negative' })
       }
     }
   } else {
