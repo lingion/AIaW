@@ -1,0 +1,33 @@
+模块名称：AssistantsMarket.vue（助手市场）
+文件路径：src/views/AssistantsMarket.vue
+
+功能概述
+助手市场页面，从静态 JSON 文件加载预定义助手模板列表。支持搜索过滤、添加到全局或指定工作区、从文件导入、从剪贴板导入。使用 JSON Schema 验证导入数据的格式。
+
+入口与路由
+- 路由：/assistants/（AssistantsPage 的默认子路由）
+- meta.title: 助手市场
+
+核心数据流
+1. load() → fetch /json/assistants.{locale}.json → reactive list
+2. query input → computed filterList（按名称/描述过滤）
+3. 用户点击"添加" → addToGlobal/addToWorkspace → store.add → db.assistants
+4. 导入：文件/剪贴板 → JSON.parse → addToGlobal
+
+依赖关系
+- stores/assistants：助手 CRUD
+- utils/types：MarketAssistantSchema（JSON Schema 校验）
+- utils/templates：AssistantDefaultPrompt（默认提示词模板）
+- utils/db：defaultModelSettings
+- composables/install-plugin：无（直接使用 store）
+- components/SelectWorkspaceDialog：选择目标工作区
+
+关键实现细节
+- L67-80：load() 通过 fetch 从 public/json/ 目录加载本地化助手列表
+- L96-110：add() 使用 @cfworker/json-schema 的 Validator 校验 MarketAssistantSchema，通过后调用 store.add 并展开所有字段
+- L112-119：onFileInput/clipboardImport 解析 JSON 后调用 addToGlobal
+
+与其他模块的交互
+- AssistantsStore：添加助手到数据库
+- SelectWorkspaceDialog：选择添加到哪个工作区
+- i18n：加载对应语言的助手列表

@@ -1,0 +1,41 @@
+================================================================================
+WorkspacePage — 工作区页面
+================================================================================
+文件路径: src/pages/WorkspacePage.vue
+
+1. 功能概述
+工作区的主容器页面，包含路由子视图、右侧 drawer（对话列表、助手列表、Artifacts 面板），
+以及 Artifact 编辑器。
+
+2. 入口与路由
+- URL: /workspaces/:workspaceId
+- Props: id (workspaceId)
+- 子路由: WorkspaceIndex, WorkspaceSettings, DialogView, AssistantView, PluginAdjust
+
+3. 核心数据流
+1. 路由参数 props.id → computed workspace (从 workspacesStore 查找)
+2. useLiveQueryWithDeps 查询该工作区的 dialogs 和 artifacts
+3. 通过 provide('workspace', 'dialogs', 'artifacts') 向子组件注入
+4. 路由 query.artifactId 控制聚焦的 artifact tab
+5. 路由 query.openArtifact 打开指定 artifact
+6. workspace 变化时更新 data.lastWorkspaceId
+
+4. 依赖关系
+- Stores: useWorkspacesStore, useUserDataStore, useUserPerfsStore
+- Composables: useLiveQueryWithDeps, useCloseArtifact
+- Components: AssistantsExpansion, ArtifactsExpansion, DialogsExpansion, EditArtifact,
+  DragableSeparator, ArtifactItemMenu, ArtifactItemIcon
+- 外部: vue-router, quasar (QDrawer, QTabs, QRouteTab)
+
+5. 关键实现细节
+- Drawer 宽度动态计算: 有 artifact 打开时使用 DragableSeparator 可拖拽宽度，否则 250px
+- openedArtifacts 过滤 artifact.open === true 的列表
+- focusedArtifact 优先取 route.query.artifactId 对应的，否则取最后一个打开的
+- listOpen 状态持久化到 db.workspaces (assistants/artifacts/dialogs 折叠状态)
+- home/settings 按钮有返回记忆 (homeReturnTo/settingsReturnTo ref)
+
+6. 与其他模块交互
+- 提供 workspace/dialogs/artifacts 给所有子视图 (DialogView, AssistantView 等)
+- Drawer 中的 DialogsExpansion 导航到 DialogView
+- Artifacts 面板使用 EditArtifact 组件
+- AssistantsExpansion 导航到 AssistantView

@@ -1,0 +1,48 @@
+模块名称：路由系统（router/）
+文件路径：src/router/
+
+功能概述
+Vue Router 路由配置。采用嵌套路由结构，MainLayout 为根布局，下设工作区、设置、插件、助手等模块。支持 Hash 和 History 两种模式（通过 VUE_ROUTER_MODE 环境变量切换）。路由按功能分为 5 个主要区域。
+
+入口与路由
+- index.ts：创建 router 实例，配置 scrollBehavior（跳转后回到顶部）
+- routes.ts：路由表定义
+
+路由结构
+```
+/ (MainLayout)
+├── /workspaces/:workspaceId/ (WorkspacePage)
+│   ├── '' → WorkspaceIndex（首页）
+│   ├── settings → WorkspaceSettings
+│   ├── dialogs/:dialogId → DialogView
+│   ├── assistants/:assistantId → AssistantView
+│   └── assistants/:assistantId/plugins/:pluginId → PluginAdjust
+├── /settings/ (SettingsPage)
+│   ├── '' → SettingsView
+│   ├── shortcut-keys → ShortcutKeys
+│   └── providers/:id → CustomProvider
+├── /plugins/ (PluginsPage)
+│   ├── '' → PluginsMarket
+│   └── :pluginId → PluginSettings
+├── /assistants/ (AssistantsPage)
+│   ├── '' → AssistantsMarket
+│   ├── :assistantId → AssistantView
+│   └── :assistantId/plugins/:pluginId → PluginAdjust
+├── /set-provider → SetProvider（首次配置）
+├── /account → AccountPage（仅 DexieDBURL 配置时）
+├── /model-pricing → ModelPricing（仅 DexieDBURL + LitellmBaseURL 配置时）
+├── / → EmptyPage
+└── /:catchAll(.*)* → ErrorNotFound
+```
+
+关键实现细节
+- L5-10：路由导入使用直接组件引用（非懒加载）
+- L14-29：工作区路由嵌套最深，WorkspacePage 作为容器页
+- L63-68：DexieDBURL 条件路由（账户和定价页面）
+- L70-72：catchAll 通配路由，props 传入 drawerToggle 和 timeout
+- index.ts L13：SSR 模式使用 createMemoryHistory
+
+与其他模块的交互
+- MainLayout：根布局，包含侧边栏和主内容区
+- WorkspacePage/SettingsPage/PluginsPage/AssistantsPage：二级布局容器
+- 所有 View 组件：通过路由渲染

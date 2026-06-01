@@ -1,0 +1,29 @@
+================================================================================
+AssistantsPage — 助手页面
+================================================================================
+文件路径: src/pages/AssistantsPage.vue
+
+1. 功能概述
+助手管理的容器页面，包含路由子视图和右侧 drawer 显示全局助手列表。
+
+2. 入口与路由
+- URL: /assistants/
+- 子路由: AssistantsMarket (/), AssistantView (/:assistantId), PluginAdjust (/:assistantId/plugins/:pluginId)
+- Drawer: AssistantsExpansion (workspace-id="$root" 显示全局助手)
+
+3. 核心数据流
+1. 路由到 /assistants/ → 显示 AssistantsMarket 子视图
+2. 右侧 drawer 展示全局助手列表 (workspaceId === '$root')
+3. 点击助手 → 导航到 /assistants/:assistantId → AssistantView
+
+4. 依赖关系
+- Components: AssistantsExpansion
+- provide: rightDrawerAbove
+
+5. 关键实现细节
+- 轻量容器，主要逻辑在子视图 AssistantsMarket 和 AssistantView 中
+- drawer 宽度 275px，breakpoint 960
+
+6. 与其他模块交互
+- AssistantsExpansion 复用自 WorkspacePage 的组件
+- 导航到 AssistantView (与工作区内共享同一组件)

@@ -944,3 +944,64 @@ body {
   pointer-events: none;
   transform: scale(0.82);
 }
+
+/* Force light theme for PDF export (print-friendly) */
+.force-light-export {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+
+  * {
+    color: #1a1a1a !important;
+    border-color: #e0e0e0 !important;
+  }
+
+  .md-editor-preview {
+    background-color: #ffffff !important;
+    color: #1a1a1a !important;
+
+    code {
+      background-color: #f5f5f5 !important;
+      color: #1a1a1a !important;
+    }
+
+    pre {
+      background-color: #f5f5f5 !important;
+    }
+
+    blockquote {
+      border-left-color: #1976d2 !important;
+      color: #555 !important;
+    }
+
+    a {
+      color: #1976d2 !important;
+    }
+
+    table {
+      border-color: #e0e0e0 !important;
+
+      th, td {
+        border-color: #e0e0e0 !important;
+      }
+    }
+  }
+
+  .bg-sur-c-low,
+  .bg-sur-c,
+  .bg-sur {
+    background-color: #ffffff !important;
+  }
+}
+
+// ── Android WebView: prevent native long-press on images ──
+// On Android WebView, long-pressing <img> triggers a native context menu
+// that deadlocks touch focus inside the app shell. Disable all touch interaction
+// on images so the WebView never initiates the native menu.
+body {
+  img {
+    pointer-events: none !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+  }
+}

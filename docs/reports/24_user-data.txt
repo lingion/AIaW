@@ -1,0 +1,29 @@
+模块名称：stores/user-data.ts（用户数据状态管理）
+文件路径：src/stores/user-data.ts
+
+功能概述
+存储用户运行时状态数据：最后打开的工作区 ID、各种提示关闭状态、订阅过期通知时间戳等。使用 persistentReactive 自动持久化到 IndexedDB。
+
+入口与路由
+- 全局 store
+
+核心数据流
+1. persistentReactive('#user-data', defaults) → data（响应式对象）
+2. 修改 data → watch → db.reactives.put（自动持久化）
+
+依赖关系
+- composables/persistent-reactive：响应式持久化
+
+关键实现细节
+- L8-14：UserData 接口定义 6 个字段
+  - lastWorkspaceId：恢复上次工作区用
+  - noobAlertDismissed：新手提示关闭状态
+  - tipDismissed：各类型提示关闭状态（Record<string, boolean>）
+  - prodExpiredNotifiedTimestamp：生产订阅过期通知时间戳
+  - evalExpiredNotified：试用过期通知状态
+  - migrationAlertDismissed：迁移提示关闭状态
+
+与其他模块的交互
+- useOpenLastWorkspace：读取 lastWorkspaceId
+- useSubscriptionNotify：写入过期通知状态
+- ATip 组件：通过 tipDismissed 控制提示显示

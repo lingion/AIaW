@@ -1,0 +1,43 @@
+模块名称：国际化（i18n/）
+文件路径：src/i18n/
+
+功能概述
+基于 vue-i18n 的国际化系统。支持三种语言：简体中文（zh-CN）、繁体中文（zh-TW）、英文（en-US）。每种语言的翻译按功能模块拆分为 5 个文件。
+
+目录结构
+```
+src/i18n/
+├── index.ts          # 导出语言包映射
+├── en-US/            # 英文
+│   ├── index.ts      # 合并所有子模块
+│   ├── components.ts # 组件文本
+│   ├── composables.ts# Composable 文本
+│   ├── pages.ts      # 页面文本
+│   ├── views.ts      # 视图文本
+│   └── others.ts     # 其他（路由、store、通用）
+├── zh-CN/            # 简体中文（同结构）
+└── zh-TW/            # 繁体中文（同结构）
+```
+
+翻译分类
+- components.ts：UI 组件中的文本（按钮标签、提示语、占位符）
+- composables.ts：Composable 中的用户可见文本（通知、错误消息）
+- pages.ts：页面级文本（设置页、账户页、定价页）
+- views.ts：视图级文本（插件市场、助手市场、快捷键等）
+- others.ts：Store 文本（新工作区名、新助手名等）、路由标题、通用文本
+
+入口与加载
+- src/boot/i18n.ts：创建 vue-i18n 实例，注册到 Vue app
+- 语言包通过静态导入加载（非异步）
+- 动态内容（助手市场、插件市场）使用独立的 JSON 文件：/json/assistants.{locale}.json, /json/plugins.{locale}.json
+
+关键实现细节
+- 各语言 index.ts 将 5 个子模块展开（spread）为一个扁平对象
+- 顶层 index.ts 导出 { 'en-US': ..., 'zh-CN': ..., 'zh-TW': ... }
+- 视图中通过 useI18n() 的 t() 函数访问翻译
+- 组件中通过 $t() 访问
+
+与其他模块的交互
+- 所有视图和组件：使用 $t() / t() 获取翻译文本
+- stores：部分 store 使用 useI18n() 获取新项目默认名称
+- AssistantsMarket/PluginsMarket：使用 locale.value 加载对应语言的 JSON 数据

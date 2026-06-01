@@ -1,0 +1,36 @@
+================================================================================
+AccountPage — 账户页面
+================================================================================
+文件路径: src/pages/AccountPage.vue
+
+1. 功能概述
+用户账户管理页面，显示邮箱、云同步订阅状态、模型服务余额、订单历史、登出。
+
+2. 入口与路由
+- URL: /account
+- 仅在 DexieDBURL 配置存在时注册路由
+
+3. 核心数据流
+1. db.cloud.currentUser (RxJS observable → useObservable) 获取用户信息
+2. license 状态 (ok/expired/deactivated) 决定订阅 UI
+3. llmBalance 通过 fetch LitellmBaseURL/key/info 获取
+4. 订阅/充值通过 BudgetBaseURL 支付流程
+5. 未登录自动重定向到 / 并触发 db.cloud.login()
+
+4. 依赖关系
+- Stores: useUiStateStore, useUserPerfsStore
+- 外部: @vueuse/rxjs, Dexie Cloud (db.cloud.currentUser/sync/login/logout)
+- Components: SubscribeDialog, TopupDialog, PayDialog
+- Config: DexieDBURL, LitellmBaseURL, BudgetBaseURL, SyncServicePrice
+
+5. 关键实现细节
+- license.type === 'eval' 显示试用期剩余天数 + 订阅按钮
+- license.type === 'prod' 显示到期日期 + 续费按钮
+- llmBalance: NaN 表示 budget_exceeded (≤0)
+- 订单历史: q-table 展示 sync-service / api-budget / api-budget-usd 类型
+- db.on('ready') 检查登录状态
+
+6. 与其他模块交互
+- 使用 Dexie Cloud 认证系统
+- LitellmBaseURL 关联模型服务
+- 链接到 ModelPricing 页面

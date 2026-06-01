@@ -1,0 +1,39 @@
+================================================================================
+AssistantView — 助手详情
+================================================================================
+文件路径: src/views/AssistantView.vue
+
+1. 功能概述
+助手的完整配置页面，包括名称、头像、角色设定、模型选择、Provider、插件、生成参数等。
+
+2. 入口与路由
+- URL: /workspaces/:wid/assistants/:assistantId 或 /assistants/:assistantId
+- Props: id (assistantId)
+
+3. 核心数据流
+1. 从 assistantsStore.assistants 查找 assistant
+2. syncRef 双向绑定: assistant 对象 → db 更新
+3. 所有表单字段 v-model 直接绑定 assistant 的属性，通过 syncRef 自动持久化
+4. Provider settings 备份到 localStorage (provider-backup-{id})
+
+4. 依赖关系
+- Stores: useAssistantsStore
+- Composables: syncRef, useLocateId, useSetTitle
+- Components: ViewCommonHeader, AAvatar, ModelInputItems, ProviderInputItems,
+  PromptVarEditor, EnablePluginsItems, PickAvatarDialog, ATip
+- 外部: quasar (QDialog), @cfworker/json-schema (导出验证)
+
+5. 关键实现细节
+- syncRef valueDeep: true 深度监听，任何字段变化触发 put()
+- promptVars: 结构化的变量定义 (text/number/select/multi-select/toggle)
+- promptTemplate: 支持 Nunjucks 模板
+- modelSettings: temperature, topP, presencePenalty, frequencyPenalty, stopSequences, maxOutputTokens, seed
+- promptRole: 可选 system/user/assistant
+- 导出: exportAssistant() 序列化助手为 JSON，支持文件导出和剪贴板复制
+- 头像: PickAvatarDialog 支持 AI 生成、图标、文字、图片等多种类型
+
+6. 与其他模块交互
+- assistantsStore 管理数据
+- EnablePluginsItems 关联 pluginsStore
+- ProviderInputItems 和 ModelInputItems 引用 providersStore 和 perfs
+- 从 /assistants/ 和 /workspaces/ 两个入口都可访问

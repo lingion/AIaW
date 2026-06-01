@@ -1,0 +1,32 @@
+模块名称：CustomProvider.vue（自定义提供商）
+文件路径：src/views/CustomProvider.vue
+
+功能概述
+自定义提供商的编辑页面。支持配置名称、图标、回退提供商（fallbackProvider），以及子提供商（subproviders）列表。每个子提供商包含一个实际提供商和一个 modelMap（将模型 ID 映射到子提供商的模型 ID）。实现灵活的多提供商路由。
+
+入口与路由
+- 路由：/settings/providers/:id（props: { id: string }）
+- SettingsPage 子路由
+
+核心数据流
+1. props.id → providersStore.providers.find() → syncRef → provider
+2. 用户修改 → syncRef watch → providersStore.put() → db.providers
+3. addSubprovider() → provider.subproviders.push({ id: genId(), provider: null, modelMap: {} })
+
+依赖关系
+- stores/providers：提供商 CRUD
+- composables/sync-ref：双向绑定
+- composables/set-title：页面标题
+- components/SubproviderInput：子提供商编辑组件
+- components/ProviderInputItems：回退提供商选择
+
+关键实现细节
+- L59-64：syncRef 绑定 providersStore 中的特定提供商，valueDeep: true
+- L66-70：addSubprovider() 创建新的子提供商条目，genId() 生成唯一 ID
+- ProvidersStore.createCustomProvider()：运行时根据 modelMap 路由模型请求到正确的子提供商
+- modelMap 格式：{ "gpt-5.1": "gpt-5.1-via-sub" }，键为外部模型名，值为子提供商的模型名
+
+与其他模块的交互
+- ProvidersStore：提供商创建（createCustomProvider）和模型列表（getCustomModelList）
+- ProviderInputItems：回退提供商选择器
+- SubproviderInput：子提供商配置（提供商选择 + modelMap 编辑）

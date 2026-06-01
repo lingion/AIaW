@@ -1,0 +1,37 @@
+模块名称：stores/user-perfs.ts（用户偏好状态管理）
+文件路径：src/stores/user-perfs.ts
+
+功能概述
+用户偏好设置的核心 store。管理 40+ 项偏好配置，包括：主题（深色模式、色调）、默认提供商/模型、发送键、快捷键、Markdown 预览设置、流式渲染、Artifact 配置等。使用 persistentReactive 自动持久化，深色模式变更立即同步到 Quasar Dark。
+
+入口与路由
+- 全局 store，在 SettingsView、ShortcutKeys、get-model、set-theme 等多处使用
+
+核心数据流
+1. persistentReactive('#user-perfs', defaultPerfs) → perfs
+2. watchEffect → Dark.set(perfs.darkMode)（立即同步深色模式）
+3. 各视图直接 v-model 绑定 perfs 字段 → 自动持久化
+
+依赖关系
+- composables/persistent-reactive：响应式持久化
+- quasar Dark：深色模式切换
+- utils/values：models 列表
+- md-editor-v3：Markdown 预览主题类型
+
+关键实现细节
+- L6-49：Perfs 接口定义全部偏好字段（40+ 项）
+- L53-110：defaultPerfs 完整默认值，包括：
+  - darkMode: 'auto', themeHue: 300
+  - 默认模型 gpt-5.1 / gpt-5-nano
+  - sendKey: 'ctrl+enter'
+  - 所有快捷键默认值
+  - streamingLockBottom: true, streamRenderLevel: 100
+- L111-113：watchEffect 同步 Dark 模式
+- L114-116：restore() 恢复所有默认值
+
+与其他模块的交互
+- useGetModel：读取默认提供商和模型
+- useSetTheme：读取 themeHue 生成 Material You 颜色
+- ShortcutKeys：读取和编辑所有快捷键
+- SettingsView：编辑大部分偏好设置
+- DialogView：读取流式渲染、发送键等设置

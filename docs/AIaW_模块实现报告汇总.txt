@@ -1,0 +1,1497 @@
+================================================================================
+模块: 
+文件: 01_WorkspacePage.txt
+================================================================================
+WorkspacePage — 工作区页面
+================================================================================
+文件路径: src/pages/WorkspacePage.vue
+
+1. 功能概述
+工作区的主容器页面，包含路由子视图、右侧 drawer（对话列表、助手列表、Artifacts 面板），
+以及 Artifact 编辑器。
+
+2. 入口与路由
+- URL: /workspaces/:workspaceId
+- Props: id (workspaceId)
+- 子路由: WorkspaceIndex, WorkspaceSettings, DialogView, AssistantView, PluginAdjust
+
+3. 核心数据流
+1. 路由参数 props.id → computed workspace (从 workspacesStore 查找)
+2. useLiveQueryWithDeps 查询该工作区的 dialogs 和 artifacts
+3. 通过 provide('workspace', 'dialogs', 'artifacts') 向子组件注入
+4. 路由 query.artifactId 控制聚焦的 artifact tab
+5. 路由 query.openArtifact 打开指定 artifact
+6. workspace 变化时更新 data.lastWorkspaceId
+
+4. 依赖关系
+- Stores: useWorkspacesStore, useUserDataStore, useUserPerfsStore
+- Composables: useLiveQueryWithDeps, useCloseArtifact
+- Components: AssistantsExpansion, ArtifactsExpansion, DialogsExpansion, EditArtifact,
+  DragableSeparator, ArtifactItemMenu, ArtifactItemIcon
+- 外部: vue-router, quasar (QDrawer, QTabs, QRouteTab)
+
+5. 关键实现细节
+- Drawer 宽度动态计算: 有 artifact 打开时使用 DragableSeparator 可拖拽宽度，否则 250px
+- openedArtifacts 过滤 artifact.open === true 的列表
+- focusedArtifact 优先取 route.query.artifactId 对应的，否则取最后一个打开的
+- listOpen 状态持久化到 db.workspaces (assistants/artifacts/dialogs 折叠状态)
+- home/settings 按钮有返回记忆 (homeReturnTo/settingsReturnTo ref)
+
+6. 与其他模块交互
+- 提供 workspace/dialogs/artifacts 给所有子视图 (DialogView, AssistantView 等)
+- Drawer 中的 DialogsExpansion 导航到 DialogView
+- Artifacts 面板使用 EditArtifact 组件
+- AssistantsExpansion 导航到 AssistantView
+
+================================================================================
+模块: 
+文件: 02_DialogView.txt
+================================================================================
+DialogView — 对话视图（核心页面）
+================================================================================
+文件路径: src/views/DialogView.vue (2323 行)
+
+1. 功能概述
+AI 对话的核心交互页面，处理消息发送、流式响应、工具调用、Artifact 提取、
+消息树分支导航、自动标题生成等完整对话生命周期。
+
+2. 入口与路由
+- URL: /workspaces/:workspaceId/dialogs/:dialogId
+- Props: id (dialogId)
+- 注入: workspace (Ref<Workspace>), dialogs (Ref<Dialog[]>), artifacts (Ref<Artifact[]>)
+
+3. 核心数据流
+1. useLiveQueryWithDeps 监听 dialog 和 messages 变化
+2. syncRef 将 liveDialog → dialog (双向同步，写入时通过 db.dialogs.update)
+3. messageMap / itemMap 由 liveMessages / liveItems 构建的查找表
+4. chain (消息链) 通过 getChain('$root', msgRoute) 递归构建
+5. 用户输入 → send() → stream() → streamText/generateText → 节流更新 contents → db.messages.update
+6. 工具调用: callTool() → callApi() → 插件 execute() → 结果存 items 表
+
+4. 依赖关系
+- Stores: useAssistantsStore, useUserPerfsStore, usePluginsStore, useUserDataStore, useUiStateStore
+- Composables: useLiveQueryWithDeps, syncRef, useCallApi, useCreateDialog, useCreateArtifact,
+  useMdPreviewProps, useSetTitle, useLocateId, useListenKey
+- Components: ViewCommonHeader, UnifiedInput, AssistantItem, ModelItem, AutocompleteInput 等
+- 外部: ai (Vercel AI SDK - streamText, generateText, tool), mark.js, nunjucks
+
+5. 关键实现细节
+
+消息树结构:
+- dialog.msgTree: Record<string, string[]> 树结构，$root 为根
+- dialog.msgRoute: number[] 当前选中路径
+- chain: 当前显示的消息 ID 列表
+- getChain(node, route) 递归遍历树，返回 [chain, normalizedRoute]
+
+分支导航:
+- switchChain(index, value) 切换分支
+- regenerate(index) 在指定位置重新生成（添加分支）
+- edit(index) 编辑用户消息（创建 draft 分支）
+
+流式发送 (stream 函数, 行 1243):
+1. 构建 assistant 消息，追加到 msgTree
+2. 创建下一条 user 消息 (status: 'inputing') 作为下次输入
+3. 收集 activePlugins，构建 AI SDK tools
+4. 构建系统提示 (getSystemPrompt)，注入插件 prompt
+5. 组装 messages (getChainMessages)，添加 system prompt
+6. 调用 streamText 或 generateText
+7. 流式接收 text-delta，throttle(50ms) 更新 Dexie
+8. 工具调用结果存入 items 表
+9. MiniMax 特殊处理: 流错误回退 generateText, think 标签提取, 空文本补发
+10. Cerebras 特殊处理: 去除首尾空白
+
+模型解析:
+- resolveRuntimeSdkModel() → sdkModel (computed) 或 resolveCustomSdkModelFallback()
+- sdkModel 从 assistant.provider/model → perfs.provider/model 逐级回退
+
+滚动锁定:
+- lockingBottom: 流式输出时自动滚到底部，用户向上滚动时解锁
+- requestAnimationFrame 避免频繁滚动
+
+目录导航:
+- activeCatalogMessageId 追踪视口中的 assistant 消息
+- showDesktopCatalog 在宽屏时显示消息目录
+
+6. 与其他模块交互
+- 使用 workspace/dialogs/artifacts 注入数据
+- 调用 useCallApi 执行插件
+- 调用 useCreateArtifact 提取 artifact
+- 调用 useCreateDialog 创建新对话
+- 通知 pluginsStore 获取可用插件
+- 使用 perfs 中的 streamRenderLevel / artifactsAutoExtract 等配置
+
+================================================================================
+模块: 
+文件: 03_AssistantsPage.txt
+================================================================================
+AssistantsPage — 助手页面
+================================================================================
+文件路径: src/pages/AssistantsPage.vue
+
+1. 功能概述
+助手管理的容器页面，包含路由子视图和右侧 drawer 显示全局助手列表。
+
+2. 入口与路由
+- URL: /assistants/
+- 子路由: AssistantsMarket (/), AssistantView (/:assistantId), PluginAdjust (/:assistantId/plugins/:pluginId)
+- Drawer: AssistantsExpansion (workspace-id="$root" 显示全局助手)
+
+3. 核心数据流
+1. 路由到 /assistants/ → 显示 AssistantsMarket 子视图
+2. 右侧 drawer 展示全局助手列表 (workspaceId === '$root')
+3. 点击助手 → 导航到 /assistants/:assistantId → AssistantView
+
+4. 依赖关系
+- Components: AssistantsExpansion
+- provide: rightDrawerAbove
+
+5. 关键实现细节
+- 轻量容器，主要逻辑在子视图 AssistantsMarket 和 AssistantView 中
+- drawer 宽度 275px，breakpoint 960
+
+6. 与其他模块交互
+- AssistantsExpansion 复用自 WorkspacePage 的组件
+- 导航到 AssistantView (与工作区内共享同一组件)
+
+================================================================================
+模块: 
+文件: 04_AssistantView.txt
+================================================================================
+AssistantView — 助手详情
+================================================================================
+文件路径: src/views/AssistantView.vue
+
+1. 功能概述
+助手的完整配置页面，包括名称、头像、角色设定、模型选择、Provider、插件、生成参数等。
+
+2. 入口与路由
+- URL: /workspaces/:wid/assistants/:assistantId 或 /assistants/:assistantId
+- Props: id (assistantId)
+
+3. 核心数据流
+1. 从 assistantsStore.assistants 查找 assistant
+2. syncRef 双向绑定: assistant 对象 → db 更新
+3. 所有表单字段 v-model 直接绑定 assistant 的属性，通过 syncRef 自动持久化
+4. Provider settings 备份到 localStorage (provider-backup-{id})
+
+4. 依赖关系
+- Stores: useAssistantsStore
+- Composables: syncRef, useLocateId, useSetTitle
+- Components: ViewCommonHeader, AAvatar, ModelInputItems, ProviderInputItems,
+  PromptVarEditor, EnablePluginsItems, PickAvatarDialog, ATip
+- 外部: quasar (QDialog), @cfworker/json-schema (导出验证)
+
+5. 关键实现细节
+- syncRef valueDeep: true 深度监听，任何字段变化触发 put()
+- promptVars: 结构化的变量定义 (text/number/select/multi-select/toggle)
+- promptTemplate: 支持 Nunjucks 模板
+- modelSettings: temperature, topP, presencePenalty, frequencyPenalty, stopSequences, maxOutputTokens, seed
+- promptRole: 可选 system/user/assistant
+- 导出: exportAssistant() 序列化助手为 JSON，支持文件导出和剪贴板复制
+- 头像: PickAvatarDialog 支持 AI 生成、图标、文字、图片等多种类型
+
+6. 与其他模块交互
+- assistantsStore 管理数据
+- EnablePluginsItems 关联 pluginsStore
+- ProviderInputItems 和 ModelInputItems 引用 providersStore 和 perfs
+- 从 /assistants/ 和 /workspaces/ 两个入口都可访问
+
+================================================================================
+模块: 
+文件: 05_SettingsPage.txt
+================================================================================
+SettingsPage — 设置页面
+================================================================================
+文件路径: src/pages/SettingsPage.vue
+
+1. 功能概述
+全局设置的容器页面，右侧 drawer 显示自定义 Provider 列表。
+
+2. 入口与路由
+- URL: /settings/
+- 子路由: SettingsView (/), ShortcutKeys (/shortcut-keys), CustomProvider (/providers/:id)
+
+3. 核心数据流
+- 路由到 /settings/ → 显示 SettingsView
+- 右侧 drawer 展示 CustomProviders 组件
+- Drawer 中点击自定义 Provider → 导航到 /settings/providers/:id
+
+4. 依赖关系
+- Components: CustomProviders, ATip
+
+5. 关键实现细节
+- drawer 宽度 320px，无 show-if-above (需手动打开)
+- CustomProviders 组件管理自定义 Provider 的增删改
+
+6. 与其他模块交互
+- SettingsView 包含所有用户偏好配置
+- CustomProvider 管理与 providersStore 交互
+
+================================================================================
+模块: 
+文件: 06_SettingsView.txt
+================================================================================
+SettingsView — 设置视图（全局配置）
+================================================================================
+文件路径: src/views/SettingsView.vue
+
+1. 功能概述
+应用的全局配置中心，涵盖 Provider、模型、系统助手、功能开关、操作设置、UI 主题、数据管理。
+
+2. 入口与路由
+- URL: /settings/
+- 位于 SettingsPage 的 router-view 中
+
+3. 核心数据流
+1. useUserPerfsStore() 获取 perfs 响应式对象
+2. 所有设置项 v-model 直接绑定 perfs 属性
+3. persistentReactive 自动持久化到 Dexie reactives 表 ('#user-perfs' key)
+4. Provider 设置变化影响 DialogView 的模型解析链
+
+4. 依赖关系
+- Stores: useUserPerfsStore
+- Composables: useLocateId, useGetModel
+- Components: ProviderInputItems, ModelInputItems, ModelsInput, GetModelList,
+  PlatformEnabledInput, HctPreviewCircle, CopyBtn, AAvatar, ImportDataDialog, ExportDataDialog
+- 外部: @vueuse/rxjs (useObservable for db.cloud.currentUser)
+
+5. 关键实现细节
+
+配置分区:
+- 默认 Provider (perfs.provider) + 分享链接生成
+- 默认模型 (perfs.model) + 常用模型列表 (perfs.commonModelOptions，可拖拽排序)
+- 系统助手 (perfs.systemProvider + perfs.systemModel) — 用于自动标题等
+- 功能: autoGenTitle, messageSelectionBtn, codePasteOptimize, dialogScrollBtn,
+  autoFocusDialogInput, streamingLockBottom, streamRenderLevel, messageCatalog
+- Artifacts: artifactsEnabled (platform-enabled), artifactsAutoExtract, artifactsAutoName, artifactsReserveOriginal
+- 操作: sendKey, 快捷键链接, userInputDebounce, expandReasoningContent
+- UI: darkMode, themeHue, userAvatar, showWarnings, language, markdown 渲染主题
+- 数据: 导入/导出, 恢复默认设置
+
+Provider 分享链接:
+- computed providerLink → ${PublicOrigin}/set-provider?provider=${encoded JSON}
+- 通过 SetProvider 页面 URL scheme 设置
+
+PlatformEnabled 类型: 'always' | 'desktop-only' | 'mobile-only' | 'never'
+- 对话滚动按钮、快捷键、自动聚焦、Artifacts 等支持此类型
+
+6. 与其他模块交互
+- perfs 被 DialogView 大量消费 (provider/model/sendKey/streamRenderLevel 等)
+- providersStore 被引用获取 modelOptions
+- importData/exportData 使用 ImportDataDialog/ExportDataDialog 组件
+- 快捷键配置被 listen-key composable 消费
+
+================================================================================
+模块: 
+文件: 07_PluginsPage.txt
+================================================================================
+PluginsPage — 插件页面
+================================================================================
+文件路径: src/pages/PluginsPage.vue
+
+1. 功能概述
+插件管理的容器页面，右侧 drawer 显示已安装插件列表。
+
+2. 入口与路由
+- URL: /plugins/
+- 子路由: PluginsMarket (/), PluginSettings (/:pluginId)
+- Drawer: InstalledPlugins 组件
+
+3. 核心数据流
+1. 路由到 /plugins/ → 显示 PluginsMarket
+2. 右侧 drawer 展示已安装插件 (InstalledPlugins)
+3. 点击已安装插件 → 导航到 /plugins/:pluginId → PluginSettings
+
+4. 依赖关系
+- Components: InstalledPlugins
+
+5. 关键实现细节
+- drawer show-if-above，宽度 320px
+
+6. 与其他模块交互
+- InstalledPlugins 从 pluginsStore 读取 installed 列表
+- PluginsMarket 从远程 JSON 加载可用插件
+
+================================================================================
+模块: 
+文件: 08_AccountPage.txt
+================================================================================
+AccountPage — 账户页面
+================================================================================
+文件路径: src/pages/AccountPage.vue
+
+1. 功能概述
+用户账户管理页面，显示邮箱、云同步订阅状态、模型服务余额、订单历史、登出。
+
+2. 入口与路由
+- URL: /account
+- 仅在 DexieDBURL 配置存在时注册路由
+
+3. 核心数据流
+1. db.cloud.currentUser (RxJS observable → useObservable) 获取用户信息
+2. license 状态 (ok/expired/deactivated) 决定订阅 UI
+3. llmBalance 通过 fetch LitellmBaseURL/key/info 获取
+4. 订阅/充值通过 BudgetBaseURL 支付流程
+5. 未登录自动重定向到 / 并触发 db.cloud.login()
+
+4. 依赖关系
+- Stores: useUiStateStore, useUserPerfsStore
+- 外部: @vueuse/rxjs, Dexie Cloud (db.cloud.currentUser/sync/login/logout)
+- Components: SubscribeDialog, TopupDialog, PayDialog
+- Config: DexieDBURL, LitellmBaseURL, BudgetBaseURL, SyncServicePrice
+
+5. 关键实现细节
+- license.type === 'eval' 显示试用期剩余天数 + 订阅按钮
+- license.type === 'prod' 显示到期日期 + 续费按钮
+- llmBalance: NaN 表示 budget_exceeded (≤0)
+- 订单历史: q-table 展示 sync-service / api-budget / api-budget-usd 类型
+- db.on('ready') 检查登录状态
+
+6. 与其他模块交互
+- 使用 Dexie Cloud 认证系统
+- LitellmBaseURL 关联模型服务
+- 链接到 ModelPricing 页面
+
+================================================================================
+模块: 
+文件: 09_ModelPricing.txt
+================================================================================
+ModelPricing — 模型定价
+================================================================================
+文件路径: src/pages/ModelPricing.vue
+
+1. 功能概述
+展示可用模型的价格表，提供用量计算器（仅中文 locale 显示）。
+
+2. 入口与路由
+- URL: /model-pricing
+- 仅在 DexieDBURL + LitellmBaseURL 配置存在时注册
+
+3. 核心数据流
+1. 未登录 → 重定向 / + 登录
+2. fetch LitellmBaseURL/model/info 获取模型列表和价格
+3. modelPrices computed 根据 unit (CNY/USD, K/M tokens) 计算显示价格
+4. 用量计算器: budget ↔ output 双向计算 (costPerWord 按模型类型乘系数)
+
+4. 依赖关系
+- Stores: useUiStateStore
+- Components: ModelItem
+- Config: LitellmBaseURL, UsdToCnyRate
+
+5. 关键实现细节
+- costPerWord: output_cost_per_token × 系数 (gpt-4: 1.4, deepseek: 1.8, 其他: 1)
+- modelPrices: 按 modelName 排序
+- 去重: Set 过滤重复 model_name
+- 仅中文 locale 显示用量计算器
+
+6. 与其他模块交互
+- AccountPage 链接到此页面
+- 共享 LitellmBaseURL 和用户 apiKey
+
+================================================================================
+模块: 
+文件: 10_SetProvider.txt
+================================================================================
+SetProvider — Provider 设置页面（URL Scheme）
+================================================================================
+文件路径: src/pages/SetProvider.vue
+
+1. 功能概述
+通过 URL scheme 快速设置默认 Provider，支持一键配置和回滚。
+
+2. 入口与路由
+- URL: /set-provider?provider=<encoded JSON>
+- 通常由 SettingsView 生成的分享链接打开
+
+3. 核心数据流
+1. until(userPerfsStore.ready) 等待偏好加载
+2. JSON.parse(route.query.provider) 解析 Provider 配置
+3. Validator(ProviderSchema) 验证格式
+4. 设置 perfs.provider = provider
+5. 显示通知，提供"恢复"按钮回退到旧值
+6. openLastWorkspace() 导航到最后使用的工作区
+
+4. 依赖关系
+- Stores: useUserPerfsStore
+- Composables: useOpenLastWorkspace
+- 外部: @cfworker/json-schema, @vueuse/core (until)
+
+5. 关键实现细节
+- 无模板 (<template><div /></template>)，纯逻辑页面
+- 备份旧 provider 到 bak 变量，通过通知 actions 提供恢复
+- ProviderSchema 验证确保 type 和 settings 结构正确
+- 通知 timeout 6000ms
+
+6. 与其他模块交互
+- 修改 perfs.provider 影响全局 Provider 设置
+- openLastWorkspace 导航回工作区
+
+================================================================================
+模块: 
+文件: 11_EditArtifact.txt
+================================================================================
+EditArtifact — Artifact 编辑器
+================================================================================
+文件路径: src/views/EditArtifact.vue
+
+1. 功能概述
+代码/文本 artifact 的编辑与预览组件，支持版本切换、语言切换、可读/可写权限控制。
+
+2. 入口与路由
+- 不直接路由，作为 WorkspacePage drawer 中的内嵌组件使用
+- Props: artifact (Artifact 对象)
+
+3. 核心数据流
+1. artifact.tmp 为当前编辑内容
+2. 编辑模式: CodeJar 组件绑定 artifact.tmp
+3. 预览模式: MdPreview (markdown) / img (svg) 渲染 artifact.tmp
+4. 版本切换: setIndex() 加载对应版本的 text 到 tmp
+5. 保存: save() 将 tmp 写入新版本 (saveArtifactChanges)
+6. update() 持久化到 db.artifacts
+
+4. 依赖关系
+- Composables: useListenKey, useUserPerfsStore, useMdPreviewProps
+- Components: CodeJar, MdPreview
+- External: md-editor-v3
+
+5. 关键实现细节
+- 模式自动切换: viewable 语言 (markdown/md/svg/txt) 默认预览模式，其他默认编辑
+- viewable computed 判断语言类型
+- save 快捷键: perfs.saveArtifactKey (默认 Ctrl+S)
+- artifactUnsaved() 检查 tmp 是否与当前版本不同
+- 版本导航: q-pagination，currIndex + 1 为页码
+
+6. 与其他模块交互
+- 被 WorkspacePage 引用，接收 artifact prop
+- CodeJar 组件使用 codejar.ts (自定义代码编辑器)
+- MdPreview 使用与 DialogView 相同的 md-preview-props
+
+================================================================================
+模块: 模块名称：WorkspaceIndex.vue（工作区首页）
+文件: 12_WorkspaceIndex.txt
+模块名称：WorkspaceIndex.vue（工作区首页）
+文件路径：src/views/WorkspaceIndex.vue
+
+功能概述
+工作区首页视图，渲染工作区的 indexContent 字段（Markdown 格式）。使用 Nunjucks 模板引擎解析内容，支持在首页中嵌入 workspace 变量。是用户进入工作区后看到的默认页面。
+
+入口与路由
+- 路由：/workspaces/:workspaceId/（WorkspacePage 的默认子路由，path: ''）
+- 通过 inject('workspace') 获取当前工作区对象
+
+核心数据流
+1. inject('workspace') → syncRef 双向绑定 → workspacesStore.putItem 持久化
+2. workspace.indexContent → engine.parseAndRenderSync → computed contentMd
+3. contentMd → MdPreview 组件渲染
+
+依赖关系
+- composables/sync-ref：双向绑定工作区对象到 store
+- composables/md-preview-props：Markdown 预览配置
+- composables/set-title：设置页面标题
+- stores/workspaces：工作区 CRUD
+- utils/template-engine：Nunjucks 模板引擎实例
+- md-editor-v3：Markdown 预览组件
+- components/ViewCommonHeader：通用页头
+
+关键实现细节
+- L10-13：syncRef 将 inject 的 workspace 与 store 双向同步，valueDeep: true 确保深层响应
+- L22：computed contentMd 使用 engine.parseAndRenderSync 渲染模板，传入 { workspace } 作为模板上下文
+- L25：useMdPreviewProps() 返回响应式的 Markdown 预览主题配置
+
+与其他模块的交互
+- WorkspacePage：通过 provide/inject 传入 workspace
+- WorkspacesStore：通过 syncRef 持久化修改
+- template-engine：渲染带变量的 Markdown 内容
+
+================================================================================
+模块: 模块名称：WorkspaceSettings.vue（工作区设置）
+文件: 13_WorkspaceSettings.txt
+模块名称：WorkspaceSettings.vue（工作区设置）
+文件路径：src/views/WorkspaceSettings.vue
+
+功能概述
+工作区配置页面。提供默认助手选择、头像设置、首页内容编辑、工作区变量（vars）编辑功能。修改实时通过 syncRef 持久化到 IndexedDB。
+
+入口与路由
+- 路由：/workspaces/:workspaceId/settings
+- WorkspacePage 子路由
+
+核心数据流
+1. inject('workspace') → syncRef → workspacesStore.putItem（实时持久化）
+2. assistantsStore.assistants → computed assistantOptions → 下拉选择
+3. 用户操作 → 直接修改 workspace reactive 对象 → syncRef watch → store.putItem
+
+依赖关系
+- stores/workspaces：工作区持久化
+- stores/assistants：获取助手列表用于默认助手选择
+- composables/sync-ref：双向绑定
+- composables/set-title：页面标题
+- components/AssistantItem：助手选择项渲染
+- components/PickAvatarDialog：头像选择弹窗
+- components/VarsInput：变量编辑组件
+
+关键实现细节
+- L66-71：assistantOptions computed 过滤出属于当前工作区或全局（$root）的助手
+- L77-83：pickAvatar() 使用 Quasar dialog 系统，打开 PickAvatarDialog
+- L61-65：syncRef 配置 valueDeep: true，任何深层属性变更都触发 putItem
+
+与其他模块的交互
+- WorkspacesStore：所有修改自动持久化
+- AssistantsStore：读取助手列表
+- PickAvatarDialog：头像选择弹窗
+- VarsInput：工作区变量编辑，变量可在模板（indexContent）中使用
+
+================================================================================
+模块: 模块名称：AssistantsMarket.vue（助手市场）
+文件: 14_AssistantsMarket.txt
+模块名称：AssistantsMarket.vue（助手市场）
+文件路径：src/views/AssistantsMarket.vue
+
+功能概述
+助手市场页面，从静态 JSON 文件加载预定义助手模板列表。支持搜索过滤、添加到全局或指定工作区、从文件导入、从剪贴板导入。使用 JSON Schema 验证导入数据的格式。
+
+入口与路由
+- 路由：/assistants/（AssistantsPage 的默认子路由）
+- meta.title: 助手市场
+
+核心数据流
+1. load() → fetch /json/assistants.{locale}.json → reactive list
+2. query input → computed filterList（按名称/描述过滤）
+3. 用户点击"添加" → addToGlobal/addToWorkspace → store.add → db.assistants
+4. 导入：文件/剪贴板 → JSON.parse → addToGlobal
+
+依赖关系
+- stores/assistants：助手 CRUD
+- utils/types：MarketAssistantSchema（JSON Schema 校验）
+- utils/templates：AssistantDefaultPrompt（默认提示词模板）
+- utils/db：defaultModelSettings
+- composables/install-plugin：无（直接使用 store）
+- components/SelectWorkspaceDialog：选择目标工作区
+
+关键实现细节
+- L67-80：load() 通过 fetch 从 public/json/ 目录加载本地化助手列表
+- L96-110：add() 使用 @cfworker/json-schema 的 Validator 校验 MarketAssistantSchema，通过后调用 store.add 并展开所有字段
+- L112-119：onFileInput/clipboardImport 解析 JSON 后调用 addToGlobal
+
+与其他模块的交互
+- AssistantsStore：添加助手到数据库
+- SelectWorkspaceDialog：选择添加到哪个工作区
+- i18n：加载对应语言的助手列表
+
+================================================================================
+模块: 模块名称：PluginsMarket.vue（插件市场）
+文件: 15_PluginsMarket.txt
+模块名称：PluginsMarket.vue（插件市场）
+文件路径：src/views/PluginsMarket.vue
+
+功能概述
+插件市场页面，展示可安装的插件列表。支持三种插件类型：LobeChat、Gradio、MCP。提供搜索过滤、手动安装（文件/剪贴板/URL）、MCP 插件添加弹窗。在 Web 环境自动过滤掉 MCP 类型插件。
+
+入口与路由
+- 路由：/plugins/（PluginsPage 的默认子路由）
+
+核心数据流
+1. load() → fetch /json/plugins.{locale}.json → reactive list
+2. query + IsTauri → computed filterList（搜索过滤 + Web环境过滤 MCP）
+3. install → useInstallPlugin().install() → PluginsStore 安装方法
+
+依赖关系
+- composables/install-plugin：统一的插件安装入口
+- utils/platform-api：IsTauri 判断平台
+- components/InstallPluginBtn：安装按钮组件
+- components/PluginTypeBadge：插件类型标签
+- components/AddMcpPluginDialog：MCP 插件配置弹窗
+
+关键实现细节
+- L58-63：filterList 在非 Tauri 环境过滤掉 MCP 插件（Web 不支持 STDIO）
+- L78-89：load() 加载本地化插件列表，支持重试
+- L93-102：onFileInput/clipboardImport 调用 useInstallPlugin().install()
+- L104-108：addMcpPlugin() 打开 AddMcpPluginDialog
+
+与其他模块的交互
+- useInstallPlugin：统一的插件安装入口，自动识别类型
+- PluginsStore：最终安装目标
+- ATip：MCP 插件使用提示（仅 Tauri 显示）
+
+================================================================================
+模块: 模块名称：PluginSettings.vue（插件全局设置）
+文件: 16_PluginSettings.txt
+模块名称：PluginSettings.vue（插件全局设置）
+文件路径：src/views/PluginSettings.vue
+
+功能概述
+单个插件的全局配置页面。展示插件信息（名称、描述、作者、主页），提供图标设置、文件解析器的 MIME 类型配置和启用/禁用、以及基于 JSON Schema 的自定义设置表单。
+
+入口与路由
+- 路由：/plugins/:pluginId（prop: id）
+- 通过 PluginsPage 子路由访问
+
+核心数据流
+1. props.id → pluginsStore.plugins.find() → computed plugin
+2. pluginsStore.data[id] → reactive 插件数据（通过 persistentReactive）
+3. 用户修改 → data[id] 自动持久化（persistentReactive watch）
+
+依赖关系
+- stores/plugins：插件数据和已安装列表
+- composables/set-title：页面标题
+- components/JsonInput：JSON Schema 驱动的设置表单
+- components/ListInput：MIME 类型列表编辑
+- components/PickAvatarDialog：图标选择
+
+关键实现细节
+- L48-50：plugin computed 通过 id 查找已安装插件，找不到则显示 ErrorNotFound
+- L56-63：pickAvatar() 修改 data[id].avatar
+- L39-44：文件解析器配置 — 每个 fileparser 有独立的 enabled 和 mimeTypes 设置
+- L51：JsonInput 使用 plugin.settings 作为 JSON Schema 驱动表单
+
+与其他模块的交互
+- PluginsStore：读取插件元信息和 data（persistentReactive）
+- JsonInput：通用 JSON Schema 表单组件
+- ErrorNotFound：插件不存在时的 404 页面
+
+================================================================================
+模块: 模块名称：PluginAdjust.vue（助手级插件调整）
+文件: 17_PluginAdjust.txt
+模块名称：PluginAdjust.vue（助手级插件调整）
+文件路径：src/views/PluginAdjust.vue
+
+功能概述
+针对某个助手（Assistant）的特定插件配置页面。允许用户为每个插件独立控制：信息提供者（infos）的参数和启用、工具调用（tools）的启用、插件变量（promptVars）的值。实现同一插件在不同助手中的差异化配置。
+
+入口与路由
+- 路由：/workspaces/:workspaceId/assistants/:assistantId/plugins/:pluginId
+- 也可从 /assistants/:assistantId/plugins/:pluginId 访问
+- props: { id: string, assistantId: string }
+
+核心数据流
+1. props.assistantId → assistantsStore.assistants.find() → syncRef → assistant
+2. props.id → pluginsStore.plugins.find() → computed plugin
+3. assistant.plugins[props.id] → computed assistantPlugin → UI 绑定
+4. plugin.apis → computed apiMap → 参数 Schema 和描述
+
+依赖关系
+- stores/assistants：助手数据，通过 syncRef 双向绑定
+- stores/plugins：插件元信息（API 列表、参数 Schema）
+- composables/sync-ref：助手对象双向绑定
+- composables/set-title：页面标题
+- components/JsonInput：API 参数表单
+- components/PromptVarInput：提示词变量输入
+
+关键实现细节
+- L60-66：syncRef 绑定助手数据，valueDeep: true 确保插件配置变更自动持久化
+- L70-74：apiMap 将 plugin.apis 数组转为 name→api 的 Map，用于查找参数 Schema
+- L12-27（模板）：infos 列表展示参数表单和启用开关
+- L38-46：promptVars 渲染插件定义的变量输入
+
+与其他模块的交互
+- AssistantsStore：读取和修改助手的 plugins 字段
+- PluginsStore：读取插件的 API 定义和 promptVars
+- PluginSettings（提示链接）：引导用户到全局插件设置页面
+
+================================================================================
+模块: 模块名称：ShortcutKeys.vue（快捷键配置）
+文件: 18_ShortcutKeys.txt
+模块名称：ShortcutKeys.vue（快捷键配置）
+文件路径：src/views/ShortcutKeys.vue
+
+功能概述
+快捷键配置页面。允许用户自定义各场景的快捷键组合，包括：对话页滚动、线程切换、消息操作（重新生成、编辑）、对话列表操作（创建、搜索）、Artifact 保存。支持按平台启用/禁用快捷键。
+
+入口与路由
+- 路由：/settings/shortcut-keys
+- SettingsPage 子路由
+
+核心数据流
+1. userPerfsStore.perfs → 直接 v-model 绑定到各 ShortcutKeyInput
+2. 修改 → perfs（persistentReactive）→ 自动持久化到 db.reactives
+
+依赖关系
+- stores/user-perfs：用户偏好，包含所有快捷键配置
+- components/ShortcutKeyInput：快捷键录制输入组件
+- components/PlatformEnabledInput：平台开关（always/desktop-only/never）
+- components/ViewCommonHeader：页头（back-to="."）
+
+关键实现细节
+- 所有快捷键定义在 Perfs 接口中（stores/user-perfs.ts L20-33）
+- PlatformEnabledInput 控制 enableShortcutKey：支持 always / desktop-only / never
+- 默认值：Ctrl+Up/Down 滚动，Ctrl+Left/Right 切换线程，Ctrl+S 保存 Artifact
+- L86-89：inputProps 统一配置组件样式（dense, filled, min-w-150px）
+
+与其他模块的交互
+- UserPerfsStore：读取和持久化快捷键配置
+- composables/listen-key：在对话页使用配置的快捷键
+- ShortcutKeyInput：快捷键录入组件
+
+================================================================================
+模块: 模块名称：CustomProvider.vue（自定义提供商）
+文件: 19_CustomProvider.txt
+模块名称：CustomProvider.vue（自定义提供商）
+文件路径：src/views/CustomProvider.vue
+
+功能概述
+自定义提供商的编辑页面。支持配置名称、图标、回退提供商（fallbackProvider），以及子提供商（subproviders）列表。每个子提供商包含一个实际提供商和一个 modelMap（将模型 ID 映射到子提供商的模型 ID）。实现灵活的多提供商路由。
+
+入口与路由
+- 路由：/settings/providers/:id（props: { id: string }）
+- SettingsPage 子路由
+
+核心数据流
+1. props.id → providersStore.providers.find() → syncRef → provider
+2. 用户修改 → syncRef watch → providersStore.put() → db.providers
+3. addSubprovider() → provider.subproviders.push({ id: genId(), provider: null, modelMap: {} })
+
+依赖关系
+- stores/providers：提供商 CRUD
+- composables/sync-ref：双向绑定
+- composables/set-title：页面标题
+- components/SubproviderInput：子提供商编辑组件
+- components/ProviderInputItems：回退提供商选择
+
+关键实现细节
+- L59-64：syncRef 绑定 providersStore 中的特定提供商，valueDeep: true
+- L66-70：addSubprovider() 创建新的子提供商条目，genId() 生成唯一 ID
+- ProvidersStore.createCustomProvider()：运行时根据 modelMap 路由模型请求到正确的子提供商
+- modelMap 格式：{ "gpt-5.1": "gpt-5.1-via-sub" }，键为外部模型名，值为子提供商的模型名
+
+与其他模块的交互
+- ProvidersStore：提供商创建（createCustomProvider）和模型列表（getCustomModelList）
+- ProviderInputItems：回退提供商选择器
+- SubproviderInput：子提供商配置（提供商选择 + modelMap 编辑）
+
+================================================================================
+模块: 模块名称：stores/workspaces.ts（工作区状态管理）
+文件: 20_workspaces.txt
+模块名称：stores/workspaces.ts（工作区状态管理）
+文件路径：src/stores/workspaces.ts
+
+功能概述
+工作区（Workspace）和文件夹（Folder）的 Pinia store。使用 Dexie LiveQuery 实现响应式数据库查询。提供工作区/文件夹的 CRUD 操作，删除工作区时级联删除所有关联数据（对话、消息、条目、助手、Artifact）。
+
+入口与路由
+- 全局 store，在视图和 composables 中按需导入
+- useWorkspacesStore()
+
+核心数据流
+1. db.workspaces.toArray() → useLiveQuery → workspaces（响应式数组）
+2. addWorkspace/addFolder → db.workspaces.add
+3. putItem → db.workspaces.put（全量替换）
+4. updateItem → db.workspaces.update（部分更新）
+5. deleteItem → 递归级联删除
+
+依赖关系
+- composables/live-query：useLiveQuery 包装 Dexie liveQuery
+- utils/db：Dexie 数据库实例
+- utils/types：Workspace, Folder 类型
+- utils/templates：DefaultWsIndexContent
+- utils/functions：genId
+
+关键实现细节
+- L7：workspaces 使用 useLiveQuery 自动响应 IndexedDB 变更
+- L10-23：addWorkspace 创建完整默认值的工作区，包含 id、name、avatar、type、parentId、indexContent、vars、listOpen
+- L35-46：deleteItem 递归删除子项，然后在一个事务中级联删除 dialogs、messages、items、assistants、artifacts
+
+与其他模块的交互
+- WorkspaceIndex/WorkspaceSettings：读取和修改工作区数据
+- AssistantsStore：工作区关联助手
+- DialogView：工作区关联对话
+- useWorkspaceActions：提供创建/重命名/删除等 UI 操作
+
+================================================================================
+模块: 模块名称：stores/providers.ts（提供商状态管理）
+文件: 21_providers.txt
+模块名称：stores/providers.ts（提供商状态管理）
+文件路径：src/stores/providers.ts
+
+功能概述
+管理自定义提供商（CustomProvider）。核心功能是提供商工厂：根据 Provider 配置创建 SDK 提供商实例（函数），支持原生提供商和自定义提供商的递归解析。自定义提供商通过子提供商和 modelMap 实现模型路由。
+
+入口与路由
+- 全局 store，在 get-model composable 和 CustomProvider 视图中使用
+
+核心数据流
+1. db.providers.toArray() → useLiveQuery → providers
+2. providers → computed providerTypes（合并自定义 + 原生提供商类型）
+3. providers → computed modelOptions（合并所有模型名）
+4. createProvider(provider, options, stack) → 递归创建 SDK provider 函数
+
+依赖关系
+- composables/live-query：响应式查询
+- utils/db：Dexie 数据库
+- utils/values：ProviderTypes（原生提供商类型列表）、baseModelOptions
+- utils/types：CustomProvider, Provider, ProviderType
+- @sinclair/typebox：TObject 构造空 Schema
+
+关键实现细节
+- L11-26：createProvider 判断 type 是否以 'custom:' 开头来路由到 createCustomProvider 或原生 ProviderTypes
+- L15-22：从 localStorage 恢复 apiKey（备份机制）
+- L28-40：createCustomProvider 遍历 subproviders 查找 modelMap 匹配，未找到则使用 fallbackProvider，stack 参数防止循环引用
+- L55-68：providerTypes computed 将自定义提供商包装为 ProviderType 格式
+- L69-72：modelOptions computed 合并所有模型名（包括子提供商的 modelMap 键）
+
+与其他模块的交互
+- useGetModel：调用 createProvider 和 getModelList
+- CustomProvider 视图：编辑自定义提供商配置
+- values.ts ProviderTypes：原生提供商定义
+
+================================================================================
+模块: 模块名称：stores/assistants.ts（助手状态管理）
+文件: 22_assistants.txt
+模块名称：stores/assistants.ts（助手状态管理）
+文件路径：src/stores/assistants.ts
+
+功能概述
+助手（Assistant）的 Pinia store。使用 Dexie LiveQuery 提供响应式助手列表。提供助手的增删改查操作，新助手带有完整的默认值（提示词模板、模型设置、插件等）。
+
+入口与路由
+- 全局 store，在 AssistantView、WorkspaceSettings、AssistantsMarket 等多处使用
+
+核心数据流
+1. db.assistants.toArray() → useLiveQuery → assistants（响应式数组）
+2. add(props) → db.assistants.add（合并默认值）
+3. update(id, changes) → db.assistants.update
+4. put(assistant) → db.assistants.put
+5. delete_(id) → db.assistants.delete
+
+依赖关系
+- composables/live-query：响应式查询
+- utils/db：Dexie 数据库、defaultModelSettings
+- utils/types：Assistant 类型
+- utils/templates：AssistantDefaultPrompt
+- utils/functions：genId, defaultAvatar
+
+关键实现细节
+- L8-21：add() 创建助手时设置完整默认值：name、avatar（文字头像）、workspaceId='$root'、promptTemplate=AssistantDefaultPrompt、modelSettings 展开默认值、plugins={}、stream=true
+- 支持通过 props 参数覆盖任何默认值
+
+与其他模块的交互
+- WorkspaceSettings：选择默认助手
+- AssistantsMarket：添加助手模板
+- AssistantView：编辑助手配置
+- PluginAdjust：修改助手的插件配置
+- useWorkspaceActions：创建工作区时同时创建默认助手
+
+================================================================================
+模块: 模块名称：stores/plugins.ts（插件状态管理）
+文件: 23_plugins.txt
+模块名称：stores/plugins.ts（插件状态管理）
+文件路径：src/stores/plugins.ts
+
+功能概述
+插件系统的核心 store。管理内置插件和已安装插件。支持三种插件类型：LobeChat、Gradio、MCP。通过 persistentReactive 持久化插件数据（设置、头像、文件解析器配置等）。提供插件的安装、卸载、MCP 刷新操作。
+
+入口与路由
+- 全局 store，在 PluginSettings、PluginAdjust、DialogView、call-api 等多处使用
+
+核心数据流
+1. db.installedPluginsV2.toArray() → useLiveQuery → installed（已安装列表）
+2. persistentReactive('#plugins-data', defaultData) → data（插件运行时数据）
+3. installed + 内置插件 → computed plugins（完整插件列表）
+4. installLobePlugin/installGradioPlugin/installMcpPlugin → db 事务（写入 + 初始化 data）
+
+依赖关系
+- composables/live-query：已安装列表响应式查询
+- composables/persistent-reactive：插件数据持久化
+- utils/plugins：构建插件的工具函数（buildLobePlugin, buildGradioPlugin, buildMcpPlugin 等）
+- utils/db：Dexie 数据库
+- 内置插件模块：web-search-plugin, doc-parse-plugin, artifacts-plugin, code-exec-plugin, file-ops-plugin, local-fs-native-plugin 等
+
+关键实现细节
+- L17-19：installed 使用 useLiveQuery 响应式追踪
+- L20：data 使用 persistentReactive 持久化到 db.reactives
+- L21-35：plugins computed 合并 14 个内置插件 + installed 中的用户插件
+- L37-47：installLobePlugin 在事务中写入 installedPluginsV2 和初始化 data
+- L65-82：installMcpPlugin 先 dumpMcpPlugin（连接 MCP 服务器获取 API 列表），再写入数据库；支持 STDIO/HTTP/SSE 传输
+- L84-89：uninstall 标记 available=false 并清除所有助手中的该插件配置
+
+与其他模块的交互
+- useInstallPlugin：调用安装方法
+- useCallApi：读取插件设置并调用 API
+- PluginSettings/PluginAdjust：读取和修改插件数据
+- DialogView：使用插件的 tools 和 infos 进行对话增强
+
+================================================================================
+模块: 模块名称：stores/user-data.ts（用户数据状态管理）
+文件: 24_user-data.txt
+模块名称：stores/user-data.ts（用户数据状态管理）
+文件路径：src/stores/user-data.ts
+
+功能概述
+存储用户运行时状态数据：最后打开的工作区 ID、各种提示关闭状态、订阅过期通知时间戳等。使用 persistentReactive 自动持久化到 IndexedDB。
+
+入口与路由
+- 全局 store
+
+核心数据流
+1. persistentReactive('#user-data', defaults) → data（响应式对象）
+2. 修改 data → watch → db.reactives.put（自动持久化）
+
+依赖关系
+- composables/persistent-reactive：响应式持久化
+
+关键实现细节
+- L8-14：UserData 接口定义 6 个字段
+  - lastWorkspaceId：恢复上次工作区用
+  - noobAlertDismissed：新手提示关闭状态
+  - tipDismissed：各类型提示关闭状态（Record<string, boolean>）
+  - prodExpiredNotifiedTimestamp：生产订阅过期通知时间戳
+  - evalExpiredNotified：试用过期通知状态
+  - migrationAlertDismissed：迁移提示关闭状态
+
+与其他模块的交互
+- useOpenLastWorkspace：读取 lastWorkspaceId
+- useSubscriptionNotify：写入过期通知状态
+- ATip 组件：通过 tipDismissed 控制提示显示
+
+================================================================================
+模块: 模块名称：stores/user-perfs.ts（用户偏好状态管理）
+文件: 25_user-perfs.txt
+模块名称：stores/user-perfs.ts（用户偏好状态管理）
+文件路径：src/stores/user-perfs.ts
+
+功能概述
+用户偏好设置的核心 store。管理 40+ 项偏好配置，包括：主题（深色模式、色调）、默认提供商/模型、发送键、快捷键、Markdown 预览设置、流式渲染、Artifact 配置等。使用 persistentReactive 自动持久化，深色模式变更立即同步到 Quasar Dark。
+
+入口与路由
+- 全局 store，在 SettingsView、ShortcutKeys、get-model、set-theme 等多处使用
+
+核心数据流
+1. persistentReactive('#user-perfs', defaultPerfs) → perfs
+2. watchEffect → Dark.set(perfs.darkMode)（立即同步深色模式）
+3. 各视图直接 v-model 绑定 perfs 字段 → 自动持久化
+
+依赖关系
+- composables/persistent-reactive：响应式持久化
+- quasar Dark：深色模式切换
+- utils/values：models 列表
+- md-editor-v3：Markdown 预览主题类型
+
+关键实现细节
+- L6-49：Perfs 接口定义全部偏好字段（40+ 项）
+- L53-110：defaultPerfs 完整默认值，包括：
+  - darkMode: 'auto', themeHue: 300
+  - 默认模型 gpt-5.1 / gpt-5-nano
+  - sendKey: 'ctrl+enter'
+  - 所有快捷键默认值
+  - streamingLockBottom: true, streamRenderLevel: 100
+- L111-113：watchEffect 同步 Dark 模式
+- L114-116：restore() 恢复所有默认值
+
+与其他模块的交互
+- useGetModel：读取默认提供商和模型
+- useSetTheme：读取 themeHue 生成 Material You 颜色
+- ShortcutKeys：读取和编辑所有快捷键
+- SettingsView：编辑大部分偏好设置
+- DialogView：读取流式渲染、发送键等设置
+
+================================================================================
+模块: 模块名称：stores/ui-state.ts（UI 状态管理）
+文件: 26_ui-state.txt
+模块名称：stores/ui-state.ts（UI 状态管理）
+文件路径：src/stores/ui-state.ts
+
+功能概述
+管理非持久化的 UI 运行时状态。包括主抽屉开关状态、动态主题颜色缓存、对话页滚动位置记录。这些状态不需要持久化，仅用于组件间通信。
+
+入口与路由
+- 全局 store
+
+核心数据流
+- 直接 ref/reactive，无持久化
+
+依赖关系
+- 无外部依赖，仅使用 pinia defineStore 和 vue ref
+
+关键实现细节
+- L5：mainDrawerOpen：主侧边栏抽屉开关
+- L6-8：toggleMainDrawer：切换抽屉
+- L9：colors：缓存当前主题颜色（Material You 色值映射），供 useSetTheme 写入
+- L10：dialogScrollTops：记录每个对话页的滚动位置（Record<dialogId, scrollTop>），用于 keep-alive 恢复
+
+与其他模块的交互
+- MainLayout：读取 mainDrawerOpen
+- useSetTheme：写入 colors
+- DialogView：读写 dialogScrollTops
+
+================================================================================
+模块: 模块名称：Composables 层 — 数据响应与持久化
+文件: 27_composables_data.txt
+模块名称：Composables 层 — 数据响应与持久化
+文件路径：src/composables/
+
+功能概述
+本组 composable 负责将 IndexedDB 数据库查询转化为 Vue 响应式数据，并实现自动持久化机制。是整个应用数据层的基石。
+
+包含的 Composable
+
+1. live-query.ts — Dexie LiveQuery 响应式包装
+   - useLiveQuery(querier, options)：将 Dexie liveQuery 订阅包装为 ShallowRef，数据库变更自动反映到 Vue 组件
+   - useLiveQueryWithDeps(deps, querier, options)：支持响应式依赖，依赖变化时重新创建查询
+   - 关键实现：L31-47，创建 observable → subscribe → shallowRef 赋值；getCurrentScope/onScopeDispose 自动清理
+   - 被所有 store 使用
+
+2. persistent-reactive.ts — 响应式对象自动持久化
+   - persistentReactive<T>(key, value)：返回 [reactive, ready]
+   - 机制：reactive watch → db.reactives.put；useLiveQuery 监听 → Object.assign 更新
+   - flag 机制（L8, L11-13）防止 watch 循环：DB 写入触发 LiveQuery → 赋值 → 触发 watch → 再次写入
+   - 被stores/user-perfs、user-data、plugins 使用
+
+3. sync-ref.ts — 双向数据绑定
+   - syncRef<T>(source, set, options)：创建 ref 与 source 双向同步
+   - 用途：将 inject 的对象与 store 双向绑定，视图修改自动持久化
+   - flag 机制防止循环更新
+   - 被 WorkspaceIndex、WorkspaceSettings、AssistantView、PluginAdjust、CustomProvider 使用
+
+4. local-reactive.ts — LocalStorage 响应式
+   - localReactive<T>(key, value)：基于 Quasar LocalStorage 的响应式对象
+   - 监听 storage 事件实现跨标签页同步
+   - 用于不需要 IndexedDB 的轻量持久化
+
+核心数据流
+IndexedDB ←useLiveQuery→ ShallowRef ←Object.assign→ reactive(对象) ←v-model→ 视图
+                                        ↑persistentReactive watch─────────────┘
+
+与其他模块的交互
+- 所有 Store：使用 useLiveQuery 获取数据
+- persistent-reactive：user-perfs、user-data、plugins store 的数据持久化
+- sync-ref：视图与 store 的双向绑定
+
+================================================================================
+模块: 模块名称：Composables 层 — API调用与插件交互
+文件: 28_composables_api.txt
+模块名称：Composables 层 — API调用与插件交互
+文件路径：src/composables/
+
+功能概述
+本组 composable 负责插件 API 调用、模型获取、插件安装、对话创建、Artifact 管理等核心业务逻辑。
+
+包含的 Composable
+
+1. call-api.ts — 插件 API 调用
+   - useCallApi({ workspace, dialog })：返回 getPluginSettings 和 callApi
+   - getPluginSettings：读取插件设置，注入 _workspaceId / _dialogId，用 JSON Schema 校验
+   - callApi：先校验参数 Schema → 校验设置 Schema → 调用 api.execute(args, settings)
+   - 被 DialogView 的消息处理逻辑使用
+
+2. get-model.ts — 模型获取与中间件
+   - useGetModel()：返回 getProvider, getModel, getSdkProvider, getSdkModel
+   - getSdkModel：provider → sdkProvider → model → wrapMiddlewares
+   - wrapMiddlewares：注入 extractReasoning、FormattingReenabled（o1/o3）、MarkdownFormatting（gpt-5）、AuthropicCors（anthropic）
+   - 支持登录用户的默认 provider（Dexie Cloud + Litellm）
+
+3. install-plugin.ts — 统一插件安装
+   - useInstallPlugin()：返回 install(source)
+   - 支持来源：URL（fetch → JSON）、JSON 字符串、对象
+   - 使用 JSON Schema 校验器自动识别类型：GradioPluginManifestSchema → HuggingPluginManifestSchema → LobePluginManifestSchema → McpPluginManifestSchema
+   - MCP 插件额外校验平台兼容性（STDIO 需要 Tauri，iOS 不支持 STDIO）
+
+4. create-dialog.ts — 对话创建
+   - useCreateDialog(workspace)：返回 createDialog
+   - 创建对话 + 初始空用户消息，在一个 Dexie 事务中完成
+   - 创建后 router.push 到新对话页面
+
+5. create-artifact.ts — Artifact 创建
+   - useCreateArtifact(workspace)：返回 createArtifact
+   - 创建 Artifact 并通过 router.push({ query: { artifactId } }) 打开
+
+6. close-artifact.ts — Artifact 关闭
+   - useCloseArtifact()：返回 closeArtifact
+   - 检测未保存变更，弹出 SaveDialog，根据用户选择保存或恢复
+
+7. workspace-actions.ts — 工作区操作集
+   - useWorkspaceActions()：返回 addWorkspace, addFolder, renameItem, changeAvatar, moveItem, deleteItem
+   - addWorkspace 在事务中同时创建工作区和默认助手
+   - deleteItem 调用 store 的级联删除
+
+与其他模块的交互
+- call-api：DialogView 消息处理
+- get-model：DialogView 发送消息、AssistantView 模型选择
+- install-plugin：PluginsMarket
+- create-dialog/close-artifact：DialogView 工具栏
+- workspace-actions：WorkspaceNav 右键菜单
+
+================================================================================
+模块: 模块名称：Composables 层 — UI交互与辅助
+文件: 29_composables_ui.txt
+模块名称：Composables 层 — UI交互与辅助
+文件路径：src/composables/
+
+功能概述
+本组 composable 负责 UI 相关的响应式逻辑，包括主题、快捷键、登录、订阅通知、Markdown 预览配置等。
+
+包含的 Composable
+
+1. set-theme.ts — Material You 主题系统
+   - useSetTheme()：watchEffect 内根据 themeHue + Dark.isActive 生成完整颜色方案
+   - 使用 @material/material-color-utilities 的 Hct、TonalPalette、themeFromSourceColor
+   - 生成 50+ CSS 变量（--a-pri, --a-sur, --a-on-sur 等）
+   - Capacitor: StatusBar 样式 + EdgeToEdge 背景色同步
+   - 同时在 body 上添加 platform-android / platform-ios class
+
+2. listen-key.ts — 快捷键监听
+   - useListenKey(shortcutKey, callback, prevent)：注册/注销 keydown 监听
+   - 自动处理 onMounted/onUnmounted + onActivated/onDeactivated（keep-alive 兼容）
+   - 匹配 key + ctrl/shift/alt/meta 组合
+
+3. login-dialogs.ts — 登录流程对话框
+   - useLoginDialogs()：监听 Dexie Cloud 的 userInteraction
+   - 处理 email 输入 → OTP 验证 → 登出确认 → 消息提醒的完整流程
+   - 仅在 DexieDBURL 配置时激活
+
+4. subscription-notify.ts — 订阅过期通知
+   - useSubscriptionNotify()：检查用户许可证状态
+   - eval 类型：到期前 1 天提醒 / 到期后通知
+   - prod 类型：到期前 2 天提醒 / 到期后通知
+   - 使用 until(store.ready) 等待数据加载
+
+5. open-last-workspace.ts — 恢复上次工作区
+   - useOpenLastWorkspace()：读取 userData.lastWorkspaceId → router.push
+   - 使用 until 等待 userData 和 workspaces 就绪
+
+6. md-preview-props.ts — Markdown 预览配置
+   - useMdPreviewProps()：返回 computed 配置（主题、代码高亮、Mermaid 开关、自动折叠阈值）
+   - 全局配置：XSS 过滤、链接新窗口打开、脚注支持、KaTeX 数学公式、数学点号替换（· → \cdot）
+   - 自定义 router-link Web Component 处理 Markdown 内链接
+
+7. 其他辅助 composable：
+   - back.ts：useBack(defaultTo) — 返回上一页，无历史时 replace 到默认路径
+   - filter-options.ts：useFilterOptions — Quasar Select 过滤函数
+   - file-url.ts：useFileURL — StoredItem/AvatarImage 的 ObjectURL 管理（引用计数）
+   - avatar-image.ts：useAvatarImage — 从 db 加载头像图并创建 URL
+   - set-title.ts：useSetTitle — watchEffect 设置 document.title
+   - first-visit.ts：useFirstVisit — 首次访问引导
+   - locate-id.ts：useLocateId — 数据就绪后滚动到 hash 位置
+   - migration-alert.ts：useMigrationAlert — 空实现（fork 中禁用）
+   - order.ts：useOrder — 订阅购买流程（微信/Stripe）
+   - key-composition.ts：IME 输入法兼容处理
+
+与其他模块的交互
+- set-theme：App.vue 初始化
+- listen-key：DialogView 注册快捷键
+- login-dialogs/subscription-notify：App.vue 初始化
+- open-last-workspace：App.vue 初始化
+- md-preview-props：WorkspaceIndex、DialogView
+
+================================================================================
+模块: 模块名称：src-backend/ — 后端适配层
+文件: 30_src-backend.txt
+模块名称：src-backend/ — 后端适配层
+文件路径：src-backend/
+
+功能概述
+基于 FastAPI 的 Python 后端服务。提供 CORS 代理、文档解析、搜索引擎聚合、代码执行沙箱、文件操作等功能。在桌面端（Tauri）作为本地服务运行，在 Web 端部署为独立后端。
+
+入口与路由
+- app.py：FastAPI 应用入口
+- /cors/proxy：CORS 代理（白名单：search1api, pollinations, web-crawler）
+- /doc-parse/parse：LlamaParse 文档解析
+- /searxng：SearXNG 搜索引擎代理
+- /code-exec：Python 代码执行沙箱
+- /file/read, /file/write, /file/list, /file/exec：文件操作
+- 最后挂载 static/ 目录（前端 SPA）
+
+核心数据流
+1. 前端 fetch → /cors/proxy → aiohttp 转发（白名单校验）
+2. 前端上传文件 → /doc-parse/parse → LlamaParse → Markdown
+3. 前端 → /searxng → 环境变量 SEARXNG_URL
+4. 前端 → /code-exec → tempfile → subprocess Python → stdout/stderr/images
+5. 前端 → /file/* → FILE_OPS_ROOT 内文件操作
+
+依赖关系
+- requirements.txt：fastapi, aiohttp, llama-parse 等
+- aiohttp.ClientSession：HTTP 客户端
+- llama_parse：LlamaParse API
+
+关键实现细节
+- L19-21：ALLOWED_PREFIXES 白名单限制代理目标
+- L77-93：LlamaParse 异步解析文档
+- L99-110：SearXNG 代理转发查询参数
+- L118-162：代码执行沙箱：自动注入 matplotlib 图表保存 hook，base64 编码输出图片
+- L170-173：FILE_OPS_ROOT 限制文件操作范围，_resolve() 防止路径穿越
+- L229：最后挂载 StaticFiles 兜底 SPA 路由
+
+与其他模块的交互
+- utils/cors-fetch.ts：前端调用 /cors/proxy
+- utils/doc-parse-plugin.ts：前端调用 /doc-parse/parse
+- utils/code-exec-plugin.ts：前端调用 /code-exec
+- utils/file-ops-plugin.ts：前端调用 /file/*
+- utils/web-search-plugin.ts：前端调用 /searxng
+
+================================================================================
+模块: 模块名称：src-capacitor/ — 移动端壳
+文件: 31_src-capacitor.txt
+模块名称：src-capacitor/ — 移动端壳
+文件路径：src-capacitor/
+
+功能概述
+Capacitor 移动端配置。将 Web 前端打包为 iOS/Android 原生应用。配置应用 ID、名称、Web 目录和 Android Scheme。
+
+入口与路由
+- capacitor.config.json：Capacitor 配置文件
+- www/：构建输出的 Web 资源目录
+
+核心配置
+- appId: "com.nitrorcr.aiaw"
+- appName: "AI as Workspace"
+- webDir: "www"（Quasar 构建输出）
+- server.androidScheme: "https"（Android 使用 https scheme 以支持某些 API）
+
+平台适配（在 src/utils/platform-api.ts 中处理）
+- IsCapacitor = Capacitor.isNativePlatform()
+- CapacitorPlatform = Capacitor.getPlatform()（'android' | 'ios'）
+- fetch：Android 使用 capacitor-stream-fetch，iOS 回退到 window.fetch（未实现）
+- clipboardReadText：使用 @capacitor/clipboard
+- exportFile：通过 @capacitor/filesystem + capacitor-export-file 写入并导出
+- StatusBar/EdgeToEdge：Android 状态栏和边到边显示
+
+依赖关系
+- @capacitor/core：核心运行时
+- @capacitor/clipboard：剪贴板
+- @capacitor/filesystem：文件系统
+- @capacitor/status-bar：状态栏
+- @capawesome/capacitor-android-edge-to-edge-support：边到边显示
+- capacitor-stream-fetch：流式 fetch（仅 Android）
+- capacitor-export-file：文件导出
+
+与其他模块的交互
+- platform-api.ts：检测 Capacitor 环境并提供平台特定的 API 实现
+- set-theme.ts：Capacitor 环境同步 StatusBar 样式
+
+================================================================================
+模块: 模块名称：src-tauri/ — 桌面端壳
+文件: 32_src-tauri.txt
+模块名称：src-tauri/ — 桌面端壳
+文件路径：src-tauri/
+
+功能概述
+Tauri 桌面端配置和 Rust 后端。提供原生窗口管理、流式 HTTP 请求（绕过浏览器 CORS 限制）、剪贴板、文件系统、自动更新等能力。支持 Windows/macOS/Linux 三平台。
+
+入口与路由
+- src/main.rs：入口，调用 app_lib::run()
+- src/lib.rs：Tauri Builder 配置，注册插件和命令
+- src/stream.rs：stream_fetch 命令实现
+- tauri.conf.json：Tauri 配置（窗口、打包、安全策略）
+
+核心数据流
+1. 前端调用 tauriFetch（utils/tauri-stream.ts）→ invoke('stream_fetch') → Rust stream_fetch
+2. stream_fetch：reqwest HTTP 请求 → bytes_stream → Tauri emit → 前端 EventTarget 接收
+3. 请求 ID（AtomicU32）匹配请求和响应
+
+Rust 代码结构
+- lib.rs：
+  - 注册插件：window-state, opener, process, clipboard-manager, updater, os, shell
+  - invoke_handler：stream::stream_fetch, is_deb::is_deb_package
+  - Debug 模式启用 tauri-plugin-log
+
+- stream.rs（源自 NextChat）：
+  - L30-32：stream_fetch 接收 method, url, headers, body
+  - L48-54：使用 reqwest Client 发送请求
+  - L60-76：异步 spawn 读取 bytes_stream，通过 window.emit 发送 ChunkPayload
+  - L82-88：流结束时发送 EndPayload
+  - L93-113：错误处理同样通过 emit 发送错误信息
+
+Tauri 配置
+- productName: "AI as Workspace"
+- identifier: "app.aiaw"
+- 窗口：1150×750，禁用 dragDrop
+- 打包格式：deb, appimage, nsis, app( macOS), dmg
+- CSP: null（无限制）
+
+与其他模块的交互
+- utils/platform-api.ts：检测 IsTauri，使用 tauriFetch 替代 window.fetch
+- utils/tauri-stream.ts：前端 Tauri 流式请求封装
+- utils/tauri-shell-transport.ts：MCP STDIO 传输（Tauri 独有）
+
+================================================================================
+模块: 模块名称：src-pwa/ — PWA 配置
+文件: 33_src-pwa.txt
+模块名称：src-pwa/ — PWA 配置
+文件路径：src-pwa/
+
+功能概述
+PWA（渐进式 Web 应用）配置。包含 Web App Manifest、Service Worker 注册和自定义 Service Worker。实现离线缓存、自动更新（强制更新版本检测）和 SPA 路由回退。
+
+包含文件
+
+1. manifest.json — Web App Manifest
+   - name: "AI as Workspace", short_name: "AIaW"
+   - orientation: portrait
+   - background_color: "#fdf8fd"
+   - 5 个尺寸的图标（128-512px）
+
+2. register-service-worker.js — Service Worker 注册与更新逻辑
+   - 注册由 Quasar 构建系统生成的 Service Worker
+   - updatefound 事件：获取 /version.json，检查 versionCode 是否需要强制更新
+   - updated 事件：如果需要强制更新，5 秒防抖后自动 reload
+   - 使用 Loading.show() 显示更新进度
+
+3. custom-service-worker.js — 自定义 Service Worker（InjectManifest 模式）
+   - skipWaiting + clientsClaim：立即激活新 SW
+   - precacheAndRoute：预缓存所有构建资源（__WB_MANIFEST）
+   - cleanupOutdatedCaches：清理旧缓存
+   - NavigationRoute：SPA 路由回退到 index.html
+
+核心数据流
+1. Quasar 构建 → 生成 SW（注入 __WB_MANIFEST）
+2. 页面加载 → register-service-worker.js 注册 SW
+3. 新版本部署 → SW 检测更新 → updatefound → 获取 version.json
+4. versionCode ≤ forceUpdateFrom → Loading.show → reload
+
+与其他模块的交互
+- src/version.json：构建时注入的版本号和 forceUpdateFrom
+- utils/local-data.ts：lastReloadTimestamp 防止无限 reload
+- utils/update.ts：更新检查逻辑
+
+================================================================================
+模块: 模块名称：路由系统（router/）
+文件: 34_router.txt
+模块名称：路由系统（router/）
+文件路径：src/router/
+
+功能概述
+Vue Router 路由配置。采用嵌套路由结构，MainLayout 为根布局，下设工作区、设置、插件、助手等模块。支持 Hash 和 History 两种模式（通过 VUE_ROUTER_MODE 环境变量切换）。路由按功能分为 5 个主要区域。
+
+入口与路由
+- index.ts：创建 router 实例，配置 scrollBehavior（跳转后回到顶部）
+- routes.ts：路由表定义
+
+路由结构
+```
+/ (MainLayout)
+├── /workspaces/:workspaceId/ (WorkspacePage)
+│   ├── '' → WorkspaceIndex（首页）
+│   ├── settings → WorkspaceSettings
+│   ├── dialogs/:dialogId → DialogView
+│   ├── assistants/:assistantId → AssistantView
+│   └── assistants/:assistantId/plugins/:pluginId → PluginAdjust
+├── /settings/ (SettingsPage)
+│   ├── '' → SettingsView
+│   ├── shortcut-keys → ShortcutKeys
+│   └── providers/:id → CustomProvider
+├── /plugins/ (PluginsPage)
+│   ├── '' → PluginsMarket
+│   └── :pluginId → PluginSettings
+├── /assistants/ (AssistantsPage)
+│   ├── '' → AssistantsMarket
+│   ├── :assistantId → AssistantView
+│   └── :assistantId/plugins/:pluginId → PluginAdjust
+├── /set-provider → SetProvider（首次配置）
+├── /account → AccountPage（仅 DexieDBURL 配置时）
+├── /model-pricing → ModelPricing（仅 DexieDBURL + LitellmBaseURL 配置时）
+├── / → EmptyPage
+└── /:catchAll(.*)* → ErrorNotFound
+```
+
+关键实现细节
+- L5-10：路由导入使用直接组件引用（非懒加载）
+- L14-29：工作区路由嵌套最深，WorkspacePage 作为容器页
+- L63-68：DexieDBURL 条件路由（账户和定价页面）
+- L70-72：catchAll 通配路由，props 传入 drawerToggle 和 timeout
+- index.ts L13：SSR 模式使用 createMemoryHistory
+
+与其他模块的交互
+- MainLayout：根布局，包含侧边栏和主内容区
+- WorkspacePage/SettingsPage/PluginsPage/AssistantsPage：二级布局容器
+- 所有 View 组件：通过路由渲染
+
+================================================================================
+模块: 模块名称：组件层 — 对话与消息组件
+文件: 35_components_dialog.txt
+模块名称：组件层 — 对话与消息组件
+文件路径：src/components/
+
+功能概述
+AIaW 包含 70+ 个 Vue 组件，本报告覆盖对话和消息相关的核心组件。
+
+核心组件
+
+1. MessageItem.vue — 单条消息渲染
+   - 渲染用户消息和助手消息
+   - 支持消息编辑、重新生成、复制、删除操作
+   - 集成 Markdown 预览、代码高亮、数学公式渲染
+
+2. UnifiedInput.vue — 统一输入框
+   - 对话消息输入区域
+   - 支持文本、文件、图片、音频输入
+   - 代码粘贴优化（codePasteOptimize 偏好）
+   - IME 输入法兼容（key-composition）
+   - 发送键可配置（enter/ctrl+enter/shift+enter/meta+enter）
+
+3. DialogList.vue — 对话列表
+   - 展示当前工作区的对话列表
+   - 支持创建、搜索、删除对话
+   - 配合 keep-alive 缓存对话状态
+
+4. ToolContent.vue — 工具调用结果渲染
+   - 渲染插件工具调用的返回结果
+   - 支持 JSON、文本、图片等多种格式
+
+5. MessageImage/MessageFile/MessageAudio.vue — 消息附件
+   - 分别渲染消息中的图片、文件、音频附件
+   - 图片支持预览（ViewImageDialog）
+   - 文件显示大小和类型图标
+
+6. MessageInfoDialog.vue — 消息详情弹窗
+   - 显示消息的原始内容、token 数、模型信息、耗时等元数据
+
+辅助组件
+
+7. SaveDialog.vue — Artifact 保存确认
+8. SearchDialog.vue — 对话搜索弹窗
+9. TextareaDialog.vue — 多行文本编辑弹窗
+10. ViewCommonHeader.vue — 通用页面头（标题 + 返回 + 抽屉切换）
+11. DragableSeparator.vue — 可拖拽分割线
+
+与其他模块的交互
+- DialogView：使用 MessageItem、UnifiedInput、ToolContent
+- stores/ui-state：dialogScrollTops 缓存滚动位置
+- composables/listen-key：快捷键绑定
+- md-preview-props：Markdown 渲染配置
+
+================================================================================
+模块: 模块名称：组件层 — 设置与配置组件
+文件: 36_components_settings.txt
+模块名称：组件层 — 设置与配置组件
+文件路径：src/components/
+
+功能概述
+本组组件负责各种设置表单、输入控件、对话框等 UI 构建。大部分是通用的表单组件，被多个视图复用。
+
+核心组件
+
+1. TypesInput.vue（256行）— 通用类型输入
+   - 根据 JSON Schema type 渲染对应控件：string→Input/Select, number→Input(type=number), boolean→Checkbox, array→ListInput, object→JsonInput
+   - 是 JsonInput 和 PluginSettings 的基础渲染引擎
+
+2. JsonInput.vue（64行）— JSON Schema 驱动表单
+   - 遍历 schema.properties，为每个属性渲染 TypesInput
+   - component prop 控制外层包装（item 或 input）
+
+3. ModelsInput.vue（33行）— 模型选择器
+   - Quasar Select + useFilterOptions，支持搜索和新建自定义模型
+
+4. ProviderInputItems.vue（159行）— 提供商选择
+   - 提供商类型选择 + API Key/Base URL 配置
+   - 集成 GetModelList 获取远程模型列表
+
+5. SubproviderInput.vue（44行）— 子提供商编辑
+   - 提供商选择 + modelMap 编辑（源模型→目标模型映射）
+
+6. CustomProviders.vue（101行）— 自定义提供商列表
+   - 展示所有自定义提供商，支持添加/删除/编辑
+
+7. GetModelList.vue（108行）— 远程模型列表获取
+   - 调用 providersStore.getModelList 获取提供商支持的模型
+
+8. PickAvatarDialog.vue（261行）— 头像选择弹窗
+   - 支持三种头像类型：文字、图标、图片上传
+   - 图标选择器带分类和搜索；Hue 滑块调色
+
+辅助组件
+- LazyInput：延迟更新（@change 而非 @input）
+- ListInput：列表编辑（Quasar Select with add-unique）
+- VarsInput：键值对变量编辑
+- PromptVarInput/PromptVarItem：插件提示词变量编辑
+- AutocompleteInput：自动补全输入
+- ShortcutKeyInput：快捷键录制输入
+- PlatformEnabledInput：平台开关（always/desktop-only/never）
+
