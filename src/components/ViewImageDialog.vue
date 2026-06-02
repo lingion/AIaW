@@ -30,12 +30,12 @@
         @touchstart="onTouchStart"
         @touchmove.prevent="onTouchMove"
         @touchend="onTouchEnd"
-        @click.stop
       >
         <img
           :src="url"
           :style="imageStyle"
           style="max-width: 100%; max-height: 100%; object-fit: contain; transform-origin: 0 0; will-change: transform;"
+          @click.stop
         />
       </div>
 
@@ -89,6 +89,8 @@ let singleStartY = 0
 let singleStartTX = 0
 let singleStartTY = 0
 let wasMultiTouch = false
+let tapStartX = 0
+let tapStartY = 0
 
 const imageStyle = computed(() => ({
   transform: `translate(${translateX.value}px, ${translateY.value}px) scale(${scale.value})`
@@ -114,6 +116,8 @@ function onTouchStart(e: TouchEvent) {
     singleStartY = e.touches[0].clientY
     singleStartTX = translateX.value
     singleStartTY = translateY.value
+    tapStartX = e.touches[0].clientX
+    tapStartY = e.touches[0].clientY
   }
 }
 
@@ -145,6 +149,16 @@ function onTouchEnd(e: TouchEvent) {
       scale.value = 1
       translateX.value = 0
       translateY.value = 0
+    }
+    // Tap-to-close: single finger, <5px movement = tap on blank area
+    const changedTouch = e.changedTouches[0]
+    if (changedTouch) {
+      const dx = Math.abs(changedTouch.clientX - tapStartX)
+      const dy = Math.abs(changedTouch.clientY - tapStartY)
+      if (dx < 5 && dy < 5) {
+        onDialogCancel()
+        return
+      }
     }
   }
 }
