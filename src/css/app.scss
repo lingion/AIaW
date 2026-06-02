@@ -994,12 +994,11 @@ body {
 }
 
 // ── Android WebView: prevent native long-press on images ──
-// On Android WebView, long-pressing <img> triggers a native context menu
-// that deadlocks touch focus inside the app shell. Disable all touch interaction
-// on images so the WebView never initiates the native menu.
+// Click is captured by handleImageClickCapture → opens fullscreen sandbox.
+// Long-press vibration is blocked by -webkit-touch-callout: none.
 body {
   img {
-    pointer-events: none !important;
+    pointer-events: auto !important;
     -webkit-touch-callout: none !important;
     -webkit-user-select: none !important;
     user-select: none !important;
