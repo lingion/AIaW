@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent } from 'quasar'
+import { useDialogPluginComponent, Notify } from 'quasar'
 import { exportFile, fetch as platformFetch } from 'src/utils/platform-api'
 import { ref, computed } from 'vue'
 
@@ -198,7 +198,24 @@ async function downloadImage() {
       buffer = await blob.arrayBuffer()
     }
 
-    await exportFile(timestampName(ext), buffer)
+    const fileName = timestampName(ext)
+    await exportFile(fileName, buffer)
+    Notify.create({
+      type: 'positive',
+      message: '图片保存成功',
+      caption: fileName,
+      position: 'top',
+      timeout: 3000,
+      actions: [{ label: 'OK', color: 'white' }]
+    })
+  } catch (err) {
+    Notify.create({
+      type: 'negative',
+      message: '图片保存失败',
+      caption: err instanceof Error ? err.message : '请检查存储或网络',
+      position: 'top',
+      timeout: 4000
+    })
   } finally {
     saving.value = false
   }
