@@ -77,6 +77,7 @@
             pos-relative
             overflow-visible
             class="message-markdown-wrap"
+            @click.capture="handleImageClickCapture"
             v-if="(content.type === 'assistant-message' || content.type === 'user-message') && content.text"
           >
             <div
@@ -383,6 +384,7 @@ import ConvertArtifactDialog from './ConvertArtifactDialog.vue'
 import { useI18n } from 'vue-i18n'
 import { dialogOptions } from 'src/utils/values'
 import { useExportPDF } from 'src/composables/export-pdf'
+import ViewImageDialog from './ViewImageDialog.vue'
 
 const props = defineProps<{
   message: Message,
@@ -820,6 +822,20 @@ function injectConvertArtifact() {
   })
 }
 const mdPreviewProps = useMdPreviewProps()
+
+// ── Image click sandbox: click img → fullscreen preview + save ──
+function handleImageClickCapture(event: MouseEvent) {
+  const target = event.target as HTMLElement
+  if (target?.tagName !== 'IMG') return
+  const src = target.getAttribute('src')
+  if (!src) return
+  event.preventDefault()
+  event.stopPropagation()
+  $q.dialog({
+    component: ViewImageDialog,
+    componentProps: { url: src }
+  })
+}
 const { t } = useI18n()
 </script>
 
