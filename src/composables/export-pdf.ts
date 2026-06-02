@@ -27,6 +27,25 @@ export function useExportPDF() {
       ? getComputedStyle(document.documentElement).getPropertyValue('--q-primary').trim() || '#1976D2'
       : '#1976D2'
 
+    // Inline KaTeX CSS from loaded page for 100% offline support
+    let katexCss = ''
+    if (typeof document !== 'undefined') {
+      const sheets = document.querySelectorAll('link[rel="stylesheet"]')
+      for (const s of sheets) {
+        const href = (s as HTMLLinkElement).href || ''
+        if (href.includes('katex')) {
+          try {
+            // Try to get CSS text from the stylesheet rules
+            const sheet = (s as HTMLLinkElement).sheet
+            if (sheet && sheet.cssRules) {
+              katexCss = Array.from(sheet.cssRules).map(r => r.cssText).join('\n')
+              break
+            }
+          } catch { /* cross-origin, will fallback to CDN */ }
+        }
+      }
+    }
+
     const sc = 'script'
     return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -61,7 +80,7 @@ hr{border:0;border-top:1px solid #e5e6eb;margin:20px 0}
 .katex{font-size:1.1em}
 .katex-display{margin:12px 0;overflow-x:auto}
 </style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<style id="katex-inline">${katexCss}</style>
 </head>
 <body>
 <div class="wrap">
