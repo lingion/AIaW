@@ -205,7 +205,8 @@ async function downloadImage() {
       message: '图片保存成功',
       caption: `已保存至: Documents/AiaW/${fileName}`,
       position: 'top',
-      timeout: 3000,
+      timeout: 1200,
+      swipeDismiss: true,
       actions: [{ label: 'OK', color: 'white' }]
     })
   } catch (err) {
@@ -214,7 +215,8 @@ async function downloadImage() {
       message: '图片保存失败',
       caption: err instanceof Error ? err.message : '请检查存储或网络',
       position: 'top',
-      timeout: 4000
+      timeout: 2000,
+      swipeDismiss: true
     })
   } finally {
     saving.value = false
