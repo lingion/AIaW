@@ -91,9 +91,13 @@ hr{border:0;border-top:1px solid #e5e6eb;margin:20px 0}
 .md-editor-preview li{margin:4px 0}
 .md-editor-preview hr{border:0;border-top:1px solid #e5e6eb;margin:20px 0}
 .katex{font-size:1.1em}
-.katex-display{margin:12px 0;overflow-x:auto}
+.katex-display{margin:12px 0;overflow-x:auto;max-width:100%}
+.katex .katex-html{padding:8px 0}
+.katex *{color:#1d2129!important}
+:root{--q-primary:${primaryColor}!important;--theme-color:${primaryColor}!important}
 ${katexCss}
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 </head>
 <body>
 <div class="wrap">
@@ -107,6 +111,9 @@ ${katexCss}
 ${renderedHtml}
 </div>
 </div>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],throwOnError:false,trust:true});"></script>
 </body>
 </html>`
   }
