@@ -194,7 +194,7 @@ ${renderedHtml}
           { label: 'Markdown 源码（专业：适合备份和导入其他工具）', value: 'md' },
         ],
       },
-      cancel: { label: '取消', flat: true },
+      cancel: { label: '取消', flat: true, color: 'grey' },
       ok: { label: '确认导出', color: 'primary', unelevated: true },
     }).onOk((format: 'html' | 'md') => {
       doExport(rawMarkdown, format, mdId)
