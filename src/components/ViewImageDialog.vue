@@ -8,28 +8,34 @@
     transition-hide="fade"
   >
     <q-card
-      class="bg-black text-white full-width full-height column justify-between no-shadow"
+      class="bg-black text-white full-width full-height column justify-between no-shadow overflow-hidden"
       @click="onDialogCancel"
     >
       <div class="absolute-top-right q-pa-md" style="z-index: 99999;">
         <q-btn
           flat
           round
-          dense
           icon="close"
           color="white"
-          size="xl"
-          class="bg-grey-9"
-          style="opacity: 0.7;"
+          size="lg"
+          style="background: rgba(0,0,0,0.5);"
           @click.stop="onDialogCancel"
         />
       </div>
 
-      <div class="col row flex-center sandbox-zoom-viewport" @click="onDialogCancel">
+      <div
+        class="col row flex-center overflow-hidden"
+        style="width: 100vw; height: 80vh;"
+        @touchstart="onTouchStart"
+        @touchmove.prevent="onTouchMove"
+        @touchend="onTouchEnd"
+        @click.stop
+      >
         <img
+          ref="imgRef"
           :src="url"
-          class="sandbox-zoomable-img"
-          @click.stop
+          :style="imageStyle"
+          style="max-width: 100%; max-height: 100%; object-fit: contain;"
         />
       </div>
 
@@ -53,7 +59,7 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from 'quasar'
 import { exportFile, fetch as platformFetch } from 'src/utils/platform-api'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const props = defineProps<{
   url: string,
@@ -65,6 +71,62 @@ defineEmits([...useDialogPluginComponent.emits])
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 const saving = ref(false)
+const imgRef = ref<HTMLImageElement>()
+
+// --- JS pinch-zoom state machine ---
+const scale = ref(1)
+const translateX = ref(0)
+const translateY = ref(0)
+
+let startDist = 0
+let startScale = 1
+let startTX = 0
+let startTY = 0
+let lastX = 0
+let lastY = 0
+
+const imageStyle = computed(() => ({
+  transform: `translate(${translateX.value}px, ${translateY.value}px) scale(${scale.value})`
+}))
+
+function onTouchStart(e: TouchEvent) {
+  if (e.touches.length === 2) {
+    startDist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    )
+    startScale = scale.value
+  } else if (e.touches.length === 1) {
+    lastX = e.touches[0].clientX
+    lastY = e.touches[0].clientY
+    startTX = translateX.value
+    startTY = translateY.value
+  }
+}
+
+function onTouchMove(e: TouchEvent) {
+  if (e.touches.length === 2) {
+    const dist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    )
+    scale.value = Math.max(0.5, Math.min(5, startScale * (dist / startDist)))
+  } else if (e.touches.length === 1 && scale.value > 1.05) {
+    const dx = e.touches[0].clientX - lastX
+    const dy = e.touches[0].clientY - lastY
+    translateX.value = startTX + dx
+    translateY.value = startTY + dy
+  }
+}
+
+function onTouchEnd() {
+  // Reset pan if zoomed back to ~1
+  if (scale.value < 1.05) {
+    scale.value = 1
+    translateX.value = 0
+    translateY.value = 0
+  }
+}
 
 function extForBlob(blob: Blob, fallback?: string): string {
   const mime = blob.type?.toLowerCase() || ''
@@ -106,20 +168,3 @@ async function downloadImage() {
   }
 }
 </script>
-
-<style scoped>
-.sandbox-zoom-viewport {
-  width: 100vw;
-  height: 85vh;
-  overflow: auto !important;
-  -webkit-overflow-scrolling: touch;
-}
-
-.sandbox-zoomable-img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-  touch-action: pinch-zoom pan-x pan-y !important;
-  will-change: transform;
-}
-</style>
