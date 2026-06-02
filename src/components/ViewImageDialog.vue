@@ -94,7 +94,8 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from 'quasar'
 import { exportFile, fetch as platformFetch } from 'src/utils/platform-api'
-import { ref, computed, reactive } from 'vue'
+import { useToast } from 'src/composables/useToast'
+import { ref, computed } from 'vue'
 
 const props = defineProps<{
   url: string,
@@ -105,53 +106,8 @@ const props = defineProps<{
 defineEmits([...useDialogPluginComponent.emits])
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
+const { toast, showToast, onToastTouchStart, onToastTouchMove, onToastTouchEnd } = useToast()
 const saving = ref(false)
-
-// --- Custom swipe-to-dismiss Toast ---
-const toast = reactive({
-  show: false,
-  type: 'positive' as 'positive' | 'negative',
-  title: '',
-  message: '',
-  timer: null as ReturnType<typeof setTimeout> | null
-})
-
-let toastStartY = 0
-let toastCurrentY = 0
-
-function showToast(type: 'positive' | 'negative', title: string, message: string) {
-  if (toast.timer) clearTimeout(toast.timer)
-  toast.type = type
-  toast.title = title
-  toast.message = message
-  toast.show = true
-  toast.timer = setTimeout(() => { toast.show = false }, type === 'positive' ? 1200 : 2500)
-}
-
-function onToastTouchStart(e: TouchEvent) {
-  toastStartY = e.touches[0].clientY
-  toastCurrentY = toastStartY
-}
-
-function onToastTouchMove(e: TouchEvent) {
-  toastCurrentY = e.touches[0].clientY
-  const moveY = toastCurrentY - toastStartY
-  if (moveY < 0) {
-    ;(e.currentTarget as HTMLElement).style.transform = `translateY(${moveY}px)`
-  }
-}
-
-function onToastTouchEnd(e: TouchEvent) {
-  const moveY = toastCurrentY - toastStartY
-  if (toastCurrentY !== 0 && moveY < -15) {
-    if (toast.timer) clearTimeout(toast.timer)
-    toast.show = false
-  } else {
-    ;(e.currentTarget as HTMLElement).style.transform = ''
-  }
-  toastStartY = 0
-  toastCurrentY = 0
-}
 
 // --- Pinch-zoom with pivot-point centering ---
 const scale = ref(1)

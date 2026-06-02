@@ -1,5 +1,6 @@
-import { Dialog, useQuasar } from 'quasar'
+import { Dialog } from 'quasar'
 import { exportFile as platformExportFile } from 'src/utils/platform-api'
+import { useToast } from 'src/composables/useToast'
 import { ref } from 'vue'
 
 /**
@@ -10,7 +11,7 @@ import { ref } from 'vue'
  * Key: Dialog always shows first. DOM capture only runs inside onOk callback.
  */
 export function useExportPDF() {
-  const $q = useQuasar()
+  const { toastSuccess, toastError } = useToast()
   const exporting = ref(false)
 
   function timestampStr(): string {
@@ -116,7 +117,7 @@ ${renderedHtml}
 
     try {
       if (!rawMarkdown.trim()) {
-        $q.notify({ message: '没有可导出的内容', timeout: 1500 })
+        toastInfo('没有可导出的内容')
         exporting.value = false
         return
       }
@@ -147,34 +148,16 @@ ${renderedHtml}
 
       platformExportFile(fileName, buffer).then(() => {
         const label = format === 'html' ? 'HTML网页' : 'Markdown'
-        $q.notify({
-          type: 'positive',
-          message: `对话导出成功 (${label})`,
-          caption: `已保存至: Documents/AiaW/${fileName}`,
-          position: 'top',
-          timeout: 1200,
-        })
+        toastSuccess(`对话导出成功 (${label})`, `已保存至: Documents/AiaW/${fileName}`)
       }).catch((err: unknown) => {
         const errMsg = err instanceof Error ? err.message : String(err)
-        $q.notify({
-          type: 'negative',
-          message: '对话导出失败',
-          caption: errMsg,
-          position: 'top',
-          timeout: 2000,
-        })
+        toastError('对话导出失败', errMsg)
       }).finally(() => {
         exporting.value = false
       })
     } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err)
-      $q.notify({
-        type: 'negative',
-        message: '导出异常',
-        caption: errMsg,
-        position: 'top',
-        timeout: 2000,
-      })
+      toastError('导出异常', errMsg)
       exporting.value = false
     }
   }

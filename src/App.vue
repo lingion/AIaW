@@ -1,5 +1,6 @@
 <template>
   <router-view />
+  <GlobalToast />
 </template>
 
 <script setup lang="ts">
@@ -12,6 +13,7 @@ import { onMounted } from 'vue'
 import { useMigrationAlert } from './composables/migration-alert'
 import { db } from './utils/db'
 import { reconcileAssistantBuiltinPlugins } from './utils/builtin-plugin-seed'
+import GlobalToast from 'src/components/GlobalToast.vue'
 
 defineOptions({
   name: 'App'
