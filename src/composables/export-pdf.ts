@@ -4,15 +4,7 @@ import { ref } from 'vue'
 
 /**
  * Export dialog content as text file.
- *
- * Why not PDF?
- * - html-to-image: crashes on mobile WebView (DOM clone death)
- * - jsPDF: no Chinese font support
- * - window.print(): no-op in Capacitor WebView
- * - @capgo/capacitor-printer: launches hidden WebView → deadlock
- *
- * .txt export is zero-dependency, instant, CJK-safe, and uses the same
- * exportFile() path that image download already proved works.
+ * Unified with image save: AIaW_Chat_<title>_<timestamp>.txt → Documents/AiaW/
  */
 export function useExportPDF() {
   const $q = useQuasar()
@@ -28,7 +20,7 @@ export function useExportPDF() {
     try {
       const cleanText = element.innerText || ''
       if (!cleanText.trim()) {
-        $q.notify({ message: 'No content to export', timeout: 2000 })
+        $q.notify({ message: '没有可导出的内容', timeout: 1500 })
         return
       }
 
@@ -38,15 +30,30 @@ export function useExportPDF() {
       const encoder = new TextEncoder()
       const buffer = encoder.encode(output)
 
-      await platformExportFile(`${filename}.txt`, buffer)
+      // Unified timestamp filename
+      const now = new Date()
+      const pad = (n: number) => String(n).padStart(2, '0')
+      const ts = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`
+      const safeTitle = (filename || 'Chat').replace(/[\/\\:*?"<>| ]/g, '_').substring(0, 20)
+      const txtName = `AIaW_${safeTitle}_${ts}.txt`
 
-      $q.notify({ message: '导出成功', timeout: 2000 })
+      await platformExportFile(txtName, buffer)
+
+      $q.notify({
+        type: 'positive',
+        message: '文本导出成功',
+        caption: `已保存至: Documents/AiaW/${txtName}`,
+        position: 'top',
+        timeout: 1200,
+      })
     } catch (err) {
       console.error('Export failed:', err)
       $q.notify({
-        message: `Export failed: ${err instanceof Error ? err.message : String(err)}`,
         type: 'negative',
-        timeout: 3000
+        message: '文本导出失败',
+        caption: err instanceof Error ? err.message : String(err),
+        position: 'top',
+        timeout: 2000,
       })
     } finally {
       exporting.value = false
