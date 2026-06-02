@@ -1,6 +1,6 @@
 {
   "name": "aiaw",
-  "version": "2.0.8.7",
+  "version": "2.0.8.6",
   "dependencies": {
     "@capacitor/android": "^7.0.1",
     "@capacitor/app": "^7.0.0",
