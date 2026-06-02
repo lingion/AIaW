@@ -61,30 +61,26 @@ async function writeBlobInChunks(filename: string, blob: Blob) {
 export async function exportFile(filename, data: Blob | string | ArrayBuffer) {
   if (!IsCapacitor) return webExportFile(filename, data)
 
+  // Write directly to Download/AiaW/ without prompting
+  const filePath = `AiaW/${filename}`
+
   if (typeof data === 'string') {
-    const { uri } = await Filesystem.writeFile({
-      path: filename,
+    await Filesystem.writeFile({
+      path: filePath,
       data,
-      directory: Directory.Cache,
+      directory: Directory.Documents,
       recursive: true
     })
-    await ExportFile.exportFile({ uri, filename })
-    await Filesystem.deleteFile({ path: filename, directory: Directory.Cache })
     return
   }
 
+  // For Blob/ArrayBuffer: convert to base64 and write
   const blob = data instanceof Blob ? data : new Blob([data])
-  await writeBlobInChunks(filename, blob)
-  const { uri } = await Filesystem.getUri({
-    path: filename,
-    directory: Directory.Cache
-  })
-  await ExportFile.exportFile({
-    uri,
-    filename
-  })
-  await Filesystem.deleteFile({
-    path: filename,
-    directory: Directory.Cache
+  const base64 = await blobToBase64(blob)
+  await Filesystem.writeFile({
+    path: filePath,
+    data: base64,
+    directory: Directory.Documents,
+    recursive: true
   })
 }
