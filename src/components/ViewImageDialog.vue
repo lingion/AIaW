@@ -11,6 +11,27 @@
       class="bg-black text-white full-width full-height column justify-between no-shadow overflow-hidden"
       @click="onDialogCancel"
     >
+      <!-- Custom swipe-dismiss Toast -->
+      <transition name="toast-slide">
+        <div
+          v-if="toast.show"
+          class="fixed-top row items-center"
+          style="z-index: 1000000; background: rgba(46,125,50,0.95); backdrop-filter: blur(8px); margin: 16px; border-radius: 12px; color: white; padding: 12px 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"
+          @touchstart="onToastTouchStart"
+          @touchmove="onToastTouchMove"
+          @touchend="onToastTouchEnd"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; flex-shrink: 0;">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <div class="column" style="flex: 1; min-width: 0;">
+            <span style="font-weight: bold; font-size: 14px;">{{ toast.title }}</span>
+            <span style="font-size: 12px; opacity: 0.85; word-break: break-all;">{{ toast.message }}</span>
+          </div>
+          <span style="font-size: 11px; opacity: 0.5; margin-left: 8px; flex-shrink: 0;">↑ 划走</span>
+        </div>
+      </transition>
+
       <div class="absolute-top-right q-pa-md" style="z-index: 99999;" @click.stop>
         <button
           class="row flex-center justify-center"
@@ -58,9 +79,9 @@
 </template>
 
 <script setup lang="ts">
-import { useDialogPluginComponent, Notify } from 'quasar'
+import { useDialogPluginComponent } from 'quasar'
 import { exportFile, fetch as platformFetch } from 'src/utils/platform-api'
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 
 const props = defineProps<{
   url: string,
@@ -73,14 +94,47 @@ defineEmits([...useDialogPluginComponent.emits])
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 const saving = ref(false)
 
+// --- Custom swipe-dismiss Toast ---
+const toast = reactive({ show: false, title: '', message: '' })
+let toastTimer: ReturnType<typeof setTimeout> | null = null
+let toastStartY = 0
+
+function showToast(title: string, message: string, duration = 1200) {
+  if (toastTimer) clearTimeout(toastTimer)
+  toast.title = title
+  toast.message = message
+  toast.show = true
+  toastTimer = setTimeout(() => { toast.show = false }, duration)
+}
+
+function onToastTouchStart(e: TouchEvent) {
+  toastStartY = e.touches[0].clientY
+}
+
+function onToastTouchMove(e: TouchEvent) {
+  const moveY = e.touches[0].clientY - toastStartY
+  if (moveY < 0) {
+    ;(e.currentTarget as HTMLElement).style.transform = `translateY(${moveY}px)`
+  }
+}
+
+function onToastTouchEnd(e: TouchEvent) {
+  const el = e.currentTarget as HTMLElement
+  const moveY = (e.changedTouches[0]?.clientY ?? 0) - toastStartY
+  if (moveY < -15) {
+    if (toastTimer) clearTimeout(toastTimer)
+    toast.show = false
+  }
+  el.style.transform = ''
+  toastStartY = 0
+}
+
 // --- Pinch-zoom with pivot-point centering ---
 const scale = ref(1)
 const translateX = ref(0)
 const translateY = ref(0)
 
 let startScale = 1
-let startTX = 0
-let startTY = 0
 let startDist = 0
 let pivotX = 0
 let pivotY = 0
@@ -101,7 +155,6 @@ function onTouchStart(e: TouchEvent) {
     wasMultiTouch = true
     const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2
     const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2
-    // Pivot = point under the fingers in image-local coords
     pivotX = (cx - translateX.value) / scale.value
     pivotY = (cy - translateY.value) / scale.value
     startDist = Math.hypot(
@@ -109,8 +162,6 @@ function onTouchStart(e: TouchEvent) {
       e.touches[0].clientY - e.touches[1].clientY
     )
     startScale = scale.value
-    startTX = translateX.value
-    startTY = translateY.value
   } else if (e.touches.length === 1 && !wasMultiTouch) {
     singleStartX = e.touches[0].clientX
     singleStartY = e.touches[0].clientY
@@ -128,7 +179,6 @@ function onTouchMove(e: TouchEvent) {
       e.touches[0].clientY - e.touches[1].clientY
     )
     const newScale = Math.max(0.5, Math.min(5, startScale * (dist / startDist)))
-    // Keep pivot point under the finger center
     const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2
     const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2
     scale.value = newScale
@@ -150,7 +200,6 @@ function onTouchEnd(e: TouchEvent) {
       translateX.value = 0
       translateY.value = 0
     }
-    // Tap-to-close: single finger, <5px movement = tap on blank area
     const changedTouch = e.changedTouches[0]
     if (changedTouch) {
       const dx = Math.abs(changedTouch.clientX - tapStartX)
@@ -200,26 +249,23 @@ async function downloadImage() {
 
     const fileName = timestampName(ext)
     await exportFile(fileName, buffer)
-    Notify.create({
-      type: 'positive',
-      message: '图片保存成功',
-      caption: `已保存至: Documents/AiaW/${fileName}`,
-      position: 'top',
-      timeout: 1200,
-      swipeDismiss: true,
-      actions: [{ label: 'OK', color: 'white' }]
-    })
+    showToast('图片保存成功', `已保存至: Documents/AiaW/${fileName}`)
   } catch (err) {
-    Notify.create({
-      type: 'negative',
-      message: '图片保存失败',
-      caption: err instanceof Error ? err.message : '请检查存储或网络',
-      position: 'top',
-      timeout: 2000,
-      swipeDismiss: true
-    })
+    showToast('图片保存失败', err instanceof Error ? err.message : '请检查存储或网络', 2000)
   } finally {
     saving.value = false
   }
 }
 </script>
+
+<style scoped>
+.toast-slide-enter-active,
+.toast-slide-leave-active {
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.toast-slide-enter-from,
+.toast-slide-leave-to {
+  transform: translateY(-80px) scale(0.9);
+  opacity: 0;
+}
+</style>
