@@ -203,7 +203,7 @@ async function downloadImage() {
     Notify.create({
       type: 'positive',
       message: '图片保存成功',
-      caption: fileName,
+      caption: `已保存至: Documents/AiaW/${fileName}`,
       position: 'top',
       timeout: 3000,
       actions: [{ label: 'OK', color: 'white' }]
