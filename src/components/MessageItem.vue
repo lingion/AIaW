@@ -402,8 +402,8 @@ const mdId = `md-${props.message.id}`
 const messageShell = ref<HTMLElement>()
 const { exportToPDF } = useExportPDF()
 function exportRoundPDF() {
-  if (!messageShell.value) return
-  exportToPDF(messageShell.value, `message-${props.message.id}.pdf`)
+  const rawMd = textContent.value?.text || ''
+  exportToPDF(rawMd)
 }
 
 const $q = useQuasar()
