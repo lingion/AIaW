@@ -4,7 +4,7 @@ import { ref } from 'vue'
 
 /**
  * Export dialog as HTML or Markdown.
- * HTML: grabs already-rendered HTML from md-preview DOM + inlines styles.
+ * HTML: grabs already-rendered HTML from md-preview DOM + inlines styles + KaTeX CDN fallback.
  * Markdown: raw source for backup/AI import.
  */
 export function useExportPDF() {
@@ -23,11 +23,11 @@ export function useExportPDF() {
 
   function buildHtml(renderedHtml: string, title: string): string {
     const dateStr = new Date().toLocaleString('zh-CN')
-    // Get app primary color for theming
     const primaryColor = typeof document !== 'undefined'
       ? getComputedStyle(document.documentElement).getPropertyValue('--q-primary').trim() || '#1976D2'
       : '#1976D2'
 
+    const sc = 'script'
     return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -35,43 +35,49 @@ export function useExportPDF() {
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>${title}</title>
 <style>
-:root{--theme:${primaryColor}}
+:root{--theme-color:${primaryColor}}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.7;color:#222;background:#f8f9fa;padding:24px 16px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;line-height:1.7;color:#1d2129;background:#f8f9fa;padding:24px 16px}
 .wrap{background:#fff;max-width:820px;margin:0 auto;padding:32px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.04);border:1px solid #ebedf0}
-.header{margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid var(--theme)}
-.header h1{font-size:22px;color:#1a1a1a;margin-bottom:4px}
-.header .meta{color:#999;font-size:12px}
-/* md-editor-v3 rendered content styles */
+h1{font-size:24px;color:#1a1a1a;margin-bottom:8px;font-weight:700}
+.meta{color:#86909c;font-size:13px;margin-bottom:24px;display:flex;gap:12px}
+hr{border:0;border-top:1px solid #e5e6eb;margin:20px 0}
+/* md-editor-v3 rendered content */
 .md-editor-preview{font-size:15px;word-break:break-word}
-.md-editor-preview h1,.md-editor-preview h2,.md-editor-preview h3,.md-editor-preview h4{margin:16px 0 8px;color:#1a1a1a}
+.md-editor-preview h1,.md-editor-preview h2,.md-editor-preview h3,.md-editor-preview h4{margin:16px 0 8px;color:#1d2129}
 .md-editor-preview p{margin:8px 0}
-.md-editor-preview pre{background:#f6f8fa;padding:12px 16px;border-radius:8px;overflow-x:auto;font-size:13px;margin:12px 0}
-.md-editor-preview code{font-family:Menlo,Consolas,monospace;background:#f0f0f0;padding:2px 6px;border-radius:4px;font-size:13px}
-.md-editor-preview pre code{background:none;padding:0}
-.md-editor-preview table{width:100%;border-collapse:collapse;margin:12px 0;font-size:14px}
-.md-editor-preview th,.md-editor-preview td{border:1px solid #ddd;padding:8px 12px;text-align:left}
-.md-editor-preview th{background:#f5f7fa;font-weight:600}
-.md-editor-preview blockquote{border-left:4px solid var(--theme);margin:12px 0;padding:8px 16px;color:#666;background:#f9f9f9;border-radius:0 8px 8px 0}
-.md-editor-preview img{max-width:100%;border-radius:8px;margin:8px 0}
-.md-editor-preview hr{border:0;border-top:1px solid #eee;margin:16px 0}
+.md-editor-preview pre{background:#f4f5f5;padding:16px;border-radius:8px;overflow-x:auto;font-family:"Fira Code",Consolas,Monaco,monospace;font-size:13px;margin:14px 0}
+.md-editor-preview code{font-family:monospace;background:#f4f5f5;color:#d91d1d;padding:2px 6px;border-radius:4px;font-size:13px}
+.md-editor-preview pre code{background:none;color:inherit;padding:0}
+.md-editor-preview table{width:100%!important;border-collapse:collapse!important;margin:18px 0!important;overflow-x:auto;display:block}
+.md-editor-preview th,.md-editor-preview td{border:1px solid #e5e6eb!important;padding:12px 16px!important;text-align:left;font-size:14px;line-height:1.6}
+.md-editor-preview th{background:#f4f5f5!important;font-weight:600;color:#1d2129}
+.md-editor-preview tr:nth-child(even){background:#fafafa}
+.md-editor-preview blockquote{border-left:4px solid var(--theme-color);margin:16px 0;padding:4px 16px;color:#4e5969;background:#f7f8fa;border-radius:0 8px 8px 0}
+.md-editor-preview img{max-width:100%;height:auto;border-radius:8px;margin:12px 0}
 .md-editor-preview ul,.md-editor-preview ol{padding-left:24px;margin:8px 0}
 .md-editor-preview li{margin:4px 0}
-/* KaTeX formula styles */
+.md-editor-preview hr{border:0;border-top:1px solid #e5e6eb;margin:20px 0}
 .katex{font-size:1.1em}
 .katex-display{margin:12px 0;overflow-x:auto}
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 </head>
 <body>
 <div class="wrap">
-<div class="header">
 <h1>${title}</h1>
-<div class="meta">AIaW \u5BF9\u8BDD\u5BFC\u51FA \xB7 ${dateStr}</div>
+<div class="meta">
+<span>\uD83D\uDCC4 HTML \u7F51\u9875\u683C\u5F0F</span>
+<span>\uD83D\uDCC5 ${dateStr}</span>
 </div>
+<hr>
 <div class="md-editor-preview">
 ${renderedHtml}
 </div>
 </div>
+<${sc} defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></${sc}>
+<${sc} defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></${sc}>
 </body>
 </html>`
   }
@@ -94,7 +100,6 @@ ${renderedHtml}
 
     let output: string
     if (format === 'html') {
-      // Grab already-rendered HTML from md-preview DOM
       const previewEl = document.querySelector('.md-editor-preview') as HTMLElement | null
       const renderedHtml = previewEl?.innerHTML || '<p>' + rawMarkdown.replace(/</g, '&lt;').replace(/\n/g, '<br>') + '</p>'
       output = buildHtml(renderedHtml, `AIaW_${safe}`)
