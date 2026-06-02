@@ -4,8 +4,10 @@ import { ref } from 'vue'
 
 /**
  * Export dialog as HTML or Markdown.
- * HTML: grabs already-rendered HTML from md-preview DOM + inlines styles + KaTeX CDN fallback.
- * Markdown: raw source for backup/AI import.
+ * HTML: grabs rendered HTML from md-preview DOM AFTER user picks format.
+ * Markdown: raw source for backup/Ai import.
+ *
+ * Key: Dialog always shows first. DOM capture only runs inside onOk callback.
  */
 export function useExportPDF() {
   const $q = useQuasar()
@@ -21,13 +23,26 @@ export function useExportPDF() {
     return raw.replace(/[\/\\:*?"<>| \-]/g, '_').substring(0, 15) || 'Chat'
   }
 
+  function getRenderedHtml(mdId: string, rawFallback: string): string {
+    try {
+      const el = document.getElementById(mdId)
+      if (!el) return ''
+      const preview = el.querySelector('.md-editor-preview') as HTMLElement | null
+        || el.querySelector('.md-preview') as HTMLElement | null
+      return preview?.innerHTML || ''
+    } catch (e) {
+      console.warn('[export] DOM capture failed:', e)
+      return ''
+    }
+  }
+
   function buildHtml(renderedHtml: string, title: string): string {
     const dateStr = new Date().toLocaleString('zh-CN')
     const primaryColor = typeof document !== 'undefined'
       ? getComputedStyle(document.documentElement).getPropertyValue('--q-primary').trim() || '#1976D2'
       : '#1976D2'
 
-    // Inline KaTeX CSS from loaded page for 100% offline support
+    // Inline KaTeX CSS from loaded page for offline support
     let katexCss = ''
     if (typeof document !== 'undefined') {
       const sheets = document.querySelectorAll('link[rel="stylesheet"]')
@@ -35,18 +50,16 @@ export function useExportPDF() {
         const href = (s as HTMLLinkElement).href || ''
         if (href.includes('katex')) {
           try {
-            // Try to get CSS text from the stylesheet rules
             const sheet = (s as HTMLLinkElement).sheet
             if (sheet && sheet.cssRules) {
               katexCss = Array.from(sheet.cssRules).map(r => r.cssText).join('\n')
               break
             }
-          } catch { /* cross-origin, will fallback to CDN */ }
+          } catch { /* cross-origin */ }
         }
       }
     }
 
-    const sc = 'script'
     return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -61,7 +74,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;l
 h1{font-size:24px;color:#1a1a1a;margin-bottom:8px;font-weight:700}
 .meta{color:#86909c;font-size:13px;margin-bottom:24px;display:flex;gap:12px}
 hr{border:0;border-top:1px solid #e5e6eb;margin:20px 0}
-/* md-editor-v3 rendered content */
 .md-editor-preview{font-size:15px;word-break:break-word}
 .md-editor-preview h1,.md-editor-preview h2,.md-editor-preview h3,.md-editor-preview h4{margin:16px 0 8px;color:#1d2129}
 .md-editor-preview p{margin:8px 0}
@@ -79,8 +91,8 @@ hr{border:0;border-top:1px solid #e5e6eb;margin:20px 0}
 .md-editor-preview hr{border:0;border-top:1px solid #e5e6eb;margin:20px 0}
 .katex{font-size:1.1em}
 .katex-display{margin:12px 0;overflow-x:auto}
+${katexCss}
 </style>
-<style id="katex-inline">${katexCss}</style>
 </head>
 <body>
 <div class="wrap">
@@ -94,68 +106,83 @@ hr{border:0;border-top:1px solid #e5e6eb;margin:20px 0}
 ${renderedHtml}
 </div>
 </div>
-<${sc} defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></${sc}>
-<${sc} defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
-  onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></${sc}>
 </body>
 </html>`
   }
 
-  function doExport(rawMarkdown: string, format: 'html' | 'md') {
+  function doExport(rawMarkdown: string, format: 'html' | 'md', mdId?: string) {
     if (exporting.value) return
     exporting.value = true
 
-    if (!rawMarkdown.trim()) {
-      $q.notify({ message: '没有可导出的内容', timeout: 1500 })
-      exporting.value = false
-      return
-    }
+    try {
+      if (!rawMarkdown.trim()) {
+        $q.notify({ message: '没有可导出的内容', timeout: 1500 })
+        exporting.value = false
+        return
+      }
 
-    const ts = timestampStr()
-    const displayTitle = rawMarkdown.trim().replace(/[#*\n\r]/g, '').substring(0, 8)
-    const safe = safeName(displayTitle)
-    const ext = format === 'html' ? 'html' : 'md'
-    const fileName = `AIaW_${safe}_${ts}.${ext}`
+      const ts = timestampStr()
+      const displayTitle = rawMarkdown.trim().replace(/[#*\n\r]/g, '').substring(0, 8)
+      const safe = safeName(displayTitle)
+      const ext = format === 'html' ? 'html' : 'md'
+      const fileName = `AIaW_${safe}_${ts}.${ext}`
 
-    let output: string
-    if (format === 'html') {
-      // Use passed rendered HTML from the specific message's md-preview
-      const html = renderedHtml || ''
-      const finalHtml = html || '<p>' + rawMarkdown.replace(/</g, '&lt;').replace(/\n/g, '<br>') + '</p>'
-      output = buildHtml(finalHtml, `AIaW_${safe}`)
-    } else {
-      output = rawMarkdown
-    }
+      let output: string
+      if (format === 'html') {
+        let renderedHtml = ''
+        if (mdId) {
+          renderedHtml = getRenderedHtml(mdId, rawMarkdown)
+        }
+        // Fallback: if DOM capture failed, use raw markdown with basic escaping
+        if (!renderedHtml) {
+          renderedHtml = '<p>' + rawMarkdown.replace(/</g, '&lt;').replace(/\n/g, '<br>') + '</p>'
+        }
+        output = buildHtml(renderedHtml, `AIaW_${safe}`)
+      } else {
+        output = rawMarkdown
+      }
 
-    const encoder = new TextEncoder()
-    const buffer = encoder.encode(output)
+      const encoder = new TextEncoder()
+      const buffer = encoder.encode(output)
 
-    platformExportFile(fileName, buffer).then(() => {
-      const label = format === 'html' ? 'HTML网页' : 'Markdown'
-      $q.notify({
-        type: 'positive',
-        message: `对话导出成功 (${label})`,
-        caption: `已保存至: Documents/AiaW/${fileName}`,
-        position: 'top',
-        timeout: 1200,
+      platformExportFile(fileName, buffer).then(() => {
+        const label = format === 'html' ? 'HTML网页' : 'Markdown'
+        $q.notify({
+          type: 'positive',
+          message: `对话导出成功 (${label})`,
+          caption: `已保存至: Documents/AiaW/${fileName}`,
+          position: 'top',
+          timeout: 1200,
+        })
+      }).catch((err: unknown) => {
+        const errMsg = err instanceof Error ? err.message : String(err)
+        $q.notify({
+          type: 'negative',
+          message: '对话导出失败',
+          caption: errMsg,
+          position: 'top',
+          timeout: 2000,
+        })
+      }).finally(() => {
+        exporting.value = false
       })
-    }).catch((err: unknown) => {
+    } catch (err) {
       const errMsg = err instanceof Error ? err.message : String(err)
       $q.notify({
         type: 'negative',
-        message: '对话导出失败',
+        message: '导出异常',
         caption: errMsg,
         position: 'top',
         timeout: 2000,
       })
-    }).finally(() => {
       exporting.value = false
-    })
+    }
   }
 
-  function exportToPDF(rawMarkdown: string, renderedHtml?: string) {
+  function exportToPDF(rawMarkdown: string, mdId?: string) {
     if (exporting.value) return
 
+    // Dialog shows FIRST — DOM capture only happens after user picks format
     Dialog.create({
       title: '选择导出格式',
       message: '请选择对话保存格式：',
@@ -170,7 +197,7 @@ ${renderedHtml}
       cancel: { label: '取消', flat: true },
       ok: { label: '确认导出', color: 'primary', unelevated: true },
     }).onOk((format: 'html' | 'md') => {
-      doExport(rawMarkdown, format)
+      doExport(rawMarkdown, format, mdId)
     })
   }
 
