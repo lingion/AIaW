@@ -119,9 +119,10 @@ ${renderedHtml}
 
     let output: string
     if (format === 'html') {
-      const previewEl = document.querySelector('.md-editor-preview') as HTMLElement | null
-      const renderedHtml = previewEl?.innerHTML || '<p>' + rawMarkdown.replace(/</g, '&lt;').replace(/\n/g, '<br>') + '</p>'
-      output = buildHtml(renderedHtml, `AIaW_${safe}`)
+      // Use passed rendered HTML from the specific message's md-preview
+      const html = renderedHtml || ''
+      const finalHtml = html || '<p>' + rawMarkdown.replace(/</g, '&lt;').replace(/\n/g, '<br>') + '</p>'
+      output = buildHtml(finalHtml, `AIaW_${safe}`)
     } else {
       output = rawMarkdown
     }
@@ -152,7 +153,7 @@ ${renderedHtml}
     })
   }
 
-  function exportToPDF(rawMarkdown: string, _title?: string) {
+  function exportToPDF(rawMarkdown: string, renderedHtml?: string) {
     if (exporting.value) return
 
     Dialog.create({
