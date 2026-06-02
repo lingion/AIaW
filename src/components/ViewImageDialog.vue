@@ -11,24 +11,37 @@
       class="bg-black text-white full-width full-height column justify-between no-shadow overflow-hidden"
       @click="onDialogCancel"
     >
-      <!-- Custom swipe-dismiss Toast -->
+      <!-- Custom swipe-to-dismiss Toast -->
       <transition name="toast-slide">
         <div
           v-if="toast.show"
-          class="fixed-top row items-center"
-          style="z-index: 1000000; background: rgba(46,125,50,0.95); backdrop-filter: blur(8px); margin: 16px; border-radius: 12px; color: white; padding: 12px 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);"
+          class="fixed-top row items-center q-pa-md shadow-5"
+          :style="{
+            zIndex: 1000000,
+            background: toast.type === 'positive' ? 'rgba(46, 125, 50, 0.95)' : 'rgba(211, 47, 47, 0.95)',
+            backdropFilter: 'blur(8px)',
+            margin: '16px',
+            borderRadius: '12px',
+            color: 'white',
+          }"
           @touchstart="onToastTouchStart"
           @touchmove="onToastTouchMove"
           @touchend="onToastTouchEnd"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px; flex-shrink: 0;">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-          <div class="column" style="flex: 1; min-width: 0;">
-            <span style="font-weight: bold; font-size: 14px;">{{ toast.title }}</span>
-            <span style="font-size: 12px; opacity: 0.85; word-break: break-all;">{{ toast.message }}</span>
+          <div class="q-mr-sm row items-center">
+            <svg v-if="toast.type === 'positive'" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
           </div>
-          <span style="font-size: 11px; opacity: 0.5; margin-left: 8px; flex-shrink: 0;">↑ 划走</span>
+          <div class="column col">
+            <span class="text-bold" style="font-size: 14px;">{{ toast.title }}</span>
+            <span style="word-break: break-all; font-size: 11px; opacity: 0.9;">{{ toast.message }}</span>
+          </div>
+          <span style="font-size: 11px; opacity: 0.6;" class="q-ml-sm">↑ 划走</span>
         </div>
       </transition>
 
@@ -94,39 +107,50 @@ defineEmits([...useDialogPluginComponent.emits])
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 const saving = ref(false)
 
-// --- Custom swipe-dismiss Toast ---
-const toast = reactive({ show: false, title: '', message: '' })
-let toastTimer: ReturnType<typeof setTimeout> | null = null
-let toastStartY = 0
+// --- Custom swipe-to-dismiss Toast ---
+const toast = reactive({
+  show: false,
+  type: 'positive' as 'positive' | 'negative',
+  title: '',
+  message: '',
+  timer: null as ReturnType<typeof setTimeout> | null
+})
 
-function showToast(title: string, message: string, duration = 1200) {
-  if (toastTimer) clearTimeout(toastTimer)
+let toastStartY = 0
+let toastCurrentY = 0
+
+function showToast(type: 'positive' | 'negative', title: string, message: string) {
+  if (toast.timer) clearTimeout(toast.timer)
+  toast.type = type
   toast.title = title
   toast.message = message
   toast.show = true
-  toastTimer = setTimeout(() => { toast.show = false }, duration)
+  toast.timer = setTimeout(() => { toast.show = false }, type === 'positive' ? 1200 : 2500)
 }
 
 function onToastTouchStart(e: TouchEvent) {
   toastStartY = e.touches[0].clientY
+  toastCurrentY = toastStartY
 }
 
 function onToastTouchMove(e: TouchEvent) {
-  const moveY = e.touches[0].clientY - toastStartY
+  toastCurrentY = e.touches[0].clientY
+  const moveY = toastCurrentY - toastStartY
   if (moveY < 0) {
     ;(e.currentTarget as HTMLElement).style.transform = `translateY(${moveY}px)`
   }
 }
 
 function onToastTouchEnd(e: TouchEvent) {
-  const el = e.currentTarget as HTMLElement
-  const moveY = (e.changedTouches[0]?.clientY ?? 0) - toastStartY
-  if (moveY < -15) {
-    if (toastTimer) clearTimeout(toastTimer)
+  const moveY = toastCurrentY - toastStartY
+  if (toastCurrentY !== 0 && moveY < -15) {
+    if (toast.timer) clearTimeout(toast.timer)
     toast.show = false
+  } else {
+    ;(e.currentTarget as HTMLElement).style.transform = ''
   }
-  el.style.transform = ''
   toastStartY = 0
+  toastCurrentY = 0
 }
 
 // --- Pinch-zoom with pivot-point centering ---
@@ -249,9 +273,10 @@ async function downloadImage() {
 
     const fileName = timestampName(ext)
     await exportFile(fileName, buffer)
-    showToast('图片保存成功', `已保存至: Documents/AiaW/${fileName}`)
+    showToast('positive', '图片保存成功', `已保存至: Documents/AiaW/${fileName}`)
   } catch (err) {
-    showToast('图片保存失败', err instanceof Error ? err.message : '请检查存储或网络', 2000)
+    const errMsg = err instanceof Error ? err.message : '请检查存储或网络'
+    showToast('negative', '图片保存失败', errMsg)
   } finally {
     saving.value = false
   }
