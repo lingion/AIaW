@@ -1004,3 +1004,18 @@ body {
     user-select: none !important;
   }
 }
+
+// [Fix42] Global theme override: force all interactive states to primary color
+.q-radio__inner--active {
+  color: var(--q-primary) !important;
+}
+.q-radio__bg {
+  color: var(--q-primary) !important;
+}
+.q-radio__inner:before {
+  background: var(--q-primary) !important;
+  opacity: 0.2;
+}
+.q-btn--active .q-focus-helper {
+  background: var(--q-primary) !important;
+}
