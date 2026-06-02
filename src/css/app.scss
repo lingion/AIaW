@@ -1019,3 +1019,21 @@ body {
 .q-btn--active .q-focus-helper {
   background: var(--q-primary) !important;
 }
+// [Fix43] Force all warning/amber text & bg to primary
+.text-warning, .text-amber, .text-orange,
+.q-btn--outline.text-warning, .q-btn--flat.text-warning {
+  color: var(--q-primary) !important;
+}
+.bg-warning, .bg-amber {
+  background-color: var(--q-primary) !important;
+}
+.q-btn--outline .q-btn__content, .q-btn--outline {
+  border-color: var(--q-primary) !important;
+}
+.q-dialog .q-btn--flat.text-warning,
+.q-dialog .q-btn--flat.text-amber {
+  color: var(--q-primary) !important;
+}
+.q-ripple {
+  color: var(--q-primary) !important;
+}
