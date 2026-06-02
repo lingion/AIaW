@@ -4,444 +4,235 @@
 
 ![](https://badge.mcpx.dev?type=client 'MCP Client') ![](https://badge.mcpx.dev?type=client&features=resources,prompts,tools 'MCP client with features')
 
-一个把对话、工具、文件、提示词、Artifacts 都组织进同一个工作台里的 AI 客户端，而不只是一个一次性聊天窗口。
+一个优雅的 AI 客户端——将对话、工具、文件、提示词和 Artifacts 整合为一个真正的 Workspace，而不是一次性的聊天框。
 
-[GitHub 仓库](https://github.com/lingion/AIaW) - [最新 Release](https://github.com/lingion/AIaW/releases/latest) - [English](README.md)
+[GitHub 仓库](https://github.com/lingion/AIaW) · [最新 Release](https://github.com/lingion/AIaW/releases/latest) · [English](README.md)
 
-## 关于这个 fork
+---
 
-本仓库基于上游项目 [NitroRCr/AIaW](https://github.com/NitroRCr/AIaW)，但在其基础上进一步强化了打包客户端链路、原生 / 移动端可用性、内置 power tools，以及更实际的发布 / 调试工作流。
+## 为什么要有这个 Fork
 
-相较于上游 README 的基础结构，这个 fork 保留了原本的核心产品方向，同时把真正影响日常使用的部分继续往前推进：
+本项目基于 [NitroRCr/AIaW](https://github.com/NitroRCr/AIaW)——一个优秀的 AI 客户端，在多工作区组织、MCP 扩展性和 Artifact 工作流方面有扎实的基础。
 
-- 把桌面 / 移动端打包验证当作一等公民，而不是只以浏览器表现为准
-- 把内置 power tools 当作长期维护能力，而不是展示性功能
-- MCP 安装与刷新工作流更实用
-- 导出 / 导入更适合真实大数据量使用场景
-- Android / iOS / native 路径的说明更完整
+这个 Fork 只做一件事：**让 AIaW 成为你真正能在手机上日常使用的生产力工具，同时完全掌控自己的数据。**
 
-## 功能概览
+| 核心维度 | 上游 (NitroRCr/AIaW) | 本 Fork |
+|---|---|---|
+| **移动端体验** | Web 优先，打包客户端被视为附属。手势冲突、长按死锁、缺少相机调用。 | **原生优先。** 全屏手势缩放看图、聊天内原生相机、上划消失通知、专属保存目录，全部真机验证。 |
+| **数据主权** | 默认开启云同步，引导注册托管服务。 | **纯本地优先。** 云同步已禁用，无托管服务，无需注册。数据不经任何第三方。 |
+| **导出与便携性** | 无对话导出。大数据量导出在移动端会崩溃。 | **离线完美 HTML + 原始 Markdown 导出。** 公式、表格、代码块与 App 内显示完全一致。分块数据库导出带进度条。 |
+| **稳定性** | WebView 边界情况未处理，DOM 错误可导致整个 UI 冻结。 | **全链路错误防护。** Dialog-first 架构防止死锁，每条导出路径都有 try-catch 降级。优雅降级，从不静默失败。 |
+| **AI 提供商** | 基础提供商集合，自定义提供商需手动激活。 | **+Cerebras、+MiniMax。** 自定义提供商自动激活，模型列表失败时可手动输入。MiniMax think block 提取。 |
+| **iOS** | 源码路径保留，未验证。 | **完整 Xcode 项目。** 真机测试通过，MCP 门控、相机权限、提供商兼容性均已硬化。 |
 
-### 跨平台运行形态
+**223 commits · 69 个文件变更 · 5000+ 行聚焦改进**
 
-AIaW 不是单一 Web 页面，而是一套多运行时路径的统一产品：
+[查看完整技术审计（含 commit 证据链）→](AUDIT_TABLE.md)
 
-- Web SPA
-- 可安装的 PWA
-- 基于 Tauri 的桌面打包客户端
-- 基于 Capacitor 的 Android 打包客户端
-- 仍保留在源码中的 iOS 构建路径
+---
 
-这个 fork 的核心目标包括：
+## 移动端原生体验
 
-- 尽量让浏览器与打包客户端行为保持一致
-- 把移动端 / 原生链路明确写出来，而不是默认视为不重要
-- 在这个仓库内部直接维护打包构建所需的前端同步与版本链路
+大多数 AI 客户端把移动端当作缩小版的网页。这个 Fork 把移动端当作一等公民。
 
-### 平台支持矩阵
+### 触摸你的图片，而不是和它打架
 
-| 能力 | Web / SPA | PWA | 桌面端（Tauri） | Android（Capacitor） | iOS 路径 |
+上游项目中，在 Android 上长按图片会触发系统震动和手势死锁——App 直接卡死。本 Fork 完全禁用了 WebView 的长按拦截，然后在上面构建了一个正经的图片查看器：
+
+- **全屏沙箱** — 点击打开，纯黑背景，无 UI 干扰
+- **Pivot-Point 双指缩放** — 手指放在哪就以哪为中心放大，图片围绕那个点缩放
+- **单指拖拽平移**，**点击空白区域关闭**
+- **下载按钮** — 直接保存到 `Documents/AiaW/`，时间戳命名，无系统弹窗，不用找文件
+
+所有图标使用内联 SVG，不依赖任何字体图标包（Android WebView 上字体图标可能渲染成巨大文字）。
+
+### 聊天内调用相机
+
+输入框旁边就有相机按钮。拍照 → 直接进入对话。不用切 App，不用翻相册。
+
+### 尊重你屏幕的通知
+
+每条状态消息——保存成功、导出完成、错误——都通过为触屏定制的通知层：
+
+- ✅ **正面**: 绿色 + 勾号 → 1.2 秒自动消失
+- ❌ **负面**: 红色 + 叉号 → 2.5 秒 + 错误详情
+- 上划即刻消失。通知永远不会挡住你的屏幕，也不会和 WebView 手势打架。
+
+### 移动端 UI 加固
+
+- Capacitor 构建恢复圆角底部输入框
+- 代码块操作图标在打包客户端正确渲染
+- 消息目录栏适配窄屏
+- 密码字段支持显示/隐藏切换（配置 API Key 不用盲打）
+- Token 历史下拉，按提供商隔离 + 备注
+
+### iOS — 真机验证通过
+
+完整 Xcode 项目，MCP 门控、提供商兼容性修复、相机权限均已在真机上测试——不只是"源码路径保留"。
+
+> **iOS 可用性：** 完整 Xcode 项目支持原生构建。我们正在评估 Apple Developer Program 方案；目前 iOS 高级用户需通过 Xcode 直接侧载安装。
+
+---
+
+## 数据主权
+
+### 你的数据只存在于你的设备上
+
+云同步（`dexie-cloud`）已默认禁用。托管服务登录已从引导流程中移除。无需创建账号，无需信任任何服务器。你的对话、工作区和 API Key 只存在于你的设备上。
+
+### 对话导出：无妥协地分享
+
+点击任意对话的导出 → 选择格式：
+
+**HTML** — 直接抓取 App 内 Markdown 预览已渲染的 DOM。KaTeX 公式、结构化表格、语法高亮代码块——与你看到的一模一样。KaTeX CSS 从运行中的页面内联，文件完全离线可用，无 CDN 依赖。文件名取对话内容前几字 + 时间戳（如 `AIaW_量子力学讨论_20260602_133805.html`）。
+
+**Markdown** — 原始源码，公式、表格、代码块完整保留。用任何 Markdown 编辑器打开，或喂给另一个 AI。
+
+导出管线设计上就是容错的：格式选择对话框先弹出，DOM 抓取只在确认后执行。任何环节失败，你会看到清晰的错误通知——绝不会静默卡死。
+
+### 大数据库导出
+
+在移动端导出几百 MB 的聊天记录以前会导致内存溢出崩溃。现在使用分块写入 + 进度条 + 轻量模式（跳过大附件缓冲区）。
+
+---
+
+## 提供商增强
+
+### 内置提供商
+
+OpenAI / OpenAI Compatible / OpenAI Responses API · Anthropic · Google · Azure OpenAI · OpenRouter · DeepSeek · xAI · Groq · Together.ai · Cohere · Mistral · Ollama · **Cerebras** *(Fork 新增)* · **MiniMax** *(Fork 新增)* · BurnCloud
+
+### 自定义提供商改进
+
+- **自动激活** — 新建的提供商立即生效，无需手动切换
+- **手动模型输入** — 模型列表获取失败时（不支持的 API、网络问题），直接输入模型名
+- **按提供商 Token 历史** — 下拉选择 + 删除 + 备注 + 提供商间隔离
+- **运行时解析修复** — 自定义提供商在发送时被正确解析，不只是配置时
+
+### MiniMax 专项处理
+
+- 多个 think block 在 tool call 后正确提取
+- tool run 以 think-only 结束时合成最终回答
+- 流式失败优雅降级为非流式响应
+
+---
+
+## 跨平台
+
+| | Web/SPA | PWA | 桌面端 (Tauri) | Android | iOS |
 |---|---|---|---|---|---|
-| 核心对话界面 | 支持 | 支持 | 支持 | 支持 | 源码路径保留 |
-| 工作区 / 文件夹 / 助手 | 支持 | 支持 | 支持 | 支持 | 源码路径保留 |
-| 附件 / 图片输入 | 支持 | 支持 | 支持 | 支持 | 源码路径保留 |
-| MCP over HTTP / SSE | 支持 | 支持 | 支持 | 支持 | 支持 |
-| MCP over STDIO | 不支持 | 不支持 | 支持 | 不支持 | 不支持 |
-| 内置 Python 执行（Pyodide） | 支持 | 支持 | 支持 | 支持 | 预期沿 WebView 路径可用 |
-| File Operations 工具 | 受浏览器沙箱限制 | 受浏览器沙箱限制 | 支持 | 支持 | 源码路径保留 |
-| Local FS Native | 不支持 | 不支持 | 不支持 | 支持 | 不支持 |
-| Artifacts | 支持 | 支持 | 支持 | 支持 | 源码路径保留 |
-| 本地离线数据 | 支持 | 支持 | 支持 | 支持 | 源码路径保留 |
+| 核心对话 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 原生相机 | — | — | — | ✅ | ✅ |
+| 手势图片查看器 | 基础 | 基础 | 基础 | ✅ 完整 | ✅ 完整 |
+| MCP HTTP/SSE | ✅ | ✅ | ✅ | ✅ | ✅ |
+| MCP STDIO | — | — | ✅ | — | — |
+| 代码执行 (Pyodide) | ✅ | ✅ | ✅ | ✅ | WebView |
+| 文件操作 | 部分 | 部分 | ✅ | ✅ | ✅ |
+| 本地文件系统 | — | — | — | ✅ | — |
+| 对话导出 | ✅ | ✅ | ✅ | ✅ | ✅ |
+| 离线数据 | ✅ | ✅ | ✅ | ✅ | ✅ |
 
-说明：
+---
 
-- STDIO MCP 需要桌面 Tauri 客户端。
-- HTTP / SSE MCP 可跨平台使用。
-- `Local FS Native` 是 Android 打包客户端侧的能力，用来做真实设备目录级工作流。
+## 工作区、对话与 Artifacts
 
-## 核心产品结构
+### 多工作区组织
 
-### 多工作区、文件夹与助手体系
+AIaW 以工作区为核心，不是扁平的聊天列表。按主题、项目、角色创建工作区。放入嵌套文件夹。每个工作区维护独立的助手。复用全局助手。工作区首页存储为可编辑的 Markdown。
 
-AIaW 的组织模型不是单一聊天列表，而是完整的 workspace 体系。
+<img src="docs/usage/res/workspace-list.en.png" width="378">
 
-- 创建多个工作区，隔离不同主题、项目或角色
-- 使用文件夹组织工作区，并支持嵌套
-- 在同一工作区下维护多个助手
-- 复用全局助手到多个工作区
-- 维护工作区级别的主页 / index Markdown 内容
+### 对话界面
 
-<img src="docs/usage/res/workspace-list.png" width="378">
-
-### 对话页面
-
-对话页面是面向长上下文、多分支、多工具调用工作流设计的：
-
-- 用户输入预览
-- 修改提问、重新生成以分叉形式呈现
-- 对话内切换模型
-- 自定义键盘快捷键
-- 对齐到消息边界的快速滚动
-- 引用历史消息中的局部内容发起追问
-- 选中多行消息文本后复制 Markdown 原文
-- 粘贴从 VSCode 复制的代码时自动补 fenced code block 与语言标记
-- 可选消息目录 rail，适合长 Markdown 回答
-- 在输入区直接启用 / 禁用插件
-
-这个 fork 还持续修正 packaged client 的实际体验：
-
-- 恢复移动端底部输入区圆角与撑满布局
-- 调整 user / assistant 消息渲染链路
-- 修正窄屏下消息目录 rail 的显示逻辑
-- 修复打包客户端中的代码块操作图标渲染
-- 更强调“设备内包体验已验证”而不是“浏览器里看起来没问题”
+- 修改和重新生成以分支形式呈现
+- 按对话切换模型
+- 引用选中内容到后续提示词
+- 多行选择复制原始 Markdown
+- 自动将粘贴的代码包裹在带语言标记的代码块中
+- 消息目录栏（适合标题丰富的回复）
+- 输入框中的插件启用面板
 
 <img src="https://fs.krytro.com/aiaw/dialog.webp" width="600">
 
-## AI 服务商与模型支持
+### Artifacts 与可编辑输出
 
-AIaW 不是单服务商客户端，而是 provider-rich 的统一入口。
+[Artifacts 文档 →](https://docs.aiaw.app/usage/artifacts.html)
 
-### 支持的 provider 家族
-
-- OpenAI
-- OpenAI Compatible
-- OpenAI Responses API
-- Anthropic
-- Google
-- Azure OpenAI
-- OpenRouter
-- DeepSeek
-- xAI
-- Groq
-- Together.ai
-- Cohere
-- Mistral
-- Ollama
-- Cerebras
-- MiniMax
-- BurnCloud
-
-### 模型能力感知
-
-客户端内部保留了按模型区分的输入能力元数据，而不是假设所有模型都能接受相同输入。
-
-根据所选模型，AIaW 可以识别或限制：
-
-- 文本输入
-- 图片输入
-- 音频输入
-- PDF 输入
-- 部分模型支持的图片输出
-
-### 自定义 provider 编排
-
-除了内建 provider，还可以在 AIaW 里自定义自己的 provider 层：
-
-- 定义 custom provider
-- 挂多个 subprovider
-- 配置 fallback 行为
-- 维护自己的模型 / provider 组合关系
-
-这让它既能当普通终端用户客户端，也能当个人 AI 控制台来用。
-
-## Local-first、同步与隐私模型
-
-### 默认以本地为先
-
-AIaW 的状态首先保存在本地，并优先从本地快速恢复。
-
-包括但不限于：
-
-- 工作区
-- 对话
-- 消息
-- Artifacts
-- 助手
-- 插件安装状态
-- 本地附件 / item 引用
-- provider 配置
-
-这使得整个应用能以本地状态为核心快速启动，并保持响应式更新。
-
-### 离线友好
-
-- 本地数据离线可访问
-- PWA 可安装并作为 local-first 客户端使用
-- 桌面 / 移动端打包路径不依赖浏览器标签页持续存在
-
-### 这个 fork 对云同步的准确表述
-
-更大的架构里仍有 Dexie Cloud 相关部件，但在这个 fork 里，cloud sync URL 默认是关闭的。
-
-因此，对本仓库最准确的描述是：
-
-- local-first 是核心
-- 本地响应式更新是现成能力
-- 不把 cloud sync 当作这个 fork 默认可直接开箱使用的服务来承诺
-
-## MCP、插件与扩展能力
-
-### MCP 协议
-
-[MCP 文档](https://docs.aiaw.app/usage/mcp.html)
-
-AIaW 是一个真正可用的 MCP client，而不是只有 badge。
-
-支持的 MCP 概念：
-
-- Tools
-- Prompts
-- Resources
-
-支持的 MCP 连接方式：
-
-- HTTP
-- SSE
-- 桌面 Tauri 客户端中的 STDIO
-
-你可以：
-
-- 在插件市场安装 MCP 类型插件
-- 手动添加 MCP 服务器
-- 配置 headers、环境变量、传输方式等细节
-
-这个 fork 还把已安装 MCP 插件工作流做得更顺手：
-
-- 已安装插件界面里支持 MCP 插件刷新
-- 普通场景下，无需卸载重装即可刷新更新后的 manifest / dump 状态
-
-### 插件系统
-
-[插件系统文档](https://docs.aiaw.app/usage/plugins.html)
-
-AIaW 的插件不只是简单 tool calling。
-
-插件层可以覆盖：
-
-- tools
-- prompts
-- file parsers
-- 信息获取能力
-- MCP 能力接入
-- Gradio 应用集成
-- 对部分 LobeChat 插件的兼容
-
-你可以从插件市场安装插件，并按助手 / 工作流启用。
-
-![](docs/public/plugin-market.png)
-
-### 内置插件与 power tools
-
-内置插件目录是这个 fork 最强的差异化部分之一。
-
-当前内置或重点维护的能力包括：
-
-- Web Search
-- Calculator
-- Video Transcript
-- Whisper
-- FLUX 图像生成
-- Emotions
-- Mermaid
-- Document Parse
-- Artifacts
-- Code Execution (Pyodide)
-- File Operations
-- Local FS Native
-
-#### Code Execution (Pyodide)
-
-直接在客户端本地运行 Python，不依赖远程执行服务器。
-
-适合：
-
-- 快速计算
-- 数据处理
-- 小脚本验证
-- 轻量分析
-- 在客户端侧完成绘图等辅助任务
-
-#### File Operations
-
-给 AI 提供结构化文件操作能力。
-
-不再只是“生成一段回答”，而是可以在支持的平台约束内参与真实文件任务，例如：
-
-- 读取文件
-- 写入文件
-- 查看目录
-- 移动 / 复制 / 删除内容
-
-#### Local FS Native
-
-面向 Android 打包客户端的原生本地文件系统能力。
-
-它让 AI 可以围绕设备上的真实目录工作，而不再被普通浏览器文件能力限制住，是这个 fork 很核心的差异化点。
-
-#### 另外持续维护
-
-- 内置 Web Search 插件
-- Document Parse 集成
-
-## 联网搜索、抓取与检索
-
-### Web Search
-
-AIaW 自带联网搜索工作流，而不是把联网能力完全交给外部插件。
-
-- 基于 SearXNG 的联网搜索
-- 通过 URL 获取 / 抓取网页内容
-- 支持并发搜索与并发抓取
-
-这个 fork 持续在源码内维护 Web Search 插件本身。
-
-## 多模态输入与文档解析
-
-### 附件与输入体验
-
-AIaW 支持结构化 message item，而不是把所有输入都塞进一个文本框里。
-
-常见形式包括：
-
-- 图片附件
-- 文件附件
-- 大文本附件
-- quote 引用项
-
-这些细节在真实使用里非常重要：
-
-- 文本文件（代码、CSV 等）可作为附件传递，而不挤占主显示区域
-- 大段文本可在输入框外 Ctrl + V 粘贴为附件
-- 可从历史消息抽取片段做针对性追问
-
-<img src="https://fs.krytro.com/aiaw/text-item.webp" width="600">
-<img src="https://fs.krytro.com/aiaw/text-selection.webp" width="600">
-<img src="https://fs.krytro.com/aiaw/paste-code.webp" width="600">
-
-### 内置文档解析
-
-[文件解析文档](https://docs.aiaw.app/usage/file-parse.html)
-
-文档解析能力并不只是“上传 PDF”这么简单。
-
-支持的解析路径包括：
-
-- PDF 文本提取
-- PDF 页面转图片
-- DOCX
-- XLSX
-- PPTX
-- 在特定场景下接入后端解析能力
-
-这让 AIaW 更适合真实文档工作流，而不是只能处理纯聊天文本。
-
-## Artifacts 与可编辑输出
-
-[Artifacts 文档](https://docs.aiaw.app/usage/artifacts.html)
-
-Artifacts 是 AIaW 的核心工作台能力之一。
-
-你可以：
-
-- 把助手回答的任意部分转成 Artifact
-- 直接编辑 Artifact
-- 使用带版本感知的 Artifact 工作流
-- 控制助手对 Artifact 的读写权限
-- 同时打开多个 Artifact
-- 把 Artifact 留在 workspace 内，而不是淹没在聊天记录里
-
-这让 AIaW 比“只会吐文本”的客户端更像真正的工作台。
+将 AI 回复转化为可编辑的 Artifacts。维护版本感知的工作流。控制读写权限。同时打开多个 Artifacts。限定在工作区范围内。
 
 <img src="https://fs.krytro.com/aiaw/convert-artifact.webp" width="600">
 
-## 动态提示词与可复用 Prompt
+### 动态提示词
 
-[动态提示词文档](https://docs.aiaw.app/usage/prompt-vars.html)
+[动态提示词文档 →](https://docs.aiaw.app/usage/prompt-vars.html)
 
-AIaW 支持把 prompt engineering 直接做进应用本体里。
-
-- 创建提示词变量
-- 使用模板语法构建动态 prompt
-- 把重复内容抽成 workspace 变量复用
-- 构建参数化助手，而不是硬编码的一大段 system prompt
+基于模板的提示词变量。可复用的工作区级内容。参数化助手。
 
 <img src="docs/usage/res/assistant-prompt-vars.png" width="378">
 
-## 这个 fork 对移动端 / 原生路径的增强
+---
 
-这个 fork 明确把 packaged-client 现实问题当成长期维护对象。
+## MCP、插件与生产力工具
 
-重点包括：
+### MCP 协议 ([文档](https://docs.aiaw.app/usage/mcp.html))
 
-- 持续维护 packaged mobile 聊天界面修复
-- 改善打包客户端中的代码块操作图标渲染
-- 强化移动端 / native 路径导出能力
-- 在 UI 中提供 MCP 已安装插件刷新入口
-- 在调试 packaged client 时可关闭 startup live-update，避免远程 bundle 覆盖本地前端验证结果
-- 对轻量导出 / 导入场景下的大型真实数据更友好
+真正的 MCP 客户端——通过 HTTP、SSE 或 STDIO 支持 Tools、Prompts、Resources。
 
-## 导出 / 导入与数据可迁移性
+本 Fork 新增：
+- **插件刷新** — 更新 MCP 清单无需卸载重装
+- **移动端插件过滤** — 在移动端隐藏不支持的 STDIO 插件
+- **MCP 提供商设置** — 按插件暴露配置项
 
-这个 fork 把数据可迁移性从简短说明扩展成了更可落地的能力。
+### 插件市场
 
-重点包括：
+从市场安装，按助手/工作区启用。兼容 LobeChat 插件。
 
-- 轻量导出模式：跳过体积很大的二进制 buffer
-- 对轻量导出包保持导入兼容
-- 移动端 / native 路径的文件导出支持
+![](docs/public/plugin-market.en.webp)
 
-这在以下场景里尤其有用：
+### 内置生产力工具
 
-- 数据集很大
-- 附件 buffer 太重，不适合每次一起打包
-- 你想保留工作流结构和主数据，但不想每次都携带所有二进制对象
+| 工具 | 能力 |
+|---|---|
+| Web 搜索 | 基于 SearXNG + URL 抓取 |
+| 计算器 | 快速计算 |
+| 视频转录 | 从视频 URL 提取字幕 |
+| Whisper | 音频转文字 |
+| FLUX | 图片生成 |
+| Mermaid | 图表渲染 |
+| 文档解析 | PDF、DOCX、XLSX、PPTX |
+| Artifacts | 可编辑的 AI 输出 |
+| 代码执行 | 本地 Python (Pyodide) |
+| 文件操作 | 结构化文件读写 |
+| 本地文件系统 | 真实设备文件系统访问 (Android) |
 
-## 性能与交互体验
+---
 
-### 轻量且响应迅速
+## 多模态输入
 
-AIaW 的目标不是“一个套壳网页”，而是尽可能接近真正客户端体验。
+结构化消息项：图片附件、文件附件、大段文本附件、引用项。
 
-- 启动迅速
-- 切换对话流畅
-- 本地响应式数据链路
-- 以 workspace 为核心组织大规模历史记录
+<img src="https://fs.krytro.com/aiaw/text-item.webp" width="600">
 
-这个 fork 还加入了 packaged-client 调试期的 live-update 控制，避免本地前端修改在验证时立刻被远端 bundle 替换。
+文档解析：PDF 文本 + 页面渲染、DOCX、XLSX、PPTX——不只是"上传 PDF"。
 
-<img src="https://fs.krytro.com/aiaw/switch-dialog.webp" width="600">
+---
 
-### 其他交互增强
+<details>
+<summary><strong>构建、开发与贡献</strong></summary>
 
-- 助手市场
-- 深色模式
-- 自定义主题色
-- 文本选中动作
-- reasoning 展示控制
-- 面向 power user 的键盘与滚动偏好设置
-
-## 构建、发布与版本同步
-
-### 安装依赖
+### 安装
 
 ```bash
 pnpm i
 ```
 
-### 启动开发环境
+### 开发
 
 ```bash
 quasar dev
 ```
 
-### 代码检查
-
-```bash
-pnpm lint
-```
-
-### 构建生产版本
+### 构建
 
 ```bash
 # SPA
@@ -449,53 +240,61 @@ quasar build
 
 # PWA
 quasar build -m pwa
+
+# Android (quasar build + rsync 后)
+cd android && ./gradlew assembleDebug
 ```
 
-### 仓库内已有的运行时 / 构建栈
-
-- Quasar + Vue 3 前端
-- PWA 构建路径
-- Tauri 桌面端路径
-- Capacitor 移动端路径
-- Quasar 配置中的 Electron scaffold
-
-### 版本同步流
-
-这个 fork 维护了一套统一版本同步逻辑，而不是每次手工改多个 manifest。
-
-版本源头：
-
-- `src/version.json`
-
-同步命令：
+### 版本同步
 
 ```bash
 pnpm sync-version
 ```
 
-它会至少同步到：
+将 `src/version.json` 同步到 `package.json`、`src-tauri/tauri.conf.json` 和 `android/app/build.gradle`。
 
-- `package.json`
-- `src-tauri/tauri.conf.json`
-- `android/app/build.gradle`
+</details>
 
-对打包客户端发布尤其重要，因为 Web、桌面端、Android 的版本元数据需要保持一致。
+---
 
-## 适合什么人
+## 适合谁
 
-如果你要的不是“选个模型然后聊天”，而是一个更接近工作台的 AI 客户端，AIaW 会更合适。
+AIaW 适合想要更多而不仅仅是"选个模型然后打字"的人：
 
-它尤其适合这些需求：
+- **手机是主力设备** — 相机、手势、导出、离线
+- **数据主权** — 除非你选择，否则数据不离开你的设备
+- **多工作区组织** — 不是扁平聊天列表
+- **MCP 和插件扩展** — 真正的工具集成
+- **文档密集型工作流** — PDF、DOCX、XLSX、PPTX
+- **可编辑 Artifacts** — AI 输出是资产，不是一次性文字
+- **设备端生产力工具** — 本地 Python、本地文件系统
 
-- 用多工作区管理 AI 工作流
-- 希望状态 local-first，而不是依赖远端网页标签页
-- 需要 MCP 与插件扩展能力
-- 有大量文档型工作流
-- 希望把结果沉淀成可编辑 Artifact
-- 需要原生 / 移动端打包路径
-- 希望直接在设备侧用 Python、本地文件、原生目录能力
+---
 
-## 文档入口
+<details>
+<summary><strong>技术审计追踪</strong></summary>
+
+以上声称的每一项功能，都有 commit 级证据链。详见 [AUDIT_TABLE.md](AUDIT_TABLE.md)。
+
+本 Fork 引入的关键新文件：
+
+| 文件 | 用途 |
+|---|---|
+| `src/components/ViewImageDialog.vue` | 全屏图片沙箱，手势缩放 |
+| `src/components/GlobalToast.vue` | 统一的上划消失通知 |
+| `src/composables/useToast.ts` | 全局 Toast 状态管理 |
+| `src/composables/export-pdf.ts` | HTML/Markdown 双通道导出 |
+| `src/utils/local-fs-native.ts` | 原生文件系统访问 |
+| `src/utils/local-fs-native-plugin.ts` | AI 工作流文件系统插件 |
+| `ios/` | 完整 Xcode 项目 |
+
+与上游的完整对比: [NitroRCr/AIaW → lingion:AIaW](https://github.com/NitroRCr/AIaW/compare/master...lingion:AIaW:master)
+
+</details>
+
+---
+
+## 文档
 
 - [MCP](https://docs.aiaw.app/usage/mcp.html)
 - [插件系统](https://docs.aiaw.app/usage/plugins.html)
