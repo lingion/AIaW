@@ -403,15 +403,7 @@ const messageShell = ref<HTMLElement>()
 const { exportToPDF } = useExportPDF()
 function exportRoundPDF() {
   const rawMd = textContent.value?.text || ''
-  // Grab rendered HTML from THIS message's md-preview by id
-  let renderedHtml = ''
-  const el = document.getElementById(mdId)
-  if (el) {
-    const preview = el.querySelector('.md-editor-preview') as HTMLElement | null
-      || el.querySelector('.md-preview') as HTMLElement | null
-    renderedHtml = preview?.innerHTML || ''
-  }
-  exportToPDF(rawMd, renderedHtml)
+  exportToPDF(rawMd, mdId)
 }
 
 const $q = useQuasar()
