@@ -4,7 +4,7 @@ import { useLiveQuery } from 'src/composables/live-query'
 import { db } from 'src/utils/db'
 import { genId, removeDuplicates } from 'src/utils/functions'
 import { CustomProvider, Provider, ProviderType } from 'src/utils/types'
-import { modelOptions as baseModelOptions, ProviderTypes } from 'src/utils/values'
+import { ProviderTypes } from 'src/utils/values'
 import { computed, Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -75,10 +75,24 @@ export const useProvidersStore = defineStore('providers', () => {
     })),
     ...ProviderTypes
   ])
-  const modelOptions = computed(() => removeDuplicates([
-    ...baseModelOptions,
-    ...providers.value.flatMap(p => p.subproviders.flatMap(sp => Object.keys(sp.modelMap)))
-  ]))
+  const modelOptions = computed(() => {
+    // Build list with provider info, deduplicate by name+providerId
+    const all = providers.value.flatMap(p =>
+      p.subproviders.flatMap(sp =>
+        Object.keys(sp.modelMap).map(name => ({ name, providerId: p.id, providerName: p.name }))
+      )
+    )
+    // Count how many providers offer each model name
+    const nameCount: Record<string, number> = {}
+    for (const m of all) { nameCount[m.name] = (nameCount[m.name] || 0) + 1 }
+    // If a name appears in multiple providers, suffix with (ProviderName)
+    return all.map(m => ({
+      name: m.name,
+      providerId: m.providerId,
+      providerName: m.providerName,
+      displayName: nameCount[m.name] > 1 ? `${m.name} (${m.providerName})` : m.name
+    }))
+  })
   const { t } = useI18n()
   async function add(props: Partial<CustomProvider> = {}) {
     return await db.providers.add({
