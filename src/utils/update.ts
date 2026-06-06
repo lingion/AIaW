@@ -3,11 +3,12 @@ import { check } from '@tauri-apps/plugin-updater'
 import { relaunch } from '@tauri-apps/plugin-process'
 import { fetch, IsCapacitor, IsTauri, IsWeb, TauriPlatform } from './platform-api'
 import version from 'src/version.json'
-import { Loading, Notify, QNotifyAction } from 'quasar'
+import { Loading } from 'quasar'
 import { i18n } from 'src/boot/i18n'
 import { localData } from './local-data'
 import { invoke } from '@tauri-apps/api/core'
 import { DisableCheckUpdate } from './config'
+import { useToast } from 'src/composables/useToast'
 
 const BaseURL = 'https://github.com/lingion/AIaW/releases/latest/download'
 type Version = typeof version
@@ -27,13 +28,8 @@ async function checkUpdate() {
   }
 }
 
-function wrapNotify(message: string, actions: QNotifyAction[]) {
-  return Notify.create({
-    message,
-    actions: actions.map(a => ({ ...a, textColor: 'inv-pri' })),
-    color: 'inv-sur',
-    textColor: 'inv-on-sur'
-  })
+function wrapNotify(message: string, actions: { label: string; handler: () => void }[]) {
+  useToast().toastAction('info', message, actions)
 }
 
 function isUpdateIgnored(version: string) {

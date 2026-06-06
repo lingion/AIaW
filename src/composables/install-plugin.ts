@@ -2,14 +2,14 @@ import { usePluginsStore } from 'src/stores/plugins'
 import { GradioPluginManifestSchema, HuggingPluginManifestSchema, LobePluginManifestSchema, McpPluginManifestSchema } from 'src/utils/types'
 import { Validator } from '@cfworker/json-schema'
 import { toRaw } from 'vue'
-import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'src/composables/useToast'
 import { fetch, IsCapacitor, CapacitorPlatform, IsTauri } from 'src/utils/platform-api'
 
 export function useInstallPlugin() {
   const store = usePluginsStore()
-  const $q = useQuasar()
   const { t } = useI18n()
+  const { toastError } = useToast()
   async function install(source) {
     let manifest
     if (typeof source === 'string') {
@@ -18,20 +18,14 @@ export function useInstallPlugin() {
           manifest = await fetch(source).then(res => res.json())
         } catch (err) {
           console.error(err)
-          $q.notify({
-            message: t('installPlugin.fetchFailed', { message: err.message }),
-            color: 'negative'
-          })
+          toastError(t('installPlugin.fetchFailed', { message: err.message }))
           return
         }
       } else {
         try {
           manifest = JSON.parse(source)
         } catch (err) {
-          $q.notify({
-            message: t('installPlugin.formatError'),
-            color: 'negative'
-          })
+          toastError(t('installPlugin.formatError'))
           return
         }
       }
@@ -46,31 +40,19 @@ export function useInstallPlugin() {
       await store.installLobePlugin(manifest)
     } else if (new Validator(McpPluginManifestSchema).validate(manifest).valid) {
       if (manifest.transport.type === 'stdio' && !IsTauri) {
-        $q.notify({
-          message: t('installPlugin.installFailed', { message: 'STDIO MCP plugins require desktop/Tauri.' }),
-          color: 'negative'
-        })
+        toastError(t('installPlugin.installFailed', { message: 'STDIO MCP plugins require desktop/Tauri.' }))
         return
       }
       if (IsCapacitor && CapacitorPlatform === 'ios' && manifest.transport.type === 'stdio') {
-        $q.notify({
-          message: t('installPlugin.installFailed', { message: 'iOS only supports HTTP/SSE MCP plugins.' }),
-          color: 'negative'
-        })
+        toastError(t('installPlugin.installFailed', { message: 'iOS only supports HTTP/SSE MCP plugins.' }))
         return
       }
       await store.installMcpPlugin(manifest).catch(err => {
         console.error(err)
-        $q.notify({
-          message: t('installPlugin.installFailed', { message: err.message }),
-          color: 'negative'
-        })
+        toastError(t('installPlugin.installFailed', { message: err.message }))
       })
     } else {
-      $q.notify({
-        message: t('installPlugin.unsupportedFormat'),
-        color: 'negative'
-      })
+      toastError(t('installPlugin.unsupportedFormat'))
     }
   }
   return { install }

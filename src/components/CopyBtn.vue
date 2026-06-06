@@ -9,11 +9,13 @@
   />
 </template>
 <script setup>
-import { copyToClipboard, Notify } from 'quasar'
+import { copyToClipboard } from 'quasar'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'src/composables/useToast'
 
 const { t } = useI18n()
+const { toastError } = useToast()
 
 const props = defineProps({
   value: {
@@ -31,10 +33,7 @@ function copy() {
       icon.value = 'sym_o_content_copy'
     }, 2000)
   }).catch(() => {
-    Notify.create({
-      message: t('copyBtn.copyFailed'),
-      color: 'negative'
-    })
+    toastError(t('copyBtn.copyFailed'))
   })
 }
 </script>

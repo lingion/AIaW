@@ -1,13 +1,13 @@
-import { useQuasar } from 'quasar'
 import { BudgetBaseURL } from 'src/utils/config'
 import { db } from 'src/utils/db'
 import { OrderItem } from 'src/utils/types'
 import { Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'src/composables/useToast'
 
 export function useOrder(loading: Ref<boolean>, onDialogOK: (res) => void) {
-  const $q = useQuasar()
   const { t } = useI18n()
+  const { toastError } = useToast()
   async function order(item: OrderItem, payMethod) {
     try {
       loading.value = true
@@ -30,10 +30,7 @@ export function useOrder(loading: Ref<boolean>, onDialogOK: (res) => void) {
       })
     } catch (error) {
       console.error(error)
-      $q.notify({
-        message: t('order.failure'),
-        color: 'negative'
-      })
+      toastError(t('order.failure'))
     } finally {
       loading.value = false
     }

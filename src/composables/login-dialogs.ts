@@ -5,6 +5,7 @@ import { watch } from 'vue'
 import { dialogOptions } from 'src/utils/values'
 import { DexieDBURL } from 'src/utils/config'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'src/composables/useToast'
 
 export function useLoginDialogs() {
   if (!DexieDBURL) return
@@ -12,6 +13,7 @@ export function useLoginDialogs() {
   const user = useObservable(db.cloud.currentUser)
   const $q = useQuasar()
   const { t } = useI18n()
+  const { toastError, toastInfo, toastSuccess } = useToast()
   let loginNotify = false
 
   watch(userInteraction, interaction => {
@@ -67,15 +69,16 @@ export function useLoginDialogs() {
       })
     } else if (interaction.type === 'message-alert') {
       for (const alert of interaction.alerts) {
-        $q.notify({
-          message: alert.message,
-          color: alert.type === 'info' ? undefined : 'negative'
-        })
+        if (alert.type === 'info') {
+          toastInfo(alert.message)
+        } else {
+          toastError(alert.message)
+        }
       }
     }
   })
   watch(() => user.value.isLoggedIn, isLoggedIn => {
-    isLoggedIn && loginNotify && $q.notify(t('login.loggedIn', { email: user.value.email }))
+    isLoggedIn && loginNotify && toastSuccess(t('login.loggedIn', { email: user.value.email }))
     loginNotify = false
   })
 }

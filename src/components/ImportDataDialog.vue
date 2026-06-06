@@ -61,10 +61,11 @@
 
 <script setup lang="ts">
 import { importInto } from 'dexie-export-import'
-import { useDialogPluginComponent, useQuasar } from 'quasar'
+import { useDialogPluginComponent } from 'quasar'
 import { db } from 'src/utils/db'
 import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'src/composables/useToast'
 
 const { t } = useI18n()
 const file = ref<File>(null)
@@ -79,7 +80,7 @@ defineEmits([
   ...useDialogPluginComponent.emits
 ])
 
-const $q = useQuasar()
+const { toastSuccess, toastError } = useToast()
 const loading = ref(false)
 function importData() {
   const { force, overwrite, clear } = options
@@ -91,17 +92,11 @@ function importData() {
     clearTablesBeforeImport: clear,
     progressCallback: () => true
   }).then(() => {
-    $q.notify({
-      message: t('importDataDialog.importSuccess'),
-      color: 'positive'
-    })
+    toastSuccess(t('importDataDialog.importSuccess'))
     onDialogOK()
   }).catch(e => {
     console.error(e)
-    $q.notify({
-      message: t('importDataDialog.importFailed', { message: e.message }),
-      color: 'negative'
-    })
+    toastError(t('importDataDialog.importFailed', { message: e.message }))
   }).finally(() => {
     loading.value = false
   })

@@ -115,6 +115,7 @@ import { computed, reactive, ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import { useQuasar } from 'quasar'
+import { useToast } from 'src/composables/useToast'
 import { MarketAssistantSchema } from 'src/utils/types'
 import { Validator } from '@cfworker/json-schema'
 import { caselessIncludes, pageFhStyle } from 'src/utils/functions'
@@ -138,6 +139,7 @@ const filterList = computed(() =>
 )
 
 const $q = useQuasar()
+const { toastAction, toastError } = useToast()
 const loading = ref(false)
 const { locale } = useI18n()
 function load() {
@@ -148,16 +150,10 @@ function load() {
       list.push(...data)
     }).catch(err => {
       console.error(err)
-      $q.notify({
-        message: t('assistantsMarket.loadError'),
-        color: 'err-c',
-        textColor: 'on-err-c',
-        actions: [{
-          label: t('assistantsMarket.retry'),
-          color: 'on-sur',
-          handler: load
-        }]
-      })
+      toastAction('negative', t('assistantsMarket.loadError'), [{
+        label: t('assistantsMarket.retry'),
+        handler: load,
+      }])
     }).finally(() => {
       loading.value = false
     })
@@ -181,10 +177,7 @@ function addToWorkspace(item) {
 }
 function add(item, workspaceId) {
   if (!new Validator(MarketAssistantSchema).validate(item).valid) {
-    $q.notify({
-      message: t('assistantsMarket.formatError'),
-      color: 'negative'
-    })
+    toastError(t('assistantsMarket.formatError'))
     return
   }
   const { name, avatar, prompt, promptVars, promptTemplate, model, modelSettings, author, homepage, description } = toRaw(item)
@@ -201,15 +194,10 @@ function add(item, workspaceId) {
     homepage,
     description
   }).then(() => {
-    $q.notify({
-      message: t('assistantsMarket.added')
-    })
+    toastSuccess(t('assistantsMarket.added'))
   }).catch(err => {
     console.error(err)
-    $q.notify({
-      message: t('assistantsMarket.addError'),
-      color: 'negative'
-    })
+    toastError(t('assistantsMarket.addError'))
   })
 }
 
@@ -224,10 +212,7 @@ async function clipboardImport() {
     const text = await clipboardReadText()
     addToGlobal(JSON.parse(text))
   } catch (err) {
-    $q.notify({
-      message: t('assistantsMarket.importError'),
-      color: 'negative'
-    })
+    toastError(t('assistantsMarket.importError'))
   }
 }
 </script>

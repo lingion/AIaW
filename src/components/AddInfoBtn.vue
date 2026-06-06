@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
+import { useToast } from 'src/composables/useToast'
 import { useCallApi } from 'src/composables/call-api'
 import { ApiResultItem, AssistantPlugins, Dialog, Plugin, PluginApi, Workspace } from 'src/utils/types'
 import { computed, inject, Ref } from 'vue'
@@ -74,15 +74,12 @@ const pluginInfos = computed<{ plugin: Plugin, apis: PluginApi[] }[]>(() =>
   })).filter(p => p.apis.length)
 )
 
-const $q = useQuasar()
 const { callApi } = useCallApi({ workspace, dialog })
 const { t } = useI18n()
+const { toastError } = useToast()
 
 function handleResult(res: Awaited<ReturnType<typeof callApi>>) {
-  res.error && $q.notify({
-    message: res.error,
-    color: 'negative'
-  })
+  res.error && toastError(res.error)
   res.result && emit('add', res.result)
 }
 function call(plugin: Plugin, api: PluginApi) {

@@ -123,6 +123,7 @@
 import { computed, reactive, ref } from 'vue'
 import ViewCommonHeader from 'src/components/ViewCommonHeader.vue'
 import { useQuasar } from 'quasar'
+import { useToast } from 'src/composables/useToast'
 import { caselessIncludes, pageFhStyle } from 'src/utils/functions'
 import AAvatar from 'src/components/AAvatar.vue'
 import ATip from 'src/components/ATip.vue'
@@ -150,6 +151,7 @@ const filterList = computed(() => {
 })
 
 const $q = useQuasar()
+const { toastAction } = useToast()
 const loading = ref(false)
 const { t, locale } = useI18n()
 function load() {
@@ -160,16 +162,10 @@ function load() {
       list.push(...data)
     }).catch(err => {
       console.error(err)
-      $q.notify({
-        message: t('pluginsMarket.loadError'),
-        color: 'err-c',
-        textColor: 'on-err-c',
-        actions: [{
-          label: t('pluginsMarket.retry'),
-          color: 'on-sur',
-          handler: load
-        }]
-      })
+      toastAction('negative', t('pluginsMarket.loadError'), [{
+        label: t('pluginsMarket.retry'),
+        handler: load,
+      }])
     }).finally(() => {
       loading.value = false
     })

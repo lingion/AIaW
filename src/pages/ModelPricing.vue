@@ -165,7 +165,7 @@ import { computed, reactive, ref } from 'vue'
 import { useUiStateStore } from 'src/stores/ui-state'
 import { useObservable } from '@vueuse/rxjs'
 import { db } from 'src/utils/db'
-import { useQuasar } from 'quasar'
+import { useToast } from 'src/composables/useToast'
 import { LitellmBaseURL, UsdToCnyRate } from 'src/utils/config'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -221,7 +221,7 @@ const modelPrices = computed(() => modelInfo.value.map(x => {
   }
 }).sort((a, b) => a.modelName.localeCompare(b.modelName)))
 
-const $q = useQuasar()
+const { toastError } = useToast()
 const modelInfo = ref(null)
 async function loadModels() {
   if (!apiKey.value) return
@@ -249,10 +249,7 @@ async function loadModels() {
     calc('budget')
   } catch (e) {
     console.error(e)
-    $q.notify({
-      message: t('modelPricing.getModelPriceFailed'),
-      color: 'negative'
-    })
+    toastError(t('modelPricing.getModelPriceFailed'))
   }
 }
 

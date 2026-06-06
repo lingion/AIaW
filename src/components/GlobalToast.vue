@@ -39,6 +39,16 @@
         <div class="column col" style="min-width: 0;">
           <span class="text-bold" style="font-size: 14px;">{{ toast.title }}</span>
           <span v-if="toast.message" style="word-break: break-all; font-size: 11px; opacity: 0.9;">{{ toast.message }}</span>
+          <div v-if="toast.actions.length" class="row q-gutter-sm q-mt-xs">
+            <button
+              v-for="action in toast.actions"
+              :key="action.label"
+              class="toast-action"
+              @click.stop="runAction(action.handler)"
+            >
+              {{ action.label }}
+            </button>
+          </div>
         </div>
         <span style="font-size: 11px; opacity: 0.6;" class="q-ml-sm">↑ 划走</span>
       </div>
@@ -49,7 +59,12 @@
 <script setup lang="ts">
 import { useToast } from 'src/composables/useToast'
 
-const { toast, onToastTouchStart, onToastTouchMove, onToastTouchEnd } = useToast()
+const { toast, dismissToast, onToastTouchStart, onToastTouchMove, onToastTouchEnd } = useToast()
+
+function runAction(handler: () => void) {
+  dismissToast()
+  handler()
+}
 </script>
 
 <style scoped>
@@ -61,5 +76,18 @@ const { toast, onToastTouchStart, onToastTouchMove, onToastTouchEnd } = useToast
 .toast-slide-leave-to {
   transform: translateY(-80px) scale(0.9);
   opacity: 0;
+}
+.toast-action {
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 7px 10px;
+}
+.toast-action:active {
+  background: rgba(255, 255, 255, 0.28);
 }
 </style>

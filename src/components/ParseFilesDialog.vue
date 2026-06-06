@@ -112,6 +112,7 @@ import { usePluginsStore } from 'src/stores/plugins'
 import { mimeTypeMatch } from 'src/utils/functions'
 import { computed, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'src/composables/useToast'
 
 const { t } = useI18n()
 
@@ -156,7 +157,7 @@ const allOptions = computed(() => props.files.map(file => {
 ))
 
 const loading = ref(false)
-const $q = useQuasar()
+const { toastError } = useToast()
 async function parse() {
   loading.value = true
   const results = await Promise.all(selected.map(async ({ value }, index) => {
@@ -168,10 +169,7 @@ async function parse() {
       return result.map(r => ({ ...r, name: file.name }))
     } catch (e) {
       console.error(e)
-      $q.notify({
-        message: t('parseFilesDialog.parseFailed', { file: file.name, error: e }),
-        color: 'negative'
-      })
+      toastError(t('parseFilesDialog.parseFailed', { file: file.name, error: e }))
       return []
     }
   }))
