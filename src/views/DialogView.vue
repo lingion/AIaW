@@ -53,8 +53,8 @@
             <q-item-section>
               <autocomplete-input
                 :model-value="dialog.modelOverride?.name"
-                @update:model-value="setModel"
-                :options="providersStore.modelOptions"
+                @update:model-value="setModelFromDisplay"
+                :options="modelDisplayOptions"
                 dense
                 :label="$t('dialogView.model')"
               >
@@ -119,7 +119,7 @@
             </router-link> {{ $t('dialogView.modelsConfigGuide2') }}
           </a-tip>
           <model-item
-            v-for="m of perfs.commonModelOptions"
+            v-for="m of commonProviderModelOptions"
             :key="m"
             clickable
             :model="m"
@@ -522,7 +522,7 @@ import ParseFilesDialog from 'src/components/ParseFilesDialog.vue'
 import MessageFile from 'src/components/MessageFile.vue'
 import { Capacitor } from '@capacitor/core'
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera'
-import { dialogOptions, InputTypes, models } from 'src/utils/values'
+import { dialogOptions, InputTypes } from 'src/utils/values'
 import { useUserDataStore } from 'src/stores/user-data'
 import ErrorNotFound from 'src/pages/ErrorNotFound.vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -1153,6 +1153,16 @@ const { getModel, getSdkModel } = useGetModel()
 const model = computed(() => getModel(dialog.value?.modelOverride || assistant.value?.model))
 const sdkModel = computed(() => getSdkModel(assistant.value?.provider, model.value))
 const providersStore = useProvidersStore()
+const modelDisplayOptions = computed(() => providersStore.modelOptions.map(m => m.displayName))
+const displayNameToName = computed(() => {
+  const map: Record<string, string> = {}
+  for (const m of providersStore.modelOptions) map[m.displayName] = m.name
+  return map
+})
+const commonProviderModelOptions = computed(() => {
+  const available = new Set(providersStore.modelOptions.map(m => m.name))
+  return perfs.commonModelOptions.filter(m => available.has(m))
+})
 const $q = useQuasar()
 const { toastError } = useToast()
 const { data } = useUserDataStore()
@@ -1187,7 +1197,33 @@ async function resolveCustomSdkModelFallback() {
 }
 
 async function resolveRuntimeSdkModel() {
-  return sdkModel.value || await resolveCustomSdkModelFallback()
+  const selectedModel = model.value
+  if (!selectedModel?.name) return null
+  const modelName = selectedModel.name
+
+  if (sdkModel.value) return sdkModel.value
+  const customFallback = await resolveCustomSdkModelFallback()
+  if (customFallback) return customFallback
+
+  for (const cp of providersStore.providers) {
+    for (const sp of cp.subproviders) {
+      if (!sp.provider) continue
+      const mapped = sp.modelMap[modelName]
+      if (!mapped) continue
+      const sdkProv = providersStore.createProvider(sp.provider, { fetch }, [cp.id])
+      if (!sdkProv) continue
+      const m = sdkProv(mapped)
+      if (m) return m
+    }
+    if (cp.fallbackProvider) {
+      const sdkProv = providersStore.createProvider(cp.fallbackProvider, { fetch }, [cp.id])
+      if (!sdkProv) continue
+      const m = sdkProv(modelName)
+      if (m) return m
+    }
+  }
+
+  return null
 }
 
 async function send() {
@@ -1393,7 +1429,7 @@ async function stream(target, insert = false, onPendingBranch?: (info: { assista
   try {
     if (noRoundtrip) settings.maxSteps = 1
     abortController.value = new AbortController()
-    const runtimeSdkModel = sdkModel.value || await resolveCustomSdkModelFallback()
+    const runtimeSdkModel = await resolveRuntimeSdkModel()
     if (!runtimeSdkModel) {
       throw new Error(t('dialogView.errors.configModel'))
     }
@@ -2311,8 +2347,13 @@ onUnmounted(() => {
 
 function setModel(name: string) {
   dialog.value.modelOverride = name
-    ? models.find(model => model.name === name) || { name, inputTypes: InputTypes.default }
+    ? { name, inputTypes: InputTypes.default }
     : null
+}
+
+function setModelFromDisplay(displayName: string) {
+  const name = displayNameToName.value[displayName] || displayName
+  setModel(name)
 }
 
 const { createDialog } = useCreateDialog(workspace)

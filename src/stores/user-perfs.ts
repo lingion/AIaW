@@ -3,7 +3,6 @@ import { defineStore } from 'pinia'
 import { Dark, extend } from 'quasar'
 import { persistentReactive } from 'src/composables/persistent-reactive'
 import { Avatar, Model, PlatformEnabled, Provider, ShortcutKey } from 'src/utils/types'
-import { models } from 'src/utils/values'
 import { watchEffect } from 'vue'
 
 interface Perfs {
@@ -57,25 +56,15 @@ export const useUserPerfsStore = defineStore('user-perfs', () => {
     darkMode: 'auto',
     themeHue: 300,
     provider: null,
-    model: models.find(m => m.name === 'gpt-5.1'),
+    model: null,
     systemProvider: null,
-    systemModel: models.find(m => m.name === 'gpt-5-nano'),
+    systemModel: null,
     userAvatar: {
       type: 'text',
       text: 'U',
       hue: 300
     },
-    commonModelOptions: [
-      'gpt-5.1',
-      'gpt-5-mini',
-      'o4-mini',
-      'claude-sonnet-4-5-20250929',
-      'claude-opus-4-5-20251101',
-      'gemini-2.5-pro',
-      'gemini-2.5-flash',
-      'deepseek-chat',
-      'deepseek-reasoner'
-    ],
+    commonModelOptions: [],
     autoGenTitle: true,
     sendKey: 'ctrl+enter',
     messageSelectionBtn: true,

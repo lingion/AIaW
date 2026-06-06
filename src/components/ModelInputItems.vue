@@ -5,8 +5,8 @@
       <autocomplete-input
         class="w-250px"
         :model-value="model?.name"
-        @update:model-value="setModel"
-        :options="providersStore.modelOptions"
+        @update:model-value="setModelFromDisplay"
+        :options="modelDisplayOptions"
         filled
         dense
       >
@@ -71,17 +71,30 @@
 </template>
 
 <script setup lang="ts">
-import { InputTypes, models } from 'src/utils/values'
+import { InputTypes } from 'src/utils/values'
 import AutocompleteInput from './AutocompleteInput.vue'
 import ModelItem from './ModelItem.vue'
 import ListInput from './ListInput.vue'
 import { Model } from 'src/utils/types'
 import { useProvidersStore } from 'src/stores/providers'
+import { computed } from 'vue'
 
 const model = defineModel<Model>()
+const providersStore = useProvidersStore()
+
+const modelDisplayOptions = computed(() => providersStore.modelOptions.map(m => m.displayName))
+const displayNameToName = computed(() => {
+  const map: Record<string, string> = {}
+  for (const m of providersStore.modelOptions) map[m.displayName] = m.name
+  return map
+})
+
 function setModel(name: string) {
-  model.value = name ? models.find(m => m.name === name) || { name, inputTypes: InputTypes.default } : null
+  model.value = name ? { name, inputTypes: InputTypes.default } : null
 }
 
-const providersStore = useProvidersStore()
+function setModelFromDisplay(displayName: string) {
+  const name = displayNameToName.value[displayName] || displayName
+  setModel(name)
+}
 </script>
