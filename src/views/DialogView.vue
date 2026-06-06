@@ -501,6 +501,7 @@ import { almostEqual, displayLength, genId, inputValueEmpty, isPlatformEnabled, 
 import { useAssistantsStore } from 'src/stores/assistants'
 import { streamText, generateText, tool, jsonSchema, StreamTextResult, GenerateTextResult, ModelMessage, stepCountIs } from 'ai'
 import { copyToClipboard, throttle, useQuasar } from 'quasar'
+import { useToast } from 'src/composables/useToast'
 import AssistantItem from 'src/components/AssistantItem.vue'
 import { DialogContent, ExtractArtifactPrompt, ExtractArtifactResult, GenDialogTitle, NameArtifactPrompt, PluginsPrompt } from 'src/utils/templates'
 import sessions from 'src/utils/sessions'
@@ -709,12 +710,12 @@ async function edit(index) {
 }
 async function regenerate(index) {
   if (!assistant.value) {
-    $q.notify({ message: t('dialogView.errors.setAssistant'), color: 'negative' })
+    toastError(t('dialogView.errors.setAssistant'))
     return
   }
   const runtimeSdkModel = await resolveRuntimeSdkModel()
   if (!runtimeSdkModel) {
-    $q.notify({ message: t('dialogView.errors.configModel'), color: 'negative' })
+    toastError(t('dialogView.errors.configModel'))
     return
   }
   const target = chain.value[index - 1]
@@ -912,7 +913,7 @@ async function takePhoto() {
         message !== 'User cancelled' &&
         !message.toLowerCase().includes('cancel')
       ) {
-        $q.notify({ message: `Camera error: ${message}`, color: 'negative' })
+        toastError(`Camera error: ${message}`)
       }
     }
   } else {
@@ -988,7 +989,7 @@ async function parseFiles(files: File[]) {
   }
   for (const file of supportedFiles) {
     if (file.size > MaxMessageFileSizeMB * 1024 * 1024) {
-      $q.notify({ message: t('dialogView.fileTooLarge', { maxSize: MaxMessageFileSizeMB }), color: 'negative' })
+      toastError(t('dialogView.fileTooLarge', { maxSize: MaxMessageFileSizeMB }))
       continue
     }
     const f = file.type.startsWith('image/') && file.size > 512 * 1024 ? await scaleBlob(file, 2048 * 2048) : file
@@ -1122,7 +1123,7 @@ function getSystemPrompt(enabledPlugins) {
     return prompt.trim() ? prompt : undefined
   } catch (e) {
     console.error(e)
-    $q.notify({ message: t('dialogView.promptParseFailed'), color: 'negative' })
+    toastError(t('dialogView.promptParseFailed'))
     throw e
   }
 }
@@ -1153,6 +1154,7 @@ const model = computed(() => getModel(dialog.value?.modelOverride || assistant.v
 const sdkModel = computed(() => getSdkModel(assistant.value?.provider, model.value))
 const providersStore = useProvidersStore()
 const $q = useQuasar()
+const { toastError } = useToast()
 const { data } = useUserDataStore()
 
 async function resolveCustomSdkModelFallback() {
@@ -1191,12 +1193,12 @@ async function resolveRuntimeSdkModel() {
 async function send() {
   if (inputEmpty.value) return
   if (!assistant.value) {
-    $q.notify({ message: t('dialogView.errors.setAssistant'), color: 'negative' })
+    toastError(t('dialogView.errors.setAssistant'))
     return
   }
   const runtimeSdkModel = await resolveRuntimeSdkModel()
   if (!runtimeSdkModel) {
-    $q.notify({ message: t('dialogView.errors.configModel'), color: 'negative' })
+    toastError(t('dialogView.errors.configModel'))
     return
   }
   if (!data.noobAlertDismissed && chain.value.length > 10 && dialogs.value.length < 3) {
@@ -1357,7 +1359,7 @@ async function stream(target, insert = false, onPendingBranch?: (info: { assista
       try {
         pluginInfos[a.name] = await callApi(p, a, api.args)
       } catch (e) {
-        $q.notify({ message: t('dialogView.callPluginInfoFailed', { message: e.message }), color: 'negative' })
+        toastError(t('dialogView.callPluginInfoFailed', { message: e.message }))
       }
     }))
 
@@ -1367,7 +1369,7 @@ async function stream(target, insert = false, onPendingBranch?: (info: { assista
         prompt: p.prompt && engine.parseAndRenderSync(p.prompt, { ...pluginVars, infos: pluginInfos })
       })
     } catch (e) {
-      $q.notify({ message: t('dialogView.pluginPromptParseFailed', { title: p.title }), color: 'negative' })
+      toastError(t('dialogView.pluginPromptParseFailed', { title: p.title }))
     }
   }))
   if (isPlatformEnabled(perfs.artifactsEnabled) && artifacts.value.some(a => a.open)) {
@@ -1521,12 +1523,10 @@ async function stream(target, insert = false, onPendingBranch?: (info: { assista
   } catch (e) {
     console.error(e)
     if (e.data?.error?.type === 'budget_exceeded') {
-      $q.notify({
-        message: t('dialogView.errors.insufficientQuota'),
-        color: 'err-c',
-        textColor: 'on-err-c',
-        actions: [{ label: t('dialogView.recharge'), color: 'on-sur', handler() { router.push('/account') } }]
-      })
+      toastAction('negative', t('dialogView.errors.insufficientQuota'), [{
+        label: t('dialogView.recharge'),
+        handler() { router.push('/account') },
+      }])
     }
     await db.messages.update(id, { contents, error: e.message || e.toString(), status: 'failed', generatingSession: null })
   }
@@ -1602,7 +1602,7 @@ async function genTitle() {
     await db.dialogs.update(dialogId, { name: text })
   } catch (e) {
     console.error(e)
-    $q.notify({ message: t('dialogView.summarizeFailed'), color: 'negative' })
+    toastError(t('dialogView.summarizeFailed'))
   }
 }
 async function copyContent() {

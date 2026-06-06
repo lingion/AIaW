@@ -3,7 +3,7 @@
 <script setup lang="ts">
 import { Validator } from '@cfworker/json-schema'
 import { until } from '@vueuse/core'
-import { useQuasar } from 'quasar'
+import { useToast } from 'src/composables/useToast'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { ProviderSchema } from 'src/utils/types'
 import { useRoute } from 'vue-router'
@@ -12,7 +12,7 @@ import { useOpenLastWorkspace } from 'src/composables/open-last-workspace'
 
 const route = useRoute()
 const userPerfsStore = useUserPerfsStore()
-const $q = useQuasar()
+const { toastError } = useToast()
 const { t } = useI18n()
 
 const { openLastWorkspace } = useOpenLastWorkspace()
@@ -25,24 +25,15 @@ until(() => userPerfsStore.ready).toBeTruthy().then(() => {
     }
     const bak = userPerfsStore.perfs.provider
     userPerfsStore.perfs.provider = provider
-    $q.notify({
-      message: t('setProviderPage.providerSet', { baseURL: provider.settings.baseURL }),
-      color: 'positive',
-      actions: [{
-        label: t('setProviderPage.restore'),
-        handler: () => {
-          userPerfsStore.perfs.provider = bak
-        },
-        color: 'white'
-      }],
-      timeout: 6000
-    })
+    toastAction('positive', t('setProviderPage.providerSet', { baseURL: provider.settings.baseURL }), [{
+      label: t('setProviderPage.restore'),
+      handler: () => {
+        userPerfsStore.perfs.provider = bak
+      },
+    }])
   } catch (e) {
     console.error(e)
-    $q.notify({
-      message: t('setProviderPage.providerSetFailed'),
-      color: 'negative'
-    })
+    toastError(t('setProviderPage.providerSetFailed'))
   } finally {
     openLastWorkspace()
   }

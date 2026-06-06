@@ -12,6 +12,7 @@ const toast = reactive({
   type: 'positive' as 'positive' | 'negative' | 'info',
   title: '',
   message: '',
+  actions: [] as { label: string; handler: () => void }[],
   timer: null as ReturnType<typeof setTimeout> | null,
 })
 
@@ -24,19 +25,24 @@ export function useToast() {
     title: string,
     message: string = '',
     duration?: number,
+    actions: { label: string; handler: () => void }[] = [],
   ) {
     if (toast.timer) clearTimeout(toast.timer)
     toast.type = type
     toast.title = title
     toast.message = message
+    toast.actions = actions
     toast.show = true
 
     const ms = duration ?? (type === 'positive' ? 1200 : type === 'negative' ? 2500 : 1500)
-    toast.timer = setTimeout(() => { toast.show = false }, ms)
+    if (ms > 0) {
+      toast.timer = setTimeout(() => { toast.show = false }, ms)
+    }
   }
 
   function dismissToast() {
     if (toast.timer) clearTimeout(toast.timer)
+    toast.actions = []
     toast.show = false
   }
 
@@ -68,6 +74,12 @@ export function useToast() {
   const toastSuccess = (title: string, message?: string) => showToast('positive', title, message)
   const toastError = (title: string, message?: string) => showToast('negative', title, message)
   const toastInfo = (title: string, message?: string) => showToast('info', title, message)
+  const toastAction = (
+    type: 'positive' | 'negative' | 'info',
+    title: string,
+    actions: { label: string; handler: () => void }[],
+    message = '',
+  ) => showToast(type, title, message, 0, actions)
 
   return {
     toast,
@@ -76,6 +88,7 @@ export function useToast() {
     toastSuccess,
     toastError,
     toastInfo,
+    toastAction,
     onToastTouchStart,
     onToastTouchMove,
     onToastTouchEnd,

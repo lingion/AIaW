@@ -52,7 +52,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useQuasar } from 'quasar'
+import { useToast } from 'src/composables/useToast'
 import AAvatar from './AAvatar.vue'
 import { usePluginsStore } from 'src/stores/plugins'
 import PluginTypeBadge from 'src/components/PluginTypeBadge.vue'
@@ -74,16 +74,16 @@ function resolveAvatar(plugin: Plugin) {
 const pluginsStore = usePluginsStore()
 const { data } = pluginsStore
 
-const $q = useQuasar()
+const { toastSuccess, toastError } = useToast()
 const refreshing = ref<string | null>(null)
 
 async function refreshMcp(plugin) {
   refreshing.value = plugin.id
   try {
     await pluginsStore.refreshMcpPlugin(plugin.id)
-    $q.notify({ type: 'positive', message: t('installedPlugins.refreshSuccess') })
+    toastSuccess(t('installedPlugins.refreshSuccess'))
   } catch (e) {
-    $q.notify({ type: 'negative', message: String(e) })
+    toastError(String(e))
   } finally {
     refreshing.value = null
   }

@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { useQuasar } from 'quasar'
+import { useToast } from 'src/composables/useToast'
 import { useInstallPlugin } from 'src/composables/install-plugin'
 import { usePluginsStore } from 'src/stores/plugins'
 import { PluginManifest } from 'src/utils/types'
@@ -31,16 +31,13 @@ const props = defineProps<{
 const store = usePluginsStore()
 const { install } = useInstallPlugin()
 const loading = ref(false)
-const $q = useQuasar()
+const { toastInfo } = useToast()
 function installIt() {
   if (props.disabled) return
   loading.value = true
   install(props.manifest).catch(err => {
     console.error(err)
-    $q.notify({
-      message: `${t('installPluginBtn.installFailed')}${err.message}`,
-      color: 'negative'
-    })
+    toastError(`${t('installPluginBtn.installFailed')}${err.message}`)
   }).finally(() => {
     loading.value = false
   })

@@ -53,11 +53,12 @@
 
 <script setup lang="ts">
 import { exportDB } from 'dexie-export-import'
-import { useDialogPluginComponent, useQuasar } from 'quasar'
+import { useDialogPluginComponent } from 'quasar'
 import { db, schema } from 'src/utils/db'
 import { exportFile } from 'src/utils/platform-api'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'src/composables/useToast'
 
 const { t } = useI18n()
 
@@ -71,7 +72,7 @@ defineEmits([
   ...useDialogPluginComponent.emits
 ])
 
-const $q = useQuasar()
+const { toastError } = useToast()
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 
@@ -115,10 +116,7 @@ function exportData() {
     onDialogOK()
   }).catch(err => {
     console.error(err)
-    $q.notify({
-      message: t('exportDataDialog.exportFailed'),
-      color: 'negative'
-    })
+    toastError(t('exportDataDialog.exportFailed'))
   }).finally(() => {
     loading.value = false
   })

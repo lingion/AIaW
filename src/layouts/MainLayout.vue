@@ -160,7 +160,7 @@ import AccountBtn from 'src/components/AccountBtn.vue'
 import DarkSwitchBtn from 'src/components/DarkSwitchBtn.vue'
 import MenuItem from 'src/components/MenuItem.vue'
 import { DexieDBURL } from 'src/utils/config'
-import { useQuasar } from 'quasar'
+import { useToast } from 'src/composables/useToast'
 import version from 'src/version.json'
 import { useI18n } from 'vue-i18n'
 import { useOpenLastWorkspace } from 'src/composables/open-last-workspace'
@@ -177,19 +177,13 @@ const { openLastWorkspace } = useOpenLastWorkspace()
 route.path === '/' && openLastWorkspace()
 
 const { t, locale } = useI18n()
-const $q = useQuasar()
+const { toastAction } = useToast()
 function notifyVersion() {
-  $q.notify({
-    message: `${t('mainLayout.currentVersion')}: ${version.version}`,
-    color: 'inv-sur',
-    textColor: 'inv-on-sur',
-    actions: [{
-      label: t('mainLayout.changeLog'),
-      handler: () => {
-        window.open('https://github.com/lingion/AIaW/releases', '_blank')
-      },
-      textColor: 'inv-pri'
-    }]
-  })
+  toastAction('info', `${t('mainLayout.currentVersion')}: ${version.version}`, [{
+    label: t('mainLayout.changeLog'),
+    handler: () => {
+      window.open('https://github.com/lingion/AIaW/releases', '_blank')
+    },
+  }])
 }
 </script>

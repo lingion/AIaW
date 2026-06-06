@@ -103,7 +103,7 @@ import ArtifactItemMenu from './ArtifactItemMenu.vue'
 import ArtifactItemIcon from './ArtifactItemIcon.vue'
 import SelectFileBtn from 'src/components/SelectFileBtn.vue'
 import { useCreateArtifact } from 'src/composables/create-artifact'
-import { useQuasar } from 'quasar'
+import { useToast } from 'src/composables/useToast'
 import { dialogOptions } from 'src/utils/values'
 import { useI18n } from 'vue-i18n'
 import ATip from './ATip.vue'
@@ -119,7 +119,7 @@ const { closeArtifact } = useCloseArtifact()
 const workspace = inject<Ref<Workspace>>('workspace')
 
 const { t } = useI18n()
-const $q = useQuasar()
+const { toastError } = useToast()
 const { createArtifact } = useCreateArtifact(workspace)
 function createEmptyArtifact() {
   $q.dialog({
@@ -141,10 +141,7 @@ function createEmptyArtifact() {
 async function artifactFromFiles(files: File[]) {
   for (const file of files) {
     if (!await isTextFile(file)) {
-      $q.notify({
-        message: t('artifactsExpansion.nonTextFile', { name: file.name }),
-        color: 'negative'
-      })
+      toastError(t('artifactsExpansion.nonTextFile', { name: file.name }))
       continue
     }
     const text = await file.text()

@@ -5,7 +5,7 @@ import { version } from 'src/version.json'
 import { TauriShellClientTransport } from './tauri-shell-transport'
 import { platform } from '@tauri-apps/plugin-os'
 import { fetch } from './platform-api'
-import { Notify } from 'quasar'
+import { useToast } from 'src/composables/useToast'
 import { i18n } from 'src/boot/i18n'
 import { SSEClientTransport } from './mcp-sse-transport'
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
@@ -54,9 +54,7 @@ export async function getClient(key: string, settings: Settings) {
     name: 'aiaw',
     version
   })
-  Notify.create({
-    message: t('mcpClient.connectingMcpServer')
-  })
+  useToast().toastInfo(t('mcpClient.connectingMcpServer'))
   if (transportConf.type === 'stdio') {
     const pf = platform()
     await client.connect(new TauriShellClientTransport({
