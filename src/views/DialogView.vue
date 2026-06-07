@@ -503,10 +503,10 @@ import { streamText, generateText, tool, jsonSchema, StreamTextResult, GenerateT
 import { copyToClipboard, throttle, useQuasar } from 'quasar'
 import { useToast } from 'src/composables/useToast'
 import AssistantItem from 'src/components/AssistantItem.vue'
-import { DialogContent, ExtractArtifactPrompt, ExtractArtifactResult, GenDialogTitle, NameArtifactPrompt, PluginsPrompt } from 'src/utils/templates'
+import { DialogContent, GenDialogTitle, PluginsPrompt } from 'src/utils/templates'
 import sessions from 'src/utils/sessions'
 import PromptVarInput from 'src/components/PromptVarInput.vue'
-import { MessageContent, PluginApi, ApiCallError, Plugin, Dialog, Message, Workspace, UserMessageContent, StoredItem, ModelSettings, ApiResultItem, Artifact, ConvertArtifactOptions, AssistantMessageContent } from 'src/utils/types'
+import { MessageContent, PluginApi, ApiCallError, Plugin, Dialog, Message, Workspace, UserMessageContent, StoredItem, ModelSettings, ApiResultItem, AssistantMessageContent } from 'src/utils/types'
 import { usePluginsStore } from 'src/stores/plugins'
 import MessageItem from 'src/components/MessageItem.vue'
 import { scaleBlob } from 'src/utils/image-process'
@@ -531,7 +531,6 @@ import { MaxMessageFileSizeMB } from 'src/utils/config'
 import ATip from 'src/components/ATip.vue'
 import { useListenKey } from 'src/composables/listen-key'
 import { useSetTitle } from 'src/composables/set-title'
-import { useCreateArtifact } from 'src/composables/create-artifact'
 import artifactsPlugin from 'src/utils/artifacts-plugin'
 import providerOptionsBtn from 'src/components/ProviderOptionsBtn.vue'
 import AddInfoBtn from 'src/components/AddInfoBtn.vue'
@@ -545,6 +544,7 @@ import { useUiStateStore } from 'src/stores/ui-state'
 import AutocompleteInput from 'src/components/AutocompleteInput.vue'
 import { useProvidersStore } from 'src/stores/providers'
 import { useMdPreviewProps } from 'src/composables/md-preview-props'
+import { useDialogArtifact } from 'src/composables/use-dialog-artifact'
 import { collectChainMessageContents, collectConversationMessageContents, collectDialogContents, collectExistingItems, collectReferencedItemIds, getMessageRecord } from 'src/utils/dialog-message-map'
 
 const { t, locale } = useI18n()
@@ -1622,6 +1622,11 @@ const activePlugins = computed<Plugin[]>(() => pluginsStore.plugins.filter(p => 
 const usage = computed(() => messageMap.value[chain.value.at(-2)]?.usage)
 
 const systemSdkModel = computed(() => getSdkModel(perfs.systemProvider, perfs.systemModel))
+
+const { extractArtifact, autoExtractArtifact } = useDialogArtifact(
+  dialog, chain, messageMap, workspace, systemSdkModel
+)
+
 function getDialogContents() {
   return collectDialogContents(chain.value, messageMap.value)
 }
@@ -2237,54 +2242,6 @@ if (isPlatformEnabled(perfs.enableShortcutKey)) {
   useListenKey(toRef(perfs, 'regenerateCurrKey'), () => regenerateCurr())
   useListenKey(toRef(perfs, 'editCurrKey'), () => editCurr())
   useListenKey(toRef(perfs, 'focusDialogInputKey'), () => focusInput())
-}
-
-async function genArtifactName(content: string, lang?: string) {
-  const { text } = await generateText({
-    model: systemSdkModel.value,
-    prompt: engine.parseAndRenderSync(NameArtifactPrompt, { content, lang })
-  })
-  return text
-}
-const { createArtifact } = useCreateArtifact(workspace)
-async function extractArtifact(message: Message, text: string, pattern, options: ConvertArtifactOptions) {
-  const name = options.name || await genArtifactName(text, options.lang)
-  const id = await createArtifact({
-    name,
-    language: options.lang,
-    versions: [{
-      date: new Date(),
-      text
-    }],
-    tmp: text
-  })
-  if (options.reserveOriginal) return
-  const to = `> ${t('dialogView.convertedToArtifact')}: <router-link to="?openArtifact=${id}">${name}</router-link>\n`
-  const index = message.contents.findIndex(c => ['assistant-message', 'user-message'].includes(c.type))
-  const content = message.contents[index] as UserMessageContent | AssistantMessageContent
-  await db.messages.update(message.id, {
-    [`contents.${index}.text`]: content.text.replace(pattern, to) as any
-  })
-}
-async function autoExtractArtifact() {
-  const message = messageMap.value[chain.value.at(-2)]
-  const { text } = await generateText({
-    model: systemSdkModel.value,
-    prompt: engine.parseAndRenderSync(ExtractArtifactPrompt, {
-      contents: collectDialogContents(chain.value.slice(-3), messageMap.value)
-    })
-  })
-  const object: ExtractArtifactResult = JSON.parse(text)
-  if (!object.found) return
-  const reg = new RegExp(`(\`{3,}.*\\n)?(${object.regex})(\\s*\`{3,})?`)
-  const content = message.contents.find(c => c.type === 'assistant-message')
-  const match = content.text.match(reg)
-  if (!match) return
-  await extractArtifact(message, match[2], reg, {
-    name: object.name,
-    lang: object.language,
-    reserveOriginal: perfs.artifactsReserveOriginal
-  })
 }
 
 const uiStateStore = useUiStateStore()
