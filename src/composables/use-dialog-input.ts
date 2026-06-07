@@ -20,11 +20,11 @@ export function useDialogInput(
   $q: any,
   assistant: Ref<any>,
   model: Ref<any>,
+  editingDraftState: Ref<{ parentId: string, draftId: string } | null>,
 ) {
   const { t } = useI18n()
   const { toastError } = useToast()
 
-  const editingDraftState = ref<{ parentId: string, draftId: string } | null>(null)
   const activeInputMessageId = computed(() => editingDraftState.value?.draftId || chain.value.at(-1))
   const inputText = ref('')
   const imageInput = ref()

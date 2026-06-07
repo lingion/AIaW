@@ -506,7 +506,7 @@ import AssistantItem from 'src/components/AssistantItem.vue'
 import { DialogContent, GenDialogTitle, PluginsPrompt } from 'src/utils/templates'
 import sessions from 'src/utils/sessions'
 import PromptVarInput from 'src/components/PromptVarInput.vue'
-import { MessageContent, PluginApi, ApiCallError, Plugin, Dialog, Message, Workspace, UserMessageContent, StoredItem, ModelSettings, ApiResultItem, AssistantMessageContent } from 'src/utils/types'
+import { MessageContent, PluginApi, ApiCallError, Plugin, Dialog, Message, Workspace, UserMessageContent, StoredItem, ModelSettings, ApiResultItem, AssistantMessageContent, Artifact } from 'src/utils/types'
 import { usePluginsStore } from 'src/stores/plugins'
 import MessageItem from 'src/components/MessageItem.vue'
 import { scaleBlob } from 'src/utils/image-process'
@@ -605,8 +605,78 @@ watch(liveItems, items => {
 provide('messageMap', messageMap)
 provide('itemMap', itemMap)
 
+
+const { perfs } = useUserPerfsStore()
+const $q = useQuasar()
+const { toastError, toastAction } = useToast()
+const { data } = useUserDataStore()
+const pluginsStore = usePluginsStore()
+const { callApi } = useCallApi({ workspace, dialog })
+const providerOptions = ref({})
+const providerTools = ref({})
+const { getModel, getSdkModel } = useGetModel()
+const model = computed(() => getModel(dialog.value?.modelOverride || assistant.value?.model))
+const sdkModel = computed(() => getSdkModel(assistant.value?.provider, model.value))
+const providersStore = useProvidersStore()
+const modelDisplayOptions = computed(() => providersStore.modelOptions.map(m => m.displayName))
+const displayNameToName = computed(() => {
+  const map: Record<string, string> = {}
+  for (const m of providersStore.modelOptions) map[m.displayName] = m.name
+  return map
+})
+const commonProviderModelOptions = computed(() => {
+  const available = new Set(providersStore.modelOptions.map(m => m.name))
+  return perfs.commonModelOptions.filter(m => available.has(m))
+})
 const {
-  editingDraftState, activeInputMessageId, inputText,
+  chain, normalizedRoute, historyChain, editingDraftState,
+  getChain, switchChain, setRoute, updateChain,
+  expandMessageTree, deleteMessageBranch, deleteBranch, appendMessage,
+} = useDialogChain(
+  toRef(props, 'id'), liveDialog, liveMessages, messageMap, itemMap,
+)
+const generating = computed(() => !!messageMap.value[chain.value.at(-2)]?.generatingSession)
+const showVars = ref(true)
+const activePlugins = computed<Plugin[]>(() => pluginsStore.plugins.filter(p => p.available && assistant.value?.plugins?.[p.id]?.enabled))
+const usage = computed(() => messageMap.value[chain.value.at(-2)]?.usage)
+const systemSdkModel = computed(() => getSdkModel(perfs.systemProvider, perfs.systemModel))
+const route = useRoute()
+const router = useRouter()
+const { getMessageBranchControl } = useDialogBranch(dialog, chain, messageMap)
+const { extractArtifact, autoExtractArtifact } = useDialogArtifact(
+  dialog, chain, messageMap, workspace, systemSdkModel
+)
+
+function getDialogContents() {
+  return collectDialogContents(chain.value, messageMap.value)
+}
+
+async function genTitle() {
+  try {
+    const dialogId = props.id
+    const { text } = await generateText({
+      model: systemSdkModel.value,
+      prompt: await engine.parseAndRender(GenDialogTitle, {
+        contents: getDialogContents(),
+        lang: locale.value
+      })
+    })
+    await db.dialogs.update(dialogId, { name: text })
+  } catch (e) {
+    console.error(e)
+    toastError(t('dialogView.summarizeFailed'))
+  }
+}
+
+async function copyContent() {
+  await copyToClipboard(await engine.parseAndRender(DialogContent, {
+    contents: getDialogContents(),
+    title: dialog.value.name
+  }))
+}
+
+const {
+  activeInputMessageId, inputText,
   inputMessageContent, inputContentItems,
   inputEmpty, editingDraftEmpty, composerActionIcon, composerActionLabel, composerActionDisabled,
   imageInput, fileInput,
@@ -614,7 +684,7 @@ const {
   updateInputText, onTextPaste, takePhoto, onInputFiles, onPaste, removeItem, parseFiles, quote, addInputItems,
   saveItems,
 } = useDialogInput(
-  dialog, chain, messageMap, itemMap, perfs, $q, assistant, model,
+  dialog, chain, messageMap, itemMap, perfs, $q, assistant, model, editingDraftState,
 )
 
 const messageInput = ref()
@@ -671,6 +741,7 @@ function onEnter(ev) {
 }
 
 const composerActionDisabledFinal = computed(() => !generating.value && !editingDraftState.value && inputEmpty.value)
+
 
 function getChainMessages() {
   const val: ModelMessage[] = []
@@ -773,30 +844,6 @@ function getCommonVars() {
     _platform: $q.platform
   }
 }
-
-const pluginsStore = usePluginsStore()
-
-const { callApi } = useCallApi({ workspace, dialog })
-
-const providerOptions = ref({})
-const providerTools = ref({})
-const { getModel, getSdkModel } = useGetModel()
-const model = computed(() => getModel(dialog.value?.modelOverride || assistant.value?.model))
-const sdkModel = computed(() => getSdkModel(assistant.value?.provider, model.value))
-const providersStore = useProvidersStore()
-const modelDisplayOptions = computed(() => providersStore.modelOptions.map(m => m.displayName))
-const displayNameToName = computed(() => {
-  const map: Record<string, string> = {}
-  for (const m of providersStore.modelOptions) map[m.displayName] = m.name
-  return map
-})
-const commonProviderModelOptions = computed(() => {
-  const available = new Set(providersStore.modelOptions.map(m => m.name))
-  return perfs.commonModelOptions.filter(m => available.has(m))
-})
-const $q = useQuasar()
-const { toastError } = useToast()
-const { data } = useUserDataStore()
 
 async function resolveCustomSdkModelFallback() {
   const provider = assistant.value?.provider

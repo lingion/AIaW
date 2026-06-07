@@ -11,8 +11,8 @@ export function useDialogChain(
   liveMessages: Ref<Message[]>,
   messageMap: Ref<Record<string, Message>>,
   itemMap: Ref<Record<string, StoredItem>>,
-  editingDraftState: Ref<{ parentId: string, draftId: string } | null>,
 ) {
+  const editingDraftState = ref<{ parentId: string, draftId: string } | null>(null)
   const chain = computed<string[]>(() => liveDialog.value ? getChain('$root', liveDialog.value.msgRoute)[0] : [])
   const normalizedRoute = computed<number[]>(() => liveDialog.value ? getChain('$root', liveDialog.value.msgRoute)[1] : [])
   const historyChain = ref<string[]>([])
@@ -123,6 +123,7 @@ export function useDialogChain(
     chain,
     normalizedRoute,
     historyChain,
+    editingDraftState,
     getChain,
     switchChain,
     setRoute,
