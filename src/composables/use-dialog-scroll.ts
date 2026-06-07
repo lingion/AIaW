@@ -514,6 +514,7 @@ export function useDialogScroll(
     scroll, onScroll, onMessageRendered,
     switchTo, stopScrollNavHold, startScrollNavHold,
     regenerateCurr, editCurr,
+    getMountedItemByRenderIndex,
     getVisibleChainIndex,
   }
 }

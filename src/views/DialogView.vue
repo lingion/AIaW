@@ -531,6 +531,7 @@ import { MaxMessageFileSizeMB } from 'src/utils/config'
 import ATip from 'src/components/ATip.vue'
 import { useListenKey } from 'src/composables/listen-key'
 import { useSetTitle } from 'src/composables/set-title'
+import Mark from 'mark.js'
 import { useCreateDialog } from 'src/composables/create-dialog'
 import artifactsPlugin from 'src/utils/artifacts-plugin'
 import providerOptionsBtn from 'src/components/ProviderOptionsBtn.vue'
@@ -713,6 +714,27 @@ async function edit(index) {
   editingDraftState.value = { parentId: target, draftId }
   await nextTick()
   focusInput(messageInput)
+}
+
+async function regenerate(index) {
+  if (!assistant.value) {
+    toastError(t('dialogView.errors.setAssistant'))
+    return
+  }
+  const runtimeSdkModel = await resolveRuntimeSdkModel()
+  if (!runtimeSdkModel) {
+    toastError(t('dialogView.errors.configModel'))
+    return
+  }
+  const target = chain.value[index - 1]
+  const pendingBranchIndex = dialog.value?.msgTree?.[target]?.length ?? 0
+  switchChain(index - 1, pendingBranchIndex)
+  await stream(target, false, async ({ branchIndex }) => {
+    const nextRoute = [...(dialog.value?.msgRoute || []).slice(0, index - 1), branchIndex, 0]
+    await setRoute(nextRoute)
+    await nextTick()
+    switchChain(index - 1, branchIndex)
+  })
 }
 
 async function onComposerAction() {
@@ -1270,6 +1292,7 @@ const {
   scroll, onScroll, onMessageRendered,
   switchTo, stopScrollNavHold, startScrollNavHold,
   regenerateCurr, editCurr,
+  getMountedItemByRenderIndex,
   getVisibleChainIndex,
 } = useDialogScroll(
   dialog, chain, messageMap, toRef(props, 'id'), liveDialog,
@@ -1292,6 +1315,67 @@ function setModelFromDisplay(displayName: string) {
 const { createDialog } = useCreateDialog(workspace)
 
 defineEmits(['toggle-drawer'])
+
+// Route watcher: genTitle / copyContent / goto deep links
+watch(route, to => {
+  db.workspaces.update(workspace.value.id, { lastDialogId: props.id } as Partial<Workspace>)
+
+  until(dialog).toMatch(val => val?.id === props.id).then(async () => {
+    focusInput(messageInput)
+    try {
+      if (to.hash === '#genTitle') {
+        await genTitle()
+        await router.replace({ hash: '' })
+      } else if (to.hash === '#copyContent') {
+        await copyContent()
+        await router.replace({ hash: '' })
+      }
+      if (to.query.goto) {
+        const { route: gotoRoute, highlight } = JSON.parse(to.query.goto as string)
+        if (!JSONEqual(gotoRoute, dialog.value.msgRoute.slice(0, gotoRoute.length))) {
+          updateChain(gotoRoute)
+          await until(chain).changed()
+        }
+        await nextTick()
+        if (gotoRoute.length) {
+          const renderIndex = gotoRoute.length - 1
+          const item = getMountedItemByRenderIndex(renderIndex)
+          if (item) {
+            if (highlight) {
+              const mark = new Mark(item)
+              mark.unmark()
+              mark.mark(highlight)
+            }
+            item.querySelector('mark[data-markjs]')?.scrollIntoView()
+          }
+        }
+        await router.replace({ query: {} })
+      }
+    } catch (e) {
+      console.error(e)
+      if (to.hash === '#genTitle' || to.hash === '#copyContent') {
+        await router.replace({ hash: '' })
+      } else if (to.query.goto) {
+        await router.replace({ query: {} })
+      }
+    }
+  })
+}, { immediate: true })
+
+// Keyboard shortcuts
+if (isPlatformEnabled(perfs.enableShortcutKey)) {
+  useListenKey(toRef(perfs, 'scrollUpKeyV2'), () => scroll('up'))
+  useListenKey(toRef(perfs, 'scrollDownKeyV2'), () => scroll('down'))
+  useListenKey(toRef(perfs, 'scrollTopKey'), () => scroll('top'))
+  useListenKey(toRef(perfs, 'scrollBottomKey'), () => scroll('bottom'))
+  useListenKey(toRef(perfs, 'switchPrevKeyV2'), () => switchTo('prev', switchChain))
+  useListenKey(toRef(perfs, 'switchNextKeyV2'), () => switchTo('next', switchChain))
+  useListenKey(toRef(perfs, 'switchFirstKey'), () => switchTo('first', switchChain))
+  useListenKey(toRef(perfs, 'switchLastKey'), () => switchTo('last', switchChain))
+  useListenKey(toRef(perfs, 'regenerateCurrKey'), () => regenerateCurr(regenerate))
+  useListenKey(toRef(perfs, 'editCurrKey'), () => editCurr(edit))
+  useListenKey(toRef(perfs, 'focusDialogInputKey'), () => focusInput(messageInput))
+}
 
 useSetTitle(computed(() => dialog.value?.name))
 </script>
