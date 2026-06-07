@@ -17,79 +17,172 @@
       </q-item-section>
     </q-item>
     <q-item
-      v-for="dialog in [...dialogs].reverse()"
+      v-for="dialog in sortedDialogs"
       :key="dialog.id"
       clickable
-      :to="{ path: `/workspaces/${workspace.id}/dialogs/${dialog.id}`, query: $route.query }"
+      :to="longPressFired ? undefined : { path: `/workspaces/${workspace.id}/dialogs/${dialog.id}`, query: $route.query }"
       active-class="bg-sec-c text-on-sec-c"
       item-rd
       min-h="40px"
+      @click="onItemClick($event, dialog)"
+      @contextmenu.prevent="openMenu(dialog)"
+      @touchstart.passive="onTouchStart($event, dialog)"
+      @touchend="onTouchEnd"
+      @touchmove="onTouchEnd"
+      @touchcancel="onTouchEnd"
     >
       <q-item-section>
         {{ dialog.name }}
       </q-item-section>
-      <q-menu
-        context-menu
-      >
-        <q-list style="min-width: 100px">
-          <menu-item
-            icon="sym_o_edit"
-            :label="$t('dialogList.renameTitle')"
-            @click="renameItem(dialog)"
-          />
-          <menu-item
-            icon="sym_o_auto_fix"
-            :label="$t('dialogList.summarizeDialog')"
-            @click="$router.push(`/workspaces/${workspace.id}/dialogs/${dialog.id}#genTitle`)"
-          />
-          <menu-item
-            icon="sym_o_content_copy"
-            :label="$t('dialogList.copyContent')"
-            @click="$router.push(`/workspaces/${workspace.id}/dialogs/${dialog.id}#copyContent`)"
-          />
-          <menu-item
-            icon="sym_o_move_item"
-            :label="$t('dialogList.moveTo')"
-            @click="moveItem(dialog)"
-          />
-          <menu-item
-            icon="sym_o_delete"
-            :label="$t('dialogList.delete')"
-            @click="deleteItem(dialog)"
-            hover:text-err
-          />
-        </q-list>
-      </q-menu>
     </q-item>
+
+    <!-- Single dialog-based menu, completely outside the v-for -->
+    <q-dialog
+      v-model="menuOpen"
+      transition-show="none"
+      transition-hide="none"
+    >
+      <q-list
+        style="min-width: 160px"
+        class="q-pa-sm rounded-borders shadow-2 bg-sur"
+      >
+        <menu-item
+          icon="sym_o_edit"
+          :label="$t('dialogList.renameTitle')"
+          @click="menuAction('rename')"
+        />
+        <menu-item
+          icon="sym_o_auto_fix"
+          :label="$t('dialogList.summarizeDialog')"
+          @click="menuAction('summarize')"
+        />
+        <menu-item
+          icon="sym_o_content_copy"
+          :label="$t('dialogList.copyContent')"
+          @click="menuAction('copyContent')"
+        />
+        <menu-item
+          icon="sym_o_move_item"
+          :label="$t('dialogList.moveTo')"
+          @click="menuAction('move')"
+        />
+        <menu-item
+          icon="sym_o_delete"
+          :label="$t('dialogList.delete')"
+          @click="menuAction('delete')"
+          hover:text-err
+        />
+      </q-list>
+    </q-dialog>
   </q-list>
 </template>
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
 import { db } from 'src/utils/db'
-import { isPlatformEnabled } from 'src/utils/functions'
+import { idTimestamp, isPlatformEnabled } from 'src/utils/functions'
 import { Dialog, Workspace } from 'src/utils/types'
 import { dialogOptions } from 'src/utils/values'
-import { inject, Ref, toRef } from 'vue'
+import { computed, inject, ref, Ref, toRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
 import { useCreateDialog } from 'src/composables/create-dialog'
 import MenuItem from './MenuItem.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import { useListenKey } from 'src/composables/listen-key'
+import { useLiveQueryWithDeps } from 'src/composables/live-query'
 
 const { t } = useI18n()
 const workspace: Ref<Workspace> = inject('workspace')
 const dialogs: Ref<Dialog[]> = inject('dialogs')
+const dialogMessages = useLiveQueryWithDeps(
+  () => dialogs.value.map(d => d.id).join(','),
+  async () => {
+    const ids = dialogs.value.map(d => d.id)
+    return ids.length ? await db.messages.where('dialogId').anyOf(ids).toArray() : []
+  },
+  { initialValue: [] }
+)
+const sortedDialogs = computed(() => {
+  const latestByDialog: Record<string, number> = {}
+  for (const message of dialogMessages.value) {
+    latestByDialog[message.dialogId] = Math.max(latestByDialog[message.dialogId] || 0, idTimestamp(message.id))
+  }
+  return [...dialogs.value].sort((a, b) => {
+    const at = Math.max(idTimestamp(a.id), latestByDialog[a.id] || 0)
+    const bt = Math.max(idTimestamp(b.id), latestByDialog[b.id] || 0)
+    return bt - at
+  })
+})
 
 const $q = useQuasar()
-
 const { createDialog } = useCreateDialog(workspace)
 async function addItem() {
   await createDialog()
 }
 
-function renameItem({ id, name }) {
+// --- Context menu via q-dialog (no q-menu, avoids Capacitor backdrop bug) ---
+const menuOpen = ref(false)
+const activeDialog = ref<Dialog | null>(null)
+let longPressTimer: ReturnType<typeof setTimeout> | null = null
+let longPressFired = false
+
+function openMenu(dialog: Dialog) {
+  activeDialog.value = dialog
+  menuOpen.value = true
+}
+
+function onTouchStart(_event: TouchEvent, dialog: Dialog) {
+  longPressFired = false
+  onTouchEnd()
+  longPressTimer = setTimeout(() => {
+    longPressFired = true
+    activeDialog.value = dialog
+    menuOpen.value = true
+    longPressTimer = null
+  }, 500)
+}
+
+function onTouchEnd() {
+  if (longPressTimer) {
+    clearTimeout(longPressTimer)
+    longPressTimer = null
+  }
+}
+
+// Prevent router navigation when long press just fired
+function onItemClick(event: MouseEvent, dialog: Dialog) {
+  if (longPressFired) {
+    event.preventDefault()
+    event.stopPropagation()
+    longPressFired = false
+  }
+}
+
+function menuAction(action: string) {
+  menuOpen.value = false
+  const dialog = activeDialog.value
+  if (!dialog) return
+  // Use setTimeout to let dialog close first
+  setTimeout(() => {
+    switch (action) {
+      case 'rename': renameItem(dialog); break
+      case 'summarize': summarizeDialog(dialog); break
+      case 'copyContent': copyContent(dialog); break
+      case 'move': moveItem(dialog); break
+      case 'delete': deleteItem(dialog); break
+    }
+  }, 50)
+}
+
+function summarizeDialog(dialog: Dialog) {
+  $router.push(`/workspaces/${workspace.value.id}/dialogs/${dialog.id}#genTitle`)
+}
+function copyContent(dialog: Dialog) {
+  $router.push(`/workspaces/${workspace.value.id}/dialogs/${dialog.id}#copyContent`)
+}
+
+function renameItem({ id, name }: Dialog) {
   $q.dialog({
     title: t('dialogList.renameTitle'),
     prompt: {
@@ -104,7 +197,7 @@ function renameItem({ id, name }) {
     db.dialogs.update(id, { name: newName.trim() })
   })
 }
-function moveItem({ id }) {
+function moveItem({ id }: Dialog) {
   $q.dialog({
     component: SelectWorkspaceDialog,
     componentProps: {
@@ -114,7 +207,7 @@ function moveItem({ id }) {
     db.dialogs.update(id, { workspaceId })
   })
 }
-function deleteItem({ id, name }) {
+function deleteItem({ id, name }: Dialog) {
   $q.dialog({
     title: t('dialogList.deleteConfirmTitle'),
     message: t('dialogList.deleteConfirmMessage', { name }),
@@ -133,6 +226,9 @@ function deleteItem({ id, name }) {
     })
   })
 }
+
+import { useRouter } from 'vue-router'
+const $router = useRouter()
 
 const { perfs } = useUserPerfsStore()
 
