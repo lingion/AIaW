@@ -546,6 +546,7 @@ import { useProvidersStore } from 'src/stores/providers'
 import { useMdPreviewProps } from 'src/composables/md-preview-props'
 import { useDialogArtifact } from 'src/composables/use-dialog-artifact'
 import { useDialogBranch } from 'src/composables/use-dialog-branch'
+import { useDialogChain } from 'src/composables/use-dialog-chain'
 import { collectChainMessageContents, collectConversationMessageContents, collectDialogContents, collectExistingItems, collectReferencedItemIds, getMessageRecord } from 'src/utils/dialog-message-map'
 
 const { t, locale } = useI18n()
@@ -582,52 +583,41 @@ const assistant = computed(() => {
 })
 provide('dialog', dialog)
 
-const chain = computed<string[]>(() => liveDialog.value ? getChain('$root', liveDialog.value.msgRoute)[0] : [])
-const normalizedRoute = computed<number[]>(() => liveDialog.value ? getChain('$root', liveDialog.value.msgRoute)[1] : [])
-const historyChain = ref<string[]>([])
-function switchChain(index, value) {
-  if (!dialog.value?.msgRoute) return
-  const route = [...dialog.value.msgRoute.slice(0, index), value]
-  updateChain(route)
-}
-async function setRoute(route: number[]) {
-  if (!dialog.value?.id) return
-  await db.dialogs.update(dialog.value.id, { msgRoute: route })
-}
-function updateChain(route) {
-  if (!dialog.value?.id || !liveDialog.value?.msgTree?.$root) return
-  const res = getChain('$root', route)
-  historyChain.value = res[0]
-  db.dialogs.update(dialog.value.id, { msgRoute: res[1] })
-}
-watch([() => liveMessages.value.length, () => liveDialog.value?.id], () => {
-  if (!liveDialog.value?.msgTree?.$root || !liveDialog.value?.msgRoute) return
-  if (editingDraftState.value && !messageMap.value[editingDraftState.value.draftId]) {
-    editingDraftState.value = null
-  }
-  const route = normalizedRoute.value
-  if (!JSONEqual(route, liveDialog.value.msgRoute)) {
-    db.dialogs.update(liveDialog.value.id, { msgRoute: route })
-  }
-})
-function getChain(node, route: number[]) {
-  const tree = liveDialog.value?.msgTree || {}
-  const children = tree[node]
-  const r = route.at(0) || 0
-  if (!Array.isArray(children) || children.length === 0) {
-    return [[node], [r]]
-  }
-  const nextNode = children[r]
-  if (nextNode) {
-    const [restChain, restRoute] = getChain(nextNode, route.slice(1))
-    return [[node, ...restChain], [r, ...restRoute]]
-  } else {
-    return [[node], [Math.min(Math.max(r, 0), children.length - 1)]]
-  }
-}
+const messageMap = shallowRef<Record<string, Message>>({})
+const itemMap = shallowRef<Record<string, StoredItem>>({})
+
+watch(liveMessages, messages => {
+  const prev = messageMap.value
+  const next: Record<string, Message> = {}
+  messages.forEach(message => {
+    next[message.id] = prev[message.id] === message ? prev[message.id] : message
+  })
+  messageMap.value = next
+}, { immediate: true })
+
+watch(liveItems, items => {
+  const prev = itemMap.value
+  const next: Record<string, StoredItem> = {}
+  items.forEach(item => {
+    next[item.id] = prev[item.id] === item ? prev[item.id] : item
+  })
+  itemMap.value = next
+}, { immediate: true })
+
+provide('messageMap', messageMap)
+provide('itemMap', itemMap)
+
+const editingDraftState = ref<{ parentId: string, draftId: string } | null>(null)
+
+const {
+  chain, normalizedRoute, historyChain,
+  getChain, switchChain, setRoute, updateChain,
+  expandMessageTree, deleteMessageBranch, deleteBranch, appendMessage,
+} = useDialogChain(
+  toRef(props, 'id'), liveDialog, liveMessages, messageMap, itemMap, editingDraftState
+)
 
 const messageInput = ref()
-const editingDraftState = ref<{ parentId: string, draftId: string } | null>(null)
 const activeInputMessageId = computed(() => editingDraftState.value?.draftId || chain.value.at(-1))
 
 async function discardEditingDraftIfEmpty() {
@@ -729,88 +719,9 @@ async function regenerate(index) {
     switchChain(index - 1, branchIndex)
   })
 }
-async function deleteMessageBranch(parent: string, anchor: string) {
-  const ids = expandMessageTree(anchor)
-  const itemIds = collectReferencedItemIds(ids, messageMap.value)
-  await db.transaction('rw', db.dialogs, db.messages, db.items, () => {
-    db.messages.bulkDelete(ids)
-    itemIds.forEach(id => {
-      let { references } = itemMap.value[id]
-      references--
-      references === 0 ? db.items.delete(id) : db.items.update(id, { references })
-    })
-    const msgTree = { ...toRaw(dialog.value.msgTree) }
-    msgTree[parent] = msgTree[parent].filter(id => id !== anchor)
-    ids.forEach(id => {
-      delete msgTree[id]
-    })
-    db.dialogs.update(props.id, { msgTree })
-  })
-}
-
-async function deleteBranch(index) {
-  const parent = chain.value[index - 1]
-  const anchor = chain.value[index]
-  const branch = dialog.value.msgRoute[index - 1]
-  branch === dialog.value.msgTree[parent].length - 1 && switchChain(index - 1, branch - 1)
-  await deleteMessageBranch(parent, anchor)
-}
-
-async function appendMessage(target, info: Partial<Message>, insert = false) {
-  const id = genId()
-  await db.transaction('rw', db.dialogs, db.messages, async () => {
-    await db.messages.add({
-      id,
-      dialogId: dialog.value.id,
-      workspaceId: dialog.value.workspaceId,
-      ...info
-    } as Message)
-    const d = await db.dialogs.get(props.id)
-    const children = d.msgTree[target]
-    const changes = insert ? {
-      [target]: [id],
-      [id]: children
-    } : {
-      [target]: [...children, id],
-      [id]: []
-    }
-    await db.dialogs.update(props.id, {
-      msgTree: { ...d.msgTree, ...changes }
-    })
-  })
-  return id
-}
-function expandMessageTree(root): string[] {
-  return [root, ...dialog.value.msgTree[root].flatMap(id => expandMessageTree(id))]
-}
 
 const inputMessageContent = computed(() => messageMap.value[activeInputMessageId.value]?.contents[0] as UserMessageContent)
 const inputContentItems = computed(() => collectExistingItems(inputMessageContent.value.items, itemMap.value))
-const messageMap = shallowRef<Record<string, Message>>({})
-const itemMap = shallowRef<Record<string, StoredItem>>({})
-
-watch(liveMessages, messages => {
-  const prev = messageMap.value
-  const next: Record<string, Message> = {}
-  messages.forEach(message => {
-    next[message.id] = prev[message.id] === message ? prev[message.id] : message
-  })
-  messageMap.value = next
-  if (editingDraftState.value && !next[editingDraftState.value.draftId]) {
-    editingDraftState.value = null
-  }
-}, { immediate: true })
-
-watch(liveItems, items => {
-  const prev = itemMap.value
-  const next: Record<string, StoredItem> = {}
-  items.forEach(item => {
-    next[item.id] = prev[item.id] === item ? prev[item.id] : item
-  })
-  itemMap.value = next
-}, { immediate: true })
-provide('messageMap', messageMap)
-provide('itemMap', itemMap)
 const { getMessageBranchControl } = useDialogBranch(dialog, chain, messageMap)
 const generating = computed(() => !!messageMap.value[chain.value.at(-2)]?.generatingSession)
 const inputEmpty = computed(() => !inputText.value && !inputMessageContent.value?.items?.length)
