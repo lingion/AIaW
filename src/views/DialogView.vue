@@ -482,7 +482,7 @@
               @click="onComposerAction"
               @abort="abortController?.abort()"
               :loading="generating"
-              :disable="composerActionDisabled"
+              :disable="composerActionDisabledFinal"
               min-h="48px"
             />
           </div>
@@ -544,6 +544,7 @@ import { useDialogArtifact } from 'src/composables/use-dialog-artifact'
 import { useDialogBranch } from 'src/composables/use-dialog-branch'
 import { useDialogChain } from 'src/composables/use-dialog-chain'
 import { useDialogScroll } from 'src/composables/use-dialog-scroll'
+import { useDialogInput } from 'src/composables/use-dialog-input'
 import { collectChainMessageContents, collectConversationMessageContents, collectDialogContents, collectExistingItems, collectReferencedItemIds, getMessageRecord } from 'src/utils/dialog-message-map'
 
 const { t, locale } = useI18n()
@@ -604,352 +605,55 @@ watch(liveItems, items => {
 provide('messageMap', messageMap)
 provide('itemMap', itemMap)
 
-const editingDraftState = ref<{ parentId: string, draftId: string } | null>(null)
-
 const {
-  chain, normalizedRoute, historyChain,
-  getChain, switchChain, setRoute, updateChain,
-  expandMessageTree, deleteMessageBranch, deleteBranch, appendMessage,
-} = useDialogChain(
-  toRef(props, 'id'), liveDialog, liveMessages, messageMap, itemMap, editingDraftState
+  editingDraftState, activeInputMessageId, inputText,
+  inputMessageContent, inputContentItems,
+  inputEmpty, editingDraftEmpty, composerActionIcon, composerActionLabel, composerActionDisabled,
+  imageInput, fileInput,
+  discardEditingDraftIfEmpty, exitEditingMode, focusInput,
+  updateInputText, onTextPaste, takePhoto, onInputFiles, onPaste, removeItem, parseFiles, quote, addInputItems,
+  saveItems,
+} = useDialogInput(
+  dialog, chain, messageMap, itemMap, perfs, $q, assistant, model,
 )
 
 const messageInput = ref()
-const activeInputMessageId = computed(() => editingDraftState.value?.draftId || chain.value.at(-1))
 
-async function discardEditingDraftIfEmpty() {
-  const state = editingDraftState.value
-  if (!state) return false
-  const draft = messageMap.value[state.draftId]
-  if (!draft) {
-    editingDraftState.value = null
-    return false
-  }
-  const content = draft.contents[0] as UserMessageContent
-  if (content?.text || content?.items?.length) return false
-  await deleteMessageBranch(state.parentId, state.draftId)
-  editingDraftState.value = null
-  inputText.value = ''
-  return true
-}
-
-async function exitEditingMode() {
-  const state = editingDraftState.value
-  if (!state) return
-  const draft = messageMap.value[state.draftId]
-  editingDraftState.value = null
-  if (!draft) {
-    inputText.value = ''
-    return
-  }
-  const content = draft.contents[0] as UserMessageContent
-  if (content?.text || content?.items?.length) {
-    await deleteMessageBranch(state.parentId, state.draftId)
-  }
-  inputText.value = ''
-}
-
-async function onComposerAction() {
-  if (editingDraftEmpty.value) {
-    await exitEditingMode()
-    return
-  }
-  await send()
-}
-
-function focusInput() {
-  isPlatformEnabled(perfs.autoFocusDialogInput) && messageInput.value?.focus()
-}
 async function edit(index) {
   const target = chain.value[index - 1]
   const currentId = chain.value[index]
   const currentMessage = messageMap.value[currentId]
   if (currentMessage?.type !== 'user') return
   const existingDraftId = dialog.value.msgTree[target].find(id => messageMap.value[id]?.status === 'inputing')
-
   if (existingDraftId) {
-    editingDraftState.value = {
-      parentId: target,
-      draftId: existingDraftId
-    }
+    editingDraftState.value = { parentId: target, draftId: existingDraftId }
     await nextTick()
-    focusInput()
+    focusInput(messageInput)
     return
   }
-
   const content = currentMessage.contents[0] as UserMessageContent
   const draftId = await appendMessage(target, {
     type: 'user',
-    contents: [{
-      ...content,
-      items: [...(content.items || [])]
-    }],
+    contents: [{ ...content, items: [...(content.items || [])] }],
     status: 'inputing'
   })
   await db.transaction('rw', db.items, () => {
     saveItems((content.items || []).map(id => itemMap.value[id]).filter(Boolean))
   })
-  editingDraftState.value = {
-    parentId: target,
-    draftId
-  }
+  editingDraftState.value = { parentId: target, draftId }
   await nextTick()
-  focusInput()
+  focusInput(messageInput)
 }
-async function regenerate(index) {
-  if (!assistant.value) {
-    toastError(t('dialogView.errors.setAssistant'))
+
+async function onComposerAction() {
+  if (editingDraftEmpty.value) {
+    await exitEditingMode(deleteMessageBranch)
     return
   }
-  const runtimeSdkModel = await resolveRuntimeSdkModel()
-  if (!runtimeSdkModel) {
-    toastError(t('dialogView.errors.configModel'))
-    return
-  }
-  const target = chain.value[index - 1]
-  const pendingBranchIndex = dialog.value?.msgTree?.[target]?.length ?? 0
-  switchChain(index - 1, pendingBranchIndex)
-  await stream(target, false, async ({ branchIndex }) => {
-    const nextRoute = [...(dialog.value?.msgRoute || []).slice(0, index - 1), branchIndex, 0]
-    await setRoute(nextRoute)
-    await nextTick()
-    switchChain(index - 1, branchIndex)
-  })
+  await send()
 }
 
-const inputMessageContent = computed(() => messageMap.value[activeInputMessageId.value]?.contents[0] as UserMessageContent)
-const inputContentItems = computed(() => collectExistingItems(inputMessageContent.value.items, itemMap.value))
-const { getMessageBranchControl } = useDialogBranch(dialog, chain, messageMap)
-const generating = computed(() => !!messageMap.value[chain.value.at(-2)]?.generatingSession)
-const inputEmpty = computed(() => !inputText.value && !inputMessageContent.value?.items?.length)
-const editingDraftEmpty = computed(() => !!editingDraftState.value && inputEmpty.value)
-const composerActionIcon = computed(() => editingDraftEmpty.value ? 'sym_o_close' : 'sym_o_send')
-const composerActionLabel = computed(() => editingDraftEmpty.value ? t('common.cancel') : t('dialogView.send'))
-const composerActionDisabled = computed(() => !generating.value && !editingDraftState.value && inputEmpty.value)
-
-const inputText = ref('')
-const pendingTexts = []
-let pendingTimeout = null
-async function updateInputText(text) {
-  inputText.value = text
-  pendingTexts.push(text)
-  clearTimeout(pendingTimeout)
-  pendingTimeout = window.setTimeout(() => {
-    pendingTexts.splice(0)
-  }, 200)
-  const messageId = activeInputMessageId.value
-  const baseContent = inputMessageContent.value
-  await db.messages.update(messageId, {
-    // use shallow keyPath to avoid dexie's sync bug
-    contents: [{
-      ...baseContent,
-      text
-    }]
-  })
-  if (editingDraftState.value?.draftId === messageId) {
-    const latestContent = messageMap.value[messageId]?.contents?.[0] as UserMessageContent | undefined
-    if ((latestContent?.text ?? '') === text) {
-      inputText.value = text
-    }
-  }
-}
-watch(() => inputMessageContent.value?.text, val => {
-  const index = pendingTexts.indexOf(val)
-  if (index !== -1) {
-    pendingTexts.splice(0, index + 1)
-    return
-  }
-  inputText.value = val ?? ''
-})
-
-watch(activeInputMessageId, id => {
-  if (!id) {
-    inputText.value = ''
-    return
-  }
-  if (editingDraftState.value && id === chain.value.at(-1)) return
-  inputText.value = inputMessageContent.value?.text ?? ''
-}, { immediate: true })
-
-watch(editingDraftState, state => {
-  if (!state) {
-    inputText.value = ''
-    return
-  }
-  inputText.value = inputMessageContent.value?.text ?? ''
-}, { immediate: true })
-
-function onTextPaste(ev: ClipboardEvent) {
-  if (!perfs.codePasteOptimize) return
-  const { clipboardData } = ev
-  const i = clipboardData.types.findIndex(t => t === 'vscode-editor-data')
-  if (i !== -1) {
-    const code = clipboardData.getData('text/plain')
-      .replace(/\r\n/g, '\n')
-      .replace(/\r/g, '\n')
-    if (!/\n/.test(code)) return
-    const data = clipboardData.getData('vscode-editor-data')
-    const lang = JSON.parse(data).mode ?? ''
-    if (lang === 'markdown') return
-    const wrappedCode = wrapCode(code, lang)
-    document.execCommand('insertText', false, wrappedCode)
-    ev.preventDefault()
-  }
-}
-
-const imageInput = ref()
-const fileInput = ref()
-
-async function takePhoto() {
-  if (Capacitor.isNativePlatform()) {
-    try {
-      const photo = await Camera.getPhoto({
-        quality: 90,
-        allowEditing: false,
-        resultType: CameraResultType.DataUrl,
-        source: CameraSource.Camera
-      })
-      if (!photo?.dataUrl) {
-        throw new Error('Camera returned empty photo data')
-      }
-      const res = await fetch(photo.dataUrl)
-      const blob = await res.blob()
-      const file = new File([blob], `photo_${Date.now()}.jpg`, { type: photo.format ? `image/${photo.format}` : 'image/jpeg' })
-      parseFiles([file])
-    } catch (e) {
-      const message = e instanceof Error ? e.message : String(e)
-      if (
-        message !== 'User cancelled photos app' &&
-        message !== 'User cancelled' &&
-        !message.toLowerCase().includes('cancel')
-      ) {
-        toastError(`Camera error: ${message}`)
-      }
-    }
-  } else {
-    // Web fallback: use file input with capture
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = 'image/*'
-    input.capture = 'environment'
-    input.onchange = () => {
-      if (input.files.length) parseFiles(Array.from(input.files))
-    }
-    input.click()
-  }
-}
-
-function onInputFiles({ target }) {
-  const files = target.files
-  parseFiles(Array.from(files))
-  target.value = ''
-}
-function onPaste(ev: ClipboardEvent) {
-  const { clipboardData } = ev
-  if (clipboardData.types.includes('text/plain')) {
-    if (
-      !['TEXTAREA', 'INPUT'].includes(document.activeElement.tagName) &&
-      !['true', 'plaintext-only'].includes((document.activeElement as HTMLElement).contentEditable)
-    ) {
-      const text = clipboardData.getData('text/plain')
-      addInputItems([{
-        type: 'text',
-        name: t('dialogView.pastedText', { text: textBeginning(text, 12) }),
-        contentText: text
-      }])
-    }
-    return
-  }
-  parseFiles(Array.from(clipboardData.files) as File[])
-}
-addEventListener('paste', onPaste)
-onUnmounted(() => removeEventListener('paste', onPaste))
-async function removeItem({ id, references }: StoredItem) {
-  const items = [...inputMessageContent.value.items]
-  items.splice(items.indexOf(id), 1)
-  await db.transaction('rw', db.messages, db.items, () => {
-    db.messages.update(activeInputMessageId.value, {
-      contents: [{
-        ...inputMessageContent.value,
-        items
-      }]
-    })
-    references--
-    references === 0 ? db.items.delete(id) : db.items.update(id, { references })
-  })
-}
-async function parseFiles(files: File[]) {
-  if (!files.length) return
-  const textFiles = []
-  const supportedFiles = []
-  const otherFiles = []
-  for (const file of files) {
-    if (await isTextFile(file)) textFiles.push(file)
-    else if (mimeTypeMatch(file.type, model.value.inputTypes.user)) supportedFiles.push(file)
-    else otherFiles.push(file)
-  }
-
-  const parsedFiles: ApiResultItem[] = []
-  for (const file of textFiles) {
-    parsedFiles.push({
-      type: 'text',
-      name: file.name,
-      contentText: await file.text()
-    })
-  }
-  for (const file of supportedFiles) {
-    if (file.size > MaxMessageFileSizeMB * 1024 * 1024) {
-      toastError(t('dialogView.fileTooLarge', { maxSize: MaxMessageFileSizeMB }))
-      continue
-    }
-    const f = file.type.startsWith('image/') && file.size > 512 * 1024 ? await scaleBlob(file, 2048 * 2048) : file
-    parsedFiles.push({
-      type: 'file',
-      name: file.name,
-      mimeType: file.type,
-      contentBuffer: await f.arrayBuffer()
-    })
-  }
-  addInputItems(parsedFiles)
-
-  otherFiles.length && $q.dialog({
-    component: ParseFilesDialog,
-    componentProps: { files: otherFiles, plugins: assistant.value.plugins }
-  }).onOk((files: ApiResultItem[]) => {
-    addInputItems(files)
-  })
-}
-function quote(item: ApiResultItem) {
-  if (displayLength(item.contentText) > 200) {
-    addInputItems([item])
-  } else {
-    const { text } = inputMessageContent.value
-    const content = wrapQuote(item.contentText) + '\n\n'
-    updateInputText(text ? text + '\n' + content : content)
-    focusInput()
-  }
-}
-async function addInputItems(items: ApiResultItem[]) {
-  const storedItems = items.map(i => ({ ...i, id: genId(), dialogId: props.id, references: 0 }))
-  const ids = storedItems.map(i => i.id)
-  await db.transaction('rw', db.messages, db.items, () => {
-    db.messages.update(activeInputMessageId.value, {
-      // use shallow keyPath to avoid dexie's sync bug
-      contents: [{
-        ...inputMessageContent.value,
-        items: [...inputMessageContent.value.items, ...ids]
-      }]
-    })
-    saveItems(storedItems)
-  })
-}
-
-async function saveItems(items: StoredItem[]) {
-  items.forEach(i => {
-    i.references++
-  })
-  await db.items.bulkPut(items)
-}
+const composerActionDisabledFinal = computed(() => !generating.value && !editingDraftState.value && inputEmpty.value)
 
 function getChainMessages() {
   const val: ModelMessage[] = []
