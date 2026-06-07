@@ -545,6 +545,7 @@ import AutocompleteInput from 'src/components/AutocompleteInput.vue'
 import { useProvidersStore } from 'src/stores/providers'
 import { useMdPreviewProps } from 'src/composables/md-preview-props'
 import { useDialogArtifact } from 'src/composables/use-dialog-artifact'
+import { useDialogBranch } from 'src/composables/use-dialog-branch'
 import { collectChainMessageContents, collectConversationMessageContents, collectDialogContents, collectExistingItems, collectReferencedItemIds, getMessageRecord } from 'src/utils/dialog-message-map'
 
 const { t, locale } = useI18n()
@@ -810,6 +811,7 @@ watch(liveItems, items => {
 }, { immediate: true })
 provide('messageMap', messageMap)
 provide('itemMap', itemMap)
+const { getMessageBranchControl } = useDialogBranch(dialog, chain, messageMap)
 const generating = computed(() => !!messageMap.value[chain.value.at(-2)]?.generatingSession)
 const inputEmpty = computed(() => !inputText.value && !inputMessageContent.value?.items?.length)
 const editingDraftEmpty = computed(() => !!editingDraftState.value && inputEmpty.value)
@@ -1735,25 +1737,6 @@ function getScrollNavRightOffset() {
 
 function updateScrollNavRightOffset() {
   scrollNavRightOffset.value = getScrollNavRightOffset()
-}
-
-function getMessageBranchControl(index: number) {
-  if (!dialog.value?.msgTree || !Array.isArray(chain.value) || index <= 0 || index >= chain.value.length) return null
-
-  const parentId = chain.value[index - 1]
-  const messageId = chain.value[index]
-  const branches = dialog.value.msgTree[parentId]
-  if (!Array.isArray(branches) || branches.length <= 1) return null
-
-  const message = messageMap.value[messageId]
-  const currentRoute = dialog.value.msgRoute?.[index - 1]
-  if (typeof currentRoute !== 'number') return null
-
-  return {
-    current: currentRoute + 1,
-    max: branches.length,
-    deletable: !!message && !['pending', 'streaming'].includes(message.status)
-  }
 }
 
 function updateActiveCatalogMessage() {
