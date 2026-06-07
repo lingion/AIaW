@@ -42,47 +42,14 @@ const AuthropicCors: LanguageModelMiddleware = {
   }
 }
 
-// Used for debugging only
+// LogMiddleware: disabled — was used for debugging, re-enable if needed
 export const LogMiddleware: LanguageModelMiddleware = {
-  wrapGenerate: async ({ doGenerate, params }) => {
-    console.log('doGenerate called')
-    console.log(`params: ${JSON.stringify(params, null, 2)}`)
-
-    const result = await doGenerate()
-
-    console.log('doGenerate finished')
-
-    return result
+  wrapGenerate: async ({ doGenerate }) => {
+    return await doGenerate()
   },
 
-  wrapStream: async ({ doStream, params }) => {
-    console.log('doStream called')
-    console.log(`params: ${JSON.stringify(params, null, 2)}`)
-
-    const { stream, ...rest } = await doStream()
-
-    let generatedText = ''
-
-    const transformStream = new TransformStream({
-      transform(chunk, controller) {
-        console.log(chunk)
-        if (chunk.type === 'text-delta') {
-          generatedText += chunk.textDelta
-        }
-
-        controller.enqueue(chunk)
-      },
-
-      flush() {
-        console.log('doStream finished')
-        console.log(`generated text: ${generatedText}`)
-      }
-    })
-
-    return {
-      stream: stream.pipeThrough(transformStream),
-      ...rest
-    }
+  wrapStream: async ({ doStream }) => {
+    return await doStream()
   }
 }
 

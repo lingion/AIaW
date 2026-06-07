@@ -25,11 +25,17 @@
           v-for="assistant in assistants"
           :key="assistant.id"
           clickable
-          :to="getLink(assistant.id)"
+          :to="longPressFired ? undefined : getLink(assistant.id)"
           active-class="route-active"
           item-rd
           py-1.5
           min-h-0
+          @click="onItemClick($event, assistant)"
+          @contextmenu.prevent="openMenu(assistant)"
+          @touchstart.passive="onTouchStart($event, assistant)"
+          @touchend="onTouchEnd"
+          @touchmove="onTouchEnd"
+          @touchcancel="onTouchEnd"
         >
           <q-item-section
             avatar
@@ -43,35 +49,6 @@
           <q-item-section>
             {{ assistant.name }}
           </q-item-section>
-          <q-menu
-            context-menu
-          >
-            <q-list style="min-width: 100px">
-              <menu-item
-                v-if="workspaceId !== '$root'"
-                icon="sym_o_add_comment"
-                :label="$t('assistantsExpansion.createDialog')"
-                @click="createDialog({ assistantId: assistant.id })"
-              />
-              <menu-item
-                v-if="workspaceId !== '$root'"
-                icon="sym_o_move_item"
-                :label="$t('assistantsExpansion.moveToGlobal')"
-                @click="move(assistant.id, '$root')"
-              />
-              <menu-item
-                icon="sym_o_move_item"
-                :label="$t('assistantsExpansion.moveToWorkspace')"
-                @click="moveToWorkspace(assistant.id)"
-              />
-              <menu-item
-                icon="sym_o_delete"
-                :label="$t('assistantsExpansion.delete')"
-                @click="deleteItem(assistant)"
-                hover:text-err
-              />
-            </q-list>
-          </q-menu>
         </q-item>
         <q-item
           v-if="!dense"
@@ -92,6 +69,42 @@
           </q-item-section>
         </q-item>
       </q-list>
+
+      <!-- Single q-dialog instead of per-item q-menu -->
+      <q-dialog
+        v-model="menuOpen"
+        transition-show="none"
+        transition-hide="none"
+      >
+        <q-list
+          style="min-width: 160px"
+          class="q-pa-sm rounded-borders shadow-2 bg-sur"
+        >
+          <menu-item
+            v-if="workspaceId !== '$root'"
+            icon="sym_o_add_comment"
+            :label="$t('assistantsExpansion.createDialog')"
+            @click="menuAction('createDialog')"
+          />
+          <menu-item
+            v-if="workspaceId !== '$root'"
+            icon="sym_o_move_item"
+            :label="$t('assistantsExpansion.moveToGlobal')"
+            @click="menuAction('moveToGlobal')"
+          />
+          <menu-item
+            icon="sym_o_move_item"
+            :label="$t('assistantsExpansion.moveToWorkspace')"
+            @click="menuAction('moveToWorkspace')"
+          />
+          <menu-item
+            icon="sym_o_delete"
+            :label="$t('assistantsExpansion.delete')"
+            @click="menuAction('delete')"
+            hover:text-err
+          />
+        </q-list>
+      </q-dialog>
     </template>
   </q-expansion-item>
 </template>
@@ -106,9 +119,53 @@ import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
 import { useCreateDialog } from 'src/composables/create-dialog'
 import MenuItem from './MenuItem.vue'
 import { dialogOptions } from 'src/utils/values'
+import { idTimestamp } from 'src/utils/functions'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+
+const menuOpen = ref(false)
+const activeAssistant = ref<any>(null)
+let longPressTimer: ReturnType<typeof setTimeout> | null = null
+let longPressFired = false
+
+function openMenu(assistant: any) {
+  activeAssistant.value = assistant
+  menuOpen.value = true
+}
+function onTouchStart(_event: TouchEvent, assistant: any) {
+  longPressFired = false
+  onTouchEnd()
+  longPressTimer = setTimeout(() => {
+    longPressFired = true
+    activeAssistant.value = assistant
+    menuOpen.value = true
+    longPressTimer = null
+  }, 500)
+}
+function onTouchEnd() {
+  if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null }
+}
+function onItemClick(event: MouseEvent, assistant: any) {
+  if (longPressFired) {
+    event.preventDefault()
+    event.stopPropagation()
+    longPressFired = false
+  }
+}
+function menuAction(action: string) {
+  menuOpen.value = false
+  const assistant = activeAssistant.value
+  if (!assistant) return
+  setTimeout(() => {
+    switch (action) {
+      case 'createDialog': createDialog({ assistantId: assistant.id }); break
+      case 'moveToGlobal': move(assistant.id, '$root'); break
+      case 'moveToWorkspace': moveToWorkspace(assistant.id); break
+      case 'delete': deleteItem(assistant); break
+    }
+  }, 50)
+}
 
 const props = defineProps<{
   workspaceId: string,
@@ -118,7 +175,10 @@ const props = defineProps<{
 
 const assistantsStore = useAssistantsStore()
 
-const assistants = computed(() => assistantsStore.assistants.filter(a => a.workspaceId === props.workspaceId))
+const assistants = computed(() => assistantsStore.assistants
+  .filter(a => a.workspaceId === props.workspaceId)
+  .sort((a, b) => idTimestamp(b.id) - idTimestamp(a.id))
+)
 
 function getLink(id) {
   return props.workspaceId === '$root' ? `/assistants/${id}` : `/workspaces/${props.workspaceId}/assistants/${id}`
