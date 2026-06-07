@@ -653,6 +653,23 @@ async function onComposerAction() {
   await send()
 }
 
+function onEnter(ev) {
+  if (perfs.sendKey === 'ctrl+enter') {
+    ev.ctrlKey && send()
+  } else if (perfs.sendKey === 'shift+enter') {
+    ev.shiftKey && send()
+  } else if (perfs.sendKey === 'meta+enter') {
+    ev.metaKey && send()
+  } else {
+    if (ev.ctrlKey) {
+      document.execCommand('insertText', false, '\n')
+    } else if (!ev.shiftKey) {
+      ev.preventDefault()
+      send()
+    }
+  }
+}
+
 const composerActionDisabledFinal = computed(() => !generating.value && !editingDraftState.value && inputEmpty.value)
 
 function getChainMessages() {
