@@ -57,3 +57,8 @@ ios/build-src/
 src-capacitor/
 ios/build-src-v4/
 ios/
+
+# build artifacts
+*.apk
+*.ipa
+*.tar.gz
