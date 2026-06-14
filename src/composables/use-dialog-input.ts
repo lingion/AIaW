@@ -77,7 +77,10 @@ export function useDialogInput(
   const pendingTexts: string[] = []
   let pendingTimeout: ReturnType<typeof setTimeout> | null = null
 
+  let _updateSeq = 0
+
   async function updateInputText(text: string) {
+    const seq = ++_updateSeq
     inputText.value = text
     pendingTexts.push(text)
     clearTimeout(pendingTimeout)
@@ -87,10 +90,11 @@ export function useDialogInput(
     await db.messages.update(messageId, {
       contents: [{ ...baseContent, text }]
     })
-    if (editingDraftState.value?.draftId === messageId) {
+    // Only sync back if this is still the latest update and we're in editing mode
+    if (seq === _updateSeq && editingDraftState.value?.draftId === messageId) {
       const latestContent = messageMap.value[messageId]?.contents?.[0] as UserMessageContent | undefined
-      if ((latestContent?.text ?? '') === text) {
-        inputText.value = text
+      if (latestContent && latestContent.text !== inputText.value) {
+        inputText.value = latestContent.text ?? ''
       }
     }
   }
@@ -98,6 +102,8 @@ export function useDialogInput(
   watch(() => inputMessageContent.value?.text, val => {
     const index = pendingTexts.indexOf(val)
     if (index !== -1) { pendingTexts.splice(0, index + 1); return }
+    // Don't overwrite if we're actively typing (pendingTexts were just cleared)
+    if (pendingTexts.length === 0 && val === inputText.value) return
     inputText.value = val ?? ''
   })
 
