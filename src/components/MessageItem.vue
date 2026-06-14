@@ -385,6 +385,7 @@ import { useI18n } from 'vue-i18n'
 import { dialogOptions } from 'src/utils/values'
 import { useExportPDF } from 'src/composables/export-pdf'
 import ViewImageDialog from './ViewImageDialog.vue'
+import { injectImageCache, getCachedArrayBuffer, getOriginalUrl } from 'src/utils/image-cache'
 
 const props = defineProps<{
   message: Message,
@@ -686,6 +687,7 @@ function onHtmlChanged(inject = false) {
   nextTick(() => {
     inject && injectConvertArtifact()
     injectDisplayMathScroll()
+    injectImageCacheForMessage()
     emit('rendered')
   })
 }
@@ -823,17 +825,33 @@ function injectConvertArtifact() {
 }
 const mdPreviewProps = useMdPreviewProps()
 
+// ── Image cache: inject cached blob URLs for external images ──
+function injectImageCacheForMessage() {
+  const el = textDiv.value?.[0] as HTMLElement | undefined
+  if (!el) return
+  injectImageCache(el)
+}
+
 // ── Image click sandbox: click img → fullscreen preview + save ──
-function handleImageClickCapture(event: MouseEvent) {
+async function handleImageClickCapture(event: MouseEvent) {
   const target = event.target as HTMLElement
   if (target?.tagName !== 'IMG') return
-  const src = target.getAttribute('src')
+  const src = target.getAttribute('src') || ''
   if (!src) return
   event.preventDefault()
   event.stopPropagation()
+
+  // Resolve original URL (may be blob: from cache) and try to get cached buffer
+  const originalUrl = getOriginalUrl(src) || target.dataset.originalUrl || src
+  const cached = await getCachedArrayBuffer(originalUrl)
+
   $q.dialog({
     component: ViewImageDialog,
-    componentProps: { url: src }
+    componentProps: {
+      url: src,
+      arrayBuffer: cached?.buffer,
+      mimeType: cached?.mimeType
+    }
   })
 }
 const { t } = useI18n()

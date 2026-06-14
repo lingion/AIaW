@@ -78,6 +78,12 @@ interface AvatarImage {
   contentBuffer: ArrayBuffer
   mimeType: string
 }
+interface ImageCacheItem {
+  url: string
+  contentBuffer: ArrayBuffer
+  mimeType: string
+  cachedAt: number
+}
 interface ApiResultItem {
   type: 'text' | 'file' | 'quote'
   contentText?: string
@@ -574,6 +580,7 @@ export type {
   StoredItemId,
   ApiResultItem,
   AvatarImage,
+  ImageCacheItem,
   Avatar,
   SvgAvatar,
   TextAvatar,

@@ -1,6 +1,6 @@
 import Dexie from 'dexie'
 import { defaultAvatar, genId } from './functions'
-import { Workspace, Folder, Dialog, Message, Assistant, Artifact, StoredReactive, InstalledPlugin, AvatarImage, StoredItem, CustomProvider } from './types'
+import { Workspace, Folder, Dialog, Message, Assistant, Artifact, StoredReactive, InstalledPlugin, AvatarImage, ImageCacheItem, StoredItem, CustomProvider } from './types'
 import { AssistantDefaultPrompt, ExampleWsIndexContent } from './templates'
 import dexieCloud, { DexieCloudTable } from 'dexie-cloud-addon'
 import { DexieDBURL } from './config'
@@ -15,6 +15,7 @@ type Db = Dexie & {
   installedPluginsV2: DexieCloudTable<InstalledPlugin, 'id'>
   reactives: DexieCloudTable<StoredReactive, 'key'>
   avatarImages: DexieCloudTable<AvatarImage, 'id'>
+  imageCache: DexieCloudTable<ImageCacheItem, 'url'>
   items: DexieCloudTable<StoredItem, 'id'>
   providers: DexieCloudTable<CustomProvider, 'id'>
 }
@@ -39,10 +40,24 @@ const schema = {
   installedPluginsV2: 'key, id',
   reactives: 'key',
   avatarImages: 'id',
+  imageCache: 'url',
   items: 'id, type, dialogId',
   providers: 'id'
 }
-db.version(6).stores(schema)
+db.version(6).stores({
+  workspaces: 'id, type, parentId',
+  dialogs: 'id, workspaceId',
+  messages: 'id, type, dialogId',
+  assistants: 'id, workspaceId',
+  canvases: 'id, workspaceId',
+  artifacts: 'id, workspaceId',
+  installedPluginsV2: 'key, id',
+  reactives: 'key',
+  avatarImages: 'id',
+  items: 'id, type, dialogId',
+  providers: 'id'
+})
+db.version(7).stores(schema)
 
 const defaultModelSettings = {
   temperature: 0.6,

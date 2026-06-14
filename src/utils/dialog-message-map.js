@@ -16,7 +16,7 @@ export function collectChainMessageContents(historyChain, contextNum, messageMap
 
   return scopedIds
     .map(id => getMessageRecord(messageMap, id))
-    .filter(message => message && message.status !== 'inputing')
+    .filter(message => message && message.status !== 'inputing' && message.status !== 'pending' && message.status !== 'streaming')
     .flatMap(message => message.contents || [])
 }
 
