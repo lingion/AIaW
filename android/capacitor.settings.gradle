@@ -29,6 +29,9 @@ project(':capawesome-capacitor-file-picker').projectDir = new File('../node_modu
 include ':capawesome-capacitor-live-update'
 project(':capawesome-capacitor-live-update').projectDir = new File('../node_modules/.pnpm/@capawesome+capacitor-live-update@7.1.0_@capacitor+core@7.0.1/node_modules/@capawesome/capacitor-live-update/android')
 
+include ':capgo-capacitor-printer'
+project(':capgo-capacitor-printer').projectDir = new File('../node_modules/.pnpm/@capgo+capacitor-printer@8.0.14_@capacitor+core@7.0.1/node_modules/@capgo/capacitor-printer/android')
+
 include ':capacitor-export-file'
 project(':capacitor-export-file').projectDir = new File('../node_modules/.pnpm/capacitor-export-file@0.0.1_@capacitor+core@7.0.1/node_modules/capacitor-export-file/android')
 

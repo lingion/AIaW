@@ -18,6 +18,7 @@ dependencies {
     implementation project(':capawesome-capacitor-android-edge-to-edge-support')
     implementation project(':capawesome-capacitor-file-picker')
     implementation project(':capawesome-capacitor-live-update')
+    implementation project(':capgo-capacitor-printer')
     implementation project(':capacitor-export-file')
     implementation project(':capacitor-plugin-shell-exec')
     implementation project(':capacitor-stream-fetch')
