@@ -94,6 +94,7 @@
 <script setup lang="ts">
 import { useDialogPluginComponent } from 'quasar'
 import { exportFile, fetch as platformFetch } from 'src/utils/platform-api'
+import { getCachedArrayBuffer } from 'src/utils/image-cache'
 import { useToast } from 'src/composables/useToast'
 import { ref, computed } from 'vue'
 
@@ -221,10 +222,18 @@ async function downloadImage() {
       buffer = props.arrayBuffer
       ext = props.mimeType?.split('/')[1] || 'jpg'
     } else {
-      const response = await platformFetch(props.url)
-      const blob = await response.blob()
-      ext = extForBlob(blob, props.mimeType?.split('/')[1])
-      buffer = await blob.arrayBuffer()
+      // Try cache first (URL may have already expired)
+      const cached = await getCachedArrayBuffer(props.url)
+      if (cached) {
+        buffer = cached.buffer
+        ext = cached.mimeType.split('/')[1] || 'jpg'
+      } else {
+        // Fall back to remote fetch
+        const response = await platformFetch(props.url)
+        const blob = await response.blob()
+        ext = extForBlob(blob, props.mimeType?.split('/')[1])
+        buffer = await blob.arrayBuffer()
+      }
     }
 
     const fileName = timestampName(ext)
