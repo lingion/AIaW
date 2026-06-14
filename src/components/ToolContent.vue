@@ -35,17 +35,37 @@
         </q-item-section>
       </template>
       <template #default>
-        <div
-          ref="toolMarkdownRoots"
-          class="tool-markdown-wrap"
-        >
-          <md-preview
-            class="tool-markdown-preview"
-            :model-value="contentMd"
-            v-bind="mdPreviewProps"
-            bg-sur-c-low
-            @on-html-changed="onToolHtmlChanged"
-          />
+        <div class="tool-plain-wrap">
+          <div class="tool-section-title">{{ t('toolContent.callParams') }}</div>
+          <pre
+            class="tool-json-box"
+            @touchstart.passive="onToolBoxTouchStart"
+            @touchmove="onToolBoxTouchMove"
+            @touchend="onToolBoxTouchEnd"
+            @touchcancel="onToolBoxTouchEnd"
+          ><code>{{ argsJson }}</code></pre>
+
+          <template v-if="toolResultData">
+            <div class="tool-section-title">{{ t('toolContent.callResult') }}</div>
+            <pre
+              class="tool-json-box"
+              @touchstart.passive="onToolBoxTouchStart"
+              @touchmove="onToolBoxTouchMove"
+              @touchend="onToolBoxTouchEnd"
+              @touchcancel="onToolBoxTouchEnd"
+            ><code>{{ resultJson }}</code></pre>
+          </template>
+
+          <template v-if="content.error">
+            <div class="tool-section-title">{{ t('toolContent.errorMessage') }}</div>
+            <pre
+              class="tool-json-box tool-error-box"
+              @touchstart.passive="onToolBoxTouchStart"
+              @touchmove="onToolBoxTouchMove"
+              @touchend="onToolBoxTouchEnd"
+              @touchcancel="onToolBoxTouchEnd"
+            ><code>{{ content.error }}</code></pre>
+          </template>
         </div>
       </template>
     </q-expansion-item>
@@ -101,7 +121,6 @@ import { usePluginsStore } from 'src/stores/plugins'
 import { AssistantToolContent } from 'src/utils/types'
 import { computed, ComputedRef, inject, nextTick, ref } from 'vue'
 import AAvatar from './AAvatar.vue'
-import { engine } from 'src/utils/template-engine'
 import { MdPreview } from 'md-editor-v3'
 import { wrapCode } from 'src/utils/functions'
 import MessageImage from './MessageImage.vue'
@@ -121,39 +140,66 @@ const api = computed(() => plugin.value?.apis.find(a => a.name === props.content
 const pluginData = computed(() => pluginsStore.data[props.content.pluginId])
 const toolMarkdownRoots = ref<HTMLElement[]>([])
 
-const contentTemplate =
-`### ${t('toolContent.callParams')}
-
-\`\`\`json
-{{ content.args | json: 2 }}
-\`\`\`
-
-{%- if result %}
-### ${t('toolContent.callResult')}
-
-\`\`\`json
-{{ result | json: 2 }}
-\`\`\`
-{%- endif %}
-
-{%- if content.error %}
-### ${t('toolContent.errorMessage')}
-
-{{ content.error }}
-{%- endif %}
-`
-const contentMd = computed(() => {
-  const { content } = props
-  return engine.parseAndRenderSync(contentTemplate, {
-    content,
-    result: content.result?.map(id => {
-      const { name, type, mimeType, contentText } = itemMap.value[id]
-      return { name, type, mimeType, contentText }
-    })
-  })
-})
-
 const itemMap = inject<ComputedRef>('itemMap')
+
+const toolResultData = computed(() => props.content.result?.map(id => {
+  const { name, type, mimeType, contentText } = itemMap.value[id]
+  return { name, type, mimeType, contentText }
+}))
+
+const argsJson = computed(() => JSON.stringify(props.content.args ?? {}, null, 2))
+const resultJson = computed(() => JSON.stringify(toolResultData.value ?? [], null, 2))
+
+function findScrollParent(el: HTMLElement | null) {
+  let node = el?.parentElement || null
+  while (node) {
+    const style = window.getComputedStyle(node)
+    const overflowY = style.overflowY
+    if ((overflowY === 'auto' || overflowY === 'scroll') && node.scrollHeight > node.clientHeight) {
+      return node
+    }
+    node = node.parentElement
+  }
+  return document.scrollingElement as HTMLElement | null
+}
+
+function onToolBoxTouchStart(event: TouchEvent) {
+  const target = event.currentTarget as HTMLElement | null
+  if (!target) return
+  target.dataset.lastTouchY = String(event.touches[0]?.clientY ?? 0)
+}
+
+function onToolBoxTouchEnd(event: TouchEvent) {
+  const target = event.currentTarget as HTMLElement | null
+  if (!target) return
+  delete target.dataset.lastTouchY
+}
+
+function onToolBoxTouchMove(event: TouchEvent) {
+  const target = event.currentTarget as HTMLElement | null
+  const touch = event.touches[0]
+  if (!target || !touch) return
+
+  const currentY = touch.clientY
+  const lastY = Number(target.dataset.lastTouchY ?? currentY)
+  const deltaY = currentY - lastY
+  target.dataset.lastTouchY = String(currentY)
+
+  const maxScrollTop = Math.max(0, target.scrollHeight - target.clientHeight)
+  const atTop = target.scrollTop <= 2
+  const atBottom = target.scrollTop >= maxScrollTop - 2
+  const pullingDownAtTop = atTop && deltaY > 0
+  const pushingUpAtBottom = atBottom && deltaY < 0
+
+  if (pullingDownAtTop || pushingUpAtBottom) {
+    const parent = findScrollParent(target)
+    if (parent) {
+      parent.scrollBy({ top: -deltaY, behavior: 'auto' })
+      event.preventDefault()
+      event.stopPropagation()
+    }
+  }
+}
 
 function clearDisplayMathScroll(root: HTMLElement) {
   root.querySelectorAll('.message-display-math-content').forEach(node => {
@@ -269,6 +315,51 @@ const mdPreviewProps = useMdPreviewProps()
 </script>
 
 <style lang="scss">
+.tool-plain-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px 12px;
+  box-sizing: border-box;
+}
+
+.tool-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.tool-json-box {
+  margin: 0;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(127, 127, 127, 0.12);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  height: 180px;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: auto;
+  touch-action: pan-y;
+}
+
+.tool-json-box > code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.tool-error-box {
+  height: 120px;
+}
+
 .tool-markdown-wrap {
   display: block;
   width: 100%;
@@ -297,8 +388,21 @@ const mdPreviewProps = useMdPreviewProps()
     min-width: 0;
   }
 
+  .md-editor-preview h1,
+  .md-editor-preview h2,
+  .md-editor-preview h3,
+  .md-editor-preview h4,
+  .md-editor-preview h5,
+  .md-editor-preview h6,
+  .md-editor-preview p,
+  .md-editor-preview li,
+  .md-editor-preview blockquote {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
   .message-table-scroll,
-  pre,
   blockquote {
     display: block;
     max-width: 100%;
@@ -310,8 +414,33 @@ const mdPreviewProps = useMdPreviewProps()
     touch-action: pan-x pan-y;
   }
 
-  .message-table-scroll > table,
-  pre > code {
+  .tool-markdown-preview .md-editor-preview pre,
+  .tool-markdown-preview .md-editor-preview-wrapper pre {
+    display: block !important;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: 220px;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y !important;
+  }
+
+  .tool-markdown-preview .md-editor-preview pre > code,
+  .tool-markdown-preview .md-editor-preview-wrapper pre > code {
+    display: block !important;
+    min-width: 0;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .message-table-scroll > table {
     display: inline-block;
     min-width: max-content;
   }
