@@ -122,6 +122,7 @@ export default {
   },
   dialogList: {
     createDialog: '新建對話',
+    empty: '暫無對話——點擊上方建立',
     searchPlaceholder: '搜尋對話...',
     renameTitle: '修改標題',
     summarizeDialog: '總結標題',

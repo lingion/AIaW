@@ -1,4 +1,7 @@
 export default {
+  app: {
+    offline: 'No network connection — reconnecting will resume streaming.'
+  },
   routes: {
     settings: 'Settings',
     shortcutKeys: 'Shortcut Keys',

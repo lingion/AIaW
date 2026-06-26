@@ -10,6 +10,7 @@
             : toast.type === 'negative' ? 'rgba(211, 47, 47, 0.95)'
             : 'rgba(25, 118, 210, 0.95)',
           backdropFilter: 'blur(8px)',
+          top: 'max(16px, calc(var(--sat, 24px) + 12px))',
           margin: '16px',
           borderRadius: '12px',
           color: 'white',

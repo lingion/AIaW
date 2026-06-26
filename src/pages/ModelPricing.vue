@@ -167,6 +167,7 @@ import { useObservable } from '@vueuse/rxjs'
 import { db } from 'src/utils/db'
 import { useToast } from 'src/composables/useToast'
 import { LitellmBaseURL, UsdToCnyRate } from 'src/utils/config'
+import { fetch as platformFetch } from 'src/utils/platform-api'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import ModelItem from 'src/components/ModelItem.vue'
@@ -226,7 +227,7 @@ const modelInfo = ref(null)
 async function loadModels() {
   if (!apiKey.value) return
   try {
-    const resp = await fetch(`${LitellmBaseURL}/model/info`, {
+    const resp = await platformFetch(`${LitellmBaseURL}/model/info`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${apiKey.value}`

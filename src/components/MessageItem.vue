@@ -238,7 +238,7 @@
       </div>
       <div
         text-on-sur-var
-        :class="message.type === 'assistant' ? (colMode ? 'mx-4' : 'mx-2') : 'mt-1'"
+        :class="message.type === 'assistant' ? (colMode ? 'mx-4' : 'mx-2') : 'mt-1 me-2 justify-end'"
         flex
         items-center
       >
@@ -260,7 +260,7 @@
             dense
             round
             text="sec xs hover:err"
-            un-size="32px"
+            un-size="36px"
             :title="$t('messageItem.deleteBranch')"
             @click="deleteBranch"
           />
@@ -273,7 +273,7 @@
             flat
             dense
             text="sec xs"
-            un-size="32px"
+            un-size="36px"
             :value="textContent.text"
           />
           <q-btn
@@ -283,7 +283,7 @@
             flat
             dense
             text="sec xs"
-            un-size="32px"
+            un-size="36px"
             :title="$t('messageItem.regenerate')"
             @click="$emit('regenerate')"
           />
@@ -294,7 +294,7 @@
             flat
             dense
             text="sec xs"
-            un-size="32px"
+            un-size="36px"
             :title="$t('messageItem.edit')"
             @click="$emit('edit')"
           />
@@ -304,7 +304,7 @@
             flat
             dense
             text="sec xs"
-            un-size="32px"
+            un-size="36px"
             :title="$t('messageItem.more')"
           >
             <q-menu>

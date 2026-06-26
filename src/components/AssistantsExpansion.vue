@@ -69,7 +69,8 @@
         </q-item>
       </q-list>
 
-      <!-- Manual overlay menu — NO q-dialog (Capacitor safe) -->
+      <!-- Manual overlay menu — NO q-dialog (Capacitor safe).
+           Position anchored to the long-press touch point (Bug #9). -->
       <Teleport to="body">
         <div
           v-if="menuOpen"
@@ -80,7 +81,7 @@
         >
           <div
             class="fixed"
-            style="top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 6001"
+            :style="menuPosStyle"
             @click.stop
           >
             <q-card
@@ -141,18 +142,38 @@ const menuOpen = ref(false)
 const activeAssistant = ref<any>(null)
 let longPressTimer: ReturnType<typeof setTimeout> | null = null
 const longPressFired = ref(false)
+// Bug #9: open the menu at the user's touch point instead of screen center.
+const menuPos = ref<{ x: number, y: number }>({ x: -1, y: -1 })
+const menuPosStyle = computed(() => {
+  const x = menuPos.value.x
+  const y = menuPos.value.y
+  const MENU_W = 200
+  const MENU_H = 280
+  const GUTTER = 8
+  if (x < 0 || y < 0) {
+    return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 6001 }
+  }
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  const left = Math.min(Math.max(GUTTER, x - MENU_W / 2), vw - MENU_W - GUTTER)
+  const top = Math.min(Math.max(GUTTER, y + 12), vh - MENU_H - GUTTER)
+  return { top: `${top}px`, left: `${left}px`, zIndex: 6001 }
+})
 
 function openMenu(assistant: any) {
   activeAssistant.value = assistant
+  menuPos.value = { x: -1, y: -1 } // right-click / unknown → center fallback
   menuOpen.value = true
 }
 function closeMenu() {
   menuOpen.value = false
   longPressFired.value = false
 }
-function onTouchStart(_event: TouchEvent, assistant: any) {
+function onTouchStart(event: TouchEvent, assistant: any) {
   longPressFired.value = false
   onTouchEnd()
+  const t = event.touches?.[0]
+  if (t) menuPos.value = { x: t.clientX, y: t.clientY }
   longPressTimer = setTimeout(() => {
     longPressFired.value = true
     activeAssistant.value = assistant

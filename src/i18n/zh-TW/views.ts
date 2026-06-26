@@ -143,7 +143,9 @@ export default {
       configModel: '請配置服務商、模型或者登入',
       loadPluginList: '載入插件列表失敗',
       genTitle: '總結對話失敗，請檢查系統助手設定',
-      insufficientQuota: '模型服務額度不足'
+      insufficientQuota: '模型服務額度不足',
+      streamFailed: '流式生成失敗：{message}',
+      unknown: '未知錯誤'
     },
     enabledPlugins: '已啟用插件',
     messageTokens: '上條訊息 Token 消耗',

@@ -148,7 +148,10 @@ body.body--light {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 0 12px calc(14px + env(safe-area-inset-bottom, 0px));
+  // Bug #8: prefer --sab (set by set-theme.ts from Keyboard plugin) so the
+  // composer sits above the soft keyboard when it's open. env(safe-area-inset-bottom)
+  // covers iOS notch home indicator and Android nav bar when no keyboard is open.
+  padding: 0 12px calc(14px + max(var(--sab, 0px), env(safe-area-inset-bottom, 0px)));
   pointer-events: none;
   background: transparent !important;
   box-shadow: none !important;
@@ -419,16 +422,18 @@ body.body--light {
   .q-field__append .q-icon,
   .q-field__append .material-symbols-outlined,
   .q-field__append .q-btn {
-    font-size: 12px !important;
+    font-size: 14px !important;
   }
 
+  // Bug #12: previous 16px target was below the 24px Material minimum and
+  // almost un-tappable on Android. Restore Quasar's default ~24px.
   .q-field__append .q-btn {
-    width: 16px !important;
-    min-width: 16px !important;
-    max-width: 16px !important;
-    height: 16px !important;
-    min-height: 16px !important;
-    max-height: 16px !important;
+    width: 24px !important;
+    min-width: 24px !important;
+    max-width: 24px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    max-height: 24px !important;
     padding: 0 !important;
     border-radius: 50% !important;
   }
@@ -1019,21 +1024,8 @@ body {
 .q-btn--active .q-focus-helper {
   background: var(--q-primary) !important;
 }
-// [Fix43] Force all warning/amber text & bg to primary
-.text-warning, .text-amber, .text-orange,
-.q-btn--outline.text-warning, .q-btn--flat.text-warning {
-  color: var(--q-primary) !important;
-}
-.bg-warning, .bg-amber {
-  background-color: var(--q-primary) !important;
-}
-.q-btn--outline .q-btn__content, .q-btn--outline {
-  border-color: var(--q-primary) !important;
-}
-.q-dialog .q-btn--flat.text-warning,
-.q-dialog .q-btn--flat.text-amber {
-  color: var(--q-primary) !important;
-}
-.q-ripple {
-  color: var(--q-primary) !important;
-}
+// Bug #3 + #7: the previous block forced every warning/amber/orange text +
+// background to primary, which collapses the semantic distinction between
+// "informational" and "error/danger" throughout the app and makes the ripple
+// circles on cards look like a stuck primary blob. Drop the blanket overrides
+// and let the per-component text-warning / text-negative choices decide.
