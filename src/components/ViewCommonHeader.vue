@@ -2,6 +2,7 @@
   <q-header
     bg-sur-c-low
     text-on-sur
+    class="safe-area-header"
   >
     <q-toolbar>
       <q-btn
@@ -47,5 +48,11 @@ const props = defineProps<{
 const back = useBack(props.backTo)
 </script>
 <style scoped>
-
+/* Respect notch / dynamic island / status bar on fullscreen devices */
+.safe-area-header {
+  padding-top: constant(safe-area-inset-top); /* iOS < 11.2 */
+  padding-top: env(safe-area-inset-top);
+  /* Android fallback set by set-theme.ts via visualViewport.offsetTop */
+  padding-top: var(--sat, env(safe-area-inset-top));
+}
 </style>

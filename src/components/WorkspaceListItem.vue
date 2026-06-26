@@ -60,74 +60,86 @@
     <q-item-section>{{ item.name }}</q-item-section>
   </q-item>
 
-  <!-- Context menu via q-dialog -->
-  <q-dialog
-    v-model="menuOpen"
-    transition-show="none"
-    transition-hide="none"
-  >
-    <q-list
-      style="min-width: 160px"
-      class="q-pa-sm rounded-borders shadow-2 bg-sur"
+  <!-- Manual overlay menu — NO q-dialog (Capacitor safe) -->
+  <Teleport to="body">
+    <div
+      v-if="menuOpen"
+      class="fixed inset-0"
+      style="z-index: 6000; background: rgba(0,0,0,0.45)"
+      @click.self="closeMenu"
+      @touchstart.self="closeMenu"
     >
-      <template v-if="item.type === 'folder'">
-        <menu-item
-          icon="sym_o_edit"
-          :label="$t('workspaceListItem.rename')"
-          @click="menuAction('rename')"
-        />
-        <menu-item
-          icon="sym_o_interests"
-          :label="$t('workspaceListItem.changeIcon')"
-          @click="menuAction('changeIcon')"
-        />
-        <menu-item
-          icon="sym_o_add"
-          :label="$t('workspaceListItem.newWorkspace')"
-          @click="menuAction('addWorkspace')"
-        />
-        <menu-item
-          icon="sym_o_create_new_folder"
-          :label="$t('workspaceListItem.newFolder')"
-          @click="menuAction('addFolder')"
-        />
-        <menu-item
-          icon="sym_o_move_item"
-          :label="$t('workspaceListItem.moveTo')"
-          @click="menuAction('move')"
-        />
-        <menu-item
-          icon="sym_o_delete"
-          :label="$t('workspaceListItem.delete')"
-          @click="menuAction('delete')"
-          hover:text-err
-        />
-      </template>
-      <template v-else>
-        <menu-item
-          icon="sym_o_edit"
-          :label="$t('workspaceListItem.rename')"
-          @click="menuAction('rename')"
-        />
-        <menu-item
-          icon="sym_o_interests"
-          :label="$t('workspaceListItem.changeIcon')"
-          @click="menuAction('changeIcon')"
-        />
-        <menu-item
-          icon="sym_o_move_item"
-          :label="$t('workspaceListItem.moveTo')"
-          @click="menuAction('move')"
-        />
-        <menu-item
-          icon="sym_o_delete"
-          :label="$t('workspaceListItem.delete')"
-          @click="menuAction('delete')"
-          hover:text-err
-        />
-      </template>
-    </q-list>
-  </q-dialog>
+      <div
+        class="fixed"
+        style="top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 6001"
+        @click.stop
+      >
+        <q-card
+          style="min-width: 160px"
+          class="q-pa-sm"
+        >
+          <q-list dense>
+          <template v-if="item.type === 'folder'">
+            <menu-item
+              icon="sym_o_edit"
+              :label="$t('workspaceListItem.rename')"
+              @click="menuAction('rename')"
+            />
+            <menu-item
+              icon="sym_o_interests"
+              :label="$t('workspaceListItem.changeIcon')"
+              @click="menuAction('changeIcon')"
+            />
+            <menu-item
+              icon="sym_o_add"
+              :label="$t('workspaceListItem.newWorkspace')"
+              @click="menuAction('addWorkspace')"
+            />
+            <menu-item
+              icon="sym_o_create_new_folder"
+              :label="$t('workspaceListItem.newFolder')"
+              @click="menuAction('addFolder')"
+            />
+            <menu-item
+              icon="sym_o_move_item"
+              :label="$t('workspaceListItem.moveTo')"
+              @click="menuAction('move')"
+            />
+            <menu-item
+              icon="sym_o_delete"
+              :label="$t('workspaceListItem.delete')"
+              @click="menuAction('delete')"
+              hover:text-err
+            />
+          </template>
+          <template v-else>
+            <menu-item
+              icon="sym_o_edit"
+              :label="$t('workspaceListItem.rename')"
+              @click="menuAction('rename')"
+            />
+            <menu-item
+              icon="sym_o_interests"
+              :label="$t('workspaceListItem.changeIcon')"
+              @click="menuAction('changeIcon')"
+            />
+            <menu-item
+              icon="sym_o_move_item"
+              :label="$t('workspaceListItem.moveTo')"
+              @click="menuAction('move')"
+            />
+            <menu-item
+              icon="sym_o_delete"
+              :label="$t('workspaceListItem.delete')"
+              @click="menuAction('delete')"
+              hover:text-err
+            />
+          </template>
+        </q-list>
+        </q-card>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -171,16 +183,17 @@ watch(selected, () => {
   }
 }, { immediate: true })
 
-// --- Long press context menu ---
+// --- Long press context menu (manual overlay, no q-dialog) ---
 const menuOpen = ref(false)
 let longPressTimer: ReturnType<typeof setTimeout> | null = null
 const longPressFired = ref(false)
-watch(menuOpen, (open) => {
-  if (!open) longPressFired.value = false
-})
 
 function openMenu() {
   menuOpen.value = true
+}
+function closeMenu() {
+  menuOpen.value = false
+  longPressFired.value = false
 }
 
 function onTouchStart() {
@@ -198,16 +211,16 @@ function onTouchEnd() {
 }
 
 function onItemClick(event: MouseEvent) {
-  selected.value = props.item.id
   if (longPressFired.value) {
-    event.preventDefault()
-    event.stopPropagation()
     longPressFired.value = false
+    return
   }
+  selected.value = props.item.id
 }
 
 function menuAction(action: string) {
   menuOpen.value = false
+  longPressFired.value = false
   setTimeout(() => {
     switch (action) {
       case 'rename': renameItem(props.item); break
