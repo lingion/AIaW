@@ -1,6 +1,8 @@
 export default {
   app: {
-    offline: 'No network connection — reconnecting will resume streaming.'
+    offline: 'No network connection — reconnecting will resume streaming.',
+    fatalError: 'App failed to start',
+    reload: 'Reload'
   },
   routes: {
     settings: 'Settings',

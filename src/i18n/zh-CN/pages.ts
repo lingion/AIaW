@@ -81,6 +81,7 @@ export default {
     globalAssistant: '全局助手'
   },
   workspacePage: {
+    loading: '加载工作区…',
     closeArtifact: '关闭',
     closeAllArtifacts: '关闭全部 Artifacts',
     workspaceHome: '工作区主页',

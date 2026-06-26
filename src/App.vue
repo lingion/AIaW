@@ -1,6 +1,32 @@
 <template>
   <router-view />
   <GlobalToast />
+  <!-- Vue 渲染错误兜底: 如果顶层组件崩溃，显示错误信息而不是白屏 -->
+  <div
+    v-if="fatalError"
+    class="fixed column items-center justify-center text-center"
+    :style="{
+      top: 0, left: 0, right: 0, bottom: 0,
+      zIndex: 9999999,
+      background: 'rgb(20, 19, 22)',
+      color: 'rgb(230, 225, 230)',
+      padding: '24px',
+    }"
+  >
+    <div style="font-size: 18px; font-weight: 600; margin-bottom: 12px;">
+      {{ $t('app.fatalError') }}
+    </div>
+    <div style="font-size: 13px; opacity: 0.8; max-width: 320px; word-break: break-all;">
+      {{ fatalError }}
+    </div>
+    <button
+      class="q-mt-md"
+      style="padding: 8px 16px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: inherit; font-size: 13px;"
+      @click="reload"
+    >
+      {{ $t('app.reload') }}
+    </button>
+  </div>
   <!-- Bug #15: surface a small banner when the device goes offline so the user
        doesn't wonder why streaming errors appear; auto-hides on reconnect. -->
   <transition name="offline-fade">
@@ -57,11 +83,28 @@ onBeforeUnmount(() => {
   window.removeEventListener('offline', setOffline)
 })
 
+// 兜底: 捕获 Vue 渲染错误，显示错误 UI 而不是白屏
+const fatalError = ref<string | null>(null)
+function reload() { window.location.reload() }
+
 const router = useRouter()
 router.afterEach(to => {
   if (to.meta.title) {
     document.title = `${to.meta.title} - AI as Workspace`
   }
+})
+
+// 捕获全局错误和未处理的 promise 拒绝
+onMounted(() => {
+  window.addEventListener('error', (e) => {
+    if (e.error) {
+      fatalError.value = String(e.error?.message || e.error)
+    }
+  })
+  window.addEventListener('unhandledrejection', (e) => {
+    const r = e.reason
+    fatalError.value = String(r?.message || r || 'Unhandled promise rejection')
+  })
 })
 
 async function migrateBuiltinPluginsAtStartup() {
