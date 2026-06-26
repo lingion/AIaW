@@ -1,18 +1,5 @@
 <template>
-  <!-- Loading state: 等待 Dexie 数据 + 路由匹配 -->
-  <q-page v-if="loading" padding>
-    <div flex="~ col" items-center justify-center h-full text-on-sur-var>
-      <q-spinner size="40px" />
-      <div mt-4>{{ $t('workspacePage.loading') }}</div>
-    </div>
-  </q-page>
-  <!-- Workspace 不存在 -->
-  <error-not-found
-    v-else-if="!workspace"
-    drawer-toggle
-  />
-  <!-- Workspace 存在: 渲染完整内容 -->
-  <template v-else>
+  <template v-if="workspace">
     <router-view @toggle-drawer="drawerOpen = !drawerOpen" />
       <q-drawer
         show-if-above
@@ -173,6 +160,7 @@ import DragableSeparator from 'src/components/DragableSeparator.vue'
 import ArtifactItemIcon from 'src/components/ArtifactItemIcon.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
 import DialogsExpansion from 'src/components/DialogsExpansion.vue'
+import { useUiStateStore } from 'src/stores/ui-state'
 
 const props = defineProps<{
   id: string

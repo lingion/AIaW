@@ -34,23 +34,22 @@ db.on('blocked', () => {
   console.warn('[db] open() blocked — another connection is using the database')
 })
 
-// 迁移旧 dexie-cloud-addon 副作用留下的高版本 IDB (v70+)
-// 必须在 Dexie 第一次 open 之前完成，否则 Dexie 会用错误的 schema 锁定数据库
+// Dexie 4 把 schema version 乘 10 写入 IDB version（schema v7 = IDB v70），
+// 所以"IDB v70"是正常状态，**不要**迁移或删除。
+// 保留这段仅作未来扩展用：只有当 IDB version > 70*10=700（schema v70+）才视为污染。
 const __migratePromise = (async () => {
   if (DexieDBURL || typeof indexedDB === 'undefined') return
   try {
     const dbs = await indexedDB.databases?.()
     const dataDb = dbs?.find(d => d.name === 'data')
-    if (dataDb && dataDb.version && dataDb.version > 7) {
-      console.warn(`[db] Detected stale IDB schema v${dataDb.version} (>v7); deleting and rebuilding.`)
-      // 用原生 indexedDB.deleteDatabase 避开 Dexie 自身的 versionchange 回调
+    if (dataDb && dataDb.version && dataDb.version > 700) {
+      console.warn(`[db] Detected abnormal IDB schema v${dataDb.version} (>v700); deleting and rebuilding.`)
       await new Promise<void>((resolve, reject) => {
         const req = indexedDB.deleteDatabase('data')
         req.onsuccess = () => resolve()
         req.onerror = () => reject(req.error)
         req.onblocked = () => reject(new Error('deleteDatabase blocked'))
       })
-      console.warn('[db] Old "data" IDB deleted; new schema will be created on first open().')
     }
   } catch (e) {
     console.error('[db] Failed to migrate stale IDB:', e)
