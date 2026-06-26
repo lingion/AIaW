@@ -5,7 +5,24 @@ import { useUiStateStore } from 'src/stores/ui-state'
 import { watchEffect } from 'vue'
 import { IsCapacitor, CapacitorPlatform } from 'src/utils/platform-api'
 import { StatusBar, Style } from '@capacitor/status-bar'
+import { Keyboard } from '@capacitor/keyboard'
 import { EdgeToEdge } from '@capawesome/capacitor-android-edge-to-edge-support'
+
+// Android safe-area insets (top status bar / bottom nav bar) in CSS pixels.
+// Set once at boot from Capacitor's StatusBar + WindowInsets, kept in sync with
+// the keyboard height so fixed-bottom composer doesn't get covered.
+let cachedSafeAreaTop = 0
+let cachedSafeAreaBottom = 0
+
+export function getSafeAreaTop(): number { return cachedSafeAreaTop }
+export function getSafeAreaBottom(): number { return cachedSafeAreaBottom }
+
+function writeInsets() {
+  const top = cachedSafeAreaTop
+  const bot = cachedSafeAreaBottom
+  document.documentElement.style.setProperty('--sat', top > 0 ? `${Math.round(top)}px` : '0px')
+  document.documentElement.style.setProperty('--sab', bot > 0 ? `${Math.round(bot)}px` : '0px')
+}
 
 export function useSetTheme() {
   const uiStateStore = useUiStateStore()
@@ -97,14 +114,27 @@ export function useSetTheme() {
     IsCapacitor && StatusBar.setStyle({ style: Dark.isActive ? Style.Dark : Style.Light })
     IsCapacitor && EdgeToEdge.setBackgroundColor({ color: hexFromArgb(colors['sur-c']) })
     uiStateStore.colors = colors
-    // Android: compute top inset for safe-area fallback
+    // Android: compute top + bottom insets so headers/footers aren't covered by
+    // status bar / nav bar / keyboard. StatusBar.getInfo().height is the
+    // authoritative top inset on Android (env(safe-area-inset-*) isn't
+    // supported on older WebViews). Keyboard events override bottom inset
+    // while a software keyboard is visible.
     if (IsCapacitor && CapacitorPlatform === 'android') {
-      const applyInset = () => {
-        const top = window.visualViewport?.offsetTop ?? 0
-        if (top > 0) document.documentElement.style.setProperty('--sat', `${Math.round(top)}px`)
-      }
-      applyInset()
-      window.visualViewport?.addEventListener('resize', applyInset)
+      StatusBar.getInfo().then((info) => {
+        cachedSafeAreaTop = info.height || 24
+        writeInsets()
+      }).catch(() => {
+        cachedSafeAreaTop = 24
+        writeInsets()
+      })
+      Keyboard.addListener('keyboardWillShow', (info) => {
+        cachedSafeAreaBottom = info.keyboardHeight
+        writeInsets()
+      })
+      Keyboard.addListener('keyboardWillHide', () => {
+        cachedSafeAreaBottom = 0
+        writeInsets()
+      })
     }
   })
 }

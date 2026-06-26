@@ -275,6 +275,13 @@ function closeAllArtifacts() {
 }
 const widthWithArtifacts = ref(Math.max(innerWidth / 2, 600))
 const drawerWidth = computed(() => showArtifacts.value ? widthWithArtifacts.value : 250)
+  // Bug #10: use the persisted store ref instead of a local `ref(false)` so
+  // navigating between dialogs in the same workspace doesn't close the drawer.
+  const uiStore = useUiStateStore()
+  const drawerOpen = computed({
+  get: () => uiStore.workspaceDrawerOpen,
+  set: (val: boolean) => { uiStore.workspaceDrawerOpen = val }
+})
 
 const { data } = useUserDataStore()
 watch(workspace, val => {
@@ -282,8 +289,6 @@ watch(workspace, val => {
     data.lastWorkspaceId = val.id
   }
 }, { immediate: true })
-
-const drawerOpen = ref(false)
 
 const rightDrawerAbove = ref(false)
 provide('rightDrawerAbove', rightDrawerAbove)

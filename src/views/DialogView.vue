@@ -978,6 +978,46 @@ async function send() {
 
 const artifacts = inject<Ref<Artifact[]>>('artifacts')
 const abortController = ref<AbortController>()
+// Bug #2: when the user leaves a generating dialog, the stream kept running,
+// burning tokens and holding the connection. Abort on unmount.
+onUnmounted(() => {
+  if (abortController.value && !abortController.value.signal.aborted) {
+    abortController.value.abort()
+  }
+})
+
+// Bug #13: when the user navigates away from a brand-new dialog without ever
+// typing, don't leave an empty "New dialog" record in the sidebar. A new
+// dialog is created with exactly one root user message in 'inputing' state
+// with empty text/items — if we still see that shape, delete it.
+async function cleanupEmptyDialog(dialogId: string) {
+  if (!dialogId) return
+  try {
+    const dlg = await db.dialogs.get(dialogId)
+    if (!dlg) return
+    const msgs = await db.messages.where('dialogId').equals(dialogId).toArray()
+    if (msgs.length !== 1) return
+    const only = msgs[0]
+    if (only.status !== 'inputing') return
+    if (only.contents?.length !== 1) return
+    const c = only.contents[0]
+    if (c.type !== 'user-message') return
+    if ((c.text ?? '').trim() !== '') return
+    if ((c.items ?? []).length !== 0) return
+    await db.transaction('rw', db.dialogs, db.messages, db.items, async () => {
+      await db.dialogs.delete(dialogId)
+      await db.messages.delete(only.id)
+    })
+  } catch (e) { /* best-effort cleanup — never block navigation */ }
+}
+// Router often reuses the same component when dialog id changes, so onUnmounted
+// won't fire. Watch props.id and clean the previous dialog before switching.
+watch(() => props.id, (newId, oldId) => {
+  if (oldId && newId !== oldId) cleanupEmptyDialog(oldId)
+})
+onUnmounted(() => {
+  cleanupEmptyDialog(props.id)
+})
 async function stream(target, insert = false, onPendingBranch?: (info: { assistantId: string, branchIndex: number, draftId?: string }) => void | Promise<void>) {
   const settings: Partial<ModelSettings> = {}
   for (const key in assistant.value.modelSettings) {
@@ -1258,11 +1298,17 @@ async function stream(target, insert = false, onPendingBranch?: (info: { assista
     await db.messages.update(id, { contents, status: 'default', generatingSession: null, warnings, usage })
   } catch (e) {
     console.error(e)
-    if (e.data?.error?.type === 'budget_exceeded') {
+    // Bug #6: surface every stream failure to the user — previously only
+    // budget_exceeded was toasted and every other failure (network, auth,
+    // rate-limit, provider 5xx) silently wrote `error` to the message and
+    // gave the user no idea what happened.
+    if (e?.data?.error?.type === 'budget_exceeded') {
       toastAction('negative', t('dialogView.errors.insufficientQuota'), [{
         label: t('dialogView.recharge'),
         handler() { router.push('/account') },
       }])
+    } else {
+      toastError(t('dialogView.errors.streamFailed', { message: e?.message || e?.toString() || t('dialogView.errors.unknown') }))
     }
     await db.messages.update(id, { contents, error: e.message || e.toString(), status: 'failed', generatingSession: null })
   }

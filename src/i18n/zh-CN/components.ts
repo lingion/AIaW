@@ -123,6 +123,7 @@ export default {
   },
   dialogList: {
     createDialog: '新建对话',
+    empty: '暂无对话——点击上方创建',
     searchPlaceholder: '搜索对话...',
     renameTitle: '修改标题',
     summarizeDialog: '总结标题',

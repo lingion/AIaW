@@ -48,11 +48,13 @@ const props = defineProps<{
 const back = useBack(props.backTo)
 </script>
 <style scoped>
-/* Respect notch / dynamic island / status bar on fullscreen devices */
+/* Respect notch / dynamic island / status bar on fullscreen devices.
+ * --sat is set by set-theme.ts at boot from StatusBar.getInfo().height, and
+ * env(safe-area-inset-top) is the iOS path. On older Android WebViews where
+ * neither is supported we still get the bar height from StatusBar, so the
+ * buttons are never under the status bar / dynamic island. */
 .safe-area-header {
-  padding-top: constant(safe-area-inset-top); /* iOS < 11.2 */
-  padding-top: env(safe-area-inset-top);
-  /* Android fallback set by set-theme.ts via visualViewport.offsetTop */
-  padding-top: var(--sat, env(safe-area-inset-top));
+  padding-top: var(--sat, 24px);
+  padding-top: max(var(--sat, 24px), env(safe-area-inset-top, 0px), constant(safe-area-inset-top, 0px));
 }
 </style>

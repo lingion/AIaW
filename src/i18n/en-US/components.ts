@@ -123,6 +123,7 @@ export default {
   },
   dialogList: {
     createDialog: 'Create Dialog',
+    empty: 'No dialogs yet — tap above to create one.',
     searchPlaceholder: 'Search Dialogs...',
     renameTitle: 'Rename Title',
     summarizeDialog: 'Summarize Title',

@@ -1,4 +1,7 @@
 export default {
+  app: {
+    offline: '网络已断开——重连后将自动恢复'
+  },
   routes: {
     settings: '设置',
     shortcutKeys: '键盘快捷键',
