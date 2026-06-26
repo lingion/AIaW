@@ -20,8 +20,7 @@
       v-for="dialog in sortedDialogs"
       :key="dialog.id"
       clickable
-      :to="longPressFired ? undefined : { path: `/workspaces/${workspace.id}/dialogs/${dialog.id}`, query: $route.query }"
-      active-class="bg-sec-c text-on-sec-c"
+      :class="isActiveDialog(dialog) ? 'bg-sec-c text-on-sec-c' : ''"
       item-rd
       min-h="40px"
       @click="onItemClick($event, dialog)"
@@ -35,46 +34,59 @@
         {{ dialog.name }}
       </q-item-section>
     </q-item>
-
-    <!-- Single dialog-based menu, completely outside the v-for -->
-    <q-dialog
-      v-model="menuOpen"
-      transition-show="none"
-      transition-hide="none"
-    >
-      <q-list
-        style="min-width: 160px"
-        class="q-pa-sm rounded-borders shadow-2 bg-sur"
-      >
-        <menu-item
-          icon="sym_o_edit"
-          :label="$t('dialogList.renameTitle')"
-          @click="menuAction('rename')"
-        />
-        <menu-item
-          icon="sym_o_auto_fix"
-          :label="$t('dialogList.summarizeDialog')"
-          @click="menuAction('summarize')"
-        />
-        <menu-item
-          icon="sym_o_content_copy"
-          :label="$t('dialogList.copyContent')"
-          @click="menuAction('copyContent')"
-        />
-        <menu-item
-          icon="sym_o_move_item"
-          :label="$t('dialogList.moveTo')"
-          @click="menuAction('move')"
-        />
-        <menu-item
-          icon="sym_o_delete"
-          :label="$t('dialogList.delete')"
-          @click="menuAction('delete')"
-          hover:text-err
-        />
-      </q-list>
-    </q-dialog>
   </q-list>
+
+  <!-- Manual overlay menu — NO q-dialog/q-menu (Capacitor WebView backdrop bug).
+       A plain fixed-position div with v-if; click/touch the backdrop to close. -->
+  <Teleport to="body">
+    <div
+      v-if="menuOpen"
+      class="fixed inset-0"
+      style="z-index: 6000; background: rgba(0,0,0,0.45)"
+      @click.self="closeMenu"
+      @touchstart.self="closeMenu"
+    >
+      <div
+        class="fixed"
+        style="top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 6001"
+        @click.stop
+      >
+        <q-card
+          style="min-width: 160px"
+          class="q-pa-sm"
+        >
+          <q-list dense>
+          <menu-item
+            icon="sym_o_edit"
+            :label="$t('dialogList.renameTitle')"
+            @click="menuAction('rename')"
+          />
+          <menu-item
+            icon="sym_o_auto_fix"
+            :label="$t('dialogList.summarizeDialog')"
+            @click="menuAction('summarize')"
+          />
+          <menu-item
+            icon="sym_o_content_copy"
+            :label="$t('dialogList.copyContent')"
+            @click="menuAction('copyContent')"
+          />
+          <menu-item
+            icon="sym_o_move_item"
+            :label="$t('dialogList.moveTo')"
+            @click="menuAction('move')"
+          />
+          <menu-item
+            icon="sym_o_delete"
+            :label="$t('dialogList.delete')"
+            @click="menuAction('delete')"
+            hover:text-err
+          />
+        </q-list>
+        </q-card>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -85,6 +97,7 @@ import { Dialog, Workspace } from 'src/utils/types'
 import { dialogOptions } from 'src/utils/values'
 import { computed, inject, ref, Ref, toRef } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
 import { useCreateDialog } from 'src/composables/create-dialog'
 import MenuItem from './MenuItem.vue'
@@ -93,6 +106,8 @@ import { useListenKey } from 'src/composables/listen-key'
 import { useLiveQueryWithDeps } from 'src/composables/live-query'
 
 const { t } = useI18n()
+const $route = useRoute()
+const $router = useRouter()
 const workspace: Ref<Workspace> = inject('workspace')
 const dialogs: Ref<Dialog[]> = inject('dialogs')
 const dialogMessages = useLiveQueryWithDeps(
@@ -115,28 +130,37 @@ const sortedDialogs = computed(() => {
   })
 })
 
+function isActiveDialog(dialog: Dialog) {
+  return $route.path.includes(`/dialogs/${dialog.id}`)
+}
+
 const $q = useQuasar()
 const { createDialog } = useCreateDialog(workspace)
 async function addItem() {
   await createDialog()
 }
 
-// --- Context menu via q-dialog (no q-menu, avoids Capacitor backdrop bug) ---
+// --- Context menu via manual overlay (no q-dialog — Capacitor safe) ---
 const menuOpen = ref(false)
 const activeDialog = ref<Dialog | null>(null)
 let longPressTimer: ReturnType<typeof setTimeout> | null = null
-let longPressFired = false
+const longPressFired = ref(false)
 
 function openMenu(dialog: Dialog) {
   activeDialog.value = dialog
   menuOpen.value = true
 }
 
+function closeMenu() {
+  menuOpen.value = false
+  longPressFired.value = false
+}
+
 function onTouchStart(_event: TouchEvent, dialog: Dialog) {
-  longPressFired = false
+  longPressFired.value = false
   onTouchEnd()
   longPressTimer = setTimeout(() => {
-    longPressFired = true
+    longPressFired.value = true
     activeDialog.value = dialog
     menuOpen.value = true
     longPressTimer = null
@@ -150,20 +174,24 @@ function onTouchEnd() {
   }
 }
 
-// Prevent router navigation when long press just fired
-function onItemClick(event: MouseEvent, dialog: Dialog) {
-  if (longPressFired) {
-    event.preventDefault()
-    event.stopPropagation()
-    longPressFired = false
+// Manual navigation — no `:to` binding on q-item, so longPressFired
+// never breaks the router-link reactivity cycle.
+function onItemClick(_event: MouseEvent, dialog: Dialog) {
+  if (longPressFired.value) {
+    longPressFired.value = false
+    return // Long press just fired — don't navigate
   }
+  $router.push({
+    path: `/workspaces/${workspace.value.id}/dialogs/${dialog.id}`,
+    query: { ...$route.query }
+  })
 }
 
 function menuAction(action: string) {
   menuOpen.value = false
+  longPressFired.value = false
   const dialog = activeDialog.value
   if (!dialog) return
-  // Use setTimeout to let dialog close first
   setTimeout(() => {
     switch (action) {
       case 'rename': renameItem(dialog); break
@@ -226,9 +254,6 @@ function deleteItem({ id, name }: Dialog) {
     })
   })
 }
-
-import { useRouter } from 'vue-router'
-const $router = useRouter()
 
 const { perfs } = useUserPerfsStore()
 
