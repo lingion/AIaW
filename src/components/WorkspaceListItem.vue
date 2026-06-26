@@ -174,17 +174,20 @@ watch(selected, () => {
 // --- Long press context menu ---
 const menuOpen = ref(false)
 let longPressTimer: ReturnType<typeof setTimeout> | null = null
-let longPressFired = false
+const longPressFired = ref(false)
+watch(menuOpen, (open) => {
+  if (!open) longPressFired.value = false
+})
 
 function openMenu() {
   menuOpen.value = true
 }
 
 function onTouchStart() {
-  longPressFired = false
+  longPressFired.value = false
   onTouchEnd()
   longPressTimer = setTimeout(() => {
-    longPressFired = true
+    longPressFired.value = true
     menuOpen.value = true
     longPressTimer = null
   }, 500)
@@ -196,10 +199,10 @@ function onTouchEnd() {
 
 function onItemClick(event: MouseEvent) {
   selected.value = props.item.id
-  if (longPressFired) {
+  if (longPressFired.value) {
     event.preventDefault()
     event.stopPropagation()
-    longPressFired = false
+    longPressFired.value = false
   }
 }
 

@@ -83,7 +83,7 @@ import { db } from 'src/utils/db'
 import { idTimestamp, isPlatformEnabled } from 'src/utils/functions'
 import { Dialog, Workspace } from 'src/utils/types'
 import { dialogOptions } from 'src/utils/values'
-import { computed, inject, ref, Ref, toRef } from 'vue'
+import { computed, inject, ref, Ref, toRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
 import { useCreateDialog } from 'src/composables/create-dialog'
@@ -125,7 +125,7 @@ async function addItem() {
 const menuOpen = ref(false)
 const activeDialog = ref<Dialog | null>(null)
 let longPressTimer: ReturnType<typeof setTimeout> | null = null
-let longPressFired = false
+const longPressFired = ref(false)
 
 function openMenu(dialog: Dialog) {
   activeDialog.value = dialog
@@ -133,10 +133,10 @@ function openMenu(dialog: Dialog) {
 }
 
 function onTouchStart(_event: TouchEvent, dialog: Dialog) {
-  longPressFired = false
+  longPressFired.value = false
   onTouchEnd()
   longPressTimer = setTimeout(() => {
-    longPressFired = true
+    longPressFired.value = true
     activeDialog.value = dialog
     menuOpen.value = true
     longPressTimer = null
@@ -152,12 +152,22 @@ function onTouchEnd() {
 
 // Prevent router navigation when long press just fired
 function onItemClick(event: MouseEvent, dialog: Dialog) {
-  if (longPressFired) {
+  if (longPressFired.value) {
     event.preventDefault()
     event.stopPropagation()
-    longPressFired = false
+    longPressFired.value = false
   }
 }
+
+// Reset longPressFired when the menu closes so subsequent clicks work correctly.
+// Without this, the next item click is silently swallowed (`:to=undefined` on
+// the previous patch leaves every q-item rendered as a plain <div> with no
+// router-link, so clicks fire emit('click') with no `go` and never navigate).
+watch(menuOpen, (open) => {
+  if (!open) {
+    longPressFired.value = false
+  }
+})
 
 function menuAction(action: string) {
   menuOpen.value = false

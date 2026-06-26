@@ -111,7 +111,7 @@
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
-import { computed, inject, ref } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 import { useAssistantsStore } from 'src/stores/assistants'
 import { useRouter } from 'vue-router'
 import AAvatar from './AAvatar.vue'
@@ -127,17 +127,20 @@ const { t } = useI18n()
 const menuOpen = ref(false)
 const activeAssistant = ref<any>(null)
 let longPressTimer: ReturnType<typeof setTimeout> | null = null
-let longPressFired = false
+const longPressFired = ref(false)
+watch(menuOpen, (open) => {
+  if (!open) longPressFired.value = false
+})
 
 function openMenu(assistant: any) {
   activeAssistant.value = assistant
   menuOpen.value = true
 }
 function onTouchStart(_event: TouchEvent, assistant: any) {
-  longPressFired = false
+  longPressFired.value = false
   onTouchEnd()
   longPressTimer = setTimeout(() => {
-    longPressFired = true
+    longPressFired.value = true
     activeAssistant.value = assistant
     menuOpen.value = true
     longPressTimer = null
@@ -147,10 +150,10 @@ function onTouchEnd() {
   if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null }
 }
 function onItemClick(event: MouseEvent, assistant: any) {
-  if (longPressFired) {
+  if (longPressFired.value) {
     event.preventDefault()
     event.stopPropagation()
-    longPressFired = false
+    longPressFired.value = false
   }
 }
 function menuAction(action: string) {
