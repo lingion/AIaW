@@ -1,151 +1,162 @@
 <template>
-  <template v-if="workspace">
-    <router-view @toggle-drawer="drawerOpen = !drawerOpen" />
-    <q-drawer
-      show-if-above
-      bg-sur-c-low
-      :width="drawerWidth"
-      :breakpoint="drawerBreakpoint"
-      side="right"
-      v-model="drawerOpen"
-      content-class="workspace-drawer-content"
-      flex
-    >
-      <dragable-separator
-        v-if="showArtifacts"
-        v-model="widthWithArtifacts"
-        reverse
-        :min="600"
-        h-full
-        w-2
-      />
-      <div
-        v-if="showArtifacts"
-        h-full
-        min-w-0
-        flex="~ col 1"
+  <q-page-container>
+    <!-- Loading state: 等待 Dexie 数据 + 路由匹配 -->
+    <q-page v-if="loading" padding>
+      <div flex="~ col" items-center justify-center h-full text-on-sur-var>
+        <q-spinner size="40px" />
+        <div mt-4>{{ $t('workspacePage.loading') }}</div>
+      </div>
+    </q-page>
+    <!-- Workspace 不存在 -->
+    <error-not-found
+      v-else-if="!workspace"
+      drawer-toggle
+    />
+    <!-- Workspace 存在: 渲染完整内容 -->
+    <template v-else>
+      <router-view @toggle-drawer="drawerOpen = !drawerOpen" />
+      <q-drawer
+        show-if-above
+        bg-sur-c-low
+        :width="drawerWidth"
+        :breakpoint="drawerBreakpoint"
+        side="right"
+        v-model="drawerOpen"
+        content-class="workspace-drawer-content"
+        flex
       >
+        <dragable-separator
+          v-if="showArtifacts"
+          v-model="widthWithArtifacts"
+          reverse
+          :min="600"
+          h-full
+          w-2
+        />
         <div
-          flex
-          items-center
-          h="50px"
+          v-if="showArtifacts"
+          h-full
+          min-w-0
+          flex="~ col 1"
         >
-          <q-tabs
-            inline-label
-            dense
-            mt="14px"
-            rd-t
+          <div
+            flex
+            items-center
+            h="50px"
           >
-            <q-route-tab
-              no-caps
-              v-for="artifact in openedArtifacts"
-              :key="artifact.id"
-              :to="{ query: { artifactId: artifact.id } }"
-              :class="{'text-pri icon-fill': focusedArtifact?.id === artifact.id}"
-              pl-3
-              pr-2
+            <q-tabs
+              inline-label
+              dense
+              mt="14px"
+              rd-t
             >
-              <artifact-item-icon :artifact="artifact" />
-              <div ml-2>
-                {{ artifact.name }}
-              </div>
-              <div v-if="artifactUnsaved(artifact)">
-                *
-              </div>
-              <q-btn
-                ml-1
-                flat
-                dense
-                round
-                icon="sym_o_close"
-                :title="$t('workspacePage.closeArtifact')"
-                size="sm"
-                text-out
-                @click.prevent.stop="closeArtifact(artifact)"
-              />
-              <artifact-item-menu :artifact />
-            </q-route-tab>
-          </q-tabs>
-          <q-space />
-          <q-btn
-            flat
-            dense
-            round
-            icon="sym_o_close"
-            :title="$t('workspacePage.closeAllArtifacts')"
-            text-on-sur-var
-            @click="closeAllArtifacts"
+              <q-route-tab
+                no-caps
+                v-for="artifact in openedArtifacts"
+                :key="artifact.id"
+                :to="{ query: { artifactId: artifact.id } }"
+                :class="{'text-pri icon-fill': focusedArtifact?.id === artifact.id}"
+                pl-3
+                pr-2
+              >
+                <artifact-item-icon :artifact="artifact" />
+                <div ml-2>
+                  {{ artifact.name }}
+                </div>
+                <div v-if="artifactUnsaved(artifact)">
+                  *
+                </div>
+                <q-btn
+                  ml-1
+                  flat
+                  dense
+                  round
+                  icon="sym_o_close"
+                  :title="$t('workspacePage.closeArtifact')"
+                  size="sm"
+                  text-out
+                  @click.prevent.stop="closeArtifact(artifact)"
+                />
+                <artifact-item-menu :artifact />
+              </q-route-tab>
+            </q-tabs>
+            <q-space />
+            <q-btn
+              flat
+              dense
+              round
+              icon="sym_o_close"
+              :title="$t('workspacePage.closeAllArtifacts')"
+              text-on-sur-var
+              @click="closeAllArtifacts"
+            />
+          </div>
+          <edit-artifact
+            :artifact="focusedArtifact"
+            v-if="focusedArtifact"
           />
         </div>
-        <edit-artifact
-          :artifact="focusedArtifact"
-          v-if="focusedArtifact"
-        />
-      </div>
-      <div
-        :class="['workspace-sidebar', { 'workspace-sidebar--expanded': workspace.listOpen.dialogs }]"
-        w="250px"
-        flex="~ col"
-      >
         <div
-          h="48px"
-          p-2
-          flex
-          items-center
+          :class="['workspace-sidebar', { 'workspace-sidebar--expanded': workspace.listOpen.dialogs }]"
+          w="250px"
+          flex="~ col"
         >
-          <q-space />
-          <q-btn
-            flat
+          <div
+            h="48px"
+            p-2
+            flex
+            items-center
+          >
+            <q-space />
+            <q-btn
+              flat
+              dense
+              round
+              :icon="homeButtonIcon"
+              :class="{ 'route-active': homeButtonActive }"
+              :title="$t('workspacePage.workspaceHome')"
+              @click="onHomeClick"
+            />
+            <q-btn
+              flat
+              dense
+              round
+              :icon="settingsButtonIcon"
+              :class="{ 'route-active': settingsButtonActive }"
+              :title="$t('workspacePage.workspaceSettings')"
+              @click="onSettingsClick"
+            />
+          </div>
+          <assistants-expansion
+            :model-value="workspace.listOpen.assistants"
+            @update:model-value="setListOpen('assistants', $event)"
+            :workspace-id="workspace.id"
             dense
-            round
-            :icon="homeButtonIcon"
-            :class="{ 'route-active': homeButtonActive }"
-            :title="$t('workspacePage.workspaceHome')"
-            @click="onHomeClick"
           />
-          <q-btn
-            flat
-            dense
-            round
-            :icon="settingsButtonIcon"
-            :class="{ 'route-active': settingsButtonActive }"
-            :title="$t('workspacePage.workspaceSettings')"
-            @click="onSettingsClick"
+          <template v-if="isPlatformEnabled(perfs.artifactsEnabled)">
+            <q-separator />
+            <artifacts-expansion
+              :model-value="workspace.listOpen.artifacts"
+              @update:model-value="setListOpen('artifacts', $event)"
+              max-h="40vh"
+              of-y-auto
+            />
+          </template>
+          <q-separator />
+          <dialogs-expansion
+            :workspace-id="workspace.id"
+            :model-value="workspace.listOpen.dialogs"
+            @update:model-value="setListOpen('dialogs', $event)"
+            :class="workspace.listOpen.dialogs ? 'flex-1 of-y-auto' : ''"
           />
         </div>
-        <assistants-expansion
-          :model-value="workspace.listOpen.assistants"
-          @update:model-value="setListOpen('assistants', $event)"
-          :workspace-id="workspace.id"
-          dense
-        />
-        <template v-if="isPlatformEnabled(perfs.artifactsEnabled)">
-          <q-separator />
-          <artifacts-expansion
-            :model-value="workspace.listOpen.artifacts"
-            @update:model-value="setListOpen('artifacts', $event)"
-            max-h="40vh"
-            of-y-auto
-          />
-        </template>
-        <q-separator />
-        <dialogs-expansion
-          :workspace-id="workspace.id"
-          :model-value="workspace.listOpen.dialogs"
-          @update:model-value="setListOpen('dialogs', $event)"
-          :class="workspace.listOpen.dialogs ? 'flex-1 of-y-auto' : ''"
-        />
-      </div>
-    </q-drawer>
-  </template>
-  <error-not-found
-    v-else
-    drawer-toggle
-  />
+      </q-drawer>
+    </template>
+  </q-page-container>
 </template>
 
 <script setup lang="ts">
-import { computed, provide, ref, watch } from 'vue'
+import { computed, onMounted, provide, ref, watch } from 'vue'
 import AssistantsExpansion from 'src/components/AssistantsExpansion.vue'
 import ArtifactsExpansion from 'src/components/ArtifactsExpansion.vue'
 import { useWorkspacesStore } from 'src/stores/workspaces'
@@ -171,7 +182,39 @@ const props = defineProps<{
 
 const workspacesStore = useWorkspacesStore()
 
-const workspace = computed(() => workspacesStore.workspaces.find(item => item.id === props.id) as Workspace)
+// Loading state: Dexie liveQuery 是异步的，初始值是 []，workspace 会短暂为 undefined。
+// 给 800ms 等待时间让 Dexie 返回数据，然后强制渲染内容（避免白屏卡死）。
+const loading = ref(true)
+const loadingFallback = ref(false)
+let loadingTimer: ReturnType<typeof setTimeout> | null = null
+
+onMounted(() => {
+  loadingTimer = setTimeout(() => {
+    // 兜底：800ms 后无论数据是否加载完都退出 loading 状态
+    if (loading.value) loadingFallback.value = true
+  }, 800)
+})
+
+const workspace = computed(() => {
+  // 每次 workspaces 数组更新时检测是否已加载
+  if (workspacesStore.workspaces.length > 0 || loadingFallback.value) {
+    if (loading.value) {
+      loading.value = false
+      if (loadingTimer) { clearTimeout(loadingTimer); loadingTimer = null }
+    }
+    return workspacesStore.workspaces.find(item => item.id === props.id) as Workspace
+  }
+  return undefined
+})
+
+// 监听 workspaces 数组：一旦有数据立即结束 loading
+watch(() => workspacesStore.workspaces.length, (len) => {
+  if (len > 0 && loading.value) {
+    loading.value = false
+    if (loadingTimer) { clearTimeout(loadingTimer); loadingTimer = null }
+  }
+})
+
 const dialogs = useLiveQueryWithDeps(() => props.id, () => db.dialogs.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Dialog[] })
 const artifacts = useLiveQueryWithDeps(() => props.id, () => db.artifacts.where('workspaceId').equals(props.id).toArray(), { initialValue: [] as Artifact[] })
 

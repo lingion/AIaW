@@ -81,6 +81,7 @@ export default {
     globalAssistant: 'Global Assistant'
   },
   workspacePage: {
+    loading: 'Loading workspace…',
     closeArtifact: 'Close',
     closeAllArtifacts: 'Close All Artifacts',
     workspaceHome: 'Workspace Home',

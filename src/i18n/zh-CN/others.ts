@@ -1,6 +1,8 @@
 export default {
   app: {
-    offline: '网络已断开——重连后将自动恢复'
+    offline: '网络已断开——重连后将自动恢复',
+    fatalError: '应用启动失败',
+    reload: '重新加载'
   },
   routes: {
     settings: '设置',
