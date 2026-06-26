@@ -1,7 +1,6 @@
 <template>
   <q-item
     clickable
-    v-close-popup
     min-h-0
   >
     <q-item-section
@@ -22,4 +21,6 @@ defineProps<{
   icon: string
   label: string
 }>()
+// Note: v-close-popup removed — we use manual overlay menu instead of q-dialog/q-menu.
+// Parent components handle menu close in their own @click handlers (menuAction closes menuOpen).
 </script>

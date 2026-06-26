@@ -97,5 +97,14 @@ export function useSetTheme() {
     IsCapacitor && StatusBar.setStyle({ style: Dark.isActive ? Style.Dark : Style.Light })
     IsCapacitor && EdgeToEdge.setBackgroundColor({ color: hexFromArgb(colors['sur-c']) })
     uiStateStore.colors = colors
+    // Android: compute top inset for safe-area fallback
+    if (IsCapacitor && CapacitorPlatform === 'android') {
+      const applyInset = () => {
+        const top = window.visualViewport?.offsetTop ?? 0
+        if (top > 0) document.documentElement.style.setProperty('--sat', `${Math.round(top)}px`)
+      }
+      applyInset()
+      window.visualViewport?.addEventListener('resize', applyInset)
+    }
   })
 }

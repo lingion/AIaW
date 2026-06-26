@@ -25,8 +25,7 @@
           v-for="assistant in assistants"
           :key="assistant.id"
           clickable
-          :to="longPressFired ? undefined : getLink(assistant.id)"
-          active-class="route-active"
+          :class="isActiveAssistant(assistant.id) ? 'route-active' : ''"
           item-rd
           py-1.5
           min-h-0
@@ -70,50 +69,62 @@
         </q-item>
       </q-list>
 
-      <!-- Single q-dialog instead of per-item q-menu -->
-      <q-dialog
-        v-model="menuOpen"
-        transition-show="none"
-        transition-hide="none"
-      >
-        <q-list
-          style="min-width: 160px"
-          class="q-pa-sm rounded-borders shadow-2 bg-sur"
+      <!-- Manual overlay menu — NO q-dialog (Capacitor safe) -->
+      <Teleport to="body">
+        <div
+          v-if="menuOpen"
+          class="fixed inset-0"
+          style="z-index: 6000; background: rgba(0,0,0,0.45)"
+          @click.self="closeMenu"
+                  @touchstart.self="closeMenu"
         >
-          <menu-item
-            v-if="workspaceId !== '$root'"
-            icon="sym_o_add_comment"
-            :label="$t('assistantsExpansion.createDialog')"
-            @click="menuAction('createDialog')"
-          />
-          <menu-item
-            v-if="workspaceId !== '$root'"
-            icon="sym_o_move_item"
-            :label="$t('assistantsExpansion.moveToGlobal')"
-            @click="menuAction('moveToGlobal')"
-          />
-          <menu-item
-            icon="sym_o_move_item"
-            :label="$t('assistantsExpansion.moveToWorkspace')"
-            @click="menuAction('moveToWorkspace')"
-          />
-          <menu-item
-            icon="sym_o_delete"
-            :label="$t('assistantsExpansion.delete')"
-            @click="menuAction('delete')"
-            hover:text-err
-          />
-        </q-list>
-      </q-dialog>
+          <div
+            class="fixed"
+            style="top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 6001"
+            @click.stop
+          >
+            <q-card
+              style="min-width: 160px"
+              class="q-pa-sm"
+            >
+              <q-list dense>
+              <menu-item
+                v-if="workspaceId !== '$root'"
+                icon="sym_o_add_comment"
+                :label="$t('assistantsExpansion.createDialog')"
+                @click="menuAction('createDialog')"
+              />
+              <menu-item
+                v-if="workspaceId !== '$root'"
+                icon="sym_o_move_item"
+                :label="$t('assistantsExpansion.moveToGlobal')"
+                @click="menuAction('moveToGlobal')"
+              />
+              <menu-item
+                icon="sym_o_move_item"
+                :label="$t('assistantsExpansion.moveToWorkspace')"
+                @click="menuAction('moveToWorkspace')"
+              />
+              <menu-item
+                icon="sym_o_delete"
+                :label="$t('assistantsExpansion.delete')"
+                @click="menuAction('delete')"
+                hover:text-err
+              />
+            </q-list>
+            </q-card>
+          </div>
+        </div>
+      </Teleport>
     </template>
   </q-expansion-item>
 </template>
 
 <script setup lang="ts">
 import { useQuasar } from 'quasar'
-import { computed, inject, ref, watch } from 'vue'
+import { computed, inject, ref } from 'vue'
 import { useAssistantsStore } from 'src/stores/assistants'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import AAvatar from './AAvatar.vue'
 import SelectWorkspaceDialog from './SelectWorkspaceDialog.vue'
 import { useCreateDialog } from 'src/composables/create-dialog'
@@ -123,18 +134,21 @@ import { idTimestamp } from 'src/utils/functions'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+const $route = useRoute()
+const router = useRouter()
 
 const menuOpen = ref(false)
 const activeAssistant = ref<any>(null)
 let longPressTimer: ReturnType<typeof setTimeout> | null = null
 const longPressFired = ref(false)
-watch(menuOpen, (open) => {
-  if (!open) longPressFired.value = false
-})
 
 function openMenu(assistant: any) {
   activeAssistant.value = assistant
   menuOpen.value = true
+}
+function closeMenu() {
+  menuOpen.value = false
+  longPressFired.value = false
 }
 function onTouchStart(_event: TouchEvent, assistant: any) {
   longPressFired.value = false
@@ -149,15 +163,16 @@ function onTouchStart(_event: TouchEvent, assistant: any) {
 function onTouchEnd() {
   if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null }
 }
-function onItemClick(event: MouseEvent, assistant: any) {
+function onItemClick(_event: MouseEvent, assistant: any) {
   if (longPressFired.value) {
-    event.preventDefault()
-    event.stopPropagation()
     longPressFired.value = false
+    return
   }
+  router.push(getLink(assistant.id))
 }
 function menuAction(action: string) {
   menuOpen.value = false
+  longPressFired.value = false
   const assistant = activeAssistant.value
   if (!assistant) return
   setTimeout(() => {
@@ -186,7 +201,9 @@ const assistants = computed(() => assistantsStore.assistants
 function getLink(id) {
   return props.workspaceId === '$root' ? `/assistants/${id}` : `/workspaces/${props.workspaceId}/assistants/${id}`
 }
-const router = useRouter()
+function isActiveAssistant(id: string) {
+  return $route.path === getLink(id)
+}
 async function addItem() {
   const id = await assistantsStore.add({ workspaceId: props.workspaceId })
   router.push(getLink(id))
