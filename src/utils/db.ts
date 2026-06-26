@@ -25,7 +25,37 @@ type Db = Dexie & {
 // 注意: dexie-cloud-addon 即便 addons=[] 也会在 import 时执行顶层副作用，
 // 强行把 IndexedDB 版本号抬到 v70+，破坏 useLiveQuery 响应性 → 白屏。
 // 本地模式不传 addons；只有 DexieDBURL 真有值时才走 cloud 路径（动态 import）。
+// 在本地模式下，如果检测到旧版 dexie-cloud-addon 创建的高版本 IndexedDB（v70+），
+// 主动删除重建，避免 Dexie 因 schema 版本不匹配而无法打开。
 const db = new Dexie('data', { addons: [] }) as Db
+
+// 用 Dexie 自身的版本检查：声明的最高版本是 v7，如果现有 IDB v > 7，先删后建
+db.on('blocked', () => {
+  console.warn('[db] open() blocked — another connection is using the database')
+})
+
+// 迁移旧 dexie-cloud-addon 副作用留下的高版本 IDB (v70+)
+// 必须在 Dexie 第一次 open 之前完成，否则 Dexie 会用错误的 schema 锁定数据库
+const __migratePromise = (async () => {
+  if (DexieDBURL || typeof indexedDB === 'undefined') return
+  try {
+    const dbs = await indexedDB.databases?.()
+    const dataDb = dbs?.find(d => d.name === 'data')
+    if (dataDb && dataDb.version && dataDb.version > 7) {
+      console.warn(`[db] Detected stale IDB schema v${dataDb.version} (>v7); deleting and rebuilding.`)
+      // 用原生 indexedDB.deleteDatabase 避开 Dexie 自身的 versionchange 回调
+      await new Promise<void>((resolve, reject) => {
+        const req = indexedDB.deleteDatabase('data')
+        req.onsuccess = () => resolve()
+        req.onerror = () => reject(req.error)
+        req.onblocked = () => reject(new Error('deleteDatabase blocked'))
+      })
+      console.warn('[db] Old "data" IDB deleted; new schema will be created on first open().')
+    }
+  } catch (e) {
+    console.error('[db] Failed to migrate stale IDB:', e)
+  }
+})()
 
 if (DexieDBURL) {
   // 动态 import，避免本地模式加载 dexie-cloud-addon 的副作用
