@@ -163,6 +163,7 @@ import ArtifactItemMenu from 'src/components/ArtifactItemMenu.vue'
 import DragableSeparator from 'src/components/DragableSeparator.vue'
 import ArtifactItemIcon from 'src/components/ArtifactItemIcon.vue'
 import { useUserPerfsStore } from 'src/stores/user-perfs'
+import { useUiStateStore } from 'src/stores/ui-state'
 import DialogsExpansion from 'src/components/DialogsExpansion.vue'
 
 const props = defineProps<{
