@@ -66,8 +66,18 @@ export function useDialogInput(
     isPlatformEnabled(perfs.autoFocusDialogInput) && messageInput?.focus()
   }
 
-  const inputMessageContent = computed(() => messageMap.value[activeInputMessageId.value]?.contents[0] as UserMessageContent)
-  const inputContentItems = computed(() => collectExistingItems(inputMessageContent.value.items, itemMap.value))
+  // Bug fix: `?.` only short-circuits the IMMEDIATE receiver. If the message
+  // exists in messageMap but its `contents` field is undefined/empty, the
+  // [0] dereference crashes the entire app with
+  // "Cannot read properties of undefined (reading '0')". This fires the
+  // instant the user taps Send, because `send()` writes `status: 'default'`
+  // to the user message before the new assistant message exists, so the
+  // computed briefly sees a message without contents.
+  const inputMessageContent = computed(() => {
+    const msg = messageMap.value[activeInputMessageId.value]
+    return msg?.contents?.[0] as UserMessageContent | undefined
+  })
+  const inputContentItems = computed(() => inputMessageContent.value ? collectExistingItems(inputMessageContent.value.items, itemMap.value) : [])
   const inputEmpty = computed(() => !inputText.value && !inputMessageContent.value?.items?.length)
   const editingDraftEmpty = computed(() => !!editingDraftState.value && inputEmpty.value)
   const composerActionIcon = computed(() => editingDraftEmpty.value ? 'sym_o_close' : 'sym_o_send')

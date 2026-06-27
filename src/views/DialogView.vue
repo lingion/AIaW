@@ -702,7 +702,8 @@ async function edit(index) {
     focusInput(messageInput)
     return
   }
-  const content = currentMessage.contents[0] as UserMessageContent
+  const content = currentMessage?.contents?.[0] as UserMessageContent | undefined
+  if (!content) return
   const draftId = await appendMessage(target, {
     type: 'user',
     contents: [{ ...content, items: [...(content.items || [])] }],
@@ -927,13 +928,16 @@ async function resolveRuntimeSdkModel() {
 }
 
 async function send() {
+  console.log('[BUGHUNT] send() called', { inputEmpty: inputEmpty.value, hasAssistant: !!assistant.value, hasModel: !!model.value, activeInputId: activeInputMessageId.value, msgMapSize: Object.keys(messageMap.value).length, chainLen: chain.value.length })
   if (inputEmpty.value) return
   if (!assistant.value) {
+    console.error('[BUGHUNT] send() aborted: no assistant')
     toastError(t('dialogView.errors.setAssistant'))
     return
   }
   const runtimeSdkModel = await resolveRuntimeSdkModel()
   if (!runtimeSdkModel) {
+    console.error('[BUGHUNT] send() aborted: no model')
     toastError(t('dialogView.errors.configModel'))
     return
   }
@@ -966,13 +970,21 @@ async function send() {
   }
 
   const target = chain.value.at(-1)
+  console.log('[BUGHUNT] send() → stream()', { target, hasMap: !!messageMap.value[target], contents: messageMap.value[target]?.contents?.length, status: messageMap.value[target]?.status })
   await db.messages.update(target, { status: 'default' })
   until(chain).changed().then(() => {
     nextTick().then(() => {
       scroll('bottom')
     })
   })
-  await stream(target, false)
+  try {
+    console.log('[BUGHUNT] calling stream()')
+    await stream(target, false)
+    console.log('[BUGHUNT] stream() returned normally')
+  } catch (e) {
+    console.error('[BUGHUNT] stream() threw', e)
+    throw e
+  }
   perfs.autoGenTitle && chain.value.length === 4 && genTitle()
 }
 
@@ -1019,6 +1031,7 @@ onUnmounted(() => {
   cleanupEmptyDialog(props.id)
 })
 async function stream(target, insert = false, onPendingBranch?: (info: { assistantId: string, branchIndex: number, draftId?: string }) => void | Promise<void>) {
+  console.log('[BUGHUNT] stream() start', { target, insert, hasAssistant: !!assistant.value, modelName: assistant.value?.model?.name, modelId: assistant.value?.modelId, modelSettings: Object.keys(assistant.value?.modelSettings || {}), providerType: assistant.value?.provider?.type || perfs.provider?.type })
   const settings: Partial<ModelSettings> = {}
   for (const key in assistant.value.modelSettings) {
     const val = assistant.value.modelSettings[key]
@@ -1052,6 +1065,7 @@ async function stream(target, insert = false, onPendingBranch?: (info: { assista
   let id
   let branchIndex = -1
   let draftId: string | undefined
+  console.log('[BUGHUNT] stream() about to call appendMessage')
   await db.transaction('rw', db.dialogs, db.messages, async () => {
     const currentDialog = await db.dialogs.get(props.id)
     branchIndex = currentDialog.msgTree[target].length
@@ -1063,6 +1077,7 @@ async function stream(target, insert = false, onPendingBranch?: (info: { assista
       generatingSession: sessions.id,
       modelName: model.value.name
     }, insert)
+    console.log('[BUGHUNT] appendMessage returned', { id, branchIndex, target })
     if (!insert) {
       draftId = await appendMessage(id, {
         type: 'user',
@@ -1075,6 +1090,7 @@ async function stream(target, insert = false, onPendingBranch?: (info: { assista
       })
     }
   })
+  console.log('[BUGHUNT] stream() after transaction', { id, draftId })
   await onPendingBranch?.({ assistantId: id, branchIndex, draftId })
 
   const update = throttle(() => db.messages.update(id, { contents }), 50)
@@ -1175,6 +1191,7 @@ async function stream(target, insert = false, onPendingBranch?: (info: { assista
     }
     const messages = getChainMessages()
     const prompt = getSystemPrompt(enabledPlugins.filter(p => p.prompt))
+    console.log('[BUGHUNT] getChainMessages returned', messages.length, 'messages; hasSystemPrompt:', !!prompt)
     prompt && messages.unshift({ role: assistant.value.promptRole, content: prompt })
     const params = {
       model: runtimeSdkModel,
@@ -1190,11 +1207,13 @@ async function stream(target, insert = false, onPendingBranch?: (info: { assista
     }
     let result: StreamTextResult<any, any> | GenerateTextResult<any, any>
     if (assistant.value.stream) {
+      console.log('[BUGHUNT] calling streamText', { model: runtimeSdkModel.modelId, maxSteps: settings.maxSteps, msgCount: messages.length })
       result = streamText(params)
       await db.messages.update(id, { status: 'streaming' })
       lockingBottom.value = perfs.streamingLockBottom
       let minimaxStreamError: Error | null = null
       for await (const part of result.fullStream) {
+        console.log('[BUGHUNT] stream part', part.type)
         if (part.type === 'text-delta') {
           messageContent.text += part.text
           update()
