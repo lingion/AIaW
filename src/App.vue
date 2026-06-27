@@ -56,7 +56,7 @@ import { useFirstVisit } from './composables/first-visit'
 import { useLoginDialogs } from './composables/login-dialogs'
 import { useSetTheme } from './composables/set-theme'
 import { useSubscriptionNotify } from './composables/subscription-notify'
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useMigrationAlert } from './composables/migration-alert'
 import { db } from './utils/db'
 import { reconcileAssistantBuiltinPlugins } from './utils/builtin-plugin-seed'
@@ -72,16 +72,10 @@ useFirstVisit()
 useSubscriptionNotify()
 useMigrationAlert()
 
-// Bug #15: track online status. `null` = unknown, `true` = online, `false` = offline.
-const online = ref<boolean | null>(navigator.onLine)
-function setOnline() { online.value = true }
-function setOffline() { online.value = false }
-window.addEventListener('online', setOnline)
-window.addEventListener('offline', setOffline)
-onBeforeUnmount(() => {
-  window.removeEventListener('online', setOnline)
-  window.removeEventListener('offline', setOffline)
-})
+// 真实 navigator.onLine 在 Android WebView 101 上永远返回 false，会误触发。
+// 只在用户发起 fetch 失败 / API 显式报告网络错误时才显示 offline banner。
+// 暂时禁用自动 navigator.onLine 检测，避免误报。
+const online = ref<boolean | null>(true)
 
 // 兜底: 捕获 Vue 渲染错误，显示错误 UI 而不是白屏
 const fatalError = ref<string | null>(null)

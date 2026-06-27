@@ -567,11 +567,12 @@ async function dumpMcpPlugin(manifest: McpPluginManifest): Promise<McpPluginDump
 
 function lobeDefaultData(manifest: LobeChatPluginManifest): PluginData {
   const { identifier, meta } = manifest
+  const firstChar = ((meta.title || identifier) || '')[0]
   return {
     settings: {},
     avatar: meta.avatar
       ? (meta.avatar.startsWith('http') ? { type: 'url', url: meta.avatar } : { type: 'text', text: meta.avatar })
-      : defaultAvatar((meta.title || identifier)[0].toUpperCase()),
+      : defaultAvatar(firstChar ? firstChar.toUpperCase() : '?'),
     fileparsers: {}
   }
 }
@@ -612,7 +613,8 @@ function mcpDefaultData(manifest: McpPluginManifest): PluginData {
     } : {
       url: transport.url
     }
-  const avatar = manifest.avatar as Avatar ?? defaultAvatar(manifest.title[0].toUpperCase())
+  const firstChar = (manifest.title || manifest.id || '')[0]
+  const avatar = manifest.avatar as Avatar ?? defaultAvatar(firstChar ? firstChar.toUpperCase() : '?')
   return { settings, avatar, fileparsers: {} }
 }
 
