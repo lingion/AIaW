@@ -1,3 +1,14 @@
+<p align="center">
+  <a href="https://github.com/lingion/AIaW/stargazers"><img src="https://img.shields.io/github/stars/lingion/AIaW?style=for-the-badge&logo=github&color=FFD700" alt="Stars"></a>
+  <a href="https://github.com/lingion/AIaW/network/members"><img src="https://img.shields.io/github/forks/lingion/AIaW?style=for-the-badge&logo=github&color=8B5CF6" alt="Forks"></a>
+  <a href="https://github.com/lingion/AIaW/issues"><img src="https://img.shields.io/github/issues/lingion/AIaW?style=for-the-badge&logo=github&color=EF4444" alt="Issues"></a>
+  <a href="https://github.com/lingion/AIaW/blob/main/LICENSE"><img src="https://img.shields.io/github/license/lingion/AIaW?style=for-the-badge&logo=github&color=10B981" alt="License"></a>
+  <br>
+  <a href="https://github.com/lingion/AIaW/commits/main"><img src="https://img.shields.io/github/last-commit/lingion/AIaW?style=flat-square" alt="Last commit"></a>
+  <a href="https://github.com/lingion/AIaW"><img src="https://img.shields.io/github/repo-size/lingion/AIaW?style=flat-square" alt="Size"></a>
+  <a href="https://mcp.io"><img src="https://img.shields.io/badge/MCP-compatible-blue?style=flat-square" alt="MCP"></a>
+</p>
+
 ![](docs/public/combine.en.webp)
 
 # AI as Workspace
