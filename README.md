@@ -303,3 +303,5 @@ Full diff against upstream: [NitroRCr/AIaW → lingion:AIaW](https://github.com/
 - [File Parsing](https://docs.aiaw.app/usage/file-parse.html)
 - [Artifacts](https://docs.aiaw.app/usage/artifacts.html)
 - [Dynamic Prompts](https://docs.aiaw.app/usage/prompt-vars.html)
+- **[Operation Guide](https://blog.qdp.qzz.io/docs/aiaw/overview)** — step-by-step user manual covering install, architecture, providers, plugins, workspaces, and mobile platforms
+- **[Technical Write-up](https://blog.qdp.qzz.io/aiaw-mobile-fork)** — deep-dive: 8 new files, Camera + LocalFs + Pyodide + PDF.js integration
