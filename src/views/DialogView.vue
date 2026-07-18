@@ -157,27 +157,42 @@
           :class="['dialog-scroll-container', { 'rd-r-lg': rightDrawerAbove }]"
           @scroll="onScroll"
         >
+          <div
+            v-if="hasMore"
+            ref="scrollSentinel"
+            class="dialog-scroll-sentinel"
+            :style="{ height: isLoadingMore ? '40px' : '4px' }"
+            aria-hidden="true"
+          >
+            <q-spinner
+              v-if="isLoadingMore"
+              size="24px"
+              color="primary"
+              class="dialog-scroll-sentinel__spinner"
+            />
+          </div>
           <template
-            v-for="(i, index) in chain"
-            :key="i"
+            v-for="item in visibleItems"
+            :key="item.id"
           >
             <message-item
               class="message-item"
-              v-if="messageMap[i] && i !== '$root'"
-              :data-message-id="i"
-              :data-render-index="index - 1"
-              :model-value="dialog.msgRoute[index - 1] + 1"
-              :message="messageMap[i]"
-              :child-num="dialog.msgTree[chain[index - 1]].length"
-              :branch-control="getMessageBranchControl(index)"
+              v-if="messageMap[item.id] && item.id !== '$root'"
+              :data-message-id="item.id"
+              :data-render-index="item.originalIndex - 1"
+              :model-value="dialog.msgRoute[item.originalIndex - 1] + 1"
+              :message="messageMap[item.id]"
+              :lazy-plain-text="item.originalIndex < lazyCutoff"
+              :child-num="dialog.msgTree[chain[item.originalIndex - 1]].length"
+              :branch-control="getMessageBranchControl(item.originalIndex)"
               :scroll-container
-              @update:model-value="switchChain(index - 1, $event - 1)"
-              @edit="edit(index)"
-              @regenerate="regenerate(index)"
-              @delete="deleteBranch(index)"
+              @update:model-value="switchChain(item.originalIndex - 1, $event - 1)"
+              @edit="edit(item.originalIndex)"
+              @regenerate="regenerate(item.originalIndex)"
+              @delete="deleteBranch(item.originalIndex)"
               @quote="quote"
-              @extract-artifact="extractArtifact(messageMap[i], ...$event)"
-              @rendered="onMessageRendered(messageMap[i])"
+              @extract-artifact="extractArtifact(messageMap[item.id], ...$event)"
+              @rendered="onMessageRendered(messageMap[item.id])"
               pt-2
               pb-4
             />
@@ -547,6 +562,7 @@ import { useDialogChain } from 'src/composables/use-dialog-chain'
 import { useDialogScroll } from 'src/composables/use-dialog-scroll'
 import { useDialogInput } from 'src/composables/use-dialog-input'
 import { collectChainMessageContents, collectConversationMessageContents, collectDialogContents, collectExistingItems, collectReferencedItemIds, getMessageRecord } from 'src/utils/dialog-message-map'
+import { useMessageWindow } from 'src/composables/use-message-window'
 
 const { t, locale } = useI18n()
 
@@ -1364,6 +1380,29 @@ const {
   inputText, showVars, generating, editingDraftState,
   rightDrawerAbove, assistant, activePlugins, perfs, $q,
 )
+
+const {
+  visibleItems, hasMore, isLoadingMore, renderEnd,
+  loadMore, reset: resetMessageWindow,
+  sentinelRef: scrollSentinel,
+} = useMessageWindow(chain, scrollContainer)
+
+// Messages beyond this offset render as plain text to skip KaTeX overhead
+const lazyCutoff = computed(() => renderEnd.value - 30)
+
+// Reset render window when dialog changes
+watch(() => liveDialog.value?.id, () => {
+  resetMessageWindow()
+})
+
+// Recalculate window when chain settles (catches initial data load race)
+watch(() => chain.value.length, (newLen, oldLen) => {
+  // Only fire when chain was at root (dialog not yet loaded) and now has real messages.
+  // Avoids resetting on individual message sends (newLen increases by 1).
+  if (oldLen <= 1 && newLen > oldLen + 5) {
+    resetMessageWindow()
+  }
+})
 
 
 function setModel(name: string) {
