@@ -391,6 +391,7 @@ const props = defineProps<{
   message: Message,
   childNum: number,
   scrollContainer: HTMLElement,
+  lazyPlainText?: boolean,
   branchControl?: {
     current: number,
     max: number,
@@ -517,6 +518,10 @@ function isStreamingAssistantText(content: MessageContent) {
 
 function getStreamingRenderState(content: MessageContent) {
   if (isStreamingAssistantText(content)) return streamingRenderState.value
+  // Off-screen messages: skip expensive KaTeX/markdown rendering
+  if (props.lazyPlainText && (content.type === 'assistant-message' || content.type === 'user-message')) {
+    return { mode: 'plain-text' as const, text: content.text }
+  }
   if (content.type === 'assistant-message' || content.type === 'user-message') {
     return { mode: 'final' as const, text: content.text }
   }
