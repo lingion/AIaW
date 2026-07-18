@@ -28,6 +28,7 @@
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:windowSoftInputMode="adjustNothing"
             android:launchMode="singleTask"
             android:exported="true">
             <intent-filter>
