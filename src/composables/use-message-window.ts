@@ -45,9 +45,15 @@ export function useMessageWindow(
 
   function loadMore() {
     if (isLoadingMore.value || !hasMore.value) return
-    isLoadingMore.value = true
 
     const container = scrollContainer.value
+    // Guard against false triggers: keyboard appearance shrinks viewport,
+    // which can make the sentinel appear "visible" even when user hasn't scrolled.
+    // Require scrollTop near 0 (user actually scrolled to top).
+    if (container && container.scrollTop > 60) return
+
+    isLoadingMore.value = true
+
     const prevScrollHeight = container?.scrollHeight ?? 0
     const prevScrollTop = container?.scrollTop ?? 0
 
