@@ -115,7 +115,7 @@ watchEffect(async () => {
   docs.value = messages.map(m => ({
     id: m.id,
     dialogId: m.dialogId,
-    content: m.contents
+    content: (m.contents || [])
       .filter(c => c.type === 'assistant-message' || c.type === 'user-message')
       .map(c => c.text)
       .join('\n')
@@ -134,8 +134,11 @@ interface Result {
 const results = ref<Result[]>(null)
 const listRef = ref<QList>()
 function search() {
-  if (!q.value) return
-  const hits = docs.value.filter(d => caselessIncludes(d.content, q.value)).slice(0, 100)
+  if (!q.value || !docs.value || !dialogs.value) {
+    results.value = []
+    return
+  }
+  const hits = docs.value.filter(d => caselessIncludes(d.content || '', q.value)).slice(0, 100)
   unmark()
   results.value = [
     ...hits.map(h => {
@@ -144,8 +147,8 @@ function search() {
         workspaceId: dialog.workspaceId,
         dialogId: dialog.id,
         title: dialog.name,
-        preview: h.content.match(new RegExp(`^.*${escapeRegex(q.value)}.*$`, 'im'))[0],
-        route: getRoute(dialog.msgTree, h.id)
+        preview: h.content.match(new RegExp(`^.*${escapeRegex(q.value)}.*$`, 'im'))?.[0] || h.content.slice(0, 240),
+        route: getRoute(dialog.msgTree, h.id) || []
       }
     }).filter(Boolean),
     ...dialogs.value.filter(d => caselessIncludes(d.name, q.value)).map(d => ({
@@ -180,7 +183,9 @@ watch(open, val => {
 })
 
 function getRoute(tree: Record<string, string[]>, target: string, curr = '$root') {
-  for (const [i, v] of tree[curr].entries()) {
+  const children = tree?.[curr]
+  if (!children) return
+  for (const [i, v] of children.entries()) {
     if (v === target) return [i]
     const route = getRoute(tree, target, v)
     if (route) return [i, ...route]
