@@ -14,6 +14,10 @@ import { EdgeToEdge } from '@capawesome/capacitor-android-edge-to-edge-support'
 let cachedSafeAreaTop = 0
 let cachedSafeAreaBottom = 0
 
+function toCssPixels(value: number) {
+  return value / Math.max(window.devicePixelRatio || 1, 1)
+}
+
 export function getSafeAreaTop(): number { return cachedSafeAreaTop }
 export function getSafeAreaBottom(): number { return cachedSafeAreaBottom }
 
@@ -121,14 +125,17 @@ export function useSetTheme() {
     // while a software keyboard is visible.
     if (IsCapacitor && CapacitorPlatform === 'android') {
       StatusBar.getInfo().then((info) => {
-        cachedSafeAreaTop = info.height || 24
+        cachedSafeAreaTop = toCssPixels(info.height || 24)
         writeInsets()
       }).catch(() => {
         cachedSafeAreaTop = 24
         writeInsets()
       })
       Keyboard.addListener('keyboardWillShow', (info) => {
-        cachedSafeAreaBottom = info.keyboardHeight
+        // Android reports keyboardHeight in physical pixels. CSS bottom is
+        // in CSS pixels; using the raw value makes the dock bottom offset
+        // roughly devicePixelRatio times too large.
+        cachedSafeAreaBottom = toCssPixels(info.keyboardHeight)
         writeInsets()
       })
       Keyboard.addListener('keyboardWillHide', () => {

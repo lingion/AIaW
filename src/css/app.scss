@@ -144,14 +144,15 @@ body.body--light {
 }
 
 .dialog-composer-area {
-  position: absolute;
+  position: fixed !important;
   left: 0;
   right: 0;
-  bottom: 0;
-  // Bug #8: prefer --sab (set by set-theme.ts from Keyboard plugin) so the
-  // composer sits above the soft keyboard when it's open. env(safe-area-inset-bottom)
-  // covers iOS notch home indicator and Android nav bar when no keyboard is open.
-  padding: 0 12px calc(14px + max(var(--sab, 0px), env(safe-area-inset-bottom, 0px)));
+  bottom: var(--sab, 0px);
+  z-index: 5;
+  // With adjustNothing, the WebView keeps its full height. Anchor the dock
+  // directly above the keyboard via --sab; do not add keyboard height to the
+  // dock's padding or its own box becomes oversized and gets clipped.
+  padding: 0 12px 14px;
   pointer-events: none;
   background: transparent !important;
   box-shadow: none !important;
