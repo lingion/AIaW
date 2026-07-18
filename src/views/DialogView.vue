@@ -141,7 +141,7 @@
       flex
       flex-col
       pos-relative
-      :style-fn="pageFhStyle"
+      :style="dialogPageStyle"
     >
       <div
         class="dialog-content-shell"
@@ -622,6 +622,12 @@ watch(liveItems, items => {
 provide('messageMap', messageMap)
 provide('itemMap', itemMap)
 
+// Replace pageFhStyle with explicit dvh-based height to bypass Quasar's
+// height calculation which can produce wrong values during keyboard transitions.
+const dialogPageStyle = computed(() => ({
+  height: '100dvh',
+  overflow: 'hidden',
+}))
 
 const { perfs } = useUserPerfsStore()
 const $q = useQuasar()
