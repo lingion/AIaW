@@ -417,7 +417,7 @@ function moreInfo() {
 }
 const sourceCodeMode = ref(false)
 
-const contents = computed(() => props.message.contents.map(x => {
+const contents = computed(() => (props.message.contents || []).map(x => {
   if (x.type === 'assistant-message' || x.type === 'user-message') {
     return {
       ...x,
@@ -446,7 +446,7 @@ watchEffect(async () => {
       generatingSession: null,
       status: 'failed',
       error: 'aborted',
-      contents: props.message.contents.map(content => {
+      contents: (props.message.contents || []).map(content => {
         if (content.type === 'assistant-tool' && content.status === 'calling') {
           return {
             ...content,
@@ -460,8 +460,11 @@ watchEffect(async () => {
   }
 })
 
-const textIndex = computed(() => props.message.contents.findIndex(c => ['user-message', 'assistant-message'].includes(c.type)))
-const textContent = computed(() => (props.message.contents[textIndex.value] as UserMessageContent | AssistantMessageContent))
+const textIndex = computed(() => (props.message.contents || []).findIndex(c => ['user-message', 'assistant-message'].includes(c.type)))
+const textContent = computed(() => {
+  const content = (props.message.contents || [])[textIndex.value]
+  return (content || { type: 'assistant-message', text: '' }) as UserMessageContent | AssistantMessageContent
+})
 
 const { perfs } = useUserPerfsStore()
 const assistantsStore = useAssistantsStore()
@@ -607,7 +610,9 @@ function onSelect(mode: 'mouse' | 'touch') {
   }
   const range = selection.getRangeAt(0)
   const targetRects = range.getBoundingClientRect()
-  const baseRects = textDiv.value[0].getBoundingClientRect()
+  const textElement = textDiv.value?.[0] as HTMLElement | undefined
+  if (!textElement) return
+  const baseRects = textElement.getBoundingClientRect()
   floatBtnStyle.top = targetRects.top < 48 || mode === 'touch'
     ? targetRects.bottom - baseRects.top + 12 + 'px'
     : targetRects.top - baseRects.top - 48 + 'px'

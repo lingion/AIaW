@@ -178,7 +178,7 @@ async function parse() {
 }
 
 const ranges = reactive(props.files.map(() => null))
-const selected = reactive(props.files.map((val, index) => allOptions.value[index][0]))
+const selected = reactive(props.files.map((val, index) => allOptions.value[index]?.[0]).filter(Boolean))
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 </script>

@@ -11,7 +11,7 @@ export function useDialogBranch(
 
     const parentId = chain.value[index - 1]
     const messageId = chain.value[index]
-    const branches = dialog.value.msgTree[parentId]
+    const branches = dialog.value.msgTree[parentId] || []
     if (!Array.isArray(branches) || branches.length <= 1) return null
 
     const message = messageMap.value[messageId]

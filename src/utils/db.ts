@@ -187,7 +187,24 @@ db.workspaces.hook('reading', workspace => {
   return workspace
 })
 
+db.dialogs.hook('reading', dialog => {
+  if (!dialog || typeof dialog !== 'object') return dialog
+  if (!dialog.msgTree || typeof dialog.msgTree !== 'object' || Array.isArray(dialog.msgTree)) {
+    dialog.msgTree = { $root: [] }
+  } else {
+    for (const key of Object.keys(dialog.msgTree)) {
+      if (!Array.isArray(dialog.msgTree[key])) dialog.msgTree[key] = []
+    }
+    dialog.msgTree.$root ??= []
+  }
+  if (!Array.isArray(dialog.msgRoute)) dialog.msgRoute = []
+  return dialog
+})
+
 db.messages.hook('reading', message => {
+  if (!message || typeof message !== 'object') return message
+  if (!Array.isArray(message.contents)) message.contents = []
+  else message.contents = message.contents.filter(content => content && typeof content === 'object')
   const usage = message.usage as any
   if (usage && 'promptTokens' in usage) {
     message.usage = {

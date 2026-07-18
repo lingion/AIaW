@@ -64,7 +64,8 @@ export function useDialogChain(
   })
 
   function expandMessageTree(root): string[] {
-    return [root, ...liveDialog.value.msgTree[root].flatMap(id => expandMessageTree(id))]
+    const children = liveDialog.value?.msgTree?.[root] || []
+    return [root, ...children.flatMap(id => expandMessageTree(id))]
   }
 
   async function deleteMessageBranch(parent: string, anchor: string) {
@@ -78,7 +79,7 @@ export function useDialogChain(
         references === 0 ? db.items.delete(id) : db.items.update(id, { references })
       })
       const msgTree = { ...toRaw(liveDialog.value.msgTree) }
-      msgTree[parent] = msgTree[parent].filter(id => id !== anchor)
+      msgTree[parent] = (msgTree[parent] || []).filter(id => id !== anchor)
       ids.forEach(id => {
         delete msgTree[id]
       })
@@ -104,7 +105,7 @@ export function useDialogChain(
         ...info
       } as Message)
       const d = await db.dialogs.get(propsId.value)
-      const children = d.msgTree[target]
+      const children = d.msgTree?.[target] || []
       const changes = insert ? {
         [target]: [id],
         [id]: children

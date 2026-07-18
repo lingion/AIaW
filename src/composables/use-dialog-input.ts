@@ -38,7 +38,7 @@ export function useDialogInput(
       editingDraftState.value = null
       return false
     }
-    const content = draft.contents[0] as UserMessageContent
+    const content = draft.contents?.[0] as UserMessageContent | undefined
     if (content?.text || content?.items?.length) return false
     await deleteMessageBranch(state.parentId, state.draftId)
     editingDraftState.value = null
@@ -55,7 +55,7 @@ export function useDialogInput(
       inputText.value = ''
       return
     }
-    const content = draft.contents[0] as UserMessageContent
+    const content = draft.contents?.[0] as UserMessageContent | undefined
     if (content?.text || content?.items?.length) {
       await deleteMessageBranch(state.parentId, state.draftId)
     }
@@ -195,7 +195,7 @@ export function useDialogInput(
     items.splice(items.indexOf(id), 1)
     await db.transaction('rw', db.messages, db.items, () => {
       db.messages.update(activeInputMessageId.value, {
-        contents: [{ ...inputMessageContent.value, items }]
+        contents: [{ ...(inputMessageContent.value || { type: 'user-message', text: '' }), items }]
       })
       references--
       references === 0 ? db.items.delete(id) : db.items.update(id, { references })
@@ -244,7 +244,7 @@ export function useDialogInput(
     const ids = storedItems.map(i => i.id)
     await db.transaction('rw', db.messages, db.items, () => {
       db.messages.update(activeInputMessageId.value, {
-        contents: [{ ...inputMessageContent.value, items: [...inputMessageContent.value.items, ...ids] }]
+        contents: [{ ...(inputMessageContent.value || { type: 'user-message', text: '' }), items: [...(inputMessageContent.value?.items || []), ...ids] }]
       })
       saveItemsLocal(storedItems)
     })

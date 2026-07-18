@@ -183,7 +183,7 @@
               :model-value="dialog.msgRoute[item.originalIndex - 1] + 1"
               :message="messageMap[item.id]"
               :lazy-plain-text="item.originalIndex < lazyCutoff"
-              :child-num="dialog.msgTree[chain[item.originalIndex - 1]].length"
+              :child-num="dialog.msgTree[chain[item.originalIndex - 1]]?.length ?? 0"
               :branch-control="getMessageBranchControl(item.originalIndex)"
               :scroll-container
               @update:model-value="switchChain(item.originalIndex - 1, $event - 1)"
@@ -1027,7 +1027,7 @@ async function cleanupEmptyDialog(dialogId: string) {
     if (msgs.length !== 1) return
     const only = msgs[0]
     if (only.status !== 'inputing') return
-    if (only.contents?.length !== 1) return
+    if (!Array.isArray(only.contents) || only.contents.length !== 1) return
     const c = only.contents[0]
     if (c.type !== 'user-message') return
     if ((c.text ?? '').trim() !== '') return
