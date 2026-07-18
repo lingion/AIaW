@@ -103,6 +103,7 @@ onMounted(() => {
 
 async function migrateBuiltinPluginsAtStartup() {
   try {
+    if (!db.isOpen()) await db.open()
     const assistants = await db.assistants.toArray()
     for (const assistant of assistants) {
       const beforeKeys = Object.keys(assistant.plugins || {})

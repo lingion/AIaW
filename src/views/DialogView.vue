@@ -1028,7 +1028,8 @@ async function cleanupEmptyDialog(dialogId: string) {
     const only = msgs[0]
     if (only.status !== 'inputing') return
     if (!Array.isArray(only.contents) || only.contents.length !== 1) return
-    const c = only.contents[0]
+    const c = only.contents?.[0]
+    if (!c || typeof c !== 'object') return
     if (c.type !== 'user-message') return
     if ((c.text ?? '').trim() !== '') return
     if ((c.items ?? []).length !== 0) return

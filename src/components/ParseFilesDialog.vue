@@ -164,6 +164,7 @@ async function parse() {
     if (!value) return []
     const file = props.files[index]
     const fp = fileparsers.value.find(fp => fp.id === value)
+    if (!fp || !file) return []
     try {
       const result = await fp.execute({ file, range: ranges[index] }, fp.settings)
       return result.map(r => ({ ...r, name: file.name }))
