@@ -140,7 +140,7 @@ body.body--light {
 }
 
 .dialog-page {
-  overflow: hidden !important;
+  overflow: hidden;
 }
 
 .dialog-composer-area {
@@ -155,6 +155,9 @@ body.body--light {
   pointer-events: none;
   background: transparent !important;
   box-shadow: none !important;
+  // Smooth keyboard open/close transitions to prevent the dock from
+  // appearing to "fly" when pageFhStyle recalculates before --sab updates.
+  transition: padding-bottom 0.2s ease-out;
 }
 
 .dialog-composer-spacer {
