@@ -786,7 +786,7 @@ function shouldPromoteInlineMath(inlineMath: HTMLElement) {
 }
 
 function injectDisplayMathScroll() {
-  const el: HTMLElement = textDiv.value[0]
+  const el = textDiv.value?.[0] as HTMLElement | undefined
   if (!el) return
 
   clearDisplayMathScroll(el)
@@ -812,25 +812,30 @@ function injectDisplayMathScroll() {
 }
 function injectConvertArtifact() {
   if (!isPlatformEnabled(perfs.artifactsEnabled)) return
-  const el: HTMLElement = textDiv.value[0]
+  const el = textDiv.value?.[0] as HTMLElement | undefined
+  if (!el) return
   el.querySelectorAll('.md-editor-code').forEach(code => {
     if (code.querySelector('.md-editor-convert-artifact')) return
     const anchor = code.querySelector('.md-editor-collapse-tips')
+    const action = code.querySelector('.md-editor-code-action')
+    const source = code.querySelector('pre code')
+    if (!anchor || !action || !source) return
     const btn = document.createElement('span')
     btn.innerHTML = 'convert_to_text'
     btn.classList.add('md-editor-convert-artifact')
     btn.addEventListener('click', (ev) => {
       ev.preventDefault()
       ev.stopPropagation()
-      const text = code.querySelector('pre code').textContent
-      const lang = code.querySelector('pre code').getAttribute('language')
+      const text = source.textContent || ''
+      const lang = source.getAttribute('language') || ''
       const pattern = new RegExp(`\`{3,}.*\\n${escapeRegex(text)}\\s*\`{3,}`, 'g')
       convertArtifact(text, pattern, lang)
     })
     btn.title = t('messageItem.convertToArtifactBtn')
-    code.querySelector('.md-editor-code-action').insertBefore(btn, anchor)
-    code.querySelector<HTMLElement>('.md-editor-copy-button').title = t('messageItem.copyCode')
-    code.querySelector<HTMLElement>('.md-editor-collapse-tips').title = t('messageItem.fold')
+    action.insertBefore(btn, anchor)
+    const copyButton = code.querySelector<HTMLElement>('.md-editor-copy-button')
+    if (copyButton) copyButton.title = t('messageItem.copyCode')
+    anchor.title = t('messageItem.fold')
   })
 }
 const mdPreviewProps = useMdPreviewProps()

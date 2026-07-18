@@ -13,14 +13,14 @@ export function useDialogChain(
   itemMap: Ref<Record<string, StoredItem>>,
 ) {
   const editingDraftState = ref<{ parentId: string, draftId: string } | null>(null)
-  const chain = computed<string[]>(() => liveDialog.value ? getChain('$root', liveDialog.value.msgRoute)[0] : [])
-  const normalizedRoute = computed<number[]>(() => liveDialog.value ? getChain('$root', liveDialog.value.msgRoute)[1] : [])
+  const chain = computed<string[]>(() => liveDialog.value ? getChain('$root', Array.isArray(liveDialog.value.msgRoute) ? liveDialog.value.msgRoute : [])[0] : [])
+  const normalizedRoute = computed<number[]>(() => liveDialog.value ? getChain('$root', Array.isArray(liveDialog.value.msgRoute) ? liveDialog.value.msgRoute : [])[1] : [])
   const historyChain = ref<string[]>([])
 
   function getChain(node, route: number[]) {
     const tree = liveDialog.value?.msgTree || {}
     const children = tree[node]
-    const r = route.at(0) || 0
+    const r = Number.isInteger(route?.[0]) ? route[0] : 0
     if (!Array.isArray(children) || children.length === 0) {
       return [[node], [r]]
     }
@@ -90,8 +90,9 @@ export function useDialogChain(
   async function deleteBranch(index) {
     const parent = chain.value[index - 1]
     const anchor = chain.value[index]
-    const branch = liveDialog.value.msgRoute[index - 1]
-    branch === liveDialog.value.msgTree[parent].length - 1 && switchChain(index - 1, branch - 1)
+    const branch = liveDialog.value?.msgRoute?.[index - 1]
+    const siblingCount = liveDialog.value?.msgTree?.[parent]?.length ?? 0
+    if (Number.isInteger(branch) && branch === siblingCount - 1 && branch > 0) switchChain(index - 1, branch - 1)
     await deleteMessageBranch(parent, anchor)
   }
 
@@ -105,6 +106,7 @@ export function useDialogChain(
         ...info
       } as Message)
       const d = await db.dialogs.get(propsId.value)
+      if (!d) return
       const children = d.msgTree?.[target] || []
       const changes = insert ? {
         [target]: [id],
@@ -114,7 +116,7 @@ export function useDialogChain(
         [id]: []
       }
       await db.dialogs.update(propsId.value, {
-        msgTree: { ...d.msgTree, ...changes }
+        msgTree: { ...(d.msgTree || { $root: [] }), ...changes }
       })
     })
     return id

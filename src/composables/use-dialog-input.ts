@@ -191,7 +191,7 @@ export function useDialogInput(
   onUnmounted(() => removeEventListener('paste', onPaste))
 
   async function removeItem({ id, references }: StoredItem) {
-    const items = [...inputMessageContent.value.items]
+    const items = [...(inputMessageContent.value?.items || [])]
     items.splice(items.indexOf(id), 1)
     await db.transaction('rw', db.messages, db.items, () => {
       db.messages.update(activeInputMessageId.value, {
@@ -233,7 +233,7 @@ export function useDialogInput(
     if (displayLength(item.contentText) > 200) {
       addInputItems([item])
     } else {
-      const { text } = inputMessageContent.value
+      const text = inputMessageContent.value?.text || ''
       const content = wrapQuote(item.contentText) + '\n\n'
       updateInputText(text ? text + '\n' + content : content)
     }
