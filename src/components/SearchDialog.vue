@@ -102,6 +102,14 @@ interface Doc {
   content: string
 }
 
+interface Result {
+  workspaceId: string
+  dialogId: string
+  title: string
+  route: number[]
+  preview?: string
+}
+
 const global = ref(false)
 const dialogs = ref<Dialog[]>([])
 const docs = ref<Doc[]>([])
@@ -136,13 +144,6 @@ watchEffect(async () => {
 })
 
 const q = ref('')
-interface Result {
-  workspaceId: string
-  dialogId: string
-  title: string
-  route: number[]
-  preview?: string
-}
 const listRef = ref<QList>()
 function search() {
   if (!q.value || !docs.value || !dialogs.value) {
