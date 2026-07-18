@@ -140,19 +140,18 @@ body.body--light {
 }
 
 .dialog-page {
-  overflow: hidden;
+  overflow: hidden !important;
 }
 
 .dialog-composer-area {
-  position: fixed !important;
+  position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 5;
-  // Fixed positioning: the viewport already shrinks above the soft keyboard,
-  // so --sab keyboard-height padding is NOT needed (it would push content
-  // too high). Only env(safe-area-inset-bottom) for nav bar / home indicator.
-  padding: 0 12px calc(14px + env(safe-area-inset-bottom, 0px));
+  // Bug #8: prefer --sab (set by set-theme.ts from Keyboard plugin) so the
+  // composer sits above the soft keyboard when it's open. env(safe-area-inset-bottom)
+  // covers iOS notch home indicator and Android nav bar when no keyboard is open.
+  padding: 0 12px calc(14px + max(var(--sab, 0px), env(safe-area-inset-bottom, 0px)));
   pointer-events: none;
   background: transparent !important;
   box-shadow: none !important;
