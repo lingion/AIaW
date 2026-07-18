@@ -177,7 +177,7 @@
           >
             <message-item
               class="message-item"
-              v-if="messageMap[item.id] && item.id !== '$root'"
+              v-if="messageMap[item.id] && item.id !== '$root' && item.originalIndex > 0 && chain[item.originalIndex - 1] && dialog.msgRoute[item.originalIndex - 1] != null"
               :data-message-id="item.id"
               :data-render-index="item.originalIndex - 1"
               :model-value="dialog.msgRoute[item.originalIndex - 1] + 1"
