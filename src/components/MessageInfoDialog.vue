@@ -75,8 +75,8 @@ const props = defineProps<{
   message: Message
 }>()
 
-const length = computed(() => props.message.contents.filter(
-  c => c.type === 'assistant-message' || c.type === 'user-message'
+const length = computed(() => (props.message.contents || []).filter(
+  c => (c.type === 'assistant-message' || c.type === 'user-message') && typeof c.text === 'string'
 ).reduce((prev, cur) => prev + cur.text.length, 0))
 const createdAt = computed(() => idDateString(props.message.id))
 
