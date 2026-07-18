@@ -148,10 +148,6 @@ body.body--light {
   left: 0;
   right: 0;
   bottom: var(--sab, 0px);
-  z-index: 5;
-  // With adjustNothing, the WebView keeps its full height. Anchor the dock
-  // directly above the keyboard via --sab; do not add keyboard height to the
-  // dock's padding or its own box becomes oversized and gets clipped.
   padding: 0 12px 14px;
   pointer-events: none;
   background: transparent !important;

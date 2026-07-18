@@ -14,9 +14,6 @@ import { EdgeToEdge } from '@capawesome/capacitor-android-edge-to-edge-support'
 let cachedSafeAreaTop = 0
 let cachedSafeAreaBottom = 0
 
-function toCssPixels(value: number) {
-  return value / Math.max(window.devicePixelRatio || 1, 1)
-}
 
 export function getSafeAreaTop(): number { return cachedSafeAreaTop }
 export function getSafeAreaBottom(): number { return cachedSafeAreaBottom }
@@ -125,17 +122,17 @@ export function useSetTheme() {
     // while a software keyboard is visible.
     if (IsCapacitor && CapacitorPlatform === 'android') {
       StatusBar.getInfo().then((info) => {
-        cachedSafeAreaTop = toCssPixels(info.height || 24)
+        cachedSafeAreaTop = info.height || 24
         writeInsets()
       }).catch(() => {
         cachedSafeAreaTop = 24
         writeInsets()
       })
-      Keyboard.addListener('keyboardWillShow', (info) => {
-        // Android reports keyboardHeight in physical pixels. CSS bottom is
-        // in CSS pixels; using the raw value makes the dock bottom offset
-        // roughly devicePixelRatio times too large.
-        cachedSafeAreaBottom = toCssPixels(info.keyboardHeight)
+      Keyboard.addListener('keyboardDidShow', (info) => {
+        // In the current Android edge-to-edge window the WebView is not
+        // resized, so bottom: 0 is physically underneath the IME. The
+        // Capacitor Android value is native pixels; convert it to CSS px.
+        cachedSafeAreaBottom = info.keyboardHeight / Math.max(window.devicePixelRatio || 1, 1)
         writeInsets()
       })
       Keyboard.addListener('keyboardWillHide', () => {
