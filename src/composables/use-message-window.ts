@@ -31,6 +31,33 @@ export function useMessageWindow(
     isLoadingMore.value = false
   }
 
+  // Critical: when the chain grows at the *tail* (a new user/assistant
+  // message is appended during streaming), we must keep renderEnd in
+  // lockstep so the freshly appended message is visible. Without this
+  // guard, renderEnd stays frozen at the initial dialog-load length and
+  // the streaming assistant message is clipped from the rendered slice
+  // — so the user sees the input area waiting forever, with the AI's
+  // tool calls and final answer only appearing after navigating away
+  // and back (which forces a remount). This was the regression in
+  // v2.0.8.12: useMessageWindow only auto-reset on big length deltas,
+  // never on the +1 / +2 of a normal send().
+  watch(
+    () => chain.value.length,
+    (newLen, oldLen) => {
+      if (newLen > renderEnd.value) {
+        renderEnd.value = newLen
+        // Keep the window capped at INITIAL_LIMIT + LOAD_MORE_SIZE so we
+        // don't accumulate offscreen DOM during a long stream.
+        const maxWindow = INITIAL_LIMIT + LOAD_MORE_SIZE
+        if (renderEnd.value - renderStart.value > maxWindow) {
+          renderStart.value = Math.max(0, renderEnd.value - maxWindow)
+        }
+        // Autoscroll is the consumer's job — leave scroll position alone
+        // so streaming LockBottom keeps the new tail visible.
+      }
+    },
+  )
+
   // Stable-keyed visible slice — keys are message IDs so Vue won't remount
   const visibleItems = computed(() =>
     chain.value
