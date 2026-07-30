@@ -1110,7 +1110,17 @@ async function stream(target, insert = false, onPendingBranch?: (info: { assista
   console.log('[BUGHUNT] stream() after transaction', { id, draftId })
   await onPendingBranch?.({ assistantId: id, branchIndex, draftId })
 
-  const update = throttle(() => db.messages.update(id, { contents }), 50)
+  const update = throttle(() => {
+    // Throttled — the returned promise is dropped by design, so we MUST
+    // swallow errors here. If the assistant message was deleted underneath
+    // us (navigation, abort, dialog cleanup), Dexie throws and without
+    // this catch it becomes `window.unhandledrejection` → App.vue replaces
+    // the whole UI with the fatal-error overlay. That's the
+    // "Agent 调用工具一瞬间界面崩溃" symptom on v2.0.8.12.
+    db.messages.update(id, { contents }).catch(e => {
+      console.warn('[DialogView] throttled db.messages.update failed', e)
+    })
+  }, 50)
   async function callTool(plugin: Plugin, api: PluginApi, args) {
     const content: MessageContent = {
       type: 'assistant-tool',
@@ -1391,18 +1401,11 @@ const {
 // Messages beyond this offset render as plain text to skip KaTeX overhead
 const lazyCutoff = computed(() => renderEnd.value - 30)
 
-// Reset render window when dialog changes
-watch(() => liveDialog.value?.id, () => {
+// Reset render window when the dialog itself changes (different prop.id).
+// useMessageWindow owns the tail-grow case (streaming appends) via its
+// own internal watch, so we don't double-handle it here.
+watch(() => props.id, () => {
   resetMessageWindow()
-})
-
-// Recalculate window when chain settles (catches initial data load race)
-watch(() => chain.value.length, (newLen, oldLen) => {
-  // Only fire when chain was at root (dialog not yet loaded) and now has real messages.
-  // Avoids resetting on individual message sends (newLen increases by 1).
-  if (oldLen <= 1 && newLen > oldLen + 5) {
-    resetMessageWindow()
-  }
 })
 
 

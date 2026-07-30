@@ -441,8 +441,18 @@ const emit = defineEmits<{
 
 watchEffect(async () => {
   const sessionId = props.message.generatingSession
-  if (sessionId) {
-    !await sessions.ping(sessionId) && db.messages.update(props.message.id, {
+  if (!sessionId) return
+  try {
+    const alive = await sessions.ping(sessionId)
+    if (alive) return
+    // Peer session is gone (closed tab, navigation, abort). Mark the
+    // message as failed and any tool call that was still in 'calling' as
+    // aborted. Wrap in try/catch — if the message was deleted underneath
+    // us, Dexie throws DataError and we must not let it bubble up to
+    // window.unhandledrejection (which would replace the whole UI with
+    // the App.vue fatal-error overlay). That's the
+    // "Agent 调用工具一瞬间界面崩溃" symptom on v2.0.8.12.
+    await db.messages.update(props.message.id, {
       generatingSession: null,
       status: 'failed',
       error: 'aborted',
@@ -457,6 +467,8 @@ watchEffect(async () => {
         return content
       }) as MessageContent[]
     })
+  } catch (e) {
+    console.warn('[MessageItem] session ping/update failed', e)
   }
 })
 

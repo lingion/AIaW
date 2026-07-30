@@ -144,6 +144,40 @@ export function useDialogInput(
   }
 
   async function takePhoto() {
+    // HarmonyOS native camera bridge (high priority — ArkWeb camera via CameraKit)
+    if (typeof window !== 'undefined' && (window as any).nativeBridge?.takePhoto) {
+      try {
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error('Camera timeout')), 30000)
+          const prevHandler = (window as any).onNativeResult
+          ;(window as any).onNativeResult = (result: any) => {
+            clearTimeout(timeout)
+            ;(window as any).onNativeResult = prevHandler
+            if (result?.type === 'photo' && result?.data) {
+              resolve(result.data)
+            } else if (result?.type === 'photo_error') {
+              reject(new Error(result.error || 'Camera error'))
+            } else {
+              reject(new Error('Unknown camera result'))
+            }
+          }
+          ;(window as any).nativeBridge.takePhoto()
+        })
+        const dataUrl = `data:image/jpeg;base64,${base64}`
+        const res = await fetch(dataUrl)
+        const blob = await res.blob()
+        const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' })
+        parseFiles([file])
+        return
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e)
+        if (message !== 'User cancelled' && !message.toLowerCase().includes('cancel') && message !== 'Camera timeout') {
+          toastError(`Camera error: ${message}`)
+        }
+        return
+      }
+    }
+
     if (Capacitor.isNativePlatform()) {
       try {
         const photo = await Camera.getPhoto({
