@@ -164,6 +164,7 @@ async function parse() {
     if (!value) return []
     const file = props.files[index]
     const fp = fileparsers.value.find(fp => fp.id === value)
+    if (!fp || !file) return []
     try {
       const result = await fp.execute({ file, range: ranges[index] }, fp.settings)
       return result.map(r => ({ ...r, name: file.name }))
@@ -178,7 +179,7 @@ async function parse() {
 }
 
 const ranges = reactive(props.files.map(() => null))
-const selected = reactive(props.files.map((val, index) => allOptions.value[index][0]))
+const selected = reactive(props.files.map((val, index) => allOptions.value[index]?.[0]).filter(Boolean))
 
 const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 </script>

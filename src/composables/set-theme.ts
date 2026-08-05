@@ -14,6 +14,7 @@ import { EdgeToEdge } from '@capawesome/capacitor-android-edge-to-edge-support'
 let cachedSafeAreaTop = 0
 let cachedSafeAreaBottom = 0
 
+
 export function getSafeAreaTop(): number { return cachedSafeAreaTop }
 export function getSafeAreaBottom(): number { return cachedSafeAreaBottom }
 
@@ -127,8 +128,11 @@ export function useSetTheme() {
         cachedSafeAreaTop = 24
         writeInsets()
       })
-      Keyboard.addListener('keyboardWillShow', (info) => {
-        cachedSafeAreaBottom = info.keyboardHeight
+      Keyboard.addListener('keyboardDidShow', (info) => {
+        // In the current Android edge-to-edge window the WebView is not
+        // resized, so bottom: 0 is physically underneath the IME. The
+        // Capacitor Android value is native pixels; convert it to CSS px.
+        cachedSafeAreaBottom = info.keyboardHeight / Math.max(window.devicePixelRatio || 1, 1)
         writeInsets()
       })
       Keyboard.addListener('keyboardWillHide', () => {

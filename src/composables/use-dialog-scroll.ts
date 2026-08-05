@@ -254,7 +254,8 @@ export function useDialogScroll(
     const id = chain.value[index]
     let to
     const curr = dialog.value.msgRoute[index]
-    const num = dialog.value.msgTree[id].length
+    const num = dialog.value.msgTree[id]?.length ?? 0
+    if (num <= 0) return
     if (target === 'first') to = 0
     else if (target === 'last') to = num - 1
     else if (target === 'prev') to = curr - 1
