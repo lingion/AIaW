@@ -44,8 +44,10 @@ export function useDialogArtifact(
     })
     if (options.reserveOriginal) return
     const to = `> ${t('dialogView.convertedToArtifact')}: <router-link to="?openArtifact=${id}">${name}</router-link>\n`
-    const index = message.contents.findIndex(c => ['assistant-message', 'user-message'].includes(c.type))
-    const content = message.contents[index] as UserMessageContent | AssistantMessageContent
+    const contents = message.contents || []
+    const index = contents.findIndex(c => ['assistant-message', 'user-message'].includes(c.type))
+    const content = contents[index] as UserMessageContent | AssistantMessageContent | undefined
+    if (!content) return
     await db.messages.update(message.id, {
       [`contents.${index}.text`]: content.text.replace(pattern, to) as any
     })
@@ -62,7 +64,9 @@ export function useDialogArtifact(
     const object: ExtractArtifactResult = JSON.parse(text)
     if (!object.found) return
     const reg = new RegExp(`(\`{3,}.*\\n)?(${object.regex})(\\s*\`{3,})?`)
-    const content = message.contents.find(c => c.type === 'assistant-message')
+    if (!message || !Array.isArray(message.contents)) return
+    const content = (message.contents || []).find(c => c.type === 'assistant-message') as AssistantMessageContent | undefined
+    if (!content || typeof content.text !== 'string') return
     const match = content.text.match(reg)
     if (!match) return
     await extractArtifact(message, match[2], reg, {

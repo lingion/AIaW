@@ -391,6 +391,7 @@ const props = defineProps<{
   message: Message,
   childNum: number,
   scrollContainer: HTMLElement,
+  lazyPlainText?: boolean,
   branchControl?: {
     current: number,
     max: number,
@@ -416,7 +417,7 @@ function moreInfo() {
 }
 const sourceCodeMode = ref(false)
 
-const contents = computed(() => props.message.contents.map(x => {
+const contents = computed(() => (props.message.contents || []).map(x => {
   if (x.type === 'assistant-message' || x.type === 'user-message') {
     return {
       ...x,
@@ -440,12 +441,22 @@ const emit = defineEmits<{
 
 watchEffect(async () => {
   const sessionId = props.message.generatingSession
-  if (sessionId) {
-    !await sessions.ping(sessionId) && db.messages.update(props.message.id, {
+  if (!sessionId) return
+  try {
+    const alive = await sessions.ping(sessionId)
+    if (alive) return
+    // Peer session is gone (closed tab, navigation, abort). Mark the
+    // message as failed and any tool call that was still in 'calling' as
+    // aborted. Wrap in try/catch — if the message was deleted underneath
+    // us, Dexie throws DataError and we must not let it bubble up to
+    // window.unhandledrejection (which would replace the whole UI with
+    // the App.vue fatal-error overlay). That's the
+    // "Agent 调用工具一瞬间界面崩溃" symptom on v2.0.8.12.
+    await db.messages.update(props.message.id, {
       generatingSession: null,
       status: 'failed',
       error: 'aborted',
-      contents: props.message.contents.map(content => {
+      contents: (props.message.contents || []).map(content => {
         if (content.type === 'assistant-tool' && content.status === 'calling') {
           return {
             ...content,
@@ -456,11 +467,16 @@ watchEffect(async () => {
         return content
       }) as MessageContent[]
     })
+  } catch (e) {
+    console.warn('[MessageItem] session ping/update failed', e)
   }
 })
 
-const textIndex = computed(() => props.message.contents.findIndex(c => ['user-message', 'assistant-message'].includes(c.type)))
-const textContent = computed(() => (props.message.contents[textIndex.value] as UserMessageContent | AssistantMessageContent))
+const textIndex = computed(() => (props.message.contents || []).findIndex(c => ['user-message', 'assistant-message'].includes(c.type)))
+const textContent = computed(() => {
+  const content = (props.message.contents || [])[textIndex.value]
+  return (content || { type: 'assistant-message', text: '' }) as UserMessageContent | AssistantMessageContent
+})
 
 const { perfs } = useUserPerfsStore()
 const assistantsStore = useAssistantsStore()
@@ -517,6 +533,10 @@ function isStreamingAssistantText(content: MessageContent) {
 
 function getStreamingRenderState(content: MessageContent) {
   if (isStreamingAssistantText(content)) return streamingRenderState.value
+  // Off-screen messages: skip expensive KaTeX/markdown rendering
+  if (props.lazyPlainText && (content.type === 'assistant-message' || content.type === 'user-message')) {
+    return { mode: 'plain-text' as const, text: content.text }
+  }
   if (content.type === 'assistant-message' || content.type === 'user-message') {
     return { mode: 'final' as const, text: content.text }
   }
@@ -602,7 +622,9 @@ function onSelect(mode: 'mouse' | 'touch') {
   }
   const range = selection.getRangeAt(0)
   const targetRects = range.getBoundingClientRect()
-  const baseRects = textDiv.value[0].getBoundingClientRect()
+  const textElement = textDiv.value?.[0] as HTMLElement | undefined
+  if (!textElement) return
+  const baseRects = textElement.getBoundingClientRect()
   floatBtnStyle.top = targetRects.top < 48 || mode === 'touch'
     ? targetRects.bottom - baseRects.top + 12 + 'px'
     : targetRects.top - baseRects.top - 48 + 'px'
@@ -776,7 +798,7 @@ function shouldPromoteInlineMath(inlineMath: HTMLElement) {
 }
 
 function injectDisplayMathScroll() {
-  const el: HTMLElement = textDiv.value[0]
+  const el = textDiv.value?.[0] as HTMLElement | undefined
   if (!el) return
 
   clearDisplayMathScroll(el)
@@ -802,25 +824,30 @@ function injectDisplayMathScroll() {
 }
 function injectConvertArtifact() {
   if (!isPlatformEnabled(perfs.artifactsEnabled)) return
-  const el: HTMLElement = textDiv.value[0]
+  const el = textDiv.value?.[0] as HTMLElement | undefined
+  if (!el) return
   el.querySelectorAll('.md-editor-code').forEach(code => {
     if (code.querySelector('.md-editor-convert-artifact')) return
     const anchor = code.querySelector('.md-editor-collapse-tips')
+    const action = code.querySelector('.md-editor-code-action')
+    const source = code.querySelector('pre code')
+    if (!anchor || !action || !source) return
     const btn = document.createElement('span')
     btn.innerHTML = 'convert_to_text'
     btn.classList.add('md-editor-convert-artifact')
     btn.addEventListener('click', (ev) => {
       ev.preventDefault()
       ev.stopPropagation()
-      const text = code.querySelector('pre code').textContent
-      const lang = code.querySelector('pre code').getAttribute('language')
+      const text = source.textContent || ''
+      const lang = source.getAttribute('language') || ''
       const pattern = new RegExp(`\`{3,}.*\\n${escapeRegex(text)}\\s*\`{3,}`, 'g')
       convertArtifact(text, pattern, lang)
     })
     btn.title = t('messageItem.convertToArtifactBtn')
-    code.querySelector('.md-editor-code-action').insertBefore(btn, anchor)
-    code.querySelector<HTMLElement>('.md-editor-copy-button').title = t('messageItem.copyCode')
-    code.querySelector<HTMLElement>('.md-editor-collapse-tips').title = t('messageItem.fold')
+    action.insertBefore(btn, anchor)
+    const copyButton = code.querySelector<HTMLElement>('.md-editor-copy-button')
+    if (copyButton) copyButton.title = t('messageItem.copyCode')
+    anchor.title = t('messageItem.fold')
   })
 }
 const mdPreviewProps = useMdPreviewProps()

@@ -37,7 +37,7 @@ db.on('blocked', () => {
 // Dexie 4 把 schema version 乘 10 写入 IDB version（schema v7 = IDB v70），
 // 所以"IDB v70"是正常状态，**不要**迁移或删除。
 // 保留这段仅作未来扩展用：只有当 IDB version > 70*10=700（schema v70+）才视为污染。
-const __migratePromise = (async () => {
+void (async () => {
   if (DexieDBURL || typeof indexedDB === 'undefined') return
   try {
     const dbs = await indexedDB.databases?.()
@@ -165,11 +165,13 @@ db.on.populate.subscribe(() => {
 
 // Migration
 db.assistants.hook('reading', assistant => {
+  if (!assistant || typeof assistant !== 'object') return assistant
+  assistant.modelSettings ||= {}
   assistant.promptRole ??= 'system'
   assistant.stream ??= true
   // Migration to v1.8
   const { modelSettings } = assistant
-  if ('maxTokens' in modelSettings) {
+  if (modelSettings && 'maxTokens' in modelSettings) {
     modelSettings.maxOutputTokens = modelSettings.maxTokens as number
     delete modelSettings.maxTokens
   }
@@ -187,7 +189,24 @@ db.workspaces.hook('reading', workspace => {
   return workspace
 })
 
+db.dialogs.hook('reading', dialog => {
+  if (!dialog || typeof dialog !== 'object') return dialog
+  if (!dialog.msgTree || typeof dialog.msgTree !== 'object' || Array.isArray(dialog.msgTree)) {
+    dialog.msgTree = { $root: [] }
+  } else {
+    for (const key of Object.keys(dialog.msgTree)) {
+      if (!Array.isArray(dialog.msgTree[key])) dialog.msgTree[key] = []
+    }
+    dialog.msgTree.$root ??= []
+  }
+  if (!Array.isArray(dialog.msgRoute)) dialog.msgRoute = []
+  return dialog
+})
+
 db.messages.hook('reading', message => {
+  if (!message || typeof message !== 'object') return message
+  if (!Array.isArray(message.contents)) message.contents = []
+  else message.contents = message.contents.filter(content => content && typeof content === 'object')
   const usage = message.usage as any
   if (usage && 'promptTokens' in usage) {
     message.usage = {
@@ -197,6 +216,41 @@ db.messages.hook('reading', message => {
     }
   }
   return message
+})
+
+// Persist normalization for records written by older builds.
+let repairStarted = false
+db.on('ready', () => {
+  if (repairStarted) return
+  repairStarted = true
+  void db.transaction('rw', db.dialogs, db.messages, async () => {
+    const dialogs = await db.dialogs.toArray()
+    for (const dialog of dialogs) {
+      const tree = dialog.msgTree && typeof dialog.msgTree === 'object' && !Array.isArray(dialog.msgTree)
+        ? dialog.msgTree
+        : { $root: [] }
+      let changed = !dialog.msgTree || Array.isArray(dialog.msgTree)
+      for (const key of Object.keys(tree)) {
+        if (!Array.isArray(tree[key])) {
+          tree[key] = []
+          changed = true
+        }
+      }
+      if (!Array.isArray(tree.$root)) {
+        tree.$root = []
+        changed = true
+      }
+      if (!Array.isArray(dialog.msgRoute)) {
+        dialog.msgRoute = []
+        changed = true
+      }
+      if (changed) await db.dialogs.put({ ...dialog, msgTree: tree })
+    }
+    const messages = await db.messages.toArray()
+    for (const message of messages) {
+      if (!Array.isArray(message.contents)) await db.messages.update(message.id, { contents: [] })
+    }
+  }).catch(error => console.error('[db] legacy record repair failed', error))
 })
 
 export { schema, db, defaultModelSettings }
