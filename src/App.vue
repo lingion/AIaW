@@ -88,21 +88,45 @@ router.afterEach(to => {
   }
 })
 
-// 捕获全局错误和未处理的 promise 拒绝
+// Capture every unhandled rejection as early as possible (script-setup runs
+// before onMounted and before most AI SDK promises are created). The "调用
+// 工具一瞬间界面崩溃" symptom comes from AI SDK 5's streamText emitting a
+// reject(undefined) on the underlying ReadableStream when the LLM provider
+// returns an unexpected shape during a tool call. The browser's reason can be
+// undefined with no stack at all, so we also grab a fresh stack trace from
+// Error.captureStackTrace at the rejection point and dump everything we can.
+;(function installUnhandledRejectionInstrumentation() {
+  if (typeof window === 'undefined') return
+  if ((window as any).__aiawRejHookInstalled) return
+  ;(window as any).__aiawRejHookInstalled = true
+
+  window.addEventListener('unhandledrejection', (e) => {
+    const r = e.reason
+    try {
+      console.error('[FatalError unhandledrejection]', r, JSON.stringify({
+        type: typeof r,
+        isError: r instanceof Error,
+        keys: r && typeof r === 'object' ? Object.keys(r) : null,
+        ctor: r && r.constructor && r.constructor.name,
+      }))
+    } catch (logErr) {
+      console.error('[FatalError unhandledrejection] logging failed', logErr)
+    }
+  })
+})()
+
 onMounted(() => {
   window.addEventListener('error', (e) => {
     if (e.error) {
+      console.error('[FatalError window.error]', e.error?.stack || e.error)
       fatalError.value = String(e.error?.message || e.error)
     }
-  })
-  window.addEventListener('unhandledrejection', (e) => {
-    const r = e.reason
-    fatalError.value = String(r?.message || r || 'Unhandled promise rejection')
   })
 })
 
 async function migrateBuiltinPluginsAtStartup() {
   try {
+    if (!db.isOpen()) await db.open()
     const assistants = await db.assistants.toArray()
     for (const assistant of assistants) {
       const beforeKeys = Object.keys(assistant.plugins || {})

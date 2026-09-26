@@ -38,7 +38,7 @@ export function useDialogInput(
       editingDraftState.value = null
       return false
     }
-    const content = draft.contents[0] as UserMessageContent
+    const content = draft.contents?.[0] as UserMessageContent | undefined
     if (content?.text || content?.items?.length) return false
     await deleteMessageBranch(state.parentId, state.draftId)
     editingDraftState.value = null
@@ -55,7 +55,7 @@ export function useDialogInput(
       inputText.value = ''
       return
     }
-    const content = draft.contents[0] as UserMessageContent
+    const content = draft.contents?.[0] as UserMessageContent | undefined
     if (content?.text || content?.items?.length) {
       await deleteMessageBranch(state.parentId, state.draftId)
     }
@@ -144,6 +144,40 @@ export function useDialogInput(
   }
 
   async function takePhoto() {
+    // HarmonyOS native camera bridge (high priority — ArkWeb camera via CameraKit)
+    if (typeof window !== 'undefined' && (window as any).nativeBridge?.takePhoto) {
+      try {
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const timeout = setTimeout(() => reject(new Error('Camera timeout')), 30000)
+          const prevHandler = (window as any).onNativeResult
+          ;(window as any).onNativeResult = (result: any) => {
+            clearTimeout(timeout)
+            ;(window as any).onNativeResult = prevHandler
+            if (result?.type === 'photo' && result?.data) {
+              resolve(result.data)
+            } else if (result?.type === 'photo_error') {
+              reject(new Error(result.error || 'Camera error'))
+            } else {
+              reject(new Error('Unknown camera result'))
+            }
+          }
+          ;(window as any).nativeBridge.takePhoto()
+        })
+        const dataUrl = `data:image/jpeg;base64,${base64}`
+        const res = await fetch(dataUrl)
+        const blob = await res.blob()
+        const file = new File([blob], `photo_${Date.now()}.jpg`, { type: 'image/jpeg' })
+        parseFiles([file])
+        return
+      } catch (e) {
+        const message = e instanceof Error ? e.message : String(e)
+        if (message !== 'User cancelled' && !message.toLowerCase().includes('cancel') && message !== 'Camera timeout') {
+          toastError(`Camera error: ${message}`)
+        }
+        return
+      }
+    }
+
     if (Capacitor.isNativePlatform()) {
       try {
         const photo = await Camera.getPhoto({
@@ -191,11 +225,11 @@ export function useDialogInput(
   onUnmounted(() => removeEventListener('paste', onPaste))
 
   async function removeItem({ id, references }: StoredItem) {
-    const items = [...inputMessageContent.value.items]
+    const items = [...(inputMessageContent.value?.items || [])]
     items.splice(items.indexOf(id), 1)
     await db.transaction('rw', db.messages, db.items, () => {
       db.messages.update(activeInputMessageId.value, {
-        contents: [{ ...inputMessageContent.value, items }]
+        contents: [{ ...(inputMessageContent.value || { type: 'user-message', text: '' }), items }]
       })
       references--
       references === 0 ? db.items.delete(id) : db.items.update(id, { references })
@@ -233,7 +267,7 @@ export function useDialogInput(
     if (displayLength(item.contentText) > 200) {
       addInputItems([item])
     } else {
-      const { text } = inputMessageContent.value
+      const text = inputMessageContent.value?.text || ''
       const content = wrapQuote(item.contentText) + '\n\n'
       updateInputText(text ? text + '\n' + content : content)
     }
@@ -244,7 +278,7 @@ export function useDialogInput(
     const ids = storedItems.map(i => i.id)
     await db.transaction('rw', db.messages, db.items, () => {
       db.messages.update(activeInputMessageId.value, {
-        contents: [{ ...inputMessageContent.value, items: [...inputMessageContent.value.items, ...ids] }]
+        contents: [{ ...(inputMessageContent.value || { type: 'user-message', text: '' }), items: [...(inputMessageContent.value?.items || []), ...ids] }]
       })
       saveItemsLocal(storedItems)
     })

@@ -102,28 +102,6 @@ interface Doc {
   content: string
 }
 
-const global = ref(false)
-const dialogs = ref<Dialog[]>(null)
-const docs = ref<Doc[]>(null)
-watchEffect(async () => {
-  dialogs.value = global.value
-    ? await db.dialogs.toArray()
-    : await db.dialogs.where('workspaceId').equals(props.workspaceId).toArray()
-  const messages = global.value
-    ? await db.messages.toArray()
-    : await db.messages.where('dialogId').anyOf(dialogs.value.map(d => d.id)).toArray()
-  docs.value = messages.map(m => ({
-    id: m.id,
-    dialogId: m.dialogId,
-    content: m.contents
-      .filter(c => c.type === 'assistant-message' || c.type === 'user-message')
-      .map(c => c.text)
-      .join('\n')
-  }))
-  search()
-})
-
-const q = ref('')
 interface Result {
   workspaceId: string
   dialogId: string
@@ -131,11 +109,48 @@ interface Result {
   route: number[]
   preview?: string
 }
-const results = ref<Result[]>(null)
+
+const global = ref(false)
+const dialogs = ref<Dialog[]>([])
+const docs = ref<Doc[]>([])
+const results = ref<Result[]>([])
+watchEffect(async () => {
+  try {
+    dialogs.value = global.value
+      ? await db.dialogs.toArray()
+      : await db.dialogs.where('workspaceId').equals(props.workspaceId).toArray()
+    const messages = global.value
+      ? await db.messages.toArray()
+      : dialogs.value.length
+        ? await db.messages.where('dialogId').anyOf(dialogs.value.map(d => d.id)).toArray()
+        : []
+    docs.value = (messages || []).map(m => ({
+      id: m.id,
+      dialogId: m.dialogId,
+      content: (Array.isArray(m.contents) ? m.contents : [])
+        .filter(c => c && (c.type === 'assistant-message' || c.type === 'user-message'))
+        .map(c => typeof c.text === 'string' ? c.text : '')
+        .join('\n')
+    }))
+    search()
+  } catch (error) {
+    // Search is a sidebar utility and must never take down the whole SPA when
+    // an older/malformed IndexedDB message is encountered.
+    console.error('[SearchDialog] failed to load dialogs', error)
+    dialogs.value = []
+    docs.value = []
+    results.value = []
+  }
+})
+
+const q = ref('')
 const listRef = ref<QList>()
 function search() {
-  if (!q.value) return
-  const hits = docs.value.filter(d => caselessIncludes(d.content, q.value)).slice(0, 100)
+  if (!q.value || !docs.value || !dialogs.value) {
+    results.value = []
+    return
+  }
+  const hits = docs.value.filter(d => d && caselessIncludes(d.content || '', q.value)).slice(0, 100)
   unmark()
   results.value = [
     ...hits.map(h => {
@@ -143,15 +158,15 @@ function search() {
       return dialog && {
         workspaceId: dialog.workspaceId,
         dialogId: dialog.id,
-        title: dialog.name,
-        preview: h.content.match(new RegExp(`^.*${escapeRegex(q.value)}.*$`, 'im'))[0],
-        route: getRoute(dialog.msgTree, h.id)
+        title: dialog.name || '',
+        preview: h.content.match(new RegExp(`^.*${escapeRegex(q.value)}.*$`, 'im'))?.[0] || h.content.slice(0, 240),
+        route: getRoute(dialog.msgTree, h.id) || []
       }
     }).filter(Boolean),
-    ...dialogs.value.filter(d => caselessIncludes(d.name, q.value)).map(d => ({
+    ...dialogs.value.filter(d => caselessIncludes(d.name || '', q.value)).map(d => ({
       workspaceId: d.workspaceId,
       dialogId: d.id,
-      title: d.name,
+      title: d.name || '',
       route: []
     }))
   ].reverse()
@@ -179,10 +194,13 @@ watch(open, val => {
   })
 })
 
-function getRoute(tree: Record<string, string[]>, target: string, curr = '$root') {
-  for (const [i, v] of tree[curr].entries()) {
+function getRoute(tree: Record<string, string[]> | undefined, target: string, curr = '$root', seen = new Set<string>()): number[] | undefined {
+  if (!tree || seen.has(curr)) return
+  seen.add(curr)
+  const children = Array.isArray(tree[curr]) ? tree[curr] : []
+  for (const [i, v] of children.entries()) {
     if (v === target) return [i]
-    const route = getRoute(tree, target, v)
+    const route = getRoute(tree, target, v, seen)
     if (route) return [i, ...route]
   }
 }

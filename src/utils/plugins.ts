@@ -437,7 +437,9 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
           return resourceToResultItem(i.resource)
         } else {
           const resource = await client.readResource({ uri: i.uri }, requestOptions(settings))
-          return resourceToResultItem(resource.contents[0])
+          const resourceContent = resource?.contents?.[0]
+          if (!resourceContent) return { type: 'text' as const, contentText: '' }
+          return resourceToResultItem(resourceContent)
         }
       }))
     }
@@ -453,7 +455,7 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
       async execute(args, settings) {
         const client = await getClient(id, applyDerivedProviderHeaders(settings, { type: transport.type, ...settings }))
         const res: ReadResourceResult = await client.readResource({ uri }, requestOptions(settings))
-        return res.contents.map(c => resourceToResultItem(c, name))
+        return res.contents?.map(c => resourceToResultItem(c, name)) || []
       }
     }
   })
@@ -492,7 +494,9 @@ function buildMcpPlugin(dump: McpPluginDump, available: boolean): Plugin {
             return resourceToResultItem(content.resource, content.resource.uri)
           } else {
             const resource = await client.readResource({ uri: content.uri }, requestOptions(settings))
-            return resourceToResultItem(resource.contents[0])
+            const resourceContent = resource?.contents?.[0]
+            if (!resourceContent) return { type: 'text', name, contentText: '' }
+            return resourceToResultItem(resourceContent, content.resource?.uri)
           }
         }))
       }
@@ -721,7 +725,9 @@ const videoTranscriptPlugin: Plugin = {
       if (!AudioEncoderSupported) throw new Error(t('plugins.videoTranscript.audioEncoderError'))
       const rg = range ? range.split('-').map(parseSeconds) : undefined
       const audioBlob = await extractAudioBlob(file, rg as [number, number])
-      return await whisperPlugin.fileparsers[0].execute({ file: audioBlob }, settings)
+      const parser = whisperPlugin.fileparsers?.[0]
+      if (!parser) return [{ type: 'text', contentText: '' }]
+      return await parser.execute({ file: audioBlob }, settings)
     },
     rangeInput: {
       label: t('plugins.videoTranscript.rangeInput.label'),

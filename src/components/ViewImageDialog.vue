@@ -132,6 +132,7 @@ const imageStyle = computed(() => ({
 }))
 
 function onTouchStart(e: TouchEvent) {
+  if (e.touches.length === 0) return
   if (e.touches.length === 2) {
     wasMultiTouch = true
     const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2
@@ -154,6 +155,7 @@ function onTouchStart(e: TouchEvent) {
 }
 
 function onTouchMove(e: TouchEvent) {
+  if (e.touches.length === 0) return
   if (e.touches.length === 2) {
     const dist = Math.hypot(
       e.touches[0].clientX - e.touches[1].clientX,

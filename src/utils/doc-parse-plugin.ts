@@ -106,7 +106,7 @@ async function parseDocx(file: Blob): Promise<ApiResultItem[]> {
 }
 
 function rowsToMarkdown(rows) {
-  if (!rows.length) return ''
+  if (!Array.isArray(rows) || !rows.length || !Array.isArray(rows[0])) return ''
   const head = rows[0].map(c => c == null ? '' : String(c))
   const body = rows.slice(1).map(r =>
     r.map(c => c == null ? '' : String(c))
@@ -136,7 +136,11 @@ async function parsePptx(file: Blob, { targetPages }): Promise<ApiResultItem[]> 
 
   const slideFileNames = Object.keys(files).filter(name =>
     /^ppt\/slides\/slide\d+\.xml$/.test(name)
-  ).sort((a, b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]))
+  ).sort((a, b) => {
+    const aNum = a.match(/\d+/)?.[0]
+    const bNum = b.match(/\d+/)?.[0]
+    return Number(aNum || 0) - Number(bNum || 0)
+  })
 
   const texts = slideFileNames.map(name => {
     const xmlStr = strFromU8(files[name])
